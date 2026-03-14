@@ -138,22 +138,26 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .catch(err => console.error("Failed to load VIP videos:", err));
 
-  // -------------------- Dynamic Folders from videos.json --------------------
+
+  // -------------------- Folders Section --------------------
   fetch('./videos.json')
     .then(res => res.json())
     .then(videos => {
-      if (!videos.length) return;
+      // Group videos by folder
+      const folders = {};
+      videos.forEach(v => {
+        if (!folders[v.folder]) folders[v.folder] = [];
+        folders[v.folder].push(v);
+      });
+
       const folderList = document.getElementById('folderList');
-
-      // get unique folders
-      const folders = [...new Set(videos.map(v => v.folder))];
-
-      folders.forEach(folderName => {
-        const folderVideos = videos.filter(v => v.folder === folderName);
+      Object.keys(folders).forEach(folderName => {
+        const folderVideos = folders[folderName];
         folderVideos.sort((a,b)=>new Date(b.date)-new Date(a.date));
         const latest = folderVideos[0];
 
         const li = document.createElement('li');
+
         const thumb = document.createElement('img');
         thumb.src = latest.thumbnail;
         thumb.alt = folderName;
@@ -170,28 +174,16 @@ document.addEventListener('DOMContentLoaded', () => {
         li.appendChild(link);
         folderList.appendChild(li);
 
-        // Show latest video in #latestVideo section for first folder
-        const latestDiv = document.getElementById('latestVideo');
-        if (folderName === folders[0]) {
-          latestDiv.innerHTML = `<h2>Latest Video</h2>`;
-          const latestThumb = document.createElement('img');
-          latestThumb.src = latest.thumbnail;
-          latestThumb.alt = latest.title;
-          latestThumb.style.cursor = 'pointer';
-          latestThumb.addEventListener('click', ()=> {
-            window.location.href = folderName.toLowerCase() + '.html';
-          });
-          latestDiv.appendChild(latestThumb);
-          const linkLatest = document.createElement('a');
-          linkLatest.href = folderName.toLowerCase() + '.html';
-          linkLatest.textContent = latest.title;
-          latestDiv.appendChild(linkLatest);
+        // Optional: Latest Video Section for a specific folder (e.g., Doggystyle)
+        if(folderName === "Doggystyle"){
+          const latestDiv = document.getElementById('latestVideo');
+          latestDiv.innerHTML = `<h2>Latest Video</h2><img src="${latest.thumbnail}" style="width:100%;border-radius:5px;margin:10px 0;"><a href="${latest.url}" style="color:#ff4444;font-weight:bold;">Watch ${latest.title}</a>`;
         }
       });
     })
-    .catch(err => console.error("Failed to load folder videos:", err));
-
+    .catch(err => console.error("Failed to load videos:", err));
 });
 </script>
+
 </body>
 </html>
