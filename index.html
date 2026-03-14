@@ -45,10 +45,9 @@ a.folder-link:hover {
   position: relative; 
   padding: 0 25px; 
 }
-.blogspot-style-link:hover { 
-  color: #ff4444;  
-  text-decoration: underline; 
-}
+.blogspot-style-link::before { content: "➤"; position: absolute; left: 5px; animation: bounceLeft 1s infinite alternate; }
+.blogspot-style-link::after { content: "◀"; position: absolute; right: 5px; animation: bounceRight 1s infinite alternate; }
+.blogspot-style-link:hover { color: #ff4444; text-decoration: underline; }
 
 #latestVideo a {
   color: #fff;          
@@ -192,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const latestLink = document.createElement('a');
           latestLink.className = "folder-link";
           latestLink.href = htmlPage;
-          latestLink.textContent = "Watch Now: New Video Available!!!";  // <-- changed text
+          latestLink.textContent = "Watch Now: New Video Available!!!";  
           latestDiv.appendChild(latestLink);
         }
       })
