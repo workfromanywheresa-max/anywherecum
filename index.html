@@ -23,21 +23,20 @@ ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(
 li { background: #222; padding: 10px; border-radius: 8px; text-align: center; transition: 0.3s; cursor: pointer; }
 li:hover { background: #333; }
 
-/* -------------------- ALL FOLDER & VIP LINKS WHITE -------------------- */
 a.folder-link { 
-  color: #fff;  /* white default */
+  color: #fff;  
   font-weight: bold; 
   text-decoration: none; 
   display: block; 
   margin-top: 5px; 
 }
 a.folder-link:hover { 
-  color: #ff4444;  /* red on hover */
+  color: #ff4444;  
   text-decoration: underline; 
 }
 
 .blogspot-style-link { 
-  color: #fff;  /* white default */
+  color: #fff;  
   font-weight: bold; 
   text-decoration: none; 
   font-size: 12px; 
@@ -47,18 +46,17 @@ a.folder-link:hover {
   padding: 0 25px; 
 }
 .blogspot-style-link:hover { 
-  color: #ff4444;  /* red on hover */
+  color: #ff4444;  
   text-decoration: underline; 
 }
 
-/* Latest Video link */
 #latestVideo a {
-  color: #fff;          /* white default */
+  color: #fff;          
   font-weight: bold;
   text-decoration: none;
 }
 #latestVideo a:hover {
-  color: #ff4444;       /* red on hover */
+  color: #ff4444;       
   text-decoration: underline;
 }
 
@@ -180,6 +178,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     })
     .catch(err => console.error("Failed to load doggystyle.json:", err));
+
+  // -------------------- Cowgirl Folder --------------------
+  fetch('./cowgirl.json')
+    .then(res => res.json())
+    .then(videos => {
+      if (!videos.length) return;
+
+      videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+      const latest = videos[0];
+
+      const folderList = document.getElementById('folderList');
+      const li = document.createElement('li');
+
+      const thumb = document.createElement('img');
+      thumb.src = latest.thumbnail;
+      thumb.alt = "Cowgirl";
+      thumb.addEventListener('click', ()=> {
+        window.location.href = 'cowgirl.html';
+      });
+
+      const link = document.createElement('a');
+      link.className = "folder-link";
+      link.href = 'cowgirl.html';
+      link.textContent = "Cowgirl";
+
+      li.appendChild(thumb);
+      li.appendChild(link);
+      folderList.appendChild(li);
+    })
+    .catch(err => console.error("Failed to load cowgirl.json:", err));
 
 });
 </script>
