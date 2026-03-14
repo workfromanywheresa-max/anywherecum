@@ -17,9 +17,9 @@ header img { max-width: 100%; height: auto; margin: 0; border-radius: 8px; }
 #visitSite a::after { content: "◀"; position: absolute; right: 5px; animation: bounceRight 1s infinite alternate; }
 #visitSite a:hover { color: #fff; text-decoration: underline; }
 
-h2 { color: #ff4444; border-bottom: 2px solid #ff4444; padding-bottom: 5px; margin-top:20px; text-align:center;}
+h2 { color: #ff4444; border-bottom: 2px solid #ff4444; padding-bottom: 5px; margin-top:20px; }
 ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; }
-li { background: #222; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer; transition: 0.3s; }
+li { background: #222; padding: 10px; border-radius: 8px; text-align: center; transition: 0.3s; cursor: pointer; }
 li:hover { background: #333; }
 a.folder-link { color: #ff4444; font-weight: bold; text-decoration: none; display: block; margin-top: 5px; }
 a.folder-link:hover { color: #fff; text-decoration: underline; }
@@ -47,7 +47,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 <header>
 <h1>AnywhereCum</h1>
 <p>Explore our exclusive content folders</p>
-<img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgcXzmfnaZCcHIY3SCvnmKvNKzqoqlZ2gex-9CNWkM41sD23nP_rzxLeC0uiuxosxFWwOkWoXlLT2pqKycM20NYrGGFhhziXts1tHiLJVyeJz1LTvU2M3kFSwaqvHiJV_p6hItlh48_Qtr09wTdz0cmfqgLOzyfM_dOfWG98-Douk-fAp0zZpWhWmXITx/s720/1000167088.jpg">
+<img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgcXzmfnaZCcHIY3SCvnmKvNKzqoqlZ2gex-9CNWkM41sD23nP_rzxLeC0uiuxosxFWwOkWoXlLT2pqKycM20NYrGGFhhziXts1tHiLJVyeJz1LTvU2M3kFSwaqvHiJV_p6hItlh48_Qtr09w7hTdz0cmfqgLOzyfM_dOfWG98-Douk-fAp0zZpWhWmXITx/s720/1000167088.jpg">
 </header>
 
 <div id="visitSite">
@@ -80,7 +80,7 @@ fetch('vip.json')
   .then(videos => {
     const container = document.getElementById('vipList');
     if (!videos.length) return;
-    videos.sort((a,b)=> new Date(b.date)-new Date(a.date));
+    videos.sort((a, b) => new Date(b.date) - new Date(a.date));
     const latestVIP = videos[0];
 
     const li = document.createElement('li');
@@ -95,7 +95,7 @@ fetch('vip.json')
     link.className = "folder-link";
     link.href = "#";
     link.textContent = latestVIP.title;
-    link.addEventListener('click', e=>{
+    link.addEventListener('click', e => {
       e.preventDefault();
       window.location.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id;
     });
@@ -109,21 +109,24 @@ fetch('vip.json')
 // -------------------- Folders & Latest Video --------------------
 fetch('videos.json')
   .then(res => res.json())
-  .then(data => {
+  .then(folders => {
     const folderList = document.getElementById('folderList');
     let allVideos = [];
 
-    Object.keys(data).forEach(folderName=>{
-      const videos = data[folderName];
-      if(videos && videos.length > 0){
-        videos.sort((a,b)=> new Date(b.date)-new Date(a.date));
-        videos.forEach(v=>v.folder=folderName);
+    // Loop through folder keys
+    Object.keys(folders).forEach(folderName => {
+      const videos = folders[folderName];
+      if (videos && videos.length > 0) {
+        videos.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // Add folder property for later reference
+        videos.forEach(v => v.folder = folderName);
         allVideos.push(...videos);
 
         const latestVideo = videos[0];
         const li = document.createElement('li');
 
-        li.addEventListener('click', ()=> {
+        li.addEventListener('click', () => {
           window.location.href = `folder.html?folder=${encodeURIComponent(folderName)}`;
         });
 
@@ -133,7 +136,7 @@ fetch('videos.json')
         li.appendChild(thumb);
 
         const link = document.createElement('a');
-        link.className = 'folder-link';
+        link.className = "folder-link";
         link.href = `folder.html?folder=${encodeURIComponent(folderName)}`;
         link.textContent = `${folderName} (${latestVideo.size})`;
         li.appendChild(link);
@@ -142,8 +145,9 @@ fetch('videos.json')
       }
     });
 
-    if(allVideos.length > 0){
-      allVideos.sort((a,b)=> new Date(b.date)-new Date(a.date));
+    // Overall latest video
+    if (allVideos.length > 0) {
+      allVideos.sort((a, b) => new Date(b.date) - new Date(a.date));
       const latest = allVideos[0];
       const latestDiv = document.getElementById('latestVideo');
       latestDiv.innerHTML = `<h2>Latest Video</h2>`;
