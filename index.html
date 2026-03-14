@@ -188,11 +188,11 @@ document.addEventListener('DOMContentLoaded', () => {
           });
           latestDiv.appendChild(latestThumb);
 
-          // Link below thumbnail
+          // Text under thumbnail
           const latestLink = document.createElement('a');
           latestLink.className = "folder-link";
           latestLink.href = htmlPage;
-          latestLink.textContent = `Latest: ${latest.title} (${latest.size})`;
+          latestLink.textContent = "Watch Now: New Video Available!!!";  // <-- changed text
           latestDiv.appendChild(latestLink);
         }
       })
