@@ -60,7 +60,6 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   <p>Check individual folders for videos</p>
 </div>
 
-<!-- -------------------- VIP Section -------------------- -->
 <section id="vipSection">
 <h2>VIP Vault</h2>
 <div id="vipCTA" style="text-align:center; margin-bottom:15px;">
@@ -74,9 +73,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 </section>
 
 <h2>Content Folders</h2>
-<ul id="folderList">
-  <!-- Folder items will be injected here -->
-</ul>
+<ul id="folderList"></ul>
 
 <footer>© 2026 AnywhereCum – Legal content only. 18+</footer>
 
@@ -115,27 +112,47 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .catch(err => console.error("Failed to load VIP videos:", err));
 
-  // -------------------- Content Folders --------------------
-  const folderList = document.getElementById('folderList');
+  // -------------------- Doggystyle Folder --------------------
+  fetch('./doggystyle.json')
+    .then(res => res.json())
+    .then(videos => {
+      if(!videos.length) return;
 
-  // Example: Doggystyle folder
-  const li = document.createElement('li');
-  const thumb = document.createElement('img');
-  thumb.src = "https://via.placeholder.com/320x180/222/ff4444?text=Doggystyle";
-  thumb.alt = "Doggystyle";
-  thumb.addEventListener('click', () => {
-    window.location.href = 'doggystyle.html';
-  });
+      // Sort descending by date
+      videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+      const latest = videos[0];
 
-  const link = document.createElement('a');
-  link.className = "folder-link";
-  link.href = "doggystyle.html";
-  link.textContent = "Doggystyle";
-  link.addEventListener('click', e => e.preventDefault());
+      const folderList = document.getElementById('folderList');
+      const li = document.createElement('li');
 
-  li.appendChild(thumb);
-  li.appendChild(link);
-  folderList.appendChild(li);
+      const thumb = document.createElement('img');
+      thumb.src = latest.thumbnail; // dynamic thumbnail from JSON
+      thumb.alt = "Doggystyle";
+      thumb.addEventListener('click', ()=> {
+        window.location.href = 'doggystyle.html';
+      });
+
+      const link = document.createElement('a');
+      link.className = "folder-link";
+      link.href = 'doggystyle.html';
+      link.textContent = "Doggystyle";
+      link.addEventListener('click', e => e.preventDefault());
+
+      li.appendChild(thumb);
+      li.appendChild(link);
+      folderList.appendChild(li);
+
+      // Update Latest Video section
+      const latestDiv = document.getElementById('latestVideo');
+      latestDiv.innerHTML = `<h2>Latest Video</h2>`;
+      const latestLink = document.createElement('a');
+      latestLink.className = "folder-link";
+      latestLink.href = 'doggystyle.html';
+      latestLink.textContent = `Watch Now: ${latest.title} (${latest.size})`;
+      latestDiv.appendChild(latestLink);
+
+    })
+    .catch(err => console.error("Failed to load doggystyle.json:", err));
 
 });
 </script>
