@@ -51,6 +51,11 @@
         height: 100%;
         object-fit: cover;
         border-radius: 5px;
+        transition: transform 0.3s ease;
+      }
+
+      .preview img:hover {
+        transform: scale(1.05);
       }
 
       .download {
@@ -94,14 +99,15 @@
             // Thumbnail preview
             const preview = document.createElement("div");
             preview.className = "preview";
+
             const img = document.createElement("img");
-            img.src = v.thumbnail;
+            img.src = v.thumbnail;   // thumbnail image
             img.alt = v.title;
             img.addEventListener("click", () => {
-              window.open(v.url, "_blank");
+              window.open(v.url, "_blank");  // clicking thumbnail opens watch link
             });
-            preview.appendChild(img);
 
+            preview.appendChild(img);
             box.appendChild(preview);
 
             // Watch & Download button
