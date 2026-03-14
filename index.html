@@ -18,23 +18,20 @@ header img { max-width: 100%; height: auto; margin: 0; border-radius: 8px; }
 #visitSite a:hover { color: #fff; text-decoration: underline; }
 
 h2 { color: #ff4444; border-bottom: 2px solid #ff4444; padding-bottom: 5px; }
-ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; margin: 20px; }
+ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; }
 li { background: #222; padding: 10px; border-radius: 8px; text-align: center; transition: 0.3s; }
 li:hover { background: #333; }
 
-li img { width: 100%; height: 180px; object-fit: cover; border-radius: 5px; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; }
-li img:hover { transform: scale(1.05); box-shadow: 0 8px 20px rgba(255,68,68,0.6); }
-
-.folder-link { color: #ff4444; font-weight: bold; text-decoration: none; display: block; margin-top: 5px; }
-.folder-link:hover { color: #fff; text-decoration: underline; }
+a.folder-link { color: #fff; text-decoration: none; font-weight: bold; display: block; margin-top: 10px; }
+a.folder-link:hover { text-decoration: underline; }
 
 #latestVideo { background: #222; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
 
 #vipList li img { width: 100%; height: 180px; border-radius: 5px; object-fit: cover; cursor: pointer; margin-bottom: 5px; }
 
-footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; background: #111; margin-top: 40px; }
-
 @media(max-width:600px){ ul { grid-template-columns: 1fr; } }
+
+footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; background: #111; margin-top: 40px; }
 
 /* Age Gate */
 #agePopup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:9999;}
@@ -46,16 +43,38 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 #enterBtn{background:#ff4444;color:#fff;}
 #leaveBtn{background:#333;color:#fff;}
 
-/* Flash & bounce animations */
+/* Flash and bounce animations for CTA */
 @keyframes flash { 0% { text-shadow: 0 0 5px #ff4444; } 50% { text-shadow: 0 0 20px #ff4444, 0 0 30px #ff8888; } 100% { text-shadow: 0 0 5px #ff4444; } }
 @keyframes bounceLeft { 0% { transform: translateX(0); } 50% { transform: translateX(5px); } 100% { transform: translateX(0); } }
 @keyframes bounceRight { 0% { transform: translateX(0); } 50% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
 
 /* VIP CTA */
-.blogspot-style-link { color: #ff4444; font-weight: bold; text-decoration: none; font-size: 12px; display: inline-block; animation: flash 1s infinite alternate; position: relative; padding: 0 25px; }
-.blogspot-style-link::before { content: "➤"; position: absolute; left: 5px; animation: bounceLeft 1s infinite alternate; }
-.blogspot-style-link::after { content: "◀"; position: absolute; right: 5px; animation: bounceRight 1s infinite alternate; }
-.blogspot-style-link:hover { color: #fff; text-decoration: underline; }
+.blogspot-style-link {
+  color: #ff4444;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 12px;        
+  display: inline-block;
+  animation: flash 1s infinite alternate;
+  position: relative;
+  padding: 0 25px;        
+}
+.blogspot-style-link::before {
+  content: "➤";
+  position: absolute;
+  left: 5px;
+  animation: bounceLeft 1s infinite alternate;
+}
+.blogspot-style-link::after {
+  content: "◀";
+  position: absolute;
+  right: 5px;
+  animation: bounceRight 1s infinite alternate;
+}
+.blogspot-style-link:hover {
+  color: #fff;
+  text-decoration: underline;
+}
 </style>
 </head>
 <body>
@@ -63,7 +82,8 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 <!-- Age Gate -->
 <div id="agePopup">
   <div id="ageBox">
-    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgcXzmfnaZCcHIY3SCvnmKvNKzqoqlZ2gex-9CNWkM41sD23nP_rzxLeC0uiuxosxFWwOkWoXlLT2pqKycM20NYrGGFhhziXts1tHiLJVyeJz1LTvU2M3kFSwaqvHiJV_p6hItlh48_Qtr09w7hTdz0cmfqgLOzyfM_dOfWG98-Douk-fAp0zZpWhWmXITx/s720/1000167088.jpg" alt="Adult Content Warning">
+    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgcXzmfnaZCcHIY3SCvnmKvNKzqoqlZ2gex-9CNWkM41sD23nP_rzxLeC0uiuxosxFWwOkWoXlLT2pqKycM20NYrGGFhhziXts1tHiLJVyeJz1LTvU2M3kFSwaqvHiJV_p6hItlh48_Qtr09w7hTdz0cmfqgLOzyfM_dOfWG98-Douk-fAp0zZpWhWmXITx/s720/1000167088.jpg" 
+         alt="Adult Content Warning">
     <h2>Adults Only (18+)</h2>
     <p>This website contains adult content. You must be 18 years or older to enter.</p>
     <button class="ageBtn" id="enterBtn">ENTER</button>
@@ -101,7 +121,9 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 <footer>© 2026 AnywhereCum – Legal content only. 18+</footer>
 
 <script>
+// --------------------
 // Age verification
+// --------------------
 const popup = document.getElementById("agePopup");
 const enter = document.getElementById("enterBtn");
 const leave = document.getElementById("leaveBtn");
@@ -109,7 +131,9 @@ if(localStorage.getItem("ageVerified")) popup.style.display="none";
 enter.onclick = ()=>{ localStorage.setItem("ageVerified", true); popup.style.display="none"; };
 leave.onclick = ()=>{ window.location.href="https://google.com"; };
 
-// Load videos.json for folders
+// --------------------
+// Load videos.json
+// --------------------
 fetch('videos.json')
 .then(res => res.json())
 .then(foldersData => {
@@ -121,61 +145,71 @@ fetch('videos.json')
     const videos = folderObj.videos;
     if(videos.length === 0) return;
 
-    videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    videos.sort((a,b)=> new Date(b.date)-new Date(a.date));
     const latest = videos[0];
-    allVideos.push({...latest, folder: folderName});
+    latest.folder = folderName;
+    allVideos.push(latest);
 
     const li = document.createElement('li');
 
     const thumb = document.createElement('img');
     thumb.src = latest.thumbnail;
     thumb.alt = folderName;
-    thumb.addEventListener('click', ()=> window.location.href = `folder.html?name=${folderName}#${latest.id}`);
+    thumb.addEventListener('click', () => {
+      window.location.href = `folder.html#${latest.id}&folder=${folderName}`;
+    });
 
     const link = document.createElement('a');
-    link.href = `folder.html?name=${folderName}#${latest.id}`;
+    link.href = `folder.html#${latest.id}&folder=${folderName}`;
     link.textContent = folderName;
-    link.className = 'folder-link';
+    link.className = "folder-link";
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      window.location.href = `folder.html#${latest.id}&folder=${folderName}`;
+    });
 
     li.appendChild(thumb);
     li.appendChild(link);
     folderList.appendChild(li);
   });
 
-  // Show latest overall video
+  // Latest overall
   if(allVideos.length > 0){
-    allVideos.sort((a,b)=>new Date(b.date)-new Date(a.date));
-    const latestOverall = allVideos[0];
+    const latestOverall = allVideos.sort((a,b)=> new Date(b.date)-new Date(a.date))[0];
     const latestDiv = document.getElementById('latestVideo');
     latestDiv.innerHTML = `<h2>Latest Video</h2>`;
     const link = document.createElement('a');
-    link.href = `folder.html?name=${latestOverall.folder}#${latestOverall.id}`;
+    link.href = `folder.html#${latestOverall.id}&folder=${latestOverall.folder}`;
     link.textContent = `Watch Now: ${latestOverall.title}`;
-    link.className = 'folder-link';
+    link.className = "folder-link";
     latestDiv.appendChild(link);
   }
 })
-.catch(err=>console.error("Failed to load videos.json", err));
+.catch(err => console.error("Failed to load videos.json", err));
 
-// VIP Vault
+// --------------------
+// VIP Vault remains unchanged
+// --------------------
 fetch('vip.json')
 .then(res => res.json())
 .then(videos => {
   const container = document.getElementById('vipList');
-  if(videos.length===0) return;
+  if(videos.length === 0) return;
   videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
   const latestVIP = videos[0];
-
   const li = document.createElement('li');
+
   const thumb = document.createElement('img');
   thumb.src = latestVIP.thumbnail;
   thumb.alt = latestVIP.title;
-  thumb.addEventListener('click', ()=> window.location.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id);
+  thumb.addEventListener('click', () => {
+    window.location.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id;
+  });
 
   const link = document.createElement('a');
+  link.className = "folder-link";
   link.href = "#";
   link.textContent = latestVIP.title;
-  link.className = "folder-link";
   link.addEventListener('click', e=>{
     e.preventDefault();
     window.location.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id;
@@ -185,7 +219,7 @@ fetch('vip.json')
   li.appendChild(link);
   container.appendChild(li);
 })
-.catch(err=>console.error("Failed to load VIP videos:", err));
+.catch(err => console.error("Failed to load VIP videos:", err));
 </script>
 
 </body>
