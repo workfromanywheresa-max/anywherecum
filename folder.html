@@ -1,94 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AnywhereCum - Folder</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Content Folder</title>
 <style>
-body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; margin: 0; }
-header { text-align: center; padding: 5px 10px; background: #111; }
-header h1 { color: #ff4444; margin: 2px 0; font-size: 20px; }
-header p { margin: 0 0 2px 0; font-size: 12px; }
+  body {
+    font-family: Arial, sans-serif;
+    background: #1a1a1a;
+    color: #fff;
+    margin: 0;
+    padding: 15px;
+  }
 
-ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; margin: 20px; }
-li { background: #222; padding: 10px; border-radius: 8px; text-align: center; transition: 0.3s; }
-li:hover { background: #333; }
+  h2 {
+    color: #ff4444;
+    border-bottom: 2px solid #ff4444;
+    padding-bottom: 5px;
+    text-align: center;
+    margin-top: 20px;
+  }
 
-li img { width: 100%; height: 180px; object-fit: cover; border-radius: 5px; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; }
-li img:hover { transform: scale(1.05); box-shadow: 0 8px 20px rgba(255, 68, 68, 0.6); }
+  .folderDescription {
+    text-align: center;
+    color: #fff;
+    margin-bottom: 20px;
+  }
 
-.folder-video-link { color: #ff4444; font-weight: bold; text-decoration: none; display: block; margin-top: 5px; }
-.folder-video-link:hover { color: #fff; text-decoration: underline; }
+  .videoBox {
+    background: #222;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
 
-footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; background: #111; margin-top: 40px; }
+  .preview {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    background: #000;
+    border-radius: 5px;
+    overflow: hidden;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-@media(max-width:600px){ ul { grid-template-columns: 1fr; } }
+  .preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+    transition: transform 0.3s ease;
+  }
+
+  .preview img:hover {
+    transform: scale(1.05);
+  }
+
+  .download {
+    display: block;
+    width: fit-content;
+    margin: 10px auto 0 auto;
+    padding: 8px 15px;
+    color: #fff;
+    background: #ff4444;
+    font-weight: bold;
+    text-decoration: none;
+    border-radius: 5px;
+    text-align: center;
+  }
+
+  .download:hover {
+    background: #ff2222;
+  }
+
+  .folderTitle {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #ff4444;
+  }
+
 </style>
 </head>
 <body>
 
-<header>
-<h1>AnywhereCum</h1>
-<p id="folderTitle">Folder</p>
-</header>
-
-<section>
-<h2 id="folderHeader">Videos</h2>
-<ul id="folderVideos"></ul>
-</section>
-
-<footer>© 2026 AnywhereCum – Legal content only. 18+</footer>
+<h2 id="folderName">Folder</h2>
+<p class="folderDescription" id="folderDesc">Loading videos...</p>
+<div id="videoList"></div>
 
 <script>
-// Get videoId and folder from URL hash
-const hash = window.location.hash.slice(1);
-const [videoIdPart, folderPart] = hash.split('&');
-const videoId = videoIdPart;
-const folderName = folderPart ? folderPart.replace('folder=','') : 'unknown';
+  // Get folder name from URL hash
+  const urlParams = new URLSearchParams(window.location.hash.slice(1));
+  const folderParam = urlParams.get('folder') || '';
 
-document.getElementById('folderTitle').textContent = folderName;
-document.getElementById('folderHeader').textContent = `${folderName} Videos`;
+  fetch('videos.json')
+    .then(res => res.json())
+    .then(folders => {
+      const folderData = folders.find(f => f.folder === folderParam);
+      const container = document.getElementById('videoList');
+      const folderNameEl = document.getElementById('folderName');
+      const folderDescEl = document.getElementById('folderDesc');
 
-// Load videos.json
-fetch('videos.json')
-.then(res => res.json())
-.then(foldersData => {
-  const folder = foldersData.find(f => f.folder === folderName);
-  if(!folder || folder.videos.length === 0){
-    document.getElementById('folderVideos').innerHTML = '<li>No videos found in this folder.</li>';
-    return;
-  }
+      if(!folderData || !folderData.videos || folderData.videos.length === 0){
+        folderNameEl.textContent = 'Folder not found';
+        folderDescEl.textContent = '';
+        container.innerHTML = '<p style="text-align:center;color:#ff4444;">No videos available in this folder.</p>';
+        return;
+      }
 
-  const videoList = document.getElementById('folderVideos');
-  folder.videos.sort((a,b)=> new Date(b.date)-new Date(a.date));
+      folderNameEl.textContent = folderData.folder;
+      folderDescEl.textContent = folderData.description || 'Enjoy the videos in this folder.';
 
-  folder.videos.forEach(video=>{
-    const li = document.createElement('li');
+      // Sort videos by date descending
+      folderData.videos.sort((a,b) => new Date(b.date) - new Date(a.date));
 
-    const thumb = document.createElement('img');
-    thumb.src = video.thumbnail;
-    thumb.alt = video.title;
-    thumb.addEventListener('click', ()=>{
-      window.location.href = `#${video.id}&folder=${folderName}`;
+      folderData.videos.forEach(video => {
+        const box = document.createElement('div');
+        box.className = 'videoBox';
+
+        const preview = document.createElement('div');
+        preview.className = 'preview';
+        const img = document.createElement('img');
+        img.src = video.thumbnail;
+        img.alt = video.title;
+        img.addEventListener('click', () => {
+          window.location.href = `${folderData.folder}.html#${video.id}&folder=${encodeURIComponent(folderData.folder)}`;
+        });
+        preview.appendChild(img);
+        box.appendChild(preview);
+
+        const button = document.createElement('a');
+        button.className = 'download';
+        button.href = video.url;
+        button.target = '_blank';
+        button.textContent = `Download (${video.size})`;
+        box.appendChild(button);
+
+        container.appendChild(box);
+      });
+    })
+    .catch(err => {
+      console.error('Failed to load videos.json', err);
+      document.getElementById('videoList').innerHTML = '<p style="text-align:center;color:#ff4444;">Failed to load videos.</p>';
     });
-
-    const link = document.createElement('a');
-    link.textContent = video.title;
-    link.href = `#${video.id}&folder=${folderName}`;
-    link.className = "folder-video-link";
-
-    li.appendChild(thumb);
-    li.appendChild(link);
-    videoList.appendChild(li);
-  });
-
-  // Scroll to hash video
-  if(videoId){
-    const targetLink = Array.from(videoList.querySelectorAll('a')).find(a=>a.getAttribute('href').includes(videoId));
-    if(targetLink) targetLink.scrollIntoView({behavior:'smooth', block:'center'});
-  }
-})
-.catch(err=>console.error('Failed to load videos.json', err));
 </script>
 
 </body>
