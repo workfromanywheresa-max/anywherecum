@@ -235,7 +235,7 @@ fetch('folders.json')
 .catch(err => console.error("Failed to load folders.json", err));
 
 // --------------------
-// VIP Vault
+// VIP Vault (thumbnail preview)
 // --------------------
 fetch('vip.json')
 .then(res => res.json())
@@ -245,12 +245,16 @@ fetch('vip.json')
   videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
   const latestVIP = videos[0];
   const li = document.createElement('li');
-  li.innerHTML = `<video src="${latestVIP.url}" muted loop playsinline></video>
-                  <a class="folder-link" href="vip.html#${latestVIP.id}">${latestVIP.title}</a>`;
-  const videoElem = li.querySelector('video');
-  const linkElem = li.querySelector('.folder-link');
-  videoElem.addEventListener('click', ()=> window.location.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id);
-  linkElem.addEventListener('click', e=>{ e.preventDefault(); window.location.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id; });
+  li.innerHTML = `
+    <div style="background:#000; border-radius:5px; overflow:hidden; cursor:pointer;">
+      <img src="${latestVIP.thumbnail}" alt="${latestVIP.title}" style="width:100%; height:180px; object-fit:cover; border-radius:5px;">
+    </div>
+    <a class="folder-link" href="https://fc-lc.xyz/ZUkGrHaX?video=${latestVIP.id}" target="_blank">${latestVIP.title}</a>
+  `;
+  const imgElem = li.querySelector('img');
+  imgElem.addEventListener('click', ()=> {
+    window.open("https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id, "_blank");
+  });
   container.appendChild(li);
 })
 .catch(err => console.error("Failed to load VIP videos:", err));
