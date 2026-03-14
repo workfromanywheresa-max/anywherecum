@@ -155,7 +155,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const latest = folderVideos[0];
 
         const li = document.createElement('li');
-
         const thumb = document.createElement('img');
         thumb.src = latest.thumbnail;
         thumb.alt = folderName;
@@ -173,14 +172,18 @@ document.addEventListener('DOMContentLoaded', () => {
         folderList.appendChild(li);
       });
 
-      // Latest video overall
+      // Latest video overall → links to folder, not video
       const latestVideo = videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
       const latestDiv = document.getElementById('latestVideo');
+      const folderName = latestVideo.folder;
       latestDiv.innerHTML = `
         <h2>Latest Video</h2>
-        <img src="${latestVideo.thumbnail}" style="width:100%;border-radius:5px;margin:10px 0;">
-        <a href="${latestVideo.url}" style="color:#ff4444;font-weight:bold;">Watch ${latestVideo.title}</a>
+        <img src="${latestVideo.thumbnail}" style="width:100%;border-radius:5px;margin:10px 0;cursor:pointer;">
+        <a href="folder.html?folder=${encodeURIComponent(folderName)}" style="color:#ff4444;font-weight:bold;">Open ${folderName} Folder</a>
       `;
+      latestDiv.querySelector('img').addEventListener('click', () => {
+        window.location.href = `folder.html?folder=${encodeURIComponent(folderName)}`;
+      });
     })
     .catch(err => console.error("Failed to load videos:", err));
 });
