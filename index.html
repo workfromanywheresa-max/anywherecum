@@ -168,10 +168,27 @@ document.addEventListener('DOMContentLoaded', () => {
         li.appendChild(link);
         folderList.appendChild(li);
 
-        // Latest Video section only for Doggystyle (keep as before)
+        // Latest Video section only for Doggystyle
         if (folderName === "Doggystyle") {
           const latestDiv = document.getElementById('latestVideo');
-          latestDiv.innerHTML = `<h2>Latest Video</h2>`;
+          latestDiv.innerHTML = `<h2>Latest Video</h2>`; // keep title
+
+          // Thumbnail image
+          const latestThumb = document.createElement('img');
+          latestThumb.src = latest.thumbnail;
+          latestThumb.alt = latest.title;
+          latestThumb.style.width = "100%";
+          latestThumb.style.height = "auto";
+          latestThumb.style.borderRadius = "8px";
+          latestThumb.style.marginBottom = "5px";
+
+          // Clicking thumbnail goes to the folder page
+          latestThumb.addEventListener('click', () => {
+            window.location.href = htmlPage;
+          });
+          latestDiv.appendChild(latestThumb);
+
+          // Link below thumbnail
           const latestLink = document.createElement('a');
           latestLink.className = "folder-link";
           latestLink.href = htmlPage;
