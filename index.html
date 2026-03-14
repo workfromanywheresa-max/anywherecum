@@ -138,12 +138,10 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .catch(err => console.error("Failed to load VIP videos:", err));
 
-
   // -------------------- Folders Section --------------------
   fetch('./videos.json')
     .then(res => res.json())
     .then(videos => {
-      // Group videos by folder
       const folders = {};
       videos.forEach(v => {
         if (!folders[v.folder]) folders[v.folder] = [];
@@ -151,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       const folderList = document.getElementById('folderList');
-      Object.keys(folders).forEach(folderName => {
+      Object.keys(folders).sort().forEach(folderName => {
         const folderVideos = folders[folderName];
         folderVideos.sort((a,b)=>new Date(b.date)-new Date(a.date));
         const latest = folderVideos[0];
@@ -162,24 +160,27 @@ document.addEventListener('DOMContentLoaded', () => {
         thumb.src = latest.thumbnail;
         thumb.alt = folderName;
         thumb.addEventListener('click', ()=> {
-          window.location.href = folderName.toLowerCase() + '.html';
+          window.location.href = `folder.html?folder=${encodeURIComponent(folderName)}`;
         });
 
         const link = document.createElement('a');
         link.className = "folder-link";
-        link.href = folderName.toLowerCase() + '.html';
+        link.href = `folder.html?folder=${encodeURIComponent(folderName)}`;
         link.textContent = folderName;
 
         li.appendChild(thumb);
         li.appendChild(link);
         folderList.appendChild(li);
-
-        // Optional: Latest Video Section for a specific folder (e.g., Doggystyle)
-        if(folderName === "Doggystyle"){
-          const latestDiv = document.getElementById('latestVideo');
-          latestDiv.innerHTML = `<h2>Latest Video</h2><img src="${latest.thumbnail}" style="width:100%;border-radius:5px;margin:10px 0;"><a href="${latest.url}" style="color:#ff4444;font-weight:bold;">Watch ${latest.title}</a>`;
-        }
       });
+
+      // Latest video overall
+      const latestVideo = videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+      const latestDiv = document.getElementById('latestVideo');
+      latestDiv.innerHTML = `
+        <h2>Latest Video</h2>
+        <img src="${latestVideo.thumbnail}" style="width:100%;border-radius:5px;margin:10px 0;">
+        <a href="${latestVideo.url}" style="color:#ff4444;font-weight:bold;">Watch ${latestVideo.title}</a>
+      `;
     })
     .catch(err => console.error("Failed to load videos:", err));
 });
