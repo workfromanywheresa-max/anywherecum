@@ -92,7 +92,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 </div>
 
 <div id="latestVideo">
-  <h2>Latest Video</h2>
+  <!-- Latest Video content will be injected here -->
 </div>
 
 <!-- -------------------- VIP Section -------------------- -->
@@ -183,6 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const latestVideo = videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
       const latestDiv = document.getElementById('latestVideo');
       latestDiv.innerHTML = `
+        <h2>Latest Video</h2>
         <ul class="folder-grid">
           <li>
             <img src="${latestVideo.thumbnail}" 
