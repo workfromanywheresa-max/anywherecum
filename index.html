@@ -60,6 +60,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   <p>Check individual folders for videos</p>
 </div>
 
+<!-- -------------------- VIP Section -------------------- -->
 <section id="vipSection">
 <h2>VIP Vault</h2>
 <div id="vipCTA" style="text-align:center; margin-bottom:15px;">
@@ -116,9 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
   fetch('./doggystyle.json')
     .then(res => res.json())
     .then(videos => {
-      if(!videos.length) return;
+      if (!videos.length) return;
 
-      // Sort descending by date
+      // Sort by date descending
       videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
       const latest = videos[0];
 
@@ -126,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const li = document.createElement('li');
 
       const thumb = document.createElement('img');
-      thumb.src = latest.thumbnail; // dynamic thumbnail from JSON
+      thumb.src = latest.thumbnail; // <-- dynamic thumbnail from JSON
       thumb.alt = "Doggystyle";
       thumb.addEventListener('click', ()=> {
         window.location.href = 'doggystyle.html';
@@ -145,10 +146,9 @@ document.addEventListener('DOMContentLoaded', () => {
       // Update Latest Video section
       const latestDiv = document.getElementById('latestVideo');
       latestDiv.innerHTML = `<h2>Latest Video</h2>`;
-      const latestLink = document.createElement('a');
+      const latestLink = document.createElement('span');
       latestLink.className = "folder-link";
-      latestLink.href = 'doggystyle.html';
-      latestLink.textContent = `Watch Now: ${latest.title} (${latest.size})`;
+      latestLink.textContent = `Latest: ${latest.title} (${latest.size})`;
       latestDiv.appendChild(latestLink);
 
     })
