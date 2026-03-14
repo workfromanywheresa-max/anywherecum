@@ -10,20 +10,19 @@ header { text-align: center; padding: 5px 10px; background: #111; }
 header h1 { color: #ff4444; margin: 2px 0; font-size: 20px; }
 header p { margin: 0 0 2px 0; font-size: 12px; }
 header img { max-width: 100%; height: auto; margin: 0; border-radius: 8px; }
+
 #visitSite { font-size: 12px; text-align: center; margin-bottom: 10px; }
 #visitSite a { color: #ff4444; text-decoration: none; font-weight: bold; animation: flash 1s infinite alternate; position: relative; padding: 0 25px; display: inline-block; font-size: 12px; }
 #visitSite a::before { content: "➤"; position: absolute; left: 5px; animation: bounceLeft 1s infinite alternate; }
 #visitSite a::after { content: "◀"; position: absolute; right: 5px; animation: bounceRight 1s infinite alternate; }
 #visitSite a:hover { color: #fff; text-decoration: underline; }
+
 h2 { color: #ff4444; border-bottom: 2px solid #ff4444; padding-bottom: 5px; }
+
 ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; }
 li { background: #222; padding: 10px; border-radius: 8px; text-align: center; transition: 0.3s; }
 li:hover { background: #333; }
-a.folder-link { color: #fff; text-decoration: none; font-weight: bold; display: block; margin-top: 10px; }
-a.folder-link:hover { text-decoration: underline; }
-#latestVideo { background: #222; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
-#vipList li img { width: 100%; height: 180px; border-radius: 5px; object-fit: cover; cursor: pointer; margin-bottom: 5px; }
-@media(max-width:600px){ ul { grid-template-columns: 1fr; } }
+
 footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; background: #111; margin-top: 40px; }
 
 /* Age Gate */
@@ -41,16 +40,30 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 @keyframes bounceLeft { 0% { transform: translateX(0); } 50% { transform: translateX(5px); } 100% { transform: translateX(0); } }
 @keyframes bounceRight { 0% { transform: translateX(0); } 50% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
 
-/* VIP CTA - fully match blogspot link */
+/* VIP / Folder Thumbnails Style */
+#vipList li img, #folderList li img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+#vipList li img:hover, #folderList li img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(255, 68, 68, 0.6);
+}
+
 .blogspot-style-link {
   color: #ff4444;
   font-weight: bold;
   text-decoration: none;
-  font-size: 12px;        
+  font-size: 12px;
   display: inline-block;
   animation: flash 1s infinite alternate;
   position: relative;
-  padding: 0 25px;        
+  padding: 0 25px;
+  margin-top: 5px;
 }
 .blogspot-style-link::before {
   content: "➤";
@@ -68,6 +81,8 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   color: #fff;
   text-decoration: underline;
 }
+
+@media(max-width:600px){ ul { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -125,81 +140,96 @@ enter.onclick = ()=>{ localStorage.setItem("ageVerified", true); popup.style.dis
 leave.onclick = ()=>{ window.location.href="https://google.com"; };
 
 // --------------------
-// Load folders.json
+// Load videos.json and display latest thumbnail per folder
 // --------------------
-fetch('folders.json')
-.then(res => res.json())
-.then(folders => {
-  const folderList = document.getElementById('folderList');
-  let allVideos = [];
+fetch('videos.json')
+  .then(res => res.json())
+  .then(foldersData => {
+    const folderList = document.getElementById('folderList');
+    let allVideos = [];
 
-  const promises = folders.map(folder => fetch(folder+'.json')
-    .then(res => res.json())
-    .then(videos => {
-      videos.forEach(v => v.folder = folder);
-      allVideos.push(...videos);
+    foldersData.forEach(folderObj => {
+      const folderName = folderObj.folder;
+      const videos = folderObj.videos;
+      if(videos.length === 0) return;
 
-      if(videos.length > 0){
-        videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
-        const latest = videos[0];
-        const li = document.createElement('li');
-        const link = document.createElement('a');
-        link.className = "folder-link";
-        link.href = `${folder}.html#${latest.id}`;
-        link.textContent = latest.title;
-        li.appendChild(link);
-        folderList.appendChild(li);
-      }
-    })
-  );
+      // Sort descending by date
+      videos.sort((a,b) => new Date(b.date) - new Date(a.date));
+      const latest = videos[0];
+      allVideos.push(latest);
 
-  Promise.all(promises).then(()=>{
-    if(allVideos.length === 0) return;
-    const latest = allVideos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
-    const latestDiv = document.getElementById('latestVideo');
-    latestDiv.innerHTML = `<h2>Latest Video</h2>`;
-    const link = document.createElement('a');
-    link.href = `${latest.folder}.html#${latest.id}`;
-    link.textContent = `Watch Now: New Video Available!!!`;
-    link.className = "folder-link";
-    latestDiv.appendChild(link);
-  });
-})
-.catch(err => console.error("Failed to load folders.json", err));
+      const li = document.createElement('li');
+
+      // Thumbnail
+      const thumb = document.createElement('img');
+      thumb.src = latest.thumbnail;
+      thumb.alt = folderName;
+      thumb.addEventListener('click', () => {
+        window.location.href = `${folderName}.html#${latest.id}`;
+      });
+
+      // Folder name
+      const link = document.createElement('a');
+      link.href = `${folderName}.html#${latest.id}`;
+      link.textContent = folderName;
+      link.className = "blogspot-style-link";
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        window.location.href = `${folderName}.html#${latest.id}`;
+      });
+
+      li.appendChild(thumb);
+      li.appendChild(link);
+      folderList.appendChild(li);
+    });
+
+    // Show overall latest video at top
+    if(allVideos.length > 0){
+      const latestOverall = allVideos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+      const latestDiv = document.getElementById('latestVideo');
+      latestDiv.innerHTML = `<h2>Latest Video</h2>`;
+      const link = document.createElement('a');
+      link.href = `${latestOverall.folder}.html#${latestOverall.id}`;
+      link.textContent = `Watch Now: ${latestOverall.title}`;
+      link.className = "folder-link";
+      latestDiv.appendChild(link);
+    }
+  })
+  .catch(err => console.error("Failed to load videos.json", err));
 
 // --------------------
-// VIP Vault using thumbnail only
+// VIP Vault remains unchanged
 // --------------------
 fetch('vip.json')
-.then(res => res.json())
-.then(videos => {
-  const container = document.getElementById('vipList');
-  if(videos.length === 0) return;
-  videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
-  const latestVIP = videos[0];
-  const li = document.createElement('li');
+  .then(res => res.json())
+  .then(videos => {
+    const container = document.getElementById('vipList');
+    if(videos.length === 0) return;
+    videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const latestVIP = videos[0];
+    const li = document.createElement('li');
 
-  const thumb = document.createElement('img');
-  thumb.src = latestVIP.thumbnail;
-  thumb.alt = latestVIP.title;
-  thumb.addEventListener('click', () => {
-    window.location.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id;
-  });
+    const thumb = document.createElement('img');
+    thumb.src = latestVIP.thumbnail;
+    thumb.alt = latestVIP.title;
+    thumb.addEventListener('click', () => {
+      window.location.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id;
+    });
 
-  const link = document.createElement('a');
-  link.className = "folder-link";
-  link.href = "#";
-  link.textContent = latestVIP.title;
-  link.addEventListener('click', e=>{
-    e.preventDefault();
-    window.location.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id;
-  });
+    const link = document.createElement('a');
+    link.className = "folder-link";
+    link.href = "#";
+    link.textContent = latestVIP.title;
+    link.addEventListener('click', e=>{
+      e.preventDefault();
+      window.location.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id;
+    });
 
-  li.appendChild(thumb);
-  li.appendChild(link);
-  container.appendChild(li);
-})
-.catch(err => console.error("Failed to load VIP videos:", err));
+    li.appendChild(thumb);
+    li.appendChild(link);
+    container.appendChild(li);
+  })
+  .catch(err => console.error("Failed to load VIP videos:", err));
 </script>
 
 </body>
