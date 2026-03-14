@@ -139,75 +139,56 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .catch(err => console.error("Failed to load VIP videos:", err));
 
-  // -------------------- Doggystyle Folder --------------------
-  fetch('./doggystyle.json')
-    .then(res => res.json())
-    .then(videos => {
-      if (!videos.length) return;
+  // -------------------- Function to create folder block --------------------
+  function addFolder(folderName, jsonFile, htmlPage) {
+    fetch(jsonFile)
+      .then(res => res.json())
+      .then(videos => {
+        if (!videos.length) return;
 
-      videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
-      const latest = videos[0];
+        videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+        const latest = videos[0];
 
-      const folderList = document.getElementById('folderList');
-      const li = document.createElement('li');
+        const folderList = document.getElementById('folderList');
+        const li = document.createElement('li');
 
-      const thumb = document.createElement('img');
-      thumb.src = latest.thumbnail;
-      thumb.alt = "Doggystyle";
-      thumb.addEventListener('click', ()=> {
-        window.location.href = 'doggystyle.html';
-      });
+        const thumb = document.createElement('img');
+        thumb.src = latest.thumbnail;
+        thumb.alt = folderName;
+        thumb.addEventListener('click', ()=> {
+          window.location.href = htmlPage;
+        });
 
-      const link = document.createElement('a');
-      link.className = "folder-link";
-      link.href = 'doggystyle.html';
-      link.textContent = "Doggystyle";
+        const link = document.createElement('a');
+        link.className = "folder-link";
+        link.href = htmlPage;
+        link.textContent = folderName;
 
-      li.appendChild(thumb);
-      li.appendChild(link);
-      folderList.appendChild(li);
+        li.appendChild(thumb);
+        li.appendChild(link);
+        folderList.appendChild(li);
 
-      // Latest Video Section
-      const latestDiv = document.getElementById('latestVideo');
-      latestDiv.innerHTML = `<h2>Latest Video</h2>`;
-      const latestLink = document.createElement('a');
-      latestLink.className = "folder-link";
-      latestLink.href = 'doggystyle.html';
-      latestLink.textContent = `Latest: ${latest.title} (${latest.size})`;
-      latestDiv.appendChild(latestLink);
+        // Latest Video section only for Doggystyle (keep as before)
+        if (folderName === "Doggystyle") {
+          const latestDiv = document.getElementById('latestVideo');
+          latestDiv.innerHTML = `<h2>Latest Video</h2>`;
+          const latestLink = document.createElement('a');
+          latestLink.className = "folder-link";
+          latestLink.href = htmlPage;
+          latestLink.textContent = `Latest: ${latest.title} (${latest.size})`;
+          latestDiv.appendChild(latestLink);
+        }
+      })
+      .catch(err => console.error(`Failed to load ${jsonFile}:`, err));
+  }
 
-    })
-    .catch(err => console.error("Failed to load doggystyle.json:", err));
+  // -------------------- Existing folders --------------------
+  addFolder("Doggystyle", "./doggystyle.json", "doggystyle.html");
+  addFolder("Cowgirl", "./cowgirl.json", "cowgirl.html");
 
-  // -------------------- Cowgirl Folder --------------------
-  fetch('./cowgirl.json')
-    .then(res => res.json())
-    .then(videos => {
-      if (!videos.length) return;
-
-      videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
-      const latest = videos[0];
-
-      const folderList = document.getElementById('folderList');
-      const li = document.createElement('li');
-
-      const thumb = document.createElement('img');
-      thumb.src = latest.thumbnail;
-      thumb.alt = "Cowgirl";
-      thumb.addEventListener('click', ()=> {
-        window.location.href = 'cowgirl.html';
-      });
-
-      const link = document.createElement('a');
-      link.className = "folder-link";
-      link.href = 'cowgirl.html';
-      link.textContent = "Cowgirl";
-
-      li.appendChild(thumb);
-      li.appendChild(link);
-      folderList.appendChild(li);
-    })
-    .catch(err => console.error("Failed to load cowgirl.json:", err));
+  // -------------------- New folders --------------------
+  addFolder("Mzansi", "./mzansi.json", "mzansi.html");
+  addFolder("Anal", "./anal.json", "anal.html");
 
 });
 </script>
