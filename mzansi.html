@@ -14,8 +14,8 @@
       }
 
       h2 {
-        color: #44ff44; /* Green accent for Mzansi */
-        border-bottom: 2px solid #44ff44;
+        color: #ff4444; /* Red accent like VIP */
+        border-bottom: 2px solid #ff4444;
         padding-bottom: 5px;
         text-align: center;
       }
@@ -64,7 +64,7 @@
         margin: 10px auto 0 auto;
         padding: 8px 15px;
         color: #fff;
-        background: #44ff44;
+        background: #ff4444; /* Red background like VIP */
         font-weight: bold;
         text-decoration: none;
         border-radius: 5px;
@@ -72,14 +72,14 @@
       }
 
       .download:hover {
-        background: #22ff22;
+        background: #ff2222; /* Darker red on hover */
       }
     </style>
   </head>
   <body>
     <h2>Mzansi Exclusive</h2>
     <p class="description">
-      Enjoy our premium selection of Mzansi videos, updated regularly with fresh content.
+      Enjoy our latest Mzansi videos, updated regularly for your viewing pleasure.
     </p>
     <div id="videoList"></div>
 
@@ -124,7 +124,7 @@
         .catch(err => {
           console.error("Failed to load Mzansi data:", err);
           document.getElementById("videoList").innerHTML =
-            '<p style="text-align:center;color:#44ff44;">Failed to load Mzansi videos.</p>';
+            '<p style="text-align:center;color:#ff4444;">Failed to load Mzansi videos.</p>';
         });
     </script>
   </body>
