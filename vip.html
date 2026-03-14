@@ -110,12 +110,12 @@
             preview.appendChild(img);
             box.appendChild(preview);
 
-            // Download button
+            // Download button with size only
             const button = document.createElement("a");
             button.className = "download";
             button.href = v.url;
             button.target = "_blank";
-            button.textContent = `Watch & Download (${v.size})`;
+            button.textContent = `Download (${v.size})`;  // updated text
 
             box.appendChild(button);
             container.appendChild(box);
