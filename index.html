@@ -100,7 +100,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 <section id="vipSection">
 <h2>VIP Vault</h2>
 <div id="vipCTA" style="text-align:center; margin-bottom:15px;">
-  <a href="https://fc-lc.xyz/FsYKY" 
+  <a href="https://zerostorage.net/watch/cf91065a-bc6c-4b16-bfd0-ef3ce3c66dd5" 
      target="_blank" 
      class="blogspot-style-link">
      Watch how to unlock FREE VIP Access
@@ -235,11 +235,8 @@ fetch('folders.json')
 .catch(err => console.error("Failed to load folders.json", err));
 
 // --------------------
-// VIP Vault - shortlink redirect
+// VIP Vault
 // --------------------
-const vipShortlink = "https://fc-lc.xyz/FsYKY"; // your shortlink
-const vipFinalDestination = "https://anywherecum.workfromanywhere-sa.workers.dev/vip.html"; // final URL
-
 fetch('vip.json')
 .then(res => res.json())
 .then(videos => {
@@ -249,20 +246,15 @@ fetch('vip.json')
   const latestVIP = videos[0];
   const li = document.createElement('li');
   li.innerHTML = `<video src="${latestVIP.url}" muted loop playsinline></video>
-                  <a class="folder-link" href="#">${latestVIP.title}</a>`;
-  
+                  <a class="folder-link" href="vip.html#${latestVIP.id}">${latestVIP.title}</a>`;
   const videoElem = li.querySelector('video');
   const linkElem = li.querySelector('.folder-link');
-
-  // When clicked, go to shortlink which will redirect to final destination
-  videoElem.addEventListener('click', () => {
-    window.location.href = `${vipShortlink}?video=${latestVIP.id}`;
+  // UPDATED SHORTLINK
+  videoElem.addEventListener('click', ()=> window.location.href = "https://cutt.ly/wtYSelAV?video=" + latestVIP.id);
+  linkElem.addEventListener('click', e=>{
+    e.preventDefault(); 
+    window.location.href = "https://cutt.ly/wtYSelAV?video=" + latestVIP.id; 
   });
-  linkElem.addEventListener('click', e => {
-    e.preventDefault();
-    window.location.href = `${vipShortlink}?video=${latestVIP.id}`;
-  });
-
   container.appendChild(li);
 })
 .catch(err => console.error("Failed to load VIP videos:", err));
