@@ -14,8 +14,8 @@
       }
 
       h2 {
-        color: #bb44ff; /* Purple accent for Anal */
-        border-bottom: 2px solid #bb44ff;
+        color: #ff4444; /* Red accent like VIP & Mzansi */
+        border-bottom: 2px solid #ff4444;
         padding-bottom: 5px;
         text-align: center;
       }
@@ -64,7 +64,7 @@
         margin: 10px auto 0 auto;
         padding: 8px 15px;
         color: #fff;
-        background: #bb44ff;
+        background: #ff4444; /* Red background like VIP & Mzansi */
         font-weight: bold;
         text-decoration: none;
         border-radius: 5px;
@@ -72,14 +72,14 @@
       }
 
       .download:hover {
-        background: #aa22ff;
+        background: #ff2222; /* Darker red on hover */
       }
     </style>
   </head>
   <body>
     <h2>Anal Exclusive</h2>
     <p class="description">
-      Enjoy our premium selection of Anal videos, updated regularly with fresh content.
+      Enjoy our latest Anal videos, updated regularly for your viewing pleasure.
     </p>
     <div id="videoList"></div>
 
@@ -101,10 +101,10 @@
             preview.className = "preview";
 
             const img = document.createElement("img");
-            img.src = v.thumbnail;   // thumbnail image
+            img.src = v.thumbnail;   
             img.alt = v.title;
             img.addEventListener("click", () => {
-              window.open(v.url, "_blank");  // clicking thumbnail opens watch link
+              window.open(v.url, "_blank");  
             });
 
             preview.appendChild(img);
@@ -124,7 +124,7 @@
         .catch(err => {
           console.error("Failed to load Anal data:", err);
           document.getElementById("videoList").innerHTML =
-            '<p style="text-align:center;color:#bb44ff;">Failed to load Anal videos.</p>';
+            '<p style="text-align:center;color:#ff4444;">Failed to load Anal videos.</p>';
         });
     </script>
   </body>
