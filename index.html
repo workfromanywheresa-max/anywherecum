@@ -47,7 +47,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 <header>
 <h1>AnywhereCum</h1>
 <p>Explore our exclusive content folders</p>
-<img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgcXzmfnaZCcHIY3SCvnmKvNKzqoqlZ2gex-9CNWkM41sD23nP_rzxLeC0uiuxosxFWwOkWoXlLT2pqKycM20NYrGGFhhziXts1tHiLJVyeJz1LTvU2M3kFSwaqvHiJV_p6hItlh48_Qtr09w7hTdz0cmfqgLOzyfM_dOfWG98-Douk-fAp0zZpWhWmXITx/s720/1000167088.jpg">
+<img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgcXzmfnaZCcHIY3SCvnmKvNKzqoqlZ2gex-9CNWkM41sD23nP_rzxLeC0uiuxosxFWwOkWoXlLT2pqKycM20NYrGGFhhziXts1tHiLJVyeJz1LTvU2M3kFSwaqvHiJV_p6hItlh48_Qtr09wTdz0cmfqgLOzyfM_dOfWG98-Douk-fAp0zZpWhWmXITx/s720/1000167088.jpg">
 </header>
 
 <div id="visitSite">
@@ -74,7 +74,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 <footer>© 2026 AnywhereCum – Legal content only. 18+</footer>
 
 <script>
-// -------------------- VIP Section --------------------
+// VIP Section
 fetch('vip.json')
 .then(res => res.json())
 .then(videos => {
@@ -82,13 +82,13 @@ fetch('vip.json')
   if(videos.length === 0) return;
   videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
   const latestVIP = videos[0];
+
   const li = document.createElement('li');
   const thumb = document.createElement('img');
   thumb.src = latestVIP.thumbnail;
   thumb.alt = latestVIP.title;
-  thumb.addEventListener('click', () => {
-    window.location.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id;
-  });
+  thumb.addEventListener('click', ()=> window.location.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id);
+  
   const link = document.createElement('a');
   link.className = "folder-link";
   link.href = "#";
@@ -97,13 +97,14 @@ fetch('vip.json')
     e.preventDefault();
     window.location.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id;
   });
+
   li.appendChild(thumb);
   li.appendChild(link);
   container.appendChild(li);
 })
-.catch(err => console.error("Failed to load VIP videos:", err));
+.catch(err => console.error(err));
 
-// -------------------- Folders & Latest Video --------------------
+// Folders Section
 fetch('videos.json')
 .then(res => res.json())
 .then(folders => {
@@ -112,34 +113,30 @@ fetch('videos.json')
 
   folders.forEach(folder => {
     if(folder.videos && folder.videos.length > 0){
-      folder.videos.sort((a,b)=> new Date(b.date)-new Date(a.date));
-      folder.videos.forEach(v => v.folder = folder.folder);
+      folder.videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+      folder.videos.forEach(v=>v.folder = folder.folder);
       allVideos.push(...folder.videos);
 
       const latestVideo = folder.videos[0];
       const li = document.createElement('li');
 
-      // Thumbnail
       const thumb = document.createElement('img');
       thumb.src = latestVideo.thumbnail;
       thumb.alt = folder.folder;
-      thumb.addEventListener('click', () => {
-        window.location.href = `${folder.folder}.html#${latestVideo.id}&folder=${encodeURIComponent(folder.folder)}`;
-      });
+      thumb.addEventListener('click', ()=> window.location.href = `folder.html?folder=${encodeURIComponent(folder.folder)}`);
       li.appendChild(thumb);
 
-      // Folder link
       const link = document.createElement('a');
       link.className = "folder-link";
-      link.href = `${folder.folder}.html#${latestVideo.id}&folder=${encodeURIComponent(folder.folder)}`;
-      link.textContent = `${folder.folder} - ${latestVideo.title} (${latestVideo.size})`;
+      link.href = `folder.html?folder=${encodeURIComponent(folder.folder)}`;
+      link.textContent = `${folder.folder} (${folder.videos.length} videos)`;
       li.appendChild(link);
 
       folderList.appendChild(li);
     }
   });
 
-  // Overall latest video
+  // Latest video overall
   if(allVideos.length > 0){
     allVideos.sort((a,b)=> new Date(b.date)-new Date(a.date));
     const latest = allVideos[0];
@@ -147,13 +144,12 @@ fetch('videos.json')
     latestDiv.innerHTML = `<h2>Latest Video</h2>`;
     const link = document.createElement('a');
     link.className = "folder-link";
-    link.href = `${latest.folder}.html#${latest.id}&folder=${encodeURIComponent(latest.folder)}`;
+    link.href = `folder.html?folder=${encodeURIComponent(latest.folder)}`;
     link.textContent = `Watch Now: ${latest.title} (${latest.size})`;
     latestDiv.appendChild(link);
   }
 })
-.catch(err => console.error("Failed to load videos.json", err));
+.catch(err => console.error(err));
 </script>
-
 </body>
 </html>
