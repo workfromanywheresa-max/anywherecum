@@ -77,7 +77,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 
 <script>
 // --------------------
-// VIP Section (unchanged)
+// VIP Section
 // --------------------
 fetch('vip.json')
 .then(res => res.json())
@@ -121,10 +121,7 @@ fetch('videos.json')
 
     folders.forEach(folder => {
       if(folder.videos && folder.videos.length > 0){
-        // Sort videos by date descending
         folder.videos.sort((a,b)=> new Date(b.date)-new Date(a.date));
-
-        // Push to global list for latest video
         folder.videos.forEach(v => v.folder = folder.folder);
         allVideos.push(...folder.videos);
 
@@ -132,7 +129,7 @@ fetch('videos.json')
         const li = document.createElement('li');
         const link = document.createElement('a');
         link.className = "folder-link";
-        link.href = `${folder.folder}.html#${folder.videos[0].id}`;
+        link.href = `${folder.folder}.html#${folder.videos[0].id}&folder=${encodeURIComponent(folder.folder)}`;
         link.textContent = `${folder.folder} - ${folder.videos[0].title} (${folder.videos[0].size})`;
         li.appendChild(link);
         folderList.appendChild(li);
@@ -147,7 +144,7 @@ fetch('videos.json')
       latestDiv.innerHTML = `<h2>Latest Video</h2>`;
       const link = document.createElement('a');
       link.className = "folder-link";
-      link.href = `${latest.folder}.html#${latest.id}`;
+      link.href = `${latest.folder}.html#${latest.id}&folder=${encodeURIComponent(latest.folder)}`;
       link.textContent = `Watch Now: ${latest.title} (${latest.size})`;
       latestDiv.appendChild(link);
     }
