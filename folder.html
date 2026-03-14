@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Folder Videos</title>
+<style>
+body { font-family:Arial,sans-serif; background:#1a1a1a; color:#fff; margin:0; padding:15px; }
+h2 { color:#ff4444; border-bottom:2px solid #ff4444; padding-bottom:5px; text-align:center; }
+.description { text-align:center; color:#fff; margin-bottom:20px; }
+.videoBox { background:#222; padding:10px; border-radius:8px; margin-bottom:20px; }
+.preview { width:100%; height:220px; cursor:pointer; overflow:hidden; border-radius:5px; display:flex; align-items:center; justify-content:center; }
+.preview img { width:100%; height:100%; object-fit:cover; transition:0.3s; }
+.preview img:hover { transform:scale(1.05); }
+.download { display:block; width:fit-content; margin:10px auto 0 auto; padding:8px 15px; color:#fff; background:#ff4444; font-weight:bold; text-decoration:none; border-radius:5px; text-align:center; }
+.download:hover { background:#ff2222; }
+</style>
+</head>
+<body>
+
+<h2 id="folderTitle">Folder Videos</h2>
+<p class="description" id="folderDesc">Enjoy our latest videos.</p>
+<div id="videoList"></div>
+
+<script>
+// Get folder from URL query ?folder=...
+const params = new URLSearchParams(window.location.search);
+let folderName = params.get('folder') || 'Unknown';
+folderName = folderName.replace(/-/g," ").replace(/\b\w/g,c=>c.toUpperCase());
+
+document.getElementById("folderTitle").textContent = folderName + " Folder";
+document.getElementById("folderDesc").textContent = `Enjoy our latest ${folderName} videos, updated regularly for your viewing pleasure.`;
+
+// Fetch videos.json
+fetch('videos.json')
+  .then(res=>res.json())
+  .then(videos=>{
+    const container = document.getElementById("videoList");
+    const folderVideos = videos.filter(v=>v.folder.toLowerCase()===folderName.toLowerCase());
+    folderVideos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+    if(folderVideos.length===0){
+      container.innerHTML='<p style="text-align:center;color:#ff4444;">No videos found in this folder.</p>';
+      return;
+    }
+
+    folderVideos.forEach(v=>{
+      const box = document.createElement("div");
+      box.className="videoBox";
+
+      const preview = document.createElement("div");
+      preview.className="preview";
+      const img = document.createElement("img");
+      img.src=v.thumbnail;
+      img.alt=v.title;
+      img.addEventListener("click",()=>window.open(v.url,"_blank"));
+      preview.appendChild(img);
+      box.appendChild(preview);
+
+      const button = document.createElement("a");
+      button.className="download";
+      button.href=v.url;
+      button.target="_blank";
+      button.textContent=`Download (${v.size})`;
+      box.appendChild(button);
+
+      container.appendChild(box);
+    });
+  })
+  .catch(err=>{
+    console.error("Failed to load videos.json:", err);
+    document.getElementById("videoList").innerHTML='<p style="text-align:center;color:#ff4444;">Failed to load videos.</p>';
+  });
+</script>
+
+</body>
+</html>
