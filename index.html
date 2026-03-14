@@ -77,19 +77,19 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 document.addEventListener('DOMContentLoaded', () => {
 
   // -------------------- VIP Section --------------------
-  fetch('vip.json')
+  fetch('./vip.json') // GitHub Pages friendly relative path
     .then(res => res.json())
     .then(videos => {
       const container = document.getElementById('vipList');
       if (!videos.length) return;
-      videos.sort((a, b) => new Date(b.date) - new Date(a.date));
+      videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
       const latestVIP = videos[0];
 
       const li = document.createElement('li');
       const thumb = document.createElement('img');
       thumb.src = latestVIP.thumbnail;
       thumb.alt = latestVIP.title;
-      thumb.addEventListener('click', () => {
+      thumb.addEventListener('click', ()=> {
         window.location.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id;
       });
 
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .catch(err => console.error("Failed to load VIP videos:", err));
 
   // -------------------- Folders & Latest Video --------------------
-  fetch('videos.json')
+  fetch('./videos.json') // GitHub Pages friendly relative path
     .then(res => res.json())
     .then(data => {
       const folderList = document.getElementById('folderList');
@@ -118,25 +118,23 @@ document.addEventListener('DOMContentLoaded', () => {
       Object.keys(data).forEach(folderName => {
         const videos = data[folderName];
         if (videos && videos.length > 0) {
-          videos.sort((a,b) => new Date(b.date) - new Date(a.date));
-          videos.forEach(v => v.folder = folderName);
+          videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+          videos.forEach(v=>v.folder=folderName);
           allVideos.push(...videos);
 
           const latestVideo = videos[0];
           const li = document.createElement('li');
 
-          // Placeholder image instead of thumbnail
+          // Placeholder image
           const thumb = document.createElement('img');
-          thumb.src = "https://via.placeholder.com/320x180/222/ff4444?text=Folder"; // generic placeholder
+          thumb.src = "https://via.placeholder.com/320x180/222/ff4444?text=Folder";
           thumb.alt = folderName;
           li.appendChild(thumb);
 
-          // Clicking anywhere on folder li goes to folder page
-          li.addEventListener('click', () => {
+          li.addEventListener('click', ()=> {
             window.location.href = `folder.html?folder=${encodeURIComponent(folderName)}`;
           });
 
-          // Folder link
           const link = document.createElement('a');
           link.className = "folder-link";
           link.href = `folder.html?folder=${encodeURIComponent(folderName)}`;
@@ -148,8 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       // Show overall latest video
-      if (allVideos.length > 0) {
-        allVideos.sort((a,b) => new Date(b.date) - new Date(a.date));
+      if(allVideos.length>0){
+        allVideos.sort((a,b)=>new Date(b.date)-new Date(a.date));
         const latest = allVideos[0];
         const latestDiv = document.getElementById('latestVideo');
         latestDiv.innerHTML = `<h2>Latest Video</h2>`;
@@ -159,6 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
         link.textContent = `Watch Now: ${latest.title} (${latest.size})`;
         latestDiv.appendChild(link);
       }
+
     })
     .catch(err => console.error("Failed to load videos.json:", err));
 
