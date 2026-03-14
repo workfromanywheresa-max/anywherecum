@@ -49,23 +49,30 @@ a.folder-link:hover {
 .blogspot-style-link::after { content: "◀"; position: absolute; right: 5px; animation: bounceRight 1s infinite alternate; }
 .blogspot-style-link:hover { color: #ff4444; text-decoration: underline; }
 
-#latestVideo a {
-  color: #fff;          
-  font-weight: bold;
-  text-decoration: none;
+#latestVideo {
+  margin-bottom: 20px;
 }
-#latestVideo a:hover {
-  color: #ff4444;       
-  text-decoration: underline;
-}
-
-#latestVideo { background: #222; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
 
 #vipList li img, #folderList li img { width: 100%; height: 180px; border-radius: 5px; object-fit: cover; margin-bottom: 5px; }
 
 footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; background: #111; margin-top: 40px; }
 
-@media(max-width:600px){ ul { grid-template-columns: 1fr; } }
+@media(max-width:600px){ 
+  ul { grid-template-columns: 1fr; } 
+}
+
+.folder-grid {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 15px;
+  margin: 0;
+}
+
+@media(max-width:600px){
+  .folder-grid { grid-template-columns: 1fr; }
+}
 
 @keyframes flash { 0% { text-shadow: 0 0 5px #ff4444; } 50% { text-shadow: 0 0 20px #ff4444, 0 0 30px #ff8888; } 100% { text-shadow: 0 0 5px #ff4444; } }
 @keyframes bounceLeft { 0% { transform: translateX(0); } 50% { transform: translateX(5px); } 100% { transform: translateX(0); } }
@@ -86,7 +93,6 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 
 <div id="latestVideo">
   <h2>Latest Video</h2>
-  <p>Check individual folders for videos</p>
 </div>
 
 <!-- -------------------- VIP Section -------------------- -->
@@ -173,15 +179,21 @@ document.addEventListener('DOMContentLoaded', () => {
         folderList.appendChild(li);
       });
 
-      // Latest video overall opens folder, not video
+      // Latest video overall opens folder, styled like folder card
       const latestVideo = videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
       const latestDiv = document.getElementById('latestVideo');
       latestDiv.innerHTML = `
-        <h2>Latest Video</h2>
-        <img src="${latestVideo.thumbnail}" style="width:100%;border-radius:5px;margin:10px 0;cursor:pointer;">
-        <a href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" style="color:#fff;font-weight:bold;">
-          Watch Now: New Video Available!!!
-        </a>
+        <ul class="folder-grid">
+          <li>
+            <img src="${latestVideo.thumbnail}" 
+                 alt="${latestVideo.title}" 
+                 style="width:100%; height:180px; border-radius:5px; object-fit:cover; cursor:pointer; margin-bottom:5px;">
+            <a href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" 
+               class="folder-link">
+               Watch Now: New Video Available!!!
+            </a>
+          </li>
+        </ul>
       `;
       latestDiv.querySelector('img').addEventListener('click', () => {
         window.location.href = `folder.html?folder=${encodeURIComponent(latestVideo.folder)}`;
