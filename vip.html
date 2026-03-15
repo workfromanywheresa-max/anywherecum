@@ -64,6 +64,12 @@
         color: #ddd;
         font-size: 16px;
         font-weight: normal;
+        cursor: pointer;
+        text-decoration: underline;
+      }
+
+      .videoTitle:hover {
+        color: #fff; /* brightens on hover */
       }
 
       .download {
@@ -118,10 +124,13 @@
             preview.appendChild(img);
             box.appendChild(preview);
 
-            // Title above download button
+            // Clickable title above download button
             const titleEl = document.createElement("h3");
             titleEl.className = "videoTitle";
             titleEl.textContent = v.title;
+            titleEl.addEventListener("click", () => {
+              window.open(v.url, "_blank"); // clicking title opens link
+            });
             box.appendChild(titleEl);
 
             // Download button with size only
