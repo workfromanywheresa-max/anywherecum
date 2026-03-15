@@ -112,6 +112,13 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   100% {opacity: 1;}
 }
 
+.ad-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center; /* centers horizontally */
+  margin-top: 20px; /* optional spacing */
+}
+
 .ad-container {
   text-align: center;
   border: 2px solid #ff0000;
@@ -121,6 +128,8 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   background-color: #1a1a1a;
   transition: transform 0.2s, box-shadow 0.2s;
   cursor: pointer;
+  color: #fff;
+  text-decoration: none;
 }
 
 .ad-container:hover {
@@ -130,21 +139,22 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 
 .ad-container div {
   margin-bottom: 6px;
-  color: #fff;
   font-size: 18px;
   font-weight: bold;
 }
 </style>
 
-<div class="ad-container" onclick="window.open('https://your-link-here.com','_blank')">
-  <div><span class="blink">🔴 LIVE</span> Cam Show – Watch Now</div>
+<div class="ad-wrapper">
+  <a href="https://your-link-here.com" target="_blank" class="ad-container">
+    <div><span class="blink">🔴 LIVE</span> Cam Show – Watch Now</div>
 
-  <!-- JuicyAds v3.0 -->
-  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-  <ins id="1113180" data-width="300" data-height="62"></ins>
-  <script type="text/javascript" data-cfasync="false" async>
-  (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113180});
-  </script>
+    <!-- JuicyAds v3.0 -->
+    <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+    <ins id="1113180" data-width="300" data-height="62"></ins>
+    <script type="text/javascript" data-cfasync="false" async>
+      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113180});
+    </script>
+  </a>
 </div>
 
 <section id="vipSection">
