@@ -111,18 +111,41 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   50% {opacity: 0;}
   100% {opacity: 1;}
 }
+
+.ad-container {
+  text-align: center;
+  border: 2px solid #ff0000;
+  padding: 10px;
+  display: inline-block;
+  border-radius: 12px;
+  background-color: #1a1a1a;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.ad-container:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px #ff0000;
+}
+
+.ad-container div {
+  margin-bottom: 6px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+}
 </style>
 
-<div style="text-align:center; font-size:18px; font-weight:bold; margin-bottom:6px;">
-<span class="blink">🔴 LIVE</span> Cam Show – Watch Now
-</div>
+<div class="ad-container" onclick="window.open('https://your-link-here.com','_blank')">
+  <div><span class="blink">🔴 LIVE</span> Cam Show – Watch Now</div>
 
-<!-- JuicyAds v3.0 -->
-<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-<ins id="1113180" data-width="300" data-height="62"></ins>
-<script type="text/javascript" data-cfasync="false" async>
-(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113180});
-</script>
+  <!-- JuicyAds v3.0 -->
+  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+  <ins id="1113180" data-width="300" data-height="62"></ins>
+  <script type="text/javascript" data-cfasync="false" async>
+  (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113180});
+  </script>
+</div>
 
 <section id="vipSection">
 <h2>🔒VIP Vault🔒</h2>
