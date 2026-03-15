@@ -282,20 +282,6 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
 </script>
 
 <style>
-/* Blinking LIVE label */
-.blink {
-  animation: blink 1s infinite;
-  color: #ff4444;
-  font-weight: bold;
-  font-size: 14px;
-}
-
-@keyframes blink {
-  0% {opacity: 1;}
-  50% {opacity: 0;}
-  100% {opacity: 1;}
-}
-
 /* Wrapper to center ad */
 .ad-wrapper {
   width: 100%;
@@ -306,25 +292,49 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
 
 /* Styled container for the ad */
 .ad-container {
+  position: relative; /* for positioning LIVE label */
   border: 1px solid #ff0000;
   border-radius: 10px;
   background-color: #1a1a1a;
-  padding: 10px;
   display: inline-block;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
-  text-align: center;
 }
 
+/* Hover effect */
 .ad-container:hover {
   transform: scale(1.05);
   box-shadow: 0 0 12px #ff0000;
 }
 
-/* Center the JuicyAds iframe */
+/* Blinking LIVE label inside frame */
+.blink {
+  position: absolute;
+  top: 5px; /* distance from top of frame */
+  left: 50%;
+  transform: translateX(-50%);
+  animation: blink 1s infinite;
+  color: #ff4444;
+  font-weight: bold;
+  font-size: 14px;
+  z-index: 10; /* on top of iframe */
+  background-color: rgba(26,26,26,0.8); /* optional: semi-transparent background */
+  padding: 2px 6px;
+  border-radius: 5px;
+}
+
+/* Blinking animation */
+@keyframes blink {
+  0% {opacity: 1;}
+  50% {opacity: 0;}
+  100% {opacity: 1;}
+}
+
+/* Remove extra spacing around iframe */
 .ad-container ins {
   display: block;
-  margin: 8px auto 0 auto;
+  margin: 0;
+  padding: 0;
 }
 </style>
 
