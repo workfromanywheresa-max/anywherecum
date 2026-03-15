@@ -310,7 +310,7 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
 /* Blinking LIVE label inside frame */
 .blink-unique {
   position: absolute;
-  top: 5px; /* distance from top of frame */
+  top: 15px; /* increased from 5px for visibility */
   left: 50%;
   transform: translateX(-50%);
   animation: blink 1s infinite;
@@ -318,7 +318,7 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
   font-weight: bold;
   font-size: 14px;
   z-index: 10; /* on top of iframe */
-  background-color: rgba(26,26,26,0.8); /* optional: semi-transparent background */
+  background-color: rgba(26,26,26,0.8); /* semi-transparent background */
   padding: 2px 6px;
   border-radius: 5px;
 }
