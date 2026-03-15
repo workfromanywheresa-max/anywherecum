@@ -8,7 +8,7 @@
 <!-- Favicon -->
 <link rel="icon" type="image/png" sizes="32x32" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjxE0OsDNN9GOep_boJFOR7YcuSaelCTmGLFGcE2ViXXJ1TkMJ7s5R7kyO2RGE4CjDvvttEpDwxOTIB80-4EbyonnW6Zaric3R6HMkCvqJIKDSah1f2SigHu90rOtg-VdzawQJ5RgYfyOXZ4Smg6CpWRfpYNf7HIQ6x443wj6snohUedypZXBuftXxsoLSd/s0/1000170862.png">
 <link rel="apple-touch-icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjxE0OsDNN9GOep_boJFOR7YcuSaelCTmGLFGcE2ViXXJ1TkMJ7s5R7kyO2RGE4CjDvvttEpDwxOTIB80-4EbyonnW6Zaric3R6HMkCvqJIKDSah1f2SigHu90rOtg-VdzawQJ5RgYfyOXZ4Smg6CpWRfpYNf7HIQ6x443wj6snohUedypZXBuftXxsoLSd/s0/1000170862.png">
-<link rel="shortcut icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjxE0OsDNN9GOep_boJFOR7YcuSaelCTmGLFGcE2ViXXJ1TkMJ7s5R7kyO2RGE4CjDvvttEpDwxOTIB80-4EbyonnW6Zaric3R6HMkCvqJIKDSah1f2SigHu90rOtg-VdzawQJ5RgYfyOXZ4Smg6CpWRfpYNf7HIQ6x443wj6snohUedypZXBuftXxsoLSd/s0/1000170862.png">
+<link rel="shortcut icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjxE0OsDNN9GOep_boJFOR7YcuSaelCTmGLFGcE2ViXXJ1TkMJ7s5R7kyO2RGE4CjDvvttEpDwxOTIB80-4EbyonnW6Zaric3R6HMkCvqJIKDSah1f2SigHu90rOtg-VdzawQJ5RgYfyOXZ4Smg6CpWRfpYNf7HIQ6snohUedypZXBuftXxsoLSd/s0/1000170862.png">
 
 <style>
 body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; margin: 0; padding: 15px; }
@@ -84,7 +84,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 @keyframes bounceLeft { 0% { transform: translateX(0); } 50% { transform: translateX(5px); } 100% { transform: translateX(0); } }
 @keyframes bounceRight { 0% { transform: translateX(0); } 50% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
 </style>
-  <meta name="juicyads-site-verification" content="00ec8046b1fdd1c8dfe12992c41ff734">
+<meta name="juicyads-site-verification" content="00ec8046b1fdd1c8dfe12992c41ff734">
 </head>
 
 <body>
@@ -101,7 +101,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 
 <div id="latestVideo"></div>
   
-  <style>
+<style>
 .blink {
   animation: blink 1s infinite;
 }
@@ -121,14 +121,14 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 
 .ad-container {
   text-align: center;
-  border: 1px solid #ff0000;  /* full border for top, left, right, bottom */
-  border-radius: 10px;         /* rounded corners all around */
+  border: 1px solid #ff0000;  
+  border-radius: 10px;         
   background-color: #1a1a1a;
   display: inline-block;
   cursor: default;
-  overflow: hidden;           /* ensures iframe fits flush */
+  overflow: hidden;           
   transition: transform 0.2s, box-shadow 0.2s;
-  padding-top: 6px;           /* top padding for text */
+  padding-top: 6px;           
 }
 
 .ad-container:hover {
@@ -143,10 +143,9 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   font-weight: bold;
   color: #fff;
   user-select: none;    
-  pointer-events: none; /* prevents tap to search */
+  pointer-events: none; 
 }
 
-/* Optional: ensure iframe inside container fits flush */
 .ad-container ins {
   display: block;
   margin: 0 auto;
@@ -155,12 +154,9 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 
 <div class="ad-wrapper">
   <div class="ad-container">
-    <!-- Text -->
     <div class="ad-text">
       <span class="blink">🔴 LIVE</span> Cam Show – Watch Now
     </div>
-
-    <!-- JuicyAds v3.0 iframe -->
     <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
     <ins id="1113180" data-width="300" data-height="62"></ins>
     <script type="text/javascript" data-cfasync="false" async>
@@ -189,35 +185,37 @@ Watch how to unlock FREE VIP Access
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
+// VIP Section - display folder instead of title
 fetch('./vip.json')
 .then(res => res.json())
 .then(videos => {
-const container = document.getElementById('vipList');
-if (!videos.length) return;
+  const container = document.getElementById('vipList');
+  if (!videos.length) return;
 
-videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
-const latestVIP = videos[0];
+  videos.sort((a,b) => new Date(b.date) - new Date(a.date));
+  const latestVIP = videos[0];
 
-const li = document.createElement('li');
+  const li = document.createElement('li');
 
-const thumb = document.createElement('img');
-thumb.src = latestVIP.thumbnail;
-thumb.alt = latestVIP.title;
-thumb.onclick = () => {
-window.location.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id;
-};
+  const thumb = document.createElement('img');
+  thumb.src = latestVIP.thumbnail;
+  thumb.alt = latestVIP.folder;
+  thumb.onclick = () => {
+    window.location.href = "folder.html?folder=" + encodeURIComponent(latestVIP.folder);
+  };
 
-const link = document.createElement('a');
-link.className = "folder-link";
-link.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id;
-link.textContent = latestVIP.title;
+  const link = document.createElement('a');
+  link.className = "folder-link";
+  link.href = "folder.html?folder=" + encodeURIComponent(latestVIP.folder);
+  link.textContent = latestVIP.folder;
 
-li.appendChild(thumb);
-li.appendChild(link);
+  li.appendChild(thumb);
+  li.appendChild(link);
 
-container.appendChild(li);
+  container.appendChild(li);
 });
 
+// Content Folders
 fetch('./videos.json')
 .then(res => res.json())
 .then(videos => {
@@ -225,37 +223,37 @@ fetch('./videos.json')
 const folders = {};
 
 videos.forEach(v => {
-if(!folders[v.folder]) folders[v.folder] = [];
-folders[v.folder].push(v);
+  if(!folders[v.folder]) folders[v.folder] = [];
+  folders[v.folder].push(v);
 });
 
 const folderList = document.getElementById('folderList');
 
 Object.keys(folders).sort().forEach(folderName => {
 
-const folderVideos = folders[folderName];
-folderVideos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const folderVideos = folders[folderName];
+  folderVideos.sort((a,b)=>new Date(b.date)-new Date(a.date));
 
-const latest = folderVideos[0];
+  const latest = folderVideos[0];
 
-const li = document.createElement('li');
+  const li = document.createElement('li');
 
-const thumb = document.createElement('img');
-thumb.src = latest.thumbnail;
-thumb.alt = folderName;
-thumb.onclick = () => {
-window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
-};
+  const thumb = document.createElement('img');
+  thumb.src = latest.thumbnail;
+  thumb.alt = folderName;
+  thumb.onclick = () => {
+    window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
+  };
 
-const link = document.createElement('a');
-link.className = "folder-link";
-link.href = "folder.html?folder=" + encodeURIComponent(folderName);
-link.textContent = folderName;
+  const link = document.createElement('a');
+  link.className = "folder-link";
+  link.href = "folder.html?folder=" + encodeURIComponent(folderName);
+  link.textContent = folderName;
 
-li.appendChild(thumb);
-li.appendChild(link);
+  li.appendChild(thumb);
+  li.appendChild(link);
 
-folderList.appendChild(li);
+  folderList.appendChild(li);
 });
 
 const latestVideo = videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
@@ -279,24 +277,16 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
 };
 
 });
-
 });
 </script>
 
-  <div style="width:100%; text-align:center; margin:10px 0;">
-
-<!-- JuicyAds v3.0 -->
+<div style="width:100%; text-align:center; margin:10px 0;">
 <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-
 <ins id="1113177" data-width="300" data-height="112"></ins>
-
 <script type="text/javascript" data-cfasync="false" async>
 (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113177});
 </script>
-
-<!--JuicyAds END-->
-
-  </div>
+</div>
 
 </body>
 </html>
