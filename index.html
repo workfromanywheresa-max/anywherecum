@@ -121,13 +121,14 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 
 .ad-container {
   text-align: center;
-  border: 1px solid #ff0000; /* border around everything */
+  border: 1px solid #ff0000; /* border around text + iframe */
   border-radius: 10px;
   background-color: #1a1a1a;
   display: inline-block;
-  cursor: pointer;
+  cursor: default;
   overflow: hidden; /* ensures border hugs iframe flush */
   transition: transform 0.2s, box-shadow 0.2s;
+  padding: 6px 6px 0 6px; /* top, right, bottom, left */
 }
 
 .ad-container:hover {
@@ -137,24 +138,19 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 
 .ad-text {
   display: block;
-  margin: 6px 0 4px 0; /* top margin separates from top edge slightly */
+  margin: 0 0 4px 0; /* margin below text for spacing */
   font-size: 14px; /* smaller text */
   font-weight: bold;
   color: #fff;
-  text-decoration: none;
-}
-
-.ad-text .blink {
-  font-size: 14px;
 }
 </style>
 
 <div class="ad-wrapper">
   <div class="ad-container">
-    <!-- Clickable text linking directly to JuicyAds landing page -->
-    <a href="https://go.jads.co/1113180" target="_blank" class="ad-text">
+    <!-- Text only, not clickable -->
+    <div class="ad-text">
       <span class="blink">🔴 LIVE</span> Cam Show – Watch Now
-    </a>
+    </div>
 
     <!-- JuicyAds v3.0 ad iframe -->
     <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
