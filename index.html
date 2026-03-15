@@ -8,7 +8,7 @@
 <!-- Favicon -->
 <link rel="icon" type="image/png" sizes="32x32" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjxE0OsDNN9GOep_boJFOR7YcuSaelCTmGLFGcE2ViXXJ1TkMJ7s5R7kyO2RGE4CjDvvttEpDwxOTIB80-4EbyonnW6Zaric3R6HMkCvqJIKDSah1f2SigHu90rOtg-VdzawQJ5RgYfyOXZ4Smg6CpWRfpYNf7HIQ6x443wj6snohUedypZXBuftXxsoLSd/s0/1000170862.png">
 <link rel="apple-touch-icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjxE0OsDNN9GOep_boJFOR7YcuSaelCTmGLFGcE2ViXXJ1TkMJ7s5R7kyO2RGE4CjDvvttEpDwxOTIB80-4EbyonnW6Zaric3R6HMkCvqJIKDSah1f2SigHu90rOtg-VdzawQJ5RgYfyOXZ4Smg6CpWRfpYNf7HIQ6x443wj6snohUedypZXBuftXxsoLSd/s0/1000170862.png">
-<link rel="shortcut icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjxE0OsDNN9GOep_boJFOR7YcuSaelCTmGLFGcE2ViXXJ1TkMJ7s5R7kyO2RGE4CjDvvttEpDwxOTIB80-4EbyonnW6Zaric3R6HMkCvqJIKDSah1f2SigHu90rOtg-VdzawQJ5RgYfyOXZ4Smg6CpWRfpYNf7HIQ6snohUedypZXBuftXxsoLSd/s0/1000170862.png">
+<link rel="shortcut icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjxE0OsDNN9GOep_boJFOR7YcuSaelCTmGLFGcE2ViXXJ1TkMJ7s5R7kyO2RGE4CjDvvttEpDwxOTIB80-4EbyonnW6Zaric3R6HMkCvqJIKDSah1f2SigHu90rOtg-VdzawQJ5RgYfyOXZ4Smg6CpWRfpYNf7HIQ6x443wj6snohUedypZXBuftXxsoLSd/s0/1000170862.png">
 
 <style>
 body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; margin: 0; padding: 15px; }
@@ -169,7 +169,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 <h2>🔒VIP Vault🔒</h2>
 
 <div id="vipCTA" style="text-align:center; margin-bottom:15px;">
-<a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4" target="_blank" class="blogspot-style-link">
+<a href="https://fc-lc.xyz/ZUkGrHaX" target="_blank" class="blogspot-style-link">
 Watch how to unlock FREE VIP Access
 </a>
 </div>
@@ -185,7 +185,7 @@ Watch how to unlock FREE VIP Access
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
-// VIP Section - display folder instead of title
+// VIP Section - open external VIP link
 fetch('./vip.json')
 .then(res => res.json())
 .then(videos => {
@@ -201,12 +201,13 @@ fetch('./vip.json')
   thumb.src = latestVIP.thumbnail;
   thumb.alt = latestVIP.folder;
   thumb.onclick = () => {
-    window.location.href = "folder.html?folder=" + encodeURIComponent(latestVIP.folder);
+    window.open("https://fc-lc.xyz/ZUkGrHaX", "_blank");
   };
 
   const link = document.createElement('a');
   link.className = "folder-link";
-  link.href = "folder.html?folder=" + encodeURIComponent(latestVIP.folder);
+  link.href = "https://fc-lc.xyz/ZUkGrHaX";
+  link.target = "_blank";
   link.textContent = latestVIP.folder;
 
   li.appendChild(thumb);
