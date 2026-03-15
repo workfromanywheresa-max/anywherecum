@@ -290,8 +290,8 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
   margin: 15px 0;
 }
 
-/* Styled container for the ad */
-.ad-container {
+/* Unique container for this ad */
+.ad-container-unique {
   position: relative; /* for positioning LIVE label */
   border: 1px solid #ff0000;
   border-radius: 10px;
@@ -302,13 +302,13 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
 }
 
 /* Hover effect */
-.ad-container:hover {
+.ad-container-unique:hover {
   transform: scale(1.05);
   box-shadow: 0 0 12px #ff0000;
 }
 
 /* Blinking LIVE label inside frame */
-.blink {
+.blink-unique {
   position: absolute;
   top: 5px; /* distance from top of frame */
   left: 50%;
@@ -331,7 +331,7 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
 }
 
 /* Remove extra spacing around iframe */
-.ad-container ins {
+.ad-container-unique ins {
   display: block;
   margin: 0;
   padding: 0;
@@ -339,8 +339,8 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
 </style>
 
 <div class="ad-wrapper">
-  <div class="ad-container">
-    <div class="blink">🔴 LIVE</div>
+  <div class="ad-container-unique">
+    <div class="blink-unique">🔴 LIVE</div>
     <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
     <ins id="1113177" data-width="300" data-height="112"></ins>
     <script type="text/javascript" data-cfasync="false" async>
