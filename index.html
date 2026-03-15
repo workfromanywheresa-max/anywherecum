@@ -292,14 +292,14 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
 
 /* Unique container for this ad */
 .ad-container-unique {
-  position: relative; /* for positioning LIVE label */
+  position: relative; /* for LIVE label positioning */
   border: 1px solid #ff0000;
   border-radius: 10px;
   background-color: #1a1a1a;
   display: inline-block;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
-  padding: 0; /* ensure no extra spacing */
+  padding: 0; /* no extra space */
 }
 
 /* Hover effect */
@@ -308,21 +308,23 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
   box-shadow: 0 0 12px #ff0000;
 }
 
-/* Blinking LIVE label on top */
+/* LIVE label embedded in top border */
 .blink-unique {
   position: absolute;
-  top: 0; /* flush with top border */
+  top: -10px; /* pulls it above the border */
   left: 50%;
-  transform: translateX(-50%) translateY(-50%); /* slightly above the top edge */
+  transform: translateX(-50%);
   animation: blink 1s infinite;
   color: #ff4444;
   font-weight: bold;
   font-size: 14px;
-  z-index: 9999; /* ensures it's above iframe */
-  background-color: rgba(26,26,26,0.8); /* semi-transparent bg */
-  padding: 2px 6px;
+  z-index: 9999;
+  background-color: #1a1a1a; /* matches container bg */
+  padding: 2px 8px;
+  border: 1px solid #ff4444; /* small border around label */
   border-radius: 5px;
-  pointer-events: none; /* ensures clicks go to iframe */
+  box-shadow: 0 0 4px #ff4444; /* subtle glow */
+  pointer-events: none;
 }
 
 /* Blinking animation */
