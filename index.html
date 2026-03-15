@@ -293,14 +293,26 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
 /* Unique container for this ad */
 .ad-container-unique {
   position: relative; /* for LIVE label positioning */
-  border: 1px solid #ff0000; /* default border */
-  border-top-width: 4px; /* make top border thicker */
+  border: 1px solid #ff0000;
+  border-top: none; /* remove original top border */
   border-radius: 10px;
   background-color: #1a1a1a;
   display: inline-block;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
-  padding: 0;
+  padding: 0; /* no extra space */
+}
+
+/* Raised top border using pseudo-element */
+.ad-container-unique::before {
+  content: "";
+  position: absolute;
+  top: -5px; /* moves top border above container */
+  left: 0;
+  width: 100%;
+  height: 1px; /* thickness of top border */
+  background-color: #ff0000;
+  border-radius: 10px 10px 0 0; /* match container corners */
 }
 
 /* Hover effect */
@@ -312,7 +324,7 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
 /* LIVE label embedded in top border */
 .blink-unique {
   position: absolute;
-  top: -12px; /* slightly above thicker border */
+  top: -12px; /* stays above the raised border */
   left: 50%;
   transform: translateX(-50%);
   animation: blink 1s infinite;
@@ -320,11 +332,11 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
   font-weight: bold;
   font-size: 14px;
   z-index: 9999;
-  background-color: #1a1a1a;
+  background-color: #1a1a1a; /* matches container bg */
   padding: 2px 8px;
-  border: 1px solid #ff4444;
+  border: 1px solid #ff4444; /* small border around label */
   border-radius: 5px;
-  box-shadow: 0 0 4px #ff4444;
+  box-shadow: 0 0 4px #ff4444; /* subtle glow */
   pointer-events: none;
 }
 
