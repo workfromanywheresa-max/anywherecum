@@ -5,8 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AnywhereCum - Home</title>
 
-<link rel="icon" type="image/png" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjxE0OsDNN9GOep_boJFOR7YcuSaelCTmGLFGcE2ViXXJ1TkMJ7s5R7kyO2RGE4CjDvvttEpDwxOTIB80-4EbyonnW6Zaric3R6HMkCvqJIKDSah1f2SigHu90rOtg-VdzawQJ5RgYfyOXZ4Smg6CpWRfpYNf7HIQ6x443wj6snohUedypZXBuftXxsoLSd/s320/1000170862.png">
-  
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjxE0OsDNN9GOep_boJFOR7YcuSaelCTmGLFGcE2ViXXJ1TkMJ7s5R7kyO2RGE4CjDvvttEpDwxOTIB80-4EbyonnW6Zaric3R6HMkCvqJIKDSah1f2SigHu90rOtg-VdzawQJ5RgYfyOXZ4Smg6CpWRfpYNf7HIQ6x443wj6snohUedypZXBuftXxsoLSd/s0/1000170862.png">
+<link rel="apple-touch-icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjxE0OsDNN9GOep_boJFOR7YcuSaelCTmGLFGcE2ViXXJ1TkMJ7s5R7kyO2RGE4CjDvvttEpDwxOTIB80-4EbyonnW6Zaric3R6HMkCvqJIKDSah1f2SigHu90rOtg-VdzawQJ5RgYfyOXZ4Smg6CpWRfpYNf7HIQ6x443wj6snohUedypZXBuftXxsoLSd/s0/1000170862.png">
+<link rel="shortcut icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjxE0OsDNN9GOep_boJFOR7YcuSaelCTmGLFGcE2ViXXJ1TkMJ7s5R7kyO2RGE4CjDvvttEpDwxOTIB80-4EbyonnW6Zaric3R6HMkCvqJIKDSah1f2SigHu90rOtg-VdzawQJ5RgYfyOXZ4Smg6CpWRfpYNf7HIQ6x443wj6snohUedypZXBuftXxsoLSd/s0/1000170862.png">
+
 <style>
 body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; margin: 0; padding: 15px; }
 header { text-align: center; padding: 5px 10px; background: #111; }
@@ -82,6 +85,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 @keyframes bounceRight { 0% { transform: translateX(0); } 50% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
 </style>
 </head>
+
 <body>
 
 <header>
@@ -91,23 +95,20 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 </header>
 
 <div id="visitSite">
-  <a href="https://thabogushumani.blogspot.com" target="_blank">Visit this site to download movies</a>
+<a href="https://thabogushumani.blogspot.com" target="_blank">Visit this site to download movies</a>
 </div>
 
-<div id="latestVideo">
-  <!-- Latest Video content will be injected here -->
-</div>
+<div id="latestVideo"></div>
 
-<!-- -------------------- VIP Section -------------------- -->
 <section id="vipSection">
 <h2>🔒VIP Vault🔒</h2>
+
 <div id="vipCTA" style="text-align:center; margin-bottom:15px;">
-  <a href="https://streamtape.com/v/6Rm4rVxXQQu996Q/AnywhereCum_20260313_090812636_%281%29.mp4" 
-     target="_blank" 
-     class="blogspot-style-link">
-     Watch how to unlock FREE VIP Access
-  </a>
+<a href="https://streamtape.com/v/6Rm4rVxXQQu996Q/AnywhereCum_20260313_090812636_%281%29.mp4" target="_blank" class="blogspot-style-link">
+Watch how to unlock FREE VIP Access
+</a>
 </div>
+
 <ul id="vipList"></ul>
 </section>
 
@@ -119,92 +120,97 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
-  // -------------------- VIP Section --------------------
-  fetch('./vip.json')
-    .then(res => res.json())
-    .then(videos => {
-      const container = document.getElementById('vipList');
-      if (!videos.length) return;
-      videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
-      const latestVIP = videos[0];
+fetch('./vip.json')
+.then(res => res.json())
+.then(videos => {
+const container = document.getElementById('vipList');
+if (!videos.length) return;
 
-      const li = document.createElement('li');
-      const thumb = document.createElement('img');
-      thumb.src = latestVIP.thumbnail;
-      thumb.alt = latestVIP.title;
-      thumb.addEventListener('click', ()=> {
-        window.location.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id;
-      });
+videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+const latestVIP = videos[0];
 
-      const link = document.createElement('a');
-      link.className = "folder-link";
-      link.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id;
-      link.textContent = latestVIP.title;
+const li = document.createElement('li');
 
-      li.appendChild(thumb);
-      li.appendChild(link);
-      container.appendChild(li);
-    })
-    .catch(err => console.error("Failed to load VIP videos:", err));
+const thumb = document.createElement('img');
+thumb.src = latestVIP.thumbnail;
+thumb.alt = latestVIP.title;
+thumb.onclick = () => {
+window.location.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id;
+};
 
-  // -------------------- Folders Section --------------------
-  fetch('./videos.json')
-    .then(res => res.json())
-    .then(videos => {
-      const folders = {};
-      videos.forEach(v => {
-        if (!folders[v.folder]) folders[v.folder] = [];
-        folders[v.folder].push(v);
-      });
+const link = document.createElement('a');
+link.className = "folder-link";
+link.href = "https://fc-lc.xyz/ZUkGrHaX?video=" + latestVIP.id;
+link.textContent = latestVIP.title;
 
-      const folderList = document.getElementById('folderList');
-      Object.keys(folders).sort().forEach(folderName => {
-        const folderVideos = folders[folderName];
-        folderVideos.sort((a,b)=>new Date(b.date)-new Date(a.date));
-        const latest = folderVideos[0];
+li.appendChild(thumb);
+li.appendChild(link);
 
-        const li = document.createElement('li');
+container.appendChild(li);
+});
 
-        const thumb = document.createElement('img');
-        thumb.src = latest.thumbnail;
-        thumb.alt = folderName;
-        thumb.addEventListener('click', ()=> {
-          window.location.href = `folder.html?folder=${encodeURIComponent(folderName)}`;
-        });
+fetch('./videos.json')
+.then(res => res.json())
+.then(videos => {
 
-        const link = document.createElement('a');
-        link.className = "folder-link";
-        link.href = `folder.html?folder=${encodeURIComponent(folderName)}`;
-        link.textContent = folderName;
+const folders = {};
 
-        li.appendChild(thumb);
-        li.appendChild(link);
-        folderList.appendChild(li);
-      });
+videos.forEach(v => {
+if(!folders[v.folder]) folders[v.folder] = [];
+folders[v.folder].push(v);
+});
 
-      // Latest video overall opens folder, styled like folder card
-      const latestVideo = videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
-      const latestDiv = document.getElementById('latestVideo');
-      latestDiv.innerHTML = `
-        <h2>🎥Latest Video🎥</h2>
-        <ul class="folder-grid">
-          <li>
-            <img src="${latestVideo.thumbnail}" 
-                 alt="${latestVideo.title}" 
-                 style="width:100%; height:180px; border-radius:5px; object-fit:cover; cursor:pointer; margin-bottom:5px;">
-            <a href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" 
-               class="folder-link">
-               Watch Now: New Video Available!!!
-            </a>
-          </li>
-        </ul>
-      `;
-      latestDiv.querySelector('img').addEventListener('click', () => {
-        window.location.href = `folder.html?folder=${encodeURIComponent(latestVideo.folder)}`;
-      });
+const folderList = document.getElementById('folderList');
 
-    })
-    .catch(err => console.error("Failed to load videos:", err));
+Object.keys(folders).sort().forEach(folderName => {
+
+const folderVideos = folders[folderName];
+folderVideos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+const latest = folderVideos[0];
+
+const li = document.createElement('li');
+
+const thumb = document.createElement('img');
+thumb.src = latest.thumbnail;
+thumb.alt = folderName;
+thumb.onclick = () => {
+window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
+};
+
+const link = document.createElement('a');
+link.className = "folder-link";
+link.href = "folder.html?folder=" + encodeURIComponent(folderName);
+link.textContent = folderName;
+
+li.appendChild(thumb);
+li.appendChild(link);
+
+folderList.appendChild(li);
+});
+
+const latestVideo = videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+
+const latestDiv = document.getElementById('latestVideo');
+
+latestDiv.innerHTML = `
+<h2>🎥Latest Video🎥</h2>
+<ul class="folder-grid">
+<li>
+<img src="${latestVideo.thumbnail}" style="width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;">
+<a href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" class="folder-link">
+Watch Now: New Video Available!!!
+</a>
+</li>
+</ul>
+`;
+
+latestDiv.querySelector("img").onclick = () => {
+window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.folder);
+};
+
+});
+
 });
 </script>
 
