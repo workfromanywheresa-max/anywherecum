@@ -121,16 +121,14 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 
 .ad-container {
   text-align: center;
-  border-top: 1px solid #ff0000;
-  border-left: 1px solid #ff0000;
-  border-right: 1px solid #ff0000;
-  border-radius: 10px 10px 0 0; /* rounded corners only on top */
+  border: 1px solid #ff0000;  /* full border for top, left, right, bottom */
+  border-radius: 10px;         /* rounded corners all around */
   background-color: #1a1a1a;
   display: inline-block;
   cursor: default;
-  overflow: hidden;
+  overflow: hidden;           /* ensures iframe fits flush */
   transition: transform 0.2s, box-shadow 0.2s;
-  padding-top: 6px; /* only top padding for text */
+  padding-top: 6px;           /* top padding for text */
 }
 
 .ad-container:hover {
@@ -140,36 +138,34 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 
 .ad-text {
   display: block;
-  margin: 0 0 4px 0; /* space below text */
+  margin: 0 0 4px 0; 
   font-size: 14px;
   font-weight: bold;
   color: #fff;
+  user-select: none;    
+  pointer-events: none; /* prevents tap to search */
 }
 
-/* New wrapper around the iframe for bottom border */
-.ad-iframe-wrapper {
-  border-bottom: 2px solid #ff0000; /* hugs iframe exactly */
-  display: inline-block;
-  width: 100%;
+/* Optional: ensure iframe inside container fits flush */
+.ad-container ins {
+  display: block;
+  margin: 0 auto;
 }
 </style>
 
 <div class="ad-wrapper">
   <div class="ad-container">
-    <!-- Text only, not clickable -->
+    <!-- Text -->
     <div class="ad-text">
       <span class="blink">🔴 LIVE</span> Cam Show – Watch Now
     </div>
 
-    <!-- Iframe wrapper with bottom border -->
-    <div class="ad-iframe-wrapper">
-      <!-- JuicyAds v3.0 ad iframe -->
-      <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-      <ins id="1113180" data-width="300" data-height="62"></ins>
-      <script type="text/javascript" data-cfasync="false" async>
-        (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113180});
-      </script>
-    </div>
+    <!-- JuicyAds v3.0 iframe -->
+    <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+    <ins id="1113180" data-width="300" data-height="62"></ins>
+    <script type="text/javascript" data-cfasync="false" async>
+      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113180});
+    </script>
   </div>
 </div>
 
