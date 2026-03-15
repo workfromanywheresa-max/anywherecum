@@ -281,12 +281,62 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
 });
 </script>
 
-<div style="width:100%; text-align:center; margin:10px 0;">
-<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-<ins id="1113177" data-width="300" data-height="112"></ins>
-<script type="text/javascript" data-cfasync="false" async>
-(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113177});
-</script>
+<style>
+/* Blinking LIVE label */
+.blink {
+  animation: blink 1s infinite;
+  color: #ff4444;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+@keyframes blink {
+  0% {opacity: 1;}
+  50% {opacity: 0;}
+  100% {opacity: 1;}
+}
+
+/* Wrapper to center ad */
+.ad-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 15px 0;
+}
+
+/* Styled container for the ad */
+.ad-container {
+  border: 1px solid #ff0000;
+  border-radius: 10px;
+  background-color: #1a1a1a;
+  padding: 10px;
+  display: inline-block;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-align: center;
+}
+
+.ad-container:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 12px #ff0000;
+}
+
+/* Center the JuicyAds iframe */
+.ad-container ins {
+  display: block;
+  margin: 8px auto 0 auto;
+}
+</style>
+
+<div class="ad-wrapper">
+  <div class="ad-container">
+    <div class="blink">🔴 LIVE</div>
+    <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+    <ins id="1113177" data-width="300" data-height="112"></ins>
+    <script type="text/javascript" data-cfasync="false" async>
+      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113177});
+    </script>
+  </div>
 </div>
 
 </body>
