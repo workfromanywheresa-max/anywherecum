@@ -1,154 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VIP Videos</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background: #1a1a1a;
-        color: #fff;
-        margin: 0;
-        padding: 15px;
-      }
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Folder Videos</title>
+<style>
+body { font-family:Arial,sans-serif; background:#1a1a1a; color:#fff; margin:0; padding:15px; }
+h2 { color:#ff4444; border-bottom:2px solid #ff4444; padding-bottom:5px; text-align:center; }
+.description { text-align:center; color:#fff; margin-bottom:20px; }
+.videoBox { background:#222; padding:10px; border-radius:8px; margin-bottom:20px; }
+.preview { width:100%; height:220px; cursor:pointer; overflow:hidden; border-radius:5px; display:flex; align-items:center; justify-content:center; transition: transform 0.3s ease; }
+.preview img { width:100%; height:100%; object-fit:cover; border-radius:5px; transition: transform 0.3s ease; }
+.preview:hover img { transform: scale(1.05); }
+.videoTitle {
+  text-align: center;
+  margin: 8px 0 5px 0;
+  color: #ddd;
+  font-size: 16px;
+  font-weight: normal;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+.videoTitle:hover { color: #fff; transform: scale(1.03); }
+.download { display:block; width:fit-content; margin:10px auto 0 auto; padding:8px 15px; color:#fff; background:#ff4444; font-weight:bold; text-decoration:none; border-radius:5px; text-align:center; transition: background 0.2s ease; }
+.download:hover { background:#ff2222; }
+</style>
+</head>
+<body>
 
-      h2 {
-        color: #ff4444;
-        border-bottom: 2px solid #ff4444;
-        padding-bottom: 5px;
-        text-align: center;
-      }
+<h2 id="folderTitle">Folder Videos</h2>
+<p class="description" id="folderDesc">Enjoy our latest videos.</p>
+<div id="videoList"></div>
 
-      .description {
-        text-align: center;
-        color: #fff;
-        margin-bottom: 20px;
-      }
+<script>
+// Get folder from URL query ?folder=...
+const params = new URLSearchParams(window.location.search);
+let folderName = params.get('folder') || 'Unknown';
+folderName = folderName.replace(/-/g," ").replace(/\b\w/g,c=>c.toUpperCase());
 
-      .videoBox {
-        background: #222;
-        padding: 10px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-      }
+document.getElementById("folderTitle").textContent = folderName + " Folder";
+document.getElementById("folderDesc").textContent = `Enjoy our latest ${folderName} videos, updated regularly for your viewing pleasure.`;
 
-      .preview {
-        position: relative;
-        width: 100%;
-        height: 220px;
-        background: #000;
-        border-radius: 5px;
-        overflow: hidden;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
+// Fetch videos.json
+fetch('videos.json')
+  .then(res => res.json())
+  .then(videos => {
+    const container = document.getElementById("videoList");
+    const folderVideos = videos.filter(v => v.folder.toLowerCase() === folderName.toLowerCase());
+    folderVideos.sort((a,b) => new Date(b.date) - new Date(a.date));
 
-      .preview img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 5px;
-        transition: transform 0.3s ease;
-      }
+    if(folderVideos.length === 0){
+      container.innerHTML = '<p style="text-align:center;color:#ff4444;">No videos found in this folder.</p>';
+      return;
+    }
 
-      .preview img:hover {
-        transform: scale(1.05);
-      }
+    folderVideos.forEach(v => {
+      const box = document.createElement("div");
+      box.className = "videoBox";
 
-      .videoTitle {
-        text-align: center;
-        margin: 8px 0 5px 0;
-        color: #ddd;
-        font-size: 16px;
-        font-weight: normal;
-        cursor: pointer;
-        text-decoration: underline;
-      }
+      // Thumbnail preview clickable
+      const preview = document.createElement("div");
+      preview.className = "preview";
+      const img = document.createElement("img");
+      img.src = v.thumbnail;
+      img.alt = v.title;
+      preview.appendChild(img);
+      preview.addEventListener("click", () => window.open(v.url,"_blank")); // click thumbnail opens video
+      box.appendChild(preview);
 
-      .videoTitle:hover {
-        color: #fff; /* brightens on hover */
-      }
+      // Title above download button clickable
+      const titleEl = document.createElement("h3");
+      titleEl.className = "videoTitle";
+      titleEl.textContent = v.title;
+      titleEl.addEventListener("click", () => window.open(v.url,"_blank")); // click title opens video
+      box.appendChild(titleEl);
 
-      .download {
-        display: block;
-        width: fit-content;
-        margin: 10px auto 0 auto;
-        padding: 8px 15px;
-        color: #fff;
-        background: #ff4444;
-        font-weight: bold;
-        text-decoration: none;
-        border-radius: 5px;
-        text-align: center;
-      }
+      // Download button
+      const button = document.createElement("a");
+      button.className = "download";
+      button.href = v.url;
+      button.target = "_blank";
+      button.textContent = `Download (${v.size})`;
+      box.appendChild(button);
 
-      .download:hover {
-        background: #ff2222;
-      }
-    </style>
-  </head>
-  <body>
-    <h2>VIP Exclusive</h2>
-    <p class="description">
-      Enjoy our premium selection of VIP videos, updated regularly for exclusive content.
-    </p>
-    <div id="videoList"></div>
+      container.appendChild(box);
+    });
+  })
+  .catch(err => {
+    console.error("Failed to load videos.json:", err);
+    document.getElementById("videoList").innerHTML = '<p style="text-align:center;color:#ff4444;">Failed to load videos.</p>';
+  });
+</script>
 
-    <script>
-      fetch('vip.json')
-        .then(response => response.json())
-        .then(vipData => {
-          const container = document.getElementById("videoList");
-
-          // Sort by date descending
-          vipData.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-          vipData.forEach(v => {
-            const box = document.createElement("div");
-            box.className = "videoBox";
-
-            // Thumbnail preview
-            const preview = document.createElement("div");
-            preview.className = "preview";
-
-            const img = document.createElement("img");
-            img.src = v.thumbnail;   // thumbnail image
-            img.alt = v.title;
-            img.addEventListener("click", () => {
-              window.open(v.url, "_blank");  // clicking thumbnail opens watch link
-            });
-
-            preview.appendChild(img);
-            box.appendChild(preview);
-
-            // Clickable title above download button
-            const titleEl = document.createElement("h3");
-            titleEl.className = "videoTitle";
-            titleEl.textContent = v.title;
-            titleEl.addEventListener("click", () => {
-              window.open(v.url, "_blank"); // clicking title opens link
-            });
-            box.appendChild(titleEl);
-
-            // Download button with size only
-            const button = document.createElement("a");
-            button.className = "download";
-            button.href = v.url;
-            button.target = "_blank";
-            button.textContent = `Download (${v.size})`;
-
-            box.appendChild(button);
-            container.appendChild(box);
-          });
-        })
-        .catch(err => {
-          console.error("Failed to load VIP data:", err);
-          document.getElementById("videoList").innerHTML =
-            '<p style="text-align:center;color:#ff4444;">Failed to load VIP videos.</p>';
-        });
-    </script>
-  </body>
+</body>
 </html>
