@@ -33,43 +33,58 @@ document.getElementById("folderDesc").textContent = `Enjoy our latest ${folderNa
 
 // Fetch videos.json
 fetch('videos.json')
-  .then(res=>res.json())
-  .then(videos=>{
+  .then(res => res.json())
+  .then(videos => {
     const container = document.getElementById("videoList");
-    const folderVideos = videos.filter(v=>v.folder.toLowerCase()===folderName.toLowerCase());
-    folderVideos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const folderVideos = videos.filter(v => v.folder.toLowerCase() === folderName.toLowerCase());
+    folderVideos.sort((a,b) => new Date(b.date) - new Date(a.date));
 
-    if(folderVideos.length===0){
-      container.innerHTML='<p style="text-align:center;color:#ff4444;">No videos found in this folder.</p>';
+    if(folderVideos.length === 0){
+      container.innerHTML = '<p style="text-align:center;color:#ff4444;">No videos found in this folder.</p>';
       return;
     }
 
-    folderVideos.forEach(v=>{
+    folderVideos.forEach(v => {
       const box = document.createElement("div");
-      box.className="videoBox";
+      box.className = "videoBox";
 
       const preview = document.createElement("div");
-      preview.className="preview";
+      preview.className = "preview";
       const img = document.createElement("img");
-      img.src=v.thumbnail;
-      img.alt=v.title;
-      img.addEventListener("click",()=>window.open(v.url,"_blank"));
+      img.src = v.thumbnail;
+      img.alt = v.title;
+      img.addEventListener("click", () => window.open(v.url,"_blank"));
       preview.appendChild(img);
       box.appendChild(preview);
 
+      // Clickable title
+      const title = document.createElement("a");
+      title.textContent = v.title;
+      title.href = v.url;
+      title.target = "_blank";
+      title.style.display = "block";
+      title.style.textAlign = "center";
+      title.style.fontWeight = "bold";
+      title.style.margin = "10px 0 5px 0";
+      title.style.color = "#fff";
+      title.style.textDecoration = "none";
+      title.addEventListener("mouseover", () => title.style.color="#ff4444");
+      title.addEventListener("mouseout", () => title.style.color="#fff");
+      box.appendChild(title);
+
       const button = document.createElement("a");
-      button.className="download";
-      button.href=v.url;
-      button.target="_blank";
-      button.textContent=`Download (${v.size})`;
+      button.className = "download";
+      button.href = v.url;
+      button.target = "_blank";
+      button.textContent = `Download (${v.size})`;
       box.appendChild(button);
 
       container.appendChild(box);
     });
   })
-  .catch(err=>{
+  .catch(err => {
     console.error("Failed to load videos.json:", err);
-    document.getElementById("videoList").innerHTML='<p style="text-align:center;color:#ff4444;">Failed to load videos.</p>';
+    document.getElementById("videoList").innerHTML = '<p style="text-align:center;color:#ff4444;">Failed to load videos.</p>';
   });
 </script>
 
