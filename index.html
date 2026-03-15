@@ -281,7 +281,7 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
 });
 </script>
 
-<style>
+  <style>
 /* Wrapper to center ad */
 .ad-wrapper {
   width: 100%;
@@ -299,6 +299,7 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
   display: inline-block;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
+  padding: 0; /* ensure no extra spacing */
 }
 
 /* Hover effect */
@@ -307,20 +308,21 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
   box-shadow: 0 0 12px #ff0000;
 }
 
-/* Blinking LIVE label inside frame */
+/* Blinking LIVE label on top */
 .blink-unique {
   position: absolute;
-  top: 15px; /* increased from 5px for visibility */
+  top: 0; /* flush with top border */
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(-50%); /* slightly above the top edge */
   animation: blink 1s infinite;
   color: #ff4444;
   font-weight: bold;
   font-size: 14px;
-  z-index: 10; /* on top of iframe */
-  background-color: rgba(26,26,26,0.8); /* semi-transparent background */
+  z-index: 9999; /* ensures it's above iframe */
+  background-color: rgba(26,26,26,0.8); /* semi-transparent bg */
   padding: 2px 6px;
   border-radius: 5px;
+  pointer-events: none; /* ensures clicks go to iframe */
 }
 
 /* Blinking animation */
