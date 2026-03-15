@@ -300,38 +300,39 @@ window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.fo
   display: inline-block;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
-  padding: 0; /* no extra space */
+  padding: 0;
 }
 
-/* Top border area */
+/* Top border bar */
 .ad-container-unique::before {
   content: "";
   position: absolute;
-  top: 0; /* align at top of container */
+  top: 0;
   left: 0;
   width: 100%;
-  height: 20px; /* enough space for LIVE label */
-  background-color: #1a1a1a; /* same as container */
-  border-top: 1px solid #ff0000; /* actual top border */
+  height: 20px; /* space for LIVE label */
+  background-color: #1a1a1a; /* match container */
+  border-top: 1px solid #ff0000; /* top border */
   border-radius: 10px 10px 0 0;
   z-index: 1;
 }
 
-/* LIVE label inside top border */
+/* LIVE label */
 .blink-unique {
   position: absolute;
-  top: 2px; /* inside top border */
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
   animation: blink 1s infinite;
   color: #ff4444;
   font-weight: bold;
-  font-size: 12px; /* slightly smaller to fit */
-  z-index: 2;
-  background-color: transparent;
+  font-size: 12px;
+  z-index: 9999; /* always on top */
+  background-color: #1a1a1a; /* optional: same as container to look “inside the bar” */
   padding: 0 6px;
   border-radius: 3px;
   pointer-events: none;
+  line-height: 20px; /* vertically center inside the bar */
 }
 
 /* Hover effect */
