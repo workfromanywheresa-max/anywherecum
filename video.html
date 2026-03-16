@@ -14,7 +14,7 @@ body {
   justify-content: center;
   align-items: center;
   background: #111;
-  gap: 35px; /* more spacing between ads & button */
+  gap: 35px; /* spacing between ads & button */
 }
 
 /* Button style */
@@ -59,36 +59,16 @@ button:hover {
   .button-box { animation: floatButton 3s infinite; }
 }
 
-/* Ads */
-.blink { animation: blink 1s infinite; }
-@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
-
-.ad-wrapper {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-.ad-container {
-  text-align: center;
-  border: 1px solid #ff0000;
-  border-radius: 10px;
-  background: #1a1a1a;
-  padding-top: 6px;
-}
-
-.ad-text {
-  font-size: 14px;
-  font-weight: bold;
-  color: #fff;
-  margin-bottom: 4px;
-}
-
+/* Ad glow animation */
 @keyframes glow {
   0% { box-shadow: 0 0 2px #fff,0 0 5px red; }
   50% { box-shadow: 0 0 6px #fff,0 0 12px red; }
   100% { box-shadow: 0 0 2px #fff,0 0 5px red; }
 }
+
+/* Blinking for “LIVE” text */
+.blink { animation: blink 1s infinite; }
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
 </style>
 </head>
 <body>
@@ -96,27 +76,7 @@ button:hover {
 <!-- Load JuicyAds script ONCE -->
 <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
 
-<!-- TOP AD -->
-<div class="ad-wrapper">
-  <div class="ad-container">
-    <div class="ad-text">
-      <span class="blink">🔴 LIVE</span> Cam Show – Stream Now
-    </div>
-    <ins id="1113180" data-width="300" data-height="62"></ins>
-    <script type="text/javascript">
-      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113180});
-    </script>
-  </div>
-</div>
-
-<!-- BUTTON -->
-<div class="button-box">
-  <button onclick="window.open('https://omg10.com/4/10236414','_blank')">
-    Click to See Video
-  </button>
-</div>
-
-<!-- BOTTOM AD -->
+<!-- TOP AD (moved from bottom) -->
 <div style="position:relative;width:300px;height:112px;border:2px solid red;border-radius:8px;overflow:hidden;text-align:center;">
   <div style="
       position:absolute;
@@ -142,15 +102,20 @@ button:hover {
   </script>
 </div>
 
-  <!-- JuicyAds v3.0 -->
+<!-- BUTTON -->
+<div class="button-box">
+  <button onclick="window.open('https://omg10.com/4/10236414','_blank')">
+    Click to See Video
+  </button>
+</div>
+
+<!-- BOTTOM AD (original ad 3) -->
 <div style="text-align: center;">
-  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
   <ins id="1113289" data-width="308" data-height="298"></ins>
   <script type="text/javascript" data-cfasync="false" async>
     (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113289});
   </script>
 </div>
-<!-- JuicyAds END -->
 
 </body>
 </html>
