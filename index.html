@@ -137,16 +137,22 @@ Click & Watch how to unlock FREE VIP Access
 <!-- Cookie Consent Banner -->
 <div id="cookieBanner" style="
   position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: #555; /* grey background */
-  color: #fff;      /* white text */
+  bottom: 15px; 
+  left: 15px;   
+  right: 15px;  
+  max-width: 500px; 
+  box-sizing: border-box;
+  background: #555; 
+  color: #fff;      
   padding: 15px;
   text-align: center;
   z-index: 9999;
   font-size: 14px;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.5);
+  border-radius: 8px; 
+  box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  transform: translateY(100%);
+  opacity: 0;
+  transition: transform 0.5s ease, opacity 0.5s ease;
 ">
   We use cookies to improve your experience. Read our 
   <a href="terms-privacy.html" style="color:#fff; text-decoration:underline;">Privacy Policy</a>.
@@ -170,11 +176,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // Hide banner if already accepted
   if (localStorage.getItem('cookieAccepted')) {
     cookieBanner.style.display = 'none';
+  } else {
+    // Delay showing the banner by 5 seconds
+    setTimeout(() => {
+      cookieBanner.style.transform = 'translateY(0)';
+      cookieBanner.style.opacity = '1';
+    }, 5000);
   }
 
   // On click, hide and save consent
   acceptBtn.addEventListener('click', () => {
-    cookieBanner.style.display = 'none';
+    cookieBanner.style.transform = 'translateY(100%)';
+    cookieBanner.style.opacity = '0';
+    setTimeout(() => {
+      cookieBanner.style.display = 'none';
+    }, 500); // match the transition duration
     localStorage.setItem('cookieAccepted', 'true');
   });
 
