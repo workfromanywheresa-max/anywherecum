@@ -263,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-  <!-- JuicyAds v3.0 with glowing 🔴 Live -->
+  <!-- JuicyAds v3.0 with flashing 🔴 Live -->
 <div style="position: relative; width: 300px; height: 112px; margin: 0 auto; border: 2px solid red; border-radius: 8px; overflow: hidden; text-align: center;">
 
   <!-- 🔴 Live label -->
@@ -280,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
     z-index: 10;
-    animation: glow 1s infinite alternate;
+    animation: flash 1s infinite;
   ">
     🔴 Live
   </div>
@@ -293,23 +293,13 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 </div>
 
-<!-- Glowing animation -->
+<!-- Flash animation -->
 <style>
-@keyframes glow {
-  0% {
-    box-shadow: 0 0 2px #fff, 0 0 5px red;
-    opacity: 0.8;
-  }
-  50% {
-    box-shadow: 0 0 6px #fff, 0 0 12px red;
-    opacity: 1;
-  }
-  100% {
-    box-shadow: 0 0 2px #fff, 0 0 5px red;
-    opacity: 0.8;
-  }
+@keyframes flash {
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0; }
 }
 </style>
-
+  
 </body>
 </html>
