@@ -13,16 +13,33 @@ body {
   background: #111;
 }
 
-/* Bigger button */
+/* Button style */
 button {
-  padding: 16px 28px;   /* bigger size */
+  padding: 16px 28px;
   background: #007bff;
   color: white;
   border: none;
   cursor: pointer;
   border-radius: 8px;
-  font-size: 20px;      /* bigger text */
+  font-size: 20px;
   font-weight: bold;
+  animation: pulse 1.5s infinite;
+}
+
+/* Pulse animation */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(0,123,255,0.7);
+  }
+  70% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 15px rgba(0,123,255,0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(0,123,255,0);
+  }
 }
 
 button:hover {
