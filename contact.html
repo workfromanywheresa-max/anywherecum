@@ -25,14 +25,16 @@
 
     h1 {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       color: #fff;
+      font-size: 28px;
     }
 
     p {
       text-align: center;
       margin-bottom: 30px;
       color: #ccc;
+      font-size: 16px;
     }
 
     form {
@@ -43,7 +45,10 @@
 
     label {
       font-weight: bold;
-      margin-bottom: 5px;
+      margin-bottom: 8px;
+      display: block;
+      color: #f0f0f0;
+      font-size: 16px;
     }
 
     input, textarea {
@@ -53,6 +58,7 @@
       background-color: #2a2a2a;
       color: #fff;
       font-size: 16px;
+      width: 100%;
       resize: none;
     }
 
@@ -91,24 +97,17 @@
   <p>If you have questions, suggestions, or legal inquiries regarding this website, please use the form below.</p>
 
   <form action="mailto:workfromanywhere.sa@gmail.com" method="post" enctype="text/plain">
-    
-    <div>
-      <label for="name">Name</label>
-      <input type="text" id="name" name="name" required>
-    </div>
 
-    <div>
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" required>
-    </div>
+    <label for="name">Name</label>
+    <input type="text" id="name" name="name" placeholder="Your full name" required>
 
-    <div>
-      <label for="message">Message</label>
-      <textarea id="message" name="message" rows="6" required></textarea>
-    </div>
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" placeholder="you@example.com" required>
+
+    <label for="message">Message</label>
+    <textarea id="message" name="message" rows="6" placeholder="Write your message here..." required></textarea>
 
     <button type="submit">Send Message</button>
-
   </form>
 </div>
 
