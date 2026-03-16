@@ -55,13 +55,12 @@ a.folder-link:hover {
 .blogspot-style-link::after { content: "◀"; position: absolute; right: 5px; animation: bounceRight 1s infinite alternate; }
 .blogspot-style-link:hover { color: #ff4444; text-decoration: underline; }
 
-#latestVideo {
-  margin-bottom: 20px;
-}
+#latestVideo { margin-bottom: 20px; }
 
 #vipList li img, #folderList li img { width: 100%; height: 180px; border-radius: 5px; object-fit: cover; margin-bottom: 5px; }
 
 footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; background: #111; margin-top: 10px; }
+footer a { color: #ff4444; text-decoration: none; margin: 0 10px; }
 
 @media(max-width:600px){ 
   ul { grid-template-columns: 1fr; } 
@@ -83,6 +82,15 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 @keyframes flash { 0% { text-shadow: 0 0 5px #ff4444; } 50% { text-shadow: 0 0 20px #ff4444, 0 0 30px #ff8888; } 100% { text-shadow: 0 0 5px #ff4444; } }
 @keyframes bounceLeft { 0% { transform: translateX(0); } 50% { transform: translateX(5px); } 100% { transform: translateX(0); } }
 @keyframes bounceRight { 0% { transform: translateX(0); } 50% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+
+.blink { animation: blink 1s infinite; }
+@keyframes blink { 0% {opacity:1;} 50% {opacity:0;} 100% {opacity:1;} }
+
+.ad-wrapper { width:100%; display:flex; justify-content:center; margin-top:20px; }
+.ad-container { text-align:center; border:1px solid #ff0000; border-radius:10px; background-color:#1a1a1a; display:inline-block; cursor:default; overflow:hidden; transition:transform 0.2s, box-shadow 0.2s; padding-top:6px; }
+.ad-container:hover { transform:scale(1.05); box-shadow:0 0 12px #ff0000; }
+.ad-text { display:block; margin:0 0 4px 0; font-size:14px; font-weight:bold; color:#fff; user-select:none; pointer-events:none; }
+.ad-container ins { display:block; margin:0 auto; }
 </style>
 <meta name="juicyads-site-verification" content="00ec8046b1fdd1c8dfe12992c41ff734">
 </head>
@@ -98,17 +106,6 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 <p>Explore our exclusive content folders</p>
 <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgcXzmfnaZCcHIY3SCvnmKvNKzqoqlZ2gex-9CNWkM41sD23nP_rzxLeC0uiuxosxFWwOkWoXlLT2pqKycM20NYrGGFhhziXts1tHiLJVyeJz1LTvU2M3kFSwaqvHiJV_p6hItlh48_Qtr09wTdz0cmfqgLOzyfM_dOfWG98-Douk-fAp0zZpWhWmXITx/s720/1000167088.jpg">
 </header>
-
-<style>
-.blink { animation: blink 1s infinite; }
-@keyframes blink { 0% {opacity:1;} 50% {opacity:0;} 100% {opacity:1;} }
-
-.ad-wrapper { width:100%; display:flex; justify-content:center; margin-top:20px; }
-.ad-container { text-align:center; border:1px solid #ff0000; border-radius:10px; background-color:#1a1a1a; display:inline-block; cursor:default; overflow:hidden; transition:transform 0.2s, box-shadow 0.2s; padding-top:6px; }
-.ad-container:hover { transform:scale(1.05); box-shadow:0 0 12px #ff0000; }
-.ad-text { display:block; margin:0 0 4px 0; font-size:14px; font-weight:bold; color:#fff; user-select:none; pointer-events:none; }
-.ad-container ins { display:block; margin:0 auto; }
-</style>
 
 <div class="ad-wrapper">
   <div class="ad-container">
@@ -141,14 +138,6 @@ Click & Watch how to unlock FREE VIP Access
 
 <h2>📂Content Folders📂</h2>
 <ul id="folderList"></ul>
-
-<footer>
-  © 2026 AnywhereCum – Legal content only. 18+<br>
-  <div style="margin-top:8px;">
-    <a href="contact.html" style="color:#ff4444; text-decoration:none; margin:0 10px;">Contact</a> |
-    <a href="terms-privacy.html" style="color:#ff4444; text-decoration:none; margin:0 10px;">Terms & Privacy</a>
-  </div>
-</footer>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -195,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         thumb.src = latest.thumbnail;
         thumb.alt = folderName;
         thumb.onclick = () => { window.location.href="folder.html?folder="+encodeURIComponent(folderName); };
-        const link = document.createElement('a');
+        const link = document.createElement('a");
         link.className="folder-link";
         link.href="folder.html?folder="+encodeURIComponent(folderName);
         link.textContent=folderName;
@@ -220,6 +209,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
+
+<footer>
+  © 2026 AnywhereCum – Legal content only. 18+<br>
+  <a href="contact.html">Contact</a> |
+  <a href="terms-privacy.html">Terms & Privacy</a>
+</footer>
 
 </body>
 </html>
