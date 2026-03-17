@@ -72,8 +72,56 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 </head>
 <body>
 
-<!-- 1️⃣ JuicyAds PopUnders (unchanged) -->
+<!-- 1️⃣ JuicyAds PopUnders -->
 <script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p294137434&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
+
+<!-- 18+ Age Verification Modal -->
+<div id="ageModal" style="
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.95);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  text-align: center;
+  padding: 20px;
+">
+  <img src="https://anywherecum.workfromanywhere-sa.workers.dev/images/header-image.webp" 
+       alt="AnywhereCum" 
+       style="max-width: 300px; width: 80%; border-radius: 10px; margin-bottom: 20px;">
+  <h2 style="color:#ff4444; font-size: 24px; margin-bottom: 10px;">⚠️ 18+ ONLY ⚠️</h2>
+  <p style="color:#fff; font-size:16px; margin-bottom:20px;">You must be 18 years or older to enter this site. Click below to confirm your age or leave the site if you are under 18.</p>
+  <div style="display:flex; gap:15px; flex-wrap:wrap; justify-content:center;">
+    <button id="enterSiteBtn" style="
+      padding: 12px 25px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #ff4444;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 0 10px #ff4444;
+      transition: 0.3s;
+    ">I am 18 or Older</button>
+
+    <button id="leaveSiteBtn" style="
+      padding: 12px 25px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #555;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 0 10px #777;
+      transition: 0.3s;
+    ">Leave Site</button>
+  </div>
+</div>
 
 <header>
 <h1>AnywhereCum</h1>
@@ -81,7 +129,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 <img src="https://anywherecum.workfromanywhere-sa.workers.dev/images/header-image.webp">
 </header>
 
-<!-- 2️⃣ Top LIVE Banner Ad (unchanged) -->
+<!-- 2️⃣ Top LIVE Banner Ad -->
 <div class="ad-wrapper">
   <div class="ad-container">
     <div class="ad-text"><span class="blink">🔴 LIVE</span> Exclusive Stream</div>
@@ -112,7 +160,7 @@ Click & Watch how to unlock FREE VIP Access
 <h2>📂Content Folders📂</h2>
 <ul id="folderList"></ul>
 
-<!-- 3️⃣ Bottom LIVE Ad Block (unchanged) -->
+<!-- 3️⃣ Bottom LIVE Ad Block -->
 <div class="ad-wrapper">
   <div class="ad-container">
     <div class="ad-text"><span class="blink">🔴 LIVE</span> Check This Out!</div>
@@ -128,13 +176,76 @@ Click & Watch how to unlock FREE VIP Access
   © 2026 AnywhereCum – Legal content only. 18+<br>
   <div style="margin-top:8px;">
     <a href="contact.html" style="color:#ff4444; text-decoration:none; margin:0 10px;">Contact</a> |
-    <a href="terms-privacy.html" style="color:#ff4444; text-decoration:none; margin:0 10px;">Terms & Privacy</a>
+    <a href="https://anywherecum.workfromanywhere-sa.workers.dev/terms-privacy.html" style="color:#ff4444; text-decoration:underline; margin:0 10px;">Terms & Privacy</a>
   </div>
 </footer>
+
+<!-- Cookie Consent Banner -->
+<div id="cookieBanner" style="
+  position: fixed;
+  bottom: -100px;
+  left: 0;
+  width: 100%;
+  background-color: #222;
+  color: #fff;
+  padding: 12px 15px;
+  text-align: center;
+  font-size: 14px;
+  z-index: 9998;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap:10px;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.5);
+  transition: bottom 0.5s ease-in-out;
+">
+  We use cookies to improve your experience. 
+  <a href="https://anywherecum.workfromanywhere-sa.workers.dev/terms-privacy.html" target="_blank" style="color:#ff4444; text-decoration: underline;">Privacy Policy</a>
+  <button id="acceptCookies" style="
+    padding: 6px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #ff4444;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 0 5px #ff4444;
+  ">Accept</button>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const BASE_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
+
+  // Age verification
+  const ageModal = document.getElementById('ageModal');
+  const enterBtn = document.getElementById('enterSiteBtn');
+  const leaveBtn = document.getElementById('leaveSiteBtn');
+  if(localStorage.getItem('ageConfirmed') === 'true') {
+    ageModal.style.display = 'none';
+  }
+
+  enterBtn.addEventListener('click', () => {
+    localStorage.setItem('ageConfirmed', 'true');
+    ageModal.style.display = 'none';
+  });
+
+  leaveBtn.addEventListener('click', () => {
+    window.location.href = "https://www.google.com";
+  });
+
+  // Cookie banner with slide effect
+  const banner = document.getElementById('cookieBanner');
+  if(localStorage.getItem('cookiesAccepted') !== 'true') {
+    setTimeout(() => { banner.style.bottom = '0'; }, 300);
+  }
+
+  document.getElementById('acceptCookies').addEventListener('click', () => {
+    localStorage.setItem('cookiesAccepted', 'true');
+    banner.style.bottom = '-100px';
+    setTimeout(() => { banner.style.display = 'none'; }, 500);
+  });
 
   // VIP Section
   fetch('./vip.json')
