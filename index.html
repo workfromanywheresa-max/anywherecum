@@ -6,9 +6,9 @@
 <title>AnywhereCum - Home</title>
 
 <!-- Favicon -->
-<link rel="icon" type="image/png" sizes="32x32" href="https://anywherecum.workfromanywhere-sa.workers.dev/1000170862.png">
-<link rel="apple-touch-icon" href="https://anywherecum.workfromanywhere-sa.workers.dev/1000170862.png">
-<link rel="shortcut icon" href="https://anywherecum.workfromanywhere-sa.workers.dev/1000170862.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://anywherecum.workfromanywhere-sa.workers.dev/images/1000170862.png">
+<link rel="apple-touch-icon" href="https://anywherecum.workfromanywhere-sa.workers.dev/images/1000170862.png">
+<link rel="shortcut icon" href="https://anywherecum.workfromanywhere-sa.workers.dev/images/1000170862.png">
 
 <style>
 body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; margin: 0; padding: 15px; }
@@ -78,7 +78,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 <header>
 <h1>AnywhereCum</h1>
 <p>Explore our exclusive content folders</p>
-<img src="https://anywherecum.workfromanywhere-sa.workers.dev/1000172020.jpg">
+<img src="https://anywherecum.workfromanywhere-sa.workers.dev/images/1000172020.jpg">
 </header>
 
 <!-- 2️⃣ Top LIVE Banner Ad (unchanged) -->
@@ -134,7 +134,7 @@ Click & Watch how to unlock FREE VIP Access
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const BASE_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/";
+  const BASE_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
 
   // VIP Section
   fetch('./vip.json')
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const latestVIP = videos[0];
       const li = document.createElement('li');
       const thumb = document.createElement('img');
-      thumb.src = BASE_URL + latestVIP.thumbnail; // Updated to hosted site
+      thumb.src = BASE_URL + latestVIP.thumbnail;
       thumb.alt = latestVIP.folder;
       thumb.onclick = () => { window.open("https://fc-lc.xyz/ZUkGrHaX", "_blank"); };
       const link = document.createElement('a');
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const latest = folderVideos[0];
         const li = document.createElement('li');
         const thumb = document.createElement('img');
-        thumb.src = BASE_URL + latest.thumbnail; // Updated to hosted site
+        thumb.src = BASE_URL + latest.thumbnail;
         thumb.alt = folderName;
         thumb.onclick = () => { window.location.href="folder.html?folder="+encodeURIComponent(folderName); };
         const link = document.createElement('a');
