@@ -65,13 +65,22 @@ button:hover {
 
 .blink-slow { animation: blink-slow 1.6s infinite; }
 @keyframes blink-slow { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* Glow animation for live labels */
+@keyframes glow {
+  0% { box-shadow: 0 0 2px #fff, 0 0 5px red; opacity: 0.8; }
+  50% { box-shadow: 0 0 6px #fff, 0 0 12px red; opacity: 1; }
+  100% { box-shadow: 0 0 2px #fff, 0 0 5px red; opacity: 0.8; }
+}
 </style>
+
+<!-- JuicyAds loader (keep only once) -->
+<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
 </head>
 <body>
 
-<!-- REPLACED TOP AD -->
+<!-- TOP AD -->
 <div style="position: relative; width: 300px; height: 112px; margin: 20px auto; border: 2px solid red; border-radius: 8px; overflow: hidden; text-align: center;">
-
   <!-- 🔴 Live label -->
   <div style="
     position: absolute;
@@ -92,30 +101,12 @@ button:hover {
     🔴 Live
   </div>
 
-  <!-- JuicyAds script -->
-  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+  <!-- JuicyAds top ad -->
   <ins id="1113290" data-width="300" data-height="112" style="position: relative; z-index: 1;"></ins>
   <script type="text/javascript" data-cfasync="false" async>
     (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113290});
   </script>
 </div>
-
-<style>
-@keyframes glow {
-  0% {
-    box-shadow: 0 0 2px #fff, 0 0 5px red;
-    opacity: 0.8;
-  }
-  50% {
-    box-shadow: 0 0 6px #fff, 0 0 12px red;
-    opacity: 1;
-  }
-  100% {
-    box-shadow: 0 0 2px #fff, 0 0 5px red;
-    opacity: 0.8;
-  }
-}
-</style>
 
 <!-- BUTTON WITH POPUNDER -->
 <div class="button-box">
@@ -129,16 +120,17 @@ function openPopunder() {
   var url = 'https://www.juicyads.rocks'; // Direct URL
   var newWindow = window.open(url, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
   if (newWindow) {
-    newWindow.blur();  // Remove focus from new window
-    window.focus();    // Focus back to main window
+    newWindow.blur();
+    window.focus();
   } else {
     window.location.href = url;
   }
 }
 </script>
 
-<!-- BOTTOM AD (FIXED) -->
-<div style="position:relative;width:308px;height:302px;border:2px solid red;border-radius:8px;overflow:hidden;text-align:center;">
+<!-- BOTTOM AD (REPLACED) -->
+<div style="position:relative;width:308px;height:298px;border:2px solid red;border-radius:8px;overflow:hidden;text-align:center;margin:20px auto;">
+  <!-- 🔴 Live Cams label -->
   <div style="
       position:absolute;
       top:0;
@@ -157,14 +149,13 @@ function openPopunder() {
   ">
     <span class="blink-slow">🔴 Live Cams</span>
   </div>
+
+  <!-- JuicyAds bottom ad -->
   <ins id="1113289" data-width="308" data-height="298"></ins>
   <script type="text/javascript" data-cfasync="false" async>
     (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113289});
   </script>
 </div>
-
-<!-- JuicyAds loader (keep only once) -->
-<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
 
 </body>
 </html>
