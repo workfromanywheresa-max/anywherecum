@@ -75,51 +75,55 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 <!-- 1️⃣ JuicyAds PopUnders -->
 <script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p294137434&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
 
-<!-- 18+ Age Verification Modal -->
+<!-- 18+ Age Verification Modal with Fade In -->
 <div id="ageModal" style="
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
   background: rgba(0,0,0,0.95);
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
   z-index: 9999;
   text-align: center;
   padding: 20px;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
 ">
-  <img src="https://anywherecum.workfromanywhere-sa.workers.dev/images/header-image.webp" 
-       alt="AnywhereCum" 
-       style="max-width: 300px; width: 80%; border-radius: 10px; margin-bottom: 20px;">
-  <h2 style="color:#ff4444; font-size: 24px; margin-bottom: 10px;">⚠️ 18+ ONLY ⚠️</h2>
-  <p style="color:#fff; font-size:16px; margin-bottom:20px;">You must be 18 years or older to enter this site. Click below to confirm your age or leave the site if you are under 18.</p>
-  <div style="display:flex; gap:15px; flex-wrap:wrap; justify-content:center;">
-    <button id="enterSiteBtn" style="
-      padding: 12px 25px;
-      font-size: 16px;
-      font-weight: bold;
-      color: #fff;
-      background-color: #ff4444;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      box-shadow: 0 0 10px #ff4444;
-      transition: 0.3s;
-    ">I am 18 or Older</button>
+  <div style="max-width: 400px; width: 90%; background: #111; padding: 25px; border-radius: 12px; box-shadow: 0 0 15px #ff4444;">
+    <img src="https://anywherecum.workfromanywhere-sa.workers.dev/images/header-image.webp" 
+         alt="AnywhereCum" 
+         style="max-width: 100%; width: 100%; border-radius: 10px; margin-bottom: 20px;">
+    <h2 style="color:#ff4444; font-size: 24px; margin-bottom: 10px;">⚠️ 18+ ONLY ⚠️</h2>
+    <p style="color:#fff; font-size:16px; margin-bottom:20px;">You must be 18 years or older to enter this site. Click below to confirm your age or leave the site if you are under 18.</p>
+    <div style="display:flex; gap:15px; flex-wrap:wrap; justify-content:center;">
+      <button id="enterSiteBtn" style="
+        padding: 12px 25px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #fff;
+        background-color: #ff4444;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 0 10px #ff4444;
+        transition: 0.3s;
+      ">I am 18 or Older</button>
 
-    <button id="leaveSiteBtn" style="
-      padding: 12px 25px;
-      font-size: 16px;
-      font-weight: bold;
-      color: #fff;
-      background-color: #555;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      box-shadow: 0 0 10px #777;
-      transition: 0.3s;
-    ">Leave Site</button>
+      <button id="leaveSiteBtn" style="
+        padding: 12px 25px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #fff;
+        background-color: #555;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 0 10px #777;
+        transition: 0.3s;
+      ">Leave Site</button>
+    </div>
   </div>
 </div>
 
@@ -218,24 +222,30 @@ Click & Watch how to unlock FREE VIP Access
 document.addEventListener('DOMContentLoaded', () => {
   const BASE_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
 
-  // Age verification
+  // 18+ Age Modal
   const ageModal = document.getElementById('ageModal');
   const enterBtn = document.getElementById('enterSiteBtn');
   const leaveBtn = document.getElementById('leaveSiteBtn');
-  if(localStorage.getItem('ageConfirmed') === 'true') {
-    ageModal.style.display = 'none';
-  }
+
+  setTimeout(() => {
+    if(localStorage.getItem('ageConfirmed') !== 'true'){
+      ageModal.style.opacity = '1';
+    } else {
+      ageModal.style.display = 'none';
+    }
+  }, 100);
 
   enterBtn.addEventListener('click', () => {
     localStorage.setItem('ageConfirmed', 'true');
-    ageModal.style.display = 'none';
+    ageModal.style.opacity = '0';
+    setTimeout(() => { ageModal.style.display = 'none'; }, 500);
   });
 
   leaveBtn.addEventListener('click', () => {
     window.location.href = "https://www.google.com";
   });
 
-  // Cookie banner with slide effect
+  // Cookie banner slide
   const banner = document.getElementById('cookieBanner');
   if(localStorage.getItem('cookiesAccepted') !== 'true') {
     setTimeout(() => { banner.style.bottom = '0'; }, 300);
