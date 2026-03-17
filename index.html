@@ -126,8 +126,8 @@ Click & Watch how to unlock FREE VIP Access
 <h2>📂Content Folders📂</h2>
 <ul id="folderList"></ul>
 
-  <!-- JuicyAds v3.0 with glowing 🔴 Live -->
-<div style="position: relative; width: 300px; height: 112px; margin: 0 auto; border: 2px solid red; border-radius: 8px; overflow: hidden; text-align: center;">
+<!-- Replaced Bottom JuicyAds -->
+<div style="position: relative; width: 300px; height: 112px; margin: 20px auto; border: 2px solid red; border-radius: 8px; overflow: hidden; text-align: center;">
 
   <!-- 🔴 Live label -->
   <div style="
@@ -142,8 +142,8 @@ Click & Watch how to unlock FREE VIP Access
     padding: 2px 6px;
     border-bottom-left-radius: 4px;
     border-bottom-right-radius: 4px;
-    z-index: 9999; /* 🔥 Make it super high */
-    pointer-events: none; /* Allows clicks through label */
+    z-index: 9999;
+    pointer-events: none;
     animation: glow 1s infinite alternate;
   ">
     🔴 Live
@@ -151,9 +151,9 @@ Click & Watch how to unlock FREE VIP Access
 
   <!-- JuicyAds script -->
   <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-  <ins id="1113177" data-width="300" data-height="112" style="position: relative; z-index: 1;"></ins>
+  <ins id="1113290" data-width="300" data-height="112" style="position: relative; z-index: 1;"></ins>
   <script type="text/javascript" data-cfasync="false" async>
-    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113177});
+    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113290});
   </script>
 </div>
 
@@ -222,24 +222,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const cookieBanner = document.getElementById('cookieBanner');
   const acceptBtn = document.getElementById('cookieAccept');
 
-  // Hide banner if already accepted
   if (localStorage.getItem('cookieAccepted')) {
     cookieBanner.style.display = 'none';
   } else {
-    // Delay showing the banner by 5 seconds
     setTimeout(() => {
       cookieBanner.style.transform = 'translateY(0)';
       cookieBanner.style.opacity = '1';
     }, 5000);
   }
 
-  // On click, hide and save consent
   acceptBtn.addEventListener('click', () => {
     cookieBanner.style.transform = 'translateY(100%)';
     cookieBanner.style.opacity = '0';
     setTimeout(() => {
       cookieBanner.style.display = 'none';
-    }, 500); // match the transition duration
+    }, 500);
     localStorage.setItem('cookieAccepted', 'true');
   });
 
