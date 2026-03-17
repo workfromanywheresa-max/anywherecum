@@ -6,9 +6,9 @@
 <title>AnywhereCum - Home</title>
 
 <!-- Favicon -->
-<link rel="icon" type="image/png" sizes="32x32" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjxE0OsDNN9GOep_boJFOR7YcuSaelCTmGLFGcE2ViXXJ1TkMJ7s5R7kyO2RGE4CjDvvttEpDwxOTIB80-4EbyonnW6Zaric3R6HMkCvqJIKDSah1f2SigHu90rOtg-VdzawQJ5RgYfyOXZ4Smg6CpWRfpYNf7HIQ6x443wj6snohUedypZXBuftXxsoLSd/s0/1000170862.png">
-<link rel="apple-touch-icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjxE0OsDNN9GOep_boJFOR7YcuSaelCTmGLFGcE2ViXXJ1TkMJ7s5R7kyO2RGE4CjDvvttEpDwxOTIB80-4EbyonnW6Zaric3R6HMkCvqJIKDSah1f2SigHu90rOtg-VdzawQJ5RgYfyOXZ4Smg6CpWRfpYNf7HIQ6x443wj6snohUedypZXBuftXxsoLSd/s0/1000170862.png">
-<link rel="shortcut icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjxE0OsDNN9GOep_boJFOR7YcuSaelCTmGLFGcE2ViXXJ1TkMJ7s5R7kyO2RGE4CjDvvttEpDwxOTIB80-4EbyonnW6Zaric3R6HMkCvqJIKDSah1f2SigHu90rOtg-VdzawQJ5RgYfyOXZ4Smg6CpWRfpYNf7HIQ6x443wj6snohUedypZXBuftXxsoLSd/s0/1000170862.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://anywherecum.workfromanywhere-sa.workers.dev/1000170862.png">
+<link rel="apple-touch-icon" href="https://anywherecum.workfromanywhere-sa.workers.dev/1000170862.png">
+<link rel="shortcut icon" href="https://anywherecum.workfromanywhere-sa.workers.dev/1000170862.png">
 
 <style>
 body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; margin: 0; padding: 15px; }
@@ -72,16 +72,16 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 </head>
 <body>
 
-<!-- 1️⃣ JuicyAds PopUnders -->
+<!-- 1️⃣ JuicyAds PopUnders (unchanged) -->
 <script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p294137434&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
 
 <header>
 <h1>AnywhereCum</h1>
 <p>Explore our exclusive content folders</p>
-<img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg87Gd3aPOan8-NWULnyKy4dZrD4yt25KcmcTj2CbNjBRLwxFDI-LJdk99EPf4Ie7LZyiX6AmVmP2mmXcLJR-ARBHJKkiWZUwstlhf0fSBVtY3yMcFk3dKFQBMU5u97N5QHYPxJLJG5REQQnRP4CDrBPHal-gF8UeemHxOj77xNr33VC-b_hgYNSmPpZ0Jj/s320/1000172020.jpg">
+<img src="https://anywherecum.workfromanywhere-sa.workers.dev/1000172020.jpg">
 </header>
 
-<!-- 2️⃣ Top LIVE Banner Ad -->
+<!-- 2️⃣ Top LIVE Banner Ad (unchanged) -->
 <div class="ad-wrapper">
   <div class="ad-container">
     <div class="ad-text"><span class="blink">🔴 LIVE</span> Exclusive Stream</div>
@@ -112,7 +112,7 @@ Click & Watch how to unlock FREE VIP Access
 <h2>📂Content Folders📂</h2>
 <ul id="folderList"></ul>
 
-<!-- 3️⃣ Bottom LIVE Ad Block -->
+<!-- 3️⃣ Bottom LIVE Ad Block (unchanged) -->
 <div class="ad-wrapper">
   <div class="ad-container">
     <div class="ad-text"><span class="blink">🔴 LIVE</span> Check This Out!</div>
@@ -134,6 +134,8 @@ Click & Watch how to unlock FREE VIP Access
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  const BASE_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/";
+
   // VIP Section
   fetch('./vip.json')
     .then(res => res.json())
@@ -144,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const latestVIP = videos[0];
       const li = document.createElement('li');
       const thumb = document.createElement('img');
-      thumb.src = latestVIP.thumbnail;
+      thumb.src = BASE_URL + latestVIP.thumbnail; // Updated to hosted site
       thumb.alt = latestVIP.folder;
       thumb.onclick = () => { window.open("https://fc-lc.xyz/ZUkGrHaX", "_blank"); };
       const link = document.createElement('a');
@@ -174,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const latest = folderVideos[0];
         const li = document.createElement('li');
         const thumb = document.createElement('img');
-        thumb.src = latest.thumbnail;
+        thumb.src = BASE_URL + latest.thumbnail; // Updated to hosted site
         thumb.alt = folderName;
         thumb.onclick = () => { window.location.href="folder.html?folder="+encodeURIComponent(folderName); };
         const link = document.createElement('a');
@@ -192,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <h2>🎥Latest Video🎥</h2>
       <ul class="folder-grid">
         <li>
-          <img src="${latestVideo.thumbnail}" style="width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;">
+          <img src="${BASE_URL + latestVideo.thumbnail}" style="width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;">
           <a href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" class="folder-link">Watch Now: New Video Available!!!</a>
         </li>
       </ul>`;
