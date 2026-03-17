@@ -76,13 +76,6 @@ button:hover {
 </head>
 <body>
 
-  <!-- JuicyAds PopUnders v3 Start -->
-<script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p294137434&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
-<!-- JuicyAds PopUnders v3 End -->
-
-<!-- Load JuicyAds script ONCE -->
-<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-
 <!-- TOP AD -->
 <div style="position:relative;width:300px;height:112px;border:2px solid red;border-radius:8px;overflow:hidden;text-align:center;">
   <div style="
@@ -109,12 +102,26 @@ button:hover {
   </script>
 </div>
 
-<!-- BUTTON -->
+<!-- BUTTON WITH POPUNDER -->
 <div class="button-box">
-  <button type="button">
+  <button type="button" onclick="openPopunder()">
     Click to See Video
   </button>
 </div>
+
+<script>
+function openPopunder() {
+  var url = 'https://www.juicyads.rocks'; // Direct URL
+  var newWindow = window.open(url, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+  if (newWindow) {
+    newWindow.blur();  // Remove focus from new window
+    window.focus();    // Focus back to main window
+  } else {
+    // Fallback if popup blocked
+    window.location.href = url;
+  }
+}
+</script>
 
 <!-- BOTTOM AD (FIXED) -->
 <div style="position:relative;width:308px;height:302px;border:2px solid red;border-radius:8px;overflow:hidden;text-align:center;">
@@ -141,6 +148,9 @@ button:hover {
     (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113289});
   </script>
 </div>
+
+<!-- JuicyAds loader (keep only once) -->
+<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
 
 </body>
 </html>
