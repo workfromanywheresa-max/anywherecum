@@ -59,13 +59,6 @@ button:hover {
   .button-box { animation: floatButton 3s infinite; }
 }
 
-/* Ad glow animation */
-@keyframes glow {
-  0% { box-shadow: 0 0 2px #fff,0 0 5px red; }
-  50% { box-shadow: 0 0 6px #fff,0 0 12px red; }
-  100% { box-shadow: 0 0 2px #fff,0 0 5px red; }
-}
-
 /* Blinking animations */
 .blink { animation: blink 1s infinite; }
 @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
@@ -76,31 +69,53 @@ button:hover {
 </head>
 <body>
 
-<!-- TOP AD -->
-<div style="position:relative;width:300px;height:112px;border:2px solid red;border-radius:8px;overflow:hidden;text-align:center;">
+<!-- REPLACED TOP AD -->
+<div style="position: relative; width: 300px; height: 112px; margin: 20px auto; border: 2px solid red; border-radius: 8px; overflow: hidden; text-align: center;">
+
+  <!-- 🔴 Live label -->
   <div style="
-      position:absolute;
-      top:0;
-      left:50%;
-      transform:translateX(-50%);
-      background:red;
-      color:white;
-      font-weight:bold;
-      font-size:12px;
-      padding:2px 6px;
-      border-bottom-left-radius:4px;
-      border-bottom-right-radius:4px;
-      z-index:9999;
-      pointer-events:none;
-      animation:glow 1s infinite alternate;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: red;
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    z-index: 9999;
+    pointer-events: none;
+    animation: glow 1s infinite alternate;
   ">
-    <span class="blink">🔴 Live</span>
+    🔴 Live
   </div>
-  <ins id="1113177" data-width="300" data-height="112"></ins>
-  <script type="text/javascript">
-    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113177});
+
+  <!-- JuicyAds script -->
+  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+  <ins id="1113290" data-width="300" data-height="112" style="position: relative; z-index: 1;"></ins>
+  <script type="text/javascript" data-cfasync="false" async>
+    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113290});
   </script>
 </div>
+
+<style>
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 2px #fff, 0 0 5px red;
+    opacity: 0.8;
+  }
+  50% {
+    box-shadow: 0 0 6px #fff, 0 0 12px red;
+    opacity: 1;
+  }
+  100% {
+    box-shadow: 0 0 2px #fff, 0 0 5px red;
+    opacity: 0.8;
+  }
+}
+</style>
 
 <!-- BUTTON WITH POPUNDER -->
 <div class="button-box">
@@ -117,7 +132,6 @@ function openPopunder() {
     newWindow.blur();  // Remove focus from new window
     window.focus();    // Focus back to main window
   } else {
-    // Fallback if popup blocked
     window.location.href = url;
   }
 }
