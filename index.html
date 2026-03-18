@@ -15,6 +15,7 @@ body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; margin:
 header { text-align: center; padding: 5px 10px; background: #111; }
 header h1 { color: #ff4444; margin: 2px 0; font-size: 20px; }
 header p { margin: 0 0 2px 0; font-size: 12px; }
+header img { max-width: 100%; height: auto; margin: 0; border-radius: 8px; }
 
 #visitSite { font-size: 12px; text-align: center; margin-bottom: 10px; }
 #visitSite a { color: #ff4444; text-decoration: none; font-weight: bold; animation: flash 1s infinite alternate; position: relative; padding: 0 25px; display: inline-block; font-size: 12px; }
@@ -39,6 +40,11 @@ a.folder-link:hover { color: #ff4444; text-decoration: underline; }
 #latestVideo { margin-bottom: 20px; }
 #vipList li img, #folderList li img { width: 100%; height: 180px; border-radius: 5px; object-fit: cover; margin-bottom: 5px; }
 
+/* Skeleton Loader Styles */
+.skeleton { background: #333; border-radius: 5px; position: relative; overflow: hidden; }
+.skeleton::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); animation: loading 1.5s infinite; }
+@keyframes loading { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
+
 footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; background: #111; margin-top: 10px; }
 
 @media(max-width:600px){ ul { grid-template-columns: 1fr; } }
@@ -58,71 +64,64 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 .ad-container:hover { transform:scale(1.05); box-shadow:0 0 12px #ff0000; }
 .ad-text { display:block; margin:0 0 4px 0; font-size:14px; font-weight:bold; color:#fff; user-select:none; pointer-events:none; }
 .ad-container ins { display:block; margin:0 auto; }
-
-@keyframes glow {
-  0% { box-shadow: 0 0 2px #fff, 0 0 5px red; opacity: 0.8; }
-  50% { box-shadow: 0 0 6px #fff, 0 0 12px red; opacity: 1; }
-  100% { box-shadow: 0 0 2px #fff, 0 0 5px red; opacity: 0.8; }
-}
-
-/* Skeleton Loader */
-.skeleton { position: relative; background: #333; overflow: hidden; }
-.skeleton::after {
-  content: '';
-  position: absolute;
-  top: 0; left: -150px;
-  width: 100px; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  animation: loading 1.2s infinite;
-}
-@keyframes loading { 0% { left: -150px; } 50% { left: 100%; } 100% { left: 100%; } }
-.skeleton img { display:block; width:100%; height:100%; object-fit:cover; border-radius:inherit; }
 </style>
+
+<meta name="juicyads-site-verification" content="00ec8046b1fdd1c8dfe12992c41ff734">
 
 </head>
 <body>
 
-<!-- 18+ Age Modal -->
-<div id="ageModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;justify-content:center;align-items:center;z-index:9999; text-align:center; padding:20px; opacity:0; transition:opacity 0.8s;">
+<!-- 1️⃣ JuicyAds PopUnders -->
+<script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p294137434&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
+
+<!-- 18+ Age Verification Modal -->
+<div id="ageModal" style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); display:flex; justify-content:center; align-items:center; z-index:9999; text-align:center; padding:20px; opacity:0; transition: opacity 0.8s ease-in-out;">
   <div style="max-width:400px;width:90%;background:#111;padding:25px;border-radius:12px;box-shadow:0 0 15px #ff4444;">
-    <div class="skeleton" style="width:100%;height:180px;border-radius:10px;">
-      <img src="https://anywherecum.workfromanywhere-sa.workers.dev/images/header-image.webp" alt="AnywhereCum">
-    </div>
-    <h2 style="color:#ff4444;font-size:24px;margin:10px 0;">⚠️ 18+ ONLY ⚠️</h2>
-    <p style="color:#fff;font-size:16px;margin-bottom:20px;">You must be 18 years or older to enter this site. Click below to confirm your age or leave the site if you are under 18.</p>
-    <div style="display:flex;gap:15px;flex-wrap:wrap;justify-content:center;">
-      <button id="enterSiteBtn" style="padding:12px 25px;font-size:16px;font-weight:bold;color:#fff;background:#ff4444;border:none;border-radius:8px;cursor:pointer;">I am 18 or Older</button>
-      <button id="leaveSiteBtn" style="padding:12px 25px;font-size:16px;font-weight:bold;color:#fff;background:#555;border:none;border-radius:8px;cursor:pointer;">Leave Site</button>
+    <img src="https://anywherecum.workfromanywhere-sa.workers.dev/images/header-image.webp" alt="AnywhereCum" style="max-width:100%; width:100%; border-radius:10px; margin-bottom:20px;">
+    <h2 style="color:#ff4444; font-size:24px; margin-bottom:10px;">⚠️ 18+ ONLY ⚠️</h2>
+    <p style="color:#fff; font-size:16px; margin-bottom:20px;">You must be 18 years or older to enter this site. Click below to confirm your age or leave the site if you are under 18.</p>
+    <div style="display:flex; gap:15px; flex-wrap:wrap; justify-content:center;">
+      <button id="enterSiteBtn" style="padding:12px 25px; font-size:16px; font-weight:bold; color:#fff; background-color:#ff4444; border:none; border-radius:8px; cursor:pointer; box-shadow:0 0 10px #ff4444; transition:0.3s;">I am 18 or Older</button>
+      <button id="leaveSiteBtn" style="padding:12px 25px; font-size:16px; font-weight:bold; color:#fff; background-color:#555; border:none; border-radius:8px; cursor:pointer; box-shadow:0 0 10px #777; transition:0.3s;">Leave Site</button>
     </div>
   </div>
 </div>
 
 <header>
-  <h1>AnywhereCum</h1>
-  <p>Explore our exclusive content folders</p>
-  <div class="skeleton" style="width:100%;height:180px;border-radius:8px;">
-    <img src="https://anywherecum.workfromanywhere-sa.workers.dev/images/header-image.webp" alt="AnywhereCum">
-  </div>
+<h1>AnywhereCum</h1>
+<p>Explore our exclusive content folders</p>
+<img src="https://anywherecum.workfromanywhere-sa.workers.dev/images/header-image.webp">
 </header>
 
+<!-- 2️⃣ Top LIVE Banner Ad -->
 <div class="ad-wrapper">
   <div class="ad-container">
     <div class="ad-text"><span class="blink">🔴 LIVE</span> Exclusive Stream</div>
+    <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
     <ins id="1113327" data-width="300" data-height="62"></ins>
-    <script type="text/javascript">(adsbyjuicy=window.adsbyjuicy||[]).push({'adzone':1113327});</script>
+    <script type="text/javascript" data-cfasync="false" async>
+      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113327});
+    </script>
   </div>
 </div>
 
-<div id="latestVideo" class="skeleton" style="height:200px;"></div>
+<!-- Latest Video Skeleton -->
+<div id="latestVideo">
+  <h2>🎥Latest Video🎥</h2>
+  <ul class="folder-grid">
+    <li class="skeleton" style="height:180px;"></li>
+  </ul>
+</div>
 
+<!-- VIP Section Skeleton -->
 <section id="vipSection">
 <h2>🔒VIP Vault🔒</h2>
-<div id="vipCTA" style="text-align:center;margin-bottom:15px;">
-<a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4" target="_blank" class="blogspot-style-link">
-Click & Watch how to unlock FREE VIP Access
-</a>
+<div id="vipCTA" style="text-align:center; margin-bottom:15px;">
+<a href="#" class="blogspot-style-link">Loading VIP Access...</a>
 </div>
-<ul id="vipList"></ul>
+<ul id="vipList">
+  <li class="skeleton" style="height:180px;"></li>
+</ul>
 </section>
 
 <div id="visitSite">
@@ -130,82 +129,99 @@ Click & Watch how to unlock FREE VIP Access
 </div>
 
 <h2>📂Content Folders📂</h2>
-<ul id="folderList"></ul>
+<ul id="folderList">
+  <li class="skeleton" style="height:180px;"></li>
+  <li class="skeleton" style="height:180px;"></li>
+</ul>
 
+<!-- 3️⃣ Bottom LIVE Ad Block -->
 <div class="ad-wrapper">
   <div class="ad-container">
     <div class="ad-text"><span class="blink">🔴 LIVE</span> Check This Out!</div>
+    <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
     <ins id="1113290" data-width="300" data-height="112"></ins>
-    <script type="text/javascript">(adsbyjuicy=window.adsbyjuicy||[]).push({'adzone':1113290});</script>
+    <script type="text/javascript" data-cfasync="false" async>
+      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113290});
+    </script>
   </div>
 </div>
 
 <footer>
-© 2026 AnywhereCum – Legal content only. 18+<br>
-<div style="margin-top:8px;">
-  <a href="contact.html" style="color:#ff4444;text-decoration:none;margin:0 10px;">Contact</a> |
-  <a href="https://anywherecum.workfromanywhere-sa.workers.dev/terms-privacy.html" style="color:#ff4444;text-decoration:underline;margin:0 10px;">Terms & Privacy</a>
-</div>
+  © 2026 AnywhereCum – Legal content only. 18+<br>
+  <div style="margin-top:8px;">
+    <a href="contact.html" style="color:#ff4444; text-decoration:none; margin:0 10px;">Contact</a> |
+    <a href="https://anywherecum.workfromanywhere-sa.workers.dev/terms-privacy.html" style="color:#ff4444; text-decoration:underline; margin:0 10px;">Terms & Privacy</a>
+  </div>
 </footer>
 
-<div id="cookieBanner" style="position:fixed;bottom:-100px;left:0;width:100%;background:#222;color:#fff;padding:12px 15px;text-align:center;display:flex;justify-content:center;align-items:center;gap:10px;transition:bottom 0.5s;flex-wrap:wrap;">
-<span style="max-width:100%;text-align:center;">We use cookies to improve your experience. <a href="https://anywherecum.workfromanywhere-sa.workers.dev/terms-privacy.html" target="_blank" style="color:#ff4444;text-decoration:underline;">Privacy Policy</a></span>
-<button id="acceptCookies" style="padding:6px 15px;font-size:14px;font-weight:bold;color:#fff;background:#ff4444;border:none;border-radius:5px;cursor:pointer;">Accept</button>
+<!-- Cookie Consent Banner -->
+<div id="cookieBanner" style="position:fixed; bottom:-100px; left:0; width:100%; background-color:#222; color:#fff; padding:12px 15px; text-align:center; font-size:14px; z-index:9998; display:flex; justify-content:center; align-items:center; gap:10px; box-sizing:border-box; transition: bottom 0.5s ease-in-out; flex-wrap: wrap;">
+  <span style="max-width: 100%; text-align: center;">
+    We use cookies to improve your experience. 
+    <a href="https://anywherecum.workfromanywhere-sa.workers.dev/terms-privacy.html" target="_blank" style="color:#ff4444; text-decoration: underline;">Privacy Policy</a>
+  </span>
+  <button id="acceptCookies" style="padding:6px 15px; font-size:14px; font-weight:bold; color:#fff; background-color:#ff4444; border:none; border-radius:5px; cursor:pointer; box-shadow:0 0 5px #ff4444;">Accept</button>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  const BASE_URL="https://anywherecum.workfromanywhere-sa.workers.dev/images/";
-  
+  const BASE_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
+
   // Age Modal
-  const ageModal=document.getElementById('ageModal');
-  const enterBtn=document.getElementById('enterSiteBtn');
-  const leaveBtn=document.getElementById('leaveSiteBtn');
-  if(localStorage.getItem('ageConfirmed')!=='true'){ setTimeout(()=>{ageModal.style.opacity='1';},100);}
-  else{ ageModal.style.display='none'; }
-  enterBtn.onclick=()=>{ localStorage.setItem('ageConfirmed','true'); ageModal.style.opacity='0'; setTimeout(()=>{ageModal.style.display='none';},500);}
-  leaveBtn.onclick=()=>{ window.location.href="https://www.google.com"; }
+  const ageModal = document.getElementById('ageModal');
+  const enterBtn = document.getElementById('enterSiteBtn');
+  const leaveBtn = document.getElementById('leaveSiteBtn');
+  setTimeout(() => {
+    if(localStorage.getItem('ageConfirmed') !== 'true') ageModal.style.opacity = '1';
+    else ageModal.style.display = 'none';
+  }, 100);
+  enterBtn.onclick = () => { localStorage.setItem('ageConfirmed','true'); ageModal.style.opacity='0'; setTimeout(()=>{ageModal.style.display='none';},500);}
+  leaveBtn.onclick = () => window.location.href="https://www.google.com";
 
-  // Cookie Banner
-  const banner=document.getElementById('cookieBanner');
+  // Cookies
+  const banner = document.getElementById('cookieBanner');
   if(localStorage.getItem('cookiesAccepted')!=='true'){ setTimeout(()=>{banner.style.bottom='0';},300);}
-  document.getElementById('acceptCookies').onclick=()=>{ localStorage.setItem('cookiesAccepted','true'); banner.style.bottom='-100px'; setTimeout(()=>{banner.style.display='none';},500); }
+  document.getElementById('acceptCookies').onclick=()=>{
+    localStorage.setItem('cookiesAccepted','true'); banner.style.bottom='-100px'; setTimeout(()=>{banner.style.display='none';},500);
+  }
 
-  // VIP Section
-  fetch('./vip.json').then(r=>r.json()).then(videos=>{
-    const container=document.getElementById('vipList');
+  // Fetch VIP
+  fetch('./vip.json').then(res=>res.json()).then(videos=>{
     if(!videos.length) return;
-    const latestVIP=videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+    const container=document.getElementById('vipList'); container.innerHTML='';
+    videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const latestVIP=videos[0];
     const li=document.createElement('li');
-    const thumbWrapper=document.createElement('div'); thumbWrapper.className="skeleton"; thumbWrapper.style.height="180px";
     const thumb=document.createElement('img'); thumb.src=BASE_URL+latestVIP.thumbnail; thumb.alt=latestVIP.folder;
-    thumb.onload=()=>thumbWrapper.classList.remove('skeleton');
-    thumbWrapper.appendChild(thumb); thumbWrapper.onclick=()=>{ window.open("https://fc-lc.xyz/ZUkGrHaX","_blank"); }
+    thumb.onclick=()=>window.open("https://fc-lc.xyz/ZUkGrHaX","_blank");
     const link=document.createElement('a'); link.className="folder-link"; link.href="https://fc-lc.xyz/ZUkGrHaX"; link.target="_blank"; link.textContent=latestVIP.folder;
-    li.appendChild(thumbWrapper); li.appendChild(link); container.appendChild(li);
+    li.appendChild(thumb); li.appendChild(link); container.appendChild(li);
   });
 
-  // Content Folders
-  fetch('./videos.json').then(r=>r.json()).then(videos=>{
+  // Fetch Content Folders
+  fetch('./videos.json').then(res=>res.json()).then(videos=>{
     const folders={};
     videos.forEach(v=>{ if(!folders[v.folder]) folders[v.folder]=[]; folders[v.folder].push(v); });
-    const folderList=document.getElementById('folderList');
-    Object.keys(folders).sort().forEach(folder=>{
-      const latest=folders[folder].sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
-      const li=document.createElement('li');
-      const thumbWrapper=document.createElement('div'); thumbWrapper.className="skeleton"; thumbWrapper.style.height="180px";
-      const thumb=document.createElement('img'); thumb.src=BASE_URL+latest.thumbnail; thumb.alt=folder;
-      thumb.onload=()=>thumbWrapper.classList.remove('skeleton'); thumbWrapper.onclick=()=>{ window.location.href="folder.html?folder="+encodeURIComponent(folder); }
-      const link=document.createElement('a'); link.className="folder-link"; link.href="folder.html?folder="+encodeURIComponent(folder); link.textContent=folder;
-      li.appendChild(thumbWrapper); li.appendChild(link); folderList.appendChild(li);
+    const folderList=document.getElementById('folderList'); folderList.innerHTML='';
+    Object.keys(folders).sort().forEach(folderName=>{
+      const folderVideos=folders[folderName]; folderVideos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+      const latest=folderVideos[0]; const li=document.createElement('li');
+      const thumb=document.createElement('img'); thumb.src=BASE_URL+latest.thumbnail; thumb.alt=folderName;
+      thumb.onclick=()=>window.location.href="folder.html?folder="+encodeURIComponent(folderName);
+      const link=document.createElement('a'); link.className="folder-link"; link.href="folder.html?folder="+encodeURIComponent(folderName); link.textContent=folderName;
+      li.appendChild(thumb); li.appendChild(link); folderList.appendChild(li);
     });
 
-    // Latest Video
     const latestVideo=videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
-    const latestDiv=document.getElementById('latestVideo');
-    latestDiv.innerHTML=`<h2>🎥 Latest Video 🎥</h2><div class="skeleton" style="height:180px;"><img src="${BASE_URL+latestVideo.thumbnail}" alt="Latest Video"></div><a href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" class="folder-link">Watch Now</a>`;
-    latestDiv.querySelector("img").onload=()=>{ latestDiv.querySelector(".skeleton").classList.remove("skeleton"); }
-    latestDiv.querySelector("img").onclick=()=>{ window.location.href="folder.html?folder="+encodeURIComponent(latestVideo.folder); }
+    const latestDiv=document.getElementById('latestVideo'); latestDiv.innerHTML=`
+    <h2>🎥Latest Video🎥</h2>
+    <ul class="folder-grid">
+      <li>
+        <img src="${BASE_URL+latestVideo.thumbnail}" style="width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;">
+        <a href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" class="folder-link">Watch Now: New Video Available!!!</a>
+      </li>
+    </ul>`;
+    latestDiv.querySelector("img").onclick=()=>window.location.href="folder.html?folder="+encodeURIComponent(latestVideo.folder);
   });
 });
 </script>
