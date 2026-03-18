@@ -13,139 +13,121 @@
 <style>
 body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; margin: 0; padding: 15px; }
 header { text-align: center; padding: 5px 10px; background: #111; }
-header h1 { color: #ff4444; margin: 2px 0; font-size: 20px; }
-header p { margin: 0 0 2px 0; font-size: 12px; }
 
-#visitSite { font-size: 12px; text-align: center; margin-bottom: 10px; }
-#visitSite a { color: #ff4444; text-decoration: none; font-weight: bold; animation: flash 1s infinite alternate; position: relative; padding: 0 25px; display: inline-block; font-size: 12px; }
-#visitSite a::before { content: "➤"; position: absolute; left: 5px; animation: bounceLeft 1s infinite alternate; }
-#visitSite a::after { content: "◀"; position: absolute; right: 5px; animation: bounceRight 1s infinite alternate; }
-#visitSite a:hover { color: #fff; text-decoration: underline; }
+/* Skeleton loader animation */
+@keyframes loading { 0% { left:-100%; } 50% { left:100%; } 100% { left:100%; } }
 
-h2 { color: #ff4444; border-bottom: 2px solid #ff4444; padding-bottom: 5px; margin-top:20px; text-align: center; }
-
-ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; }
-li { background: #222; padding: 10px; border-radius: 8px; text-align: center; transition: 0.3s; cursor: pointer; }
-li:hover { background: #333; }
-
-a.folder-link { color: #fff; font-weight: bold; text-decoration: none; display: block; margin-top: 5px; }
-a.folder-link:hover { color: #ff4444; text-decoration: underline; }
-
-.blogspot-style-link { color: #fff; font-weight: bold; text-decoration: none; font-size: 12px; display: inline-block; animation: flash 1s infinite alternate; position: relative; padding: 0 25px; }
-.blogspot-style-link::before { content: "➤"; position: absolute; left: 5px; animation: bounceLeft 1s infinite alternate; }
-.blogspot-style-link::after { content: "◀"; position: absolute; right: 5px; animation: bounceRight 1s infinite alternate; }
-.blogspot-style-link:hover { color: #ff4444; text-decoration: underline; }
-
-#latestVideo { margin-bottom: 20px; }
-#vipList li img, #folderList li img { width: 100%; height: 180px; border-radius: 5px; object-fit: cover; margin-bottom: 5px; }
-
-/* --- Skeleton Loader Styles --- */
-.skeleton { background: #333; border-radius: 5px; position: relative; overflow: hidden; }
-.skeleton::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); animation: loading 1.5s infinite; }
-@keyframes loading { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
-
-/* --- Header Skeleton (matches header image) --- */
-.skeleton-header {
+/* Full top skeleton for header (title + description + image) */
+.skeleton-top {
   width: 100%;
-  height: 100%;
-  max-height: 200px;
+  max-width: 720px;
+  margin: 0 auto 15px auto;
+  height: 200px; /* approximate total height */
   border-radius: 10px;
-  background: #444;
-  position: absolute;
-  top: 0; left: 0;
+  background: #333;
+  position: relative;
   overflow: hidden;
 }
-.skeleton-header::after {
+.skeleton-top::after {
   content: "";
   position: absolute;
   top: 0; left: -100%;
   width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-  animation: headerLoading 1.5s infinite;
-}
-@keyframes headerLoading {
-  0% { left: -100%; }
-  50% { left: 100%; }
-  100% { left: 100%; }
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  animation: loading 1.5s infinite;
 }
 
-/* --- Popup Skeleton (matches popup image) --- */
+/* Skeleton only for popup image */
 .skeleton-popup {
   width: 100%;
-  height: 100%;
-  max-height: 200px;
+  height: 150px; /* match popup image height */
   border-radius: 10px;
-  background: #333;
-  position: absolute;
-  top: 0; left: 0;
+  background: #444;
+  position: relative;
   overflow: hidden;
+  margin-bottom: 15px;
 }
 .skeleton-popup::after {
   content: "";
   position: absolute;
   top: 0; left: -100%;
   width: 100%; height: 100%;
-  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.2), transparent);
-  animation: popupLoading 1.5s infinite;
-}
-@keyframes popupLoading {
-  0% { left: -100%; }
-  50% { left: 100%; }
-  100% { left: 100%; }
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  animation: loading 1.5s infinite;
 }
 
-/* Footer, Media Queries & Animations */
-footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; background: #111; margin-top: 10px; }
-@media(max-width:600px){ ul { grid-template-columns: 1fr; } }
-.folder-grid { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; margin: 0; }
-@media(max-width:600px){ .folder-grid { grid-template-columns: 1fr; } }
+/* Header actual content hidden until image loads */
+#headerContent h1 { color: #ff4444; margin: 2px 0; font-size: 20px; }
+#headerContent p { margin: 0 0 2px 0; font-size: 12px; }
 
-@keyframes flash { 0% { text-shadow: 0 0 5px #ff4444; } 50% { text-shadow: 0 0 20px #ff4444, 0 0 30px #ff8888; } 100% { text-shadow: 0 0 5px #ff4444; } }
-@keyframes bounceLeft { 0% { transform: translateX(0); } 50% { transform: translateX(5px); } 100% { transform: translateX(0); } }
-@keyframes bounceRight { 0% { transform: translateX(0); } 50% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
-.blink { animation: blink 1s infinite; }
-@keyframes blink { 0% {opacity:1;} 50% {opacity:0;} 100% {opacity:1;} }
+/* Popup text and buttons */
+#ageModal h2 { color:#ff4444; font-size:24px; margin-bottom:10px; }
+#ageModal p { color:#fff; font-size:16px; margin-bottom:20px; }
+#ageModal button { padding:12px 25px; font-size:16px; font-weight:bold; color:#fff; border:none; border-radius:8px; cursor:pointer; transition:0.3s; }
+#enterSiteBtn { background-color:#ff4444; box-shadow:0 0 10px #ff4444; }
+#leaveSiteBtn { background-color:#555; box-shadow:0 0 10px #777; }
 
-/* Ad Wrapper */
-.ad-wrapper { width:100%; display:flex; justify-content:center; margin-top:20px; }
-.ad-container { text-align:center; border:1px solid #ff0000; border-radius:10px; background-color:#1a1a1a; display:inline-block; cursor:default; overflow:hidden; transition:transform 0.2s, box-shadow 0.2s; padding-top:6px; }
-.ad-container:hover { transform:scale(1.05); box-shadow:0 0 12px #ff0000; }
-.ad-text { display:block; margin:0 0 4px 0; font-size:14px; font-weight:bold; color:#fff; user-select:none; pointer-events:none; }
-.ad-container ins { display:block; margin:0 auto; }
 </style>
 
 <meta name="juicyads-site-verification" content="00ec8046b1fdd1c8dfe12992c41ff734">
 </head>
 <body>
 
-<!-- 1️⃣ JuicyAds PopUnders -->
-<script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p294137434&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
+<!-- Header Skeleton + Actual Content -->
+<header>
+  <div class="skeleton-top" id="headerSkeletonTop"></div>
+  <div id="headerContent" style="display:none;">
+    <h1>AnywhereCum</h1>
+    <p>Explore our exclusive content folders</p>
+    <img src="" alt="AnywhereCum" id="headerImage" style="border-radius:8px; margin-top:5px; max-width:100%;">
+  </div>
+</header>
 
 <!-- 18+ Age Verification Modal -->
 <div id="ageModal" style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); display:flex; justify-content:center; align-items:center; z-index:9999; text-align:center; padding:20px; opacity:0; transition: opacity 0.8s ease-in-out;">
-  <div style="position: relative; max-width:400px;width:90%;background:#111;padding:25px;border-radius:12px;box-shadow:0 0 15px #ff4444;">
-    <!-- Popup Skeleton -->
+  <div style="max-width:400px;width:90%;background:#111;padding:25px;border-radius:12px;box-shadow:0 0 15px #ff4444;">
+    <!-- Popup Image Skeleton -->
     <div class="skeleton-popup" id="popupSkeleton"></div>
-    <img id="popupImage" src="" alt="AnywhereCum" style="display:none; width:100%; border-radius:10px; margin-bottom:20px;">
+    <img id="popupImage" src="" alt="AnywhereCum" style="display:none; max-width:100%; width:100%; border-radius:10px; margin-bottom:20px;">
     
-    <h2 style="color:#ff4444; font-size:24px; margin-bottom:10px;">⚠️ 18+ ONLY ⚠️</h2>
-    <p style="color:#fff; font-size:16px; margin-bottom:20px;">You must be 18 years or older to enter this site. Click below to confirm your age or leave the site if you are under 18.</p>
+    <h2>⚠️ 18+ ONLY ⚠️</h2>
+    <p>You must be 18 years or older to enter this site. Click below to confirm your age or leave the site if you are under 18.</p>
+    
     <div style="display:flex; gap:15px; flex-wrap:wrap; justify-content:center;">
-      <button id="enterSiteBtn" style="padding:12px 25px; font-size:16px; font-weight:bold; color:#fff; background-color:#ff4444; border:none; border-radius:8px; cursor:pointer; box-shadow:0 0 10px #ff4444; transition:0.3s;">I am 18 or Older</button>
-      <button id="leaveSiteBtn" style="padding:12px 25px; font-size:16px; font-weight:bold; color:#fff; background-color:#555; border:none; border-radius:8px; cursor:pointer; box-shadow:0 0 10px #777; transition:0.3s;">Leave Site</button>
+      <button id="enterSiteBtn">I am 18 or Older</button>
+      <button id="leaveSiteBtn">Leave Site</button>
     </div>
   </div>
 </div>
 
-<!-- Header -->
-<div style="position: relative; width:100%; max-width:720px; margin:0 auto;">
-  <div class="skeleton-header"></div>
-  <img src="" alt="AnywhereCum" style="display:none; width:100%; border-radius:8px;" id="headerImage">
-  <header>
-    <h1>AnywhereCum</h1>
-    <p>Explore our exclusive content folders</p>
-  </header>
-</div>
+<script>
+// Image URLs
+const BASE_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
+
+// --- Header image swap ---
+const headerImg = document.getElementById('headerImage');
+const headerContent = document.getElementById('headerContent');
+const headerSkeleton = document.getElementById('headerSkeletonTop');
+headerImg.onload = () => { headerSkeleton.style.display='none'; headerContent.style.display='block'; }
+headerImg.src = BASE_URL + "header-image.webp";
+
+// --- Popup image swap ---
+const popupImg = document.getElementById('popupImage');
+const popupSkeleton = document.getElementById('popupSkeleton');
+popupImg.onload = () => { popupSkeleton.style.display='none'; popupImg.style.display='block'; }
+popupImg.src = BASE_URL + "header-image.webp";
+
+// --- Age Modal Logic ---
+const ageModal = document.getElementById('ageModal');
+const enterBtn = document.getElementById('enterSiteBtn');
+const leaveBtn = document.getElementById('leaveSiteBtn');
+setTimeout(() => {
+  if(localStorage.getItem('ageConfirmed')!=='true') ageModal.style.opacity='1';
+  else ageModal.style.display='none';
+}, 100);
+enterBtn.onclick = () => { localStorage.setItem('ageConfirmed','true'); ageModal.style.opacity='0'; setTimeout(()=>{ageModal.style.display='none';},500);}
+leaveBtn.onclick = () => window.location.href="https://www.google.com";
+</script>
 
   <!-- 2️⃣ Top LIVE Banner Ad -->
 <div class="ad-wrapper">
@@ -218,86 +200,54 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const BASE_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
+// --- Cookie Banner ---
+const banner = document.getElementById('cookieBanner');
+if(localStorage.getItem('cookiesAccepted')!=='true'){ setTimeout(()=>{banner.style.bottom='0';},300);}
+document.getElementById('acceptCookies').onclick=()=>{
+  localStorage.setItem('cookiesAccepted','true'); 
+  banner.style.bottom='-100px'; 
+  setTimeout(()=>{banner.style.display='none';},500);
+}
 
-  // --- Header Skeleton Load ---
-  const headerImg = document.getElementById('headerImage');
-  const headerSkeleton = document.querySelector('.skeleton-header');
-  headerImg.onload = () => { headerSkeleton.style.display = 'none'; headerImg.style.display = 'block'; }
-  headerImg.src = BASE_URL + "header-image.webp";
+// --- Fetch VIP Videos ---
+fetch('./vip.json').then(res=>res.json()).then(videos=>{
+  if(!videos.length) return;
+  const container=document.getElementById('vipList'); container.innerHTML='';
+  videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const latestVIP=videos[0];
+  const li=document.createElement('li');
+  const thumb=document.createElement('img'); thumb.src=BASE_URL+latestVIP.thumbnail; thumb.alt=latestVIP.folder;
+  thumb.onclick=()=>window.open("https://fc-lc.xyz/ZUkGrHaX","_blank");
+  const link=document.createElement('a'); link.className="folder-link"; link.href="https://fc-lc.xyz/ZUkGrHaX"; link.target="_blank"; link.textContent=latestVIP.folder;
+  li.appendChild(thumb); li.appendChild(link); container.appendChild(li);
+});
 
-  // --- Popup Skeleton Load ---
-  const popupImg = document.getElementById('popupImage');
-  const popupSkeleton = document.getElementById('popupSkeleton');
-  popupImg.onload = () => { popupSkeleton.style.display = 'none'; popupImg.style.display = 'block'; }
-  popupImg.src = BASE_URL + "header-image.webp";
-
-  // --- Age Modal ---
-  const ageModal = document.getElementById('ageModal');
-  const enterBtn = document.getElementById('enterSiteBtn');
-  const leaveBtn = document.getElementById('leaveSiteBtn');
-  setTimeout(() => {
-    if(localStorage.getItem('ageConfirmed') !== 'true') ageModal.style.opacity = '1';
-    else ageModal.style.display = 'none';
-  }, 100);
-  enterBtn.onclick = () => { 
-    localStorage.setItem('ageConfirmed','true'); 
-    ageModal.style.opacity='0'; 
-    setTimeout(()=>{ageModal.style.display='none';},500);
-  }
-  leaveBtn.onclick = () => window.location.href="https://www.google.com";
-
-  // --- Cookies ---
-  const banner = document.getElementById('cookieBanner');
-  if(localStorage.getItem('cookiesAccepted')!=='true'){ setTimeout(()=>{banner.style.bottom='0';},300);}
-  document.getElementById('acceptCookies').onclick=()=>{
-    localStorage.setItem('cookiesAccepted','true'); 
-    banner.style.bottom='-100px'; 
-    setTimeout(()=>{banner.style.display='none';},500);
-  }
-
-  // --- Fetch VIP Videos ---
-  fetch('./vip.json').then(res=>res.json()).then(videos=>{
-    if(!videos.length) return;
-    const container=document.getElementById('vipList'); container.innerHTML='';
-    videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
-    const latestVIP=videos[0];
-    const li=document.createElement('li');
-    const thumb=document.createElement('img'); thumb.src=BASE_URL+latestVIP.thumbnail; thumb.alt=latestVIP.folder;
-    thumb.onclick=()=>window.open("https://fc-lc.xyz/ZUkGrHaX","_blank");
-    const link=document.createElement('a'); link.className="folder-link"; link.href="https://fc-lc.xyz/ZUkGrHaX"; link.target="_blank"; link.textContent=latestVIP.folder;
-    li.appendChild(thumb); li.appendChild(link); container.appendChild(li);
+// --- Fetch Content Folders ---
+fetch('./videos.json').then(res=>res.json()).then(videos=>{
+  const folders={};
+  videos.forEach(v=>{ if(!folders[v.folder]) folders[v.folder]=[]; folders[v.folder].push(v); });
+  const folderList=document.getElementById('folderList'); folderList.innerHTML='';
+  Object.keys(folders).sort().forEach(folderName=>{
+    const folderVideos=folders[folderName]; folderVideos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const latest=folderVideos[0]; const li=document.createElement('li');
+    const thumb=document.createElement('img'); thumb.src=BASE_URL+latest.thumbnail; thumb.alt=folderName;
+    thumb.onclick=()=>window.location.href="folder.html?folder="+encodeURIComponent(folderName);
+    const link=document.createElement('a'); link.className="folder-link"; link.href="folder.html?folder="+encodeURIComponent(folderName); link.textContent=folderName;
+    li.appendChild(thumb); li.appendChild(link); folderList.appendChild(li);
   });
 
-  // --- Fetch Content Folders ---
-  fetch('./videos.json').then(res=>res.json()).then(videos=>{
-    const folders={};
-    videos.forEach(v=>{ if(!folders[v.folder]) folders[v.folder]=[]; folders[v.folder].push(v); });
-    const folderList=document.getElementById('folderList'); folderList.innerHTML='';
-    Object.keys(folders).sort().forEach(folderName=>{
-      const folderVideos=folders[folderName]; folderVideos.sort((a,b)=>new Date(b.date)-new Date(a.date));
-      const latest=folderVideos[0]; const li=document.createElement('li');
-      const thumb=document.createElement('img'); thumb.src=BASE_URL+latest.thumbnail; thumb.alt=folderName;
-      thumb.onclick=()=>window.location.href="folder.html?folder="+encodeURIComponent(folderName);
-      const link=document.createElement('a'); link.className="folder-link"; link.href="folder.html?folder="+encodeURIComponent(folderName); link.textContent=folderName;
-      li.appendChild(thumb); li.appendChild(link); folderList.appendChild(li);
-    });
-
-    // Latest Video Section Update
-    const latestVideo=videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
-    const latestDiv=document.getElementById('latestVideo'); latestDiv.innerHTML=`
-      <h2>🎥Latest Video🎥</h2>
-      <ul class="folder-grid">
-        <li>
-          <img src="${BASE_URL+latestVideo.thumbnail}" style="width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;">
-          <a href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" class="folder-link">Watch Now: New Video Available!!!</a>
-        </li>
-      </ul>`;
-    latestDiv.querySelector("img").onclick=()=>window.location.href="folder.html?folder="+encodeURIComponent(latestVideo.folder);
-  });
+  // Latest Video Section Update
+  const latestVideo=videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+  const latestDiv=document.getElementById('latestVideo'); latestDiv.innerHTML=`
+    <h2>🎥Latest Video🎥</h2>
+    <ul class="folder-grid">
+      <li>
+        <img src="${BASE_URL+latestVideo.thumbnail}" style="width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;">
+        <a href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" class="folder-link">Watch Now: New Video Available!!!</a>
+      </li>
+    </ul>`;
+  latestDiv.querySelector("img").onclick=()=>window.location.href="folder.html?folder="+encodeURIComponent(latestVideo.folder);
 });
 </script>
-
 </body>
 </html>
