@@ -11,84 +11,64 @@
 <link rel="shortcut icon" href="https://anywherecum.workfromanywhere-sa.workers.dev/images/favicon.webp">
 
 <style>
-body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; margin: 0; padding: 15px; }
-header { text-align: center; padding: 5px 10px; background: #111; }
-header h1 { color: #ff4444; margin: 2px 0; font-size: 20px; }
-header p { margin: 0 0 2px 0; font-size: 12px; }
+body { font-family: Arial,sans-serif; background:#1a1a1a; color:#fff; margin:0; padding:15px; }
+header { text-align:center; padding:5px 10px; background:#111; }
+header h1 { color:#ff4444; margin:2px 0; font-size:20px; }
+header p { margin:0 0 2px 0; font-size:12px; }
 
-#visitSite { font-size: 12px; text-align: center; margin-bottom: 10px; }
-#visitSite a { color: #ff4444; text-decoration: none; font-weight: bold; animation: flash 1s infinite alternate; position: relative; padding: 0 25px; display: inline-block; font-size: 12px; }
-#visitSite a::before { content: "➤"; position: absolute; left: 5px; animation: bounceLeft 1s infinite alternate; }
-#visitSite a::after { content: "◀"; position: absolute; right: 5px; animation: bounceRight 1s infinite alternate; }
-#visitSite a:hover { color: #fff; text-decoration: underline; }
+#visitSite { font-size:12px; text-align:center; margin-bottom:10px; }
+#visitSite a { color:#ff4444; text-decoration:none; font-weight:bold; animation:flash 1s infinite alternate; position:relative; padding:0 25px; display:inline-block; font-size:12px; }
+#visitSite a::before { content:"➤"; position:absolute; left:5px; animation:bounceLeft 1s infinite alternate; }
+#visitSite a::after { content:"◀"; position:absolute; right:5px; animation:bounceRight 1s infinite alternate; }
+#visitSite a:hover { color:#fff; text-decoration:underline; }
 
-h2 { color: #ff4444; border-bottom: 2px solid #ff4444; padding-bottom: 5px; margin-top:20px; text-align: center; }
+h2 { color:#ff4444; border-bottom:2px solid #ff4444; padding-bottom:5px; margin-top:20px; text-align:center; }
 
-ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; }
-li { background: #222; padding: 10px; border-radius: 8px; text-align: center; transition: 0.3s; cursor: pointer; }
-li:hover { background: #333; }
+ul { list-style:none; padding:0; display:grid; grid-template-columns:repeat(2,1fr); gap:15px; }
+li { background:#222; padding:10px; border-radius:8px; text-align:center; transition:0.3s; cursor:pointer; }
+li:hover { background:#333; }
 
-a.folder-link { color: #fff; font-weight: bold; text-decoration: none; display: block; margin-top: 5px; }
-a.folder-link:hover { color: #ff4444; text-decoration: underline; }
+a.folder-link { color:#fff; font-weight:bold; text-decoration:none; display:block; margin-top:5px; }
+a.folder-link:hover { color:#ff4444; text-decoration:underline; }
 
-.blogspot-style-link { color: #fff; font-weight: bold; text-decoration: none; font-size: 12px; display: inline-block; animation: flash 1s infinite alternate; position: relative; padding: 0 25px; }
-.blogspot-style-link::before { content: "➤"; position: absolute; left: 5px; animation: bounceLeft 1s infinite alternate; }
-.blogspot-style-link::after { content: "◀"; position: absolute; right: 5px; animation: bounceRight 1s infinite alternate; }
-.blogspot-style-link:hover { color: #ff4444; text-decoration: underline; }
+.blogspot-style-link { color:#fff; font-weight:bold; text-decoration:none; font-size:12px; display:inline-block; animation:flash 1s infinite alternate; position:relative; padding:0 25px; }
+.blogspot-style-link::before { content:"➤"; position:absolute; left:5px; animation:bounceLeft 1s infinite alternate; }
+.blogspot-style-link::after { content:"◀"; position:absolute; right:5px; animation:bounceRight 1s infinite alternate; }
+.blogspot-style-link:hover { color:#ff4444; text-decoration:underline; }
 
-#latestVideo { margin-bottom: 20px; }
-#vipList li img, #folderList li img { width: 100%; height: 180px; border-radius: 5px; object-fit: cover; margin-bottom: 5px; }
+#latestVideo { margin-bottom:20px; }
+#vipList li img, #folderList li img { width:100%; height:180px; border-radius:5px; object-fit:cover; margin-bottom:5px; }
 
-/* Skeleton Loader Styles */
-.skeleton { background: #333; border-radius: 5px; position: relative; overflow: hidden; }
-.skeleton::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); animation: loading 1.5s infinite; }
-@keyframes loading { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
+/* Skeleton Loader */
+.skeleton { background:#333; border-radius:5px; position:relative; overflow:hidden; }
+.skeleton::after { content:""; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent); animation:loading 1.5s infinite; }
+@keyframes loading { 0% { left:-100%; } 50% { left:100%; } 100% { left:100%; } }
 
-/* Header Skeleton (New) */
-#headerSkeleton { background: #333; border-radius:8px; width:100%; height:150px; margin-top:5px; position:relative; overflow:hidden; }
-#headerSkeleton::after { content:""; position:absolute; top:0; left:-100%; width:100%; height:100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); animation: loading 1.5s infinite; }
+/* Header Skeleton */
+#headerSkeleton { background:#333; border-radius:8px; width:100%; height:150px; margin-top:5px; position:relative; overflow:hidden; }
+#headerSkeleton::after { content:""; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent); animation:loading 1.5s infinite; }
 
-footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; background: #111; margin-top: 10px; }
-@media(max-width:600px){ ul { grid-template-columns: 1fr; } }
-.folder-grid { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; margin: 0; }
-@media(max-width:600px){ .folder-grid { grid-template-columns: 1fr; } }
+footer { text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px; }
+@media(max-width:600px){ ul { grid-template-columns:1fr; } }
+.folder-grid { list-style:none; padding:0; display:grid; grid-template-columns:repeat(2,1fr); gap:15px; margin:0; }
+@media(max-width:600px){ .folder-grid { grid-template-columns:1fr; } }
 
-@keyframes flash { 0% { text-shadow: 0 0 5px #ff4444; } 50% { text-shadow: 0 0 20px #ff4444, 0 0 30px #ff8888; } 100% { text-shadow: 0 0 5px #ff4444; } }
-@keyframes bounceLeft { 0% { transform: translateX(0); } 50% { transform: translateX(5px); } 100% { transform: translateX(0); } }
-@keyframes bounceRight { 0% { transform: translateX(0); } 50% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
-.blink { animation: blink 1s infinite; }
+@keyframes flash { 0% { text-shadow:0 0 5px #ff4444; } 50% { text-shadow:0 0 20px #ff4444,0 0 30px #ff8888; } 100% { text-shadow:0 0 5px #ff4444; } }
+@keyframes bounceLeft { 0% { transform:translateX(0); } 50% { transform:translateX(5px); } 100% { transform:translateX(0); } }
+@keyframes bounceRight { 0% { transform:translateX(0); } 50% { transform:translateX(-5px); } 100% { transform:translateX(0); } }
+.blink { animation:blink 1s infinite; }
 @keyframes blink { 0% {opacity:1;} 50% {opacity:0;} 100% {opacity:1;} }
 
+/* Ad Styles */
 .ad-wrapper { width:100%; display:flex; justify-content:center; margin-top:20px; }
 .ad-container { text-align:center; border:1px solid #ff0000; border-radius:10px; background-color:#1a1a1a; display:inline-block; cursor:default; overflow:hidden; transition:transform 0.2s, box-shadow 0.2s; padding-top:6px; }
 .ad-container:hover { transform:scale(1.05); box-shadow:0 0 12px #ff0000; }
 .ad-text { display:block; margin:0 0 4px 0; font-size:14px; font-weight:bold; color:#fff; user-select:none; pointer-events:none; }
 .ad-container ins { display:block; margin:0 auto; }
 
-/* --- Popup Fix for Mobile Centering --- */
-#ageModal {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.95);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  text-align: center;
-  padding: 15px;
-  box-sizing: border-box;
-  opacity: 0;
-  transition: opacity 0.8s ease-in-out;
-}
-#popupContent {
-  max-width: 400px;
-  width: 90%;
-  background: #111;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 0 15px #ff4444;
-  text-align: center;
-}
+/* Popup Centering */
+#ageModal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:flex; justify-content:center; align-items:center; z-index:9999; text-align:center; padding:15px; box-sizing:border-box; opacity:0; transition:opacity 0.8s ease-in-out; }
+#popupContent { max-width:400px; width:90%; background:#111; padding:20px; border-radius:12px; box-shadow:0 0 15px #ff4444; text-align:center; }
 #popupImage { width:100%; height:auto; border-radius:10px; margin-bottom:15px; }
 #popupContent button { flex:1 1 45%; min-width:120px; margin-top:8px; }
 @media(max-width:500px){ #popupContent button { flex:1 1 100%; } }
@@ -96,19 +76,19 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 <meta name="juicyads-site-verification" content="00ec8046b1fdd1c8dfe12992c41ff734">
 </head>
 
-  <body>
+<body>
 
-<!-- 1️⃣ JuicyAds PopUnders -->
+<!-- JuicyAds PopUnder -->
 <script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p294137434&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
 
-<!-- 18+ Age Verification Modal -->
+<!-- Age Verification Modal -->
 <div id="ageModal">
   <div id="popupContent">
     <div id="popupSkeleton" class="skeleton" style="width:100%; height:200px; border-radius:10px; margin-bottom:15px;"></div>
     <img id="popupImage" src="" alt="AnywhereCum" style="display:none;">
     <h2 id="popupTitle" style="color:#ff4444; font-size:24px; margin-bottom:10px; display:none;">⚠️ 18+ ONLY ⚠️</h2>
     <p id="popupDesc" style="color:#fff; font-size:16px; margin-bottom:20px; display:none;">
-      You must be 18 years or older to enter this site. Click below to confirm your age or leave the site if you are under 18.
+      You must be 18 or older to enter this site. Click below to confirm your age or leave if under 18.
     </p>
     <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
       <button id="enterSiteBtn" style="display:none;">I am 18 or Older</button>
@@ -129,7 +109,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   <img src="" alt="AnywhereCum" style="display:none; border-radius:8px; margin-top:5px; max-width:100%;" id="headerImage">
 </header>
 
-<!-- 2️⃣ Top LIVE Banner Ad -->
+<!-- Top LIVE Banner Ad -->
 <div class="ad-wrapper">
   <div class="ad-container">
     <div class="ad-text"><span class="blink">🔴 LIVE</span> Exclusive Stream</div>
@@ -170,7 +150,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   <li class="skeleton" style="height:180px;"></li>
 </ul>
 
-<!-- 3️⃣ Bottom LIVE Ad Block -->
+  <!-- Bottom LIVE Ad Block -->
 <div class="ad-wrapper">
   <div class="ad-container">
     <div class="ad-text"><span class="blink">🔴 LIVE</span> Check This Out!</div>
@@ -203,57 +183,41 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 document.addEventListener('DOMContentLoaded', () => {
   const BASE_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
 
-  // --- Header Image Load ---
+  // Header Image
   const headerImg = document.getElementById('headerImage');
   const headerSkeleton = document.getElementById('headerSkeleton');
-  headerImg.onload = () => {
-    headerSkeleton.style.display = 'none';
-    headerImg.style.display = 'block';
-  }
+  headerImg.onload = () => { headerSkeleton.style.display='none'; headerImg.style.display='block'; }
   headerImg.src = BASE_URL + "header-image.webp";
 
-  // --- Popup Skeleton Load ---
+  // Popup Image
   const popupImg = document.getElementById('popupImage');
   const popupSkeleton = document.getElementById('popupSkeleton');
   const popupTitle = document.getElementById('popupTitle');
   const popupDesc = document.getElementById('popupDesc');
   const enterBtn = document.getElementById('enterSiteBtn');
   const leaveBtn = document.getElementById('leaveSiteBtn');
-
   popupImg.onload = () => {
-    popupSkeleton.style.display = 'none';
-    popupImg.style.display = 'block';
-    popupTitle.style.display = 'block';
-    popupDesc.style.display = 'block';
-    enterBtn.style.display = 'inline-block';
-    leaveBtn.style.display = 'inline-block';
+    popupSkeleton.style.display='none';
+    popupImg.style.display='block';
+    popupTitle.style.display='block';
+    popupDesc.style.display='block';
+    enterBtn.style.display='inline-block';
+    leaveBtn.style.display='inline-block';
   };
   popupImg.src = BASE_URL + "header-image.webp";
 
-  // --- Age Modal ---
+  // Age Modal
   const ageModal = document.getElementById('ageModal');
-  setTimeout(() => {
-    if(localStorage.getItem('ageConfirmed') !== 'true') ageModal.style.opacity = '1';
-    else ageModal.style.display = 'none';
-  }, 100);
-
-  enterBtn.onclick = () => { 
-    localStorage.setItem('ageConfirmed','true'); 
-    ageModal.style.opacity='0'; 
-    setTimeout(()=>{ageModal.style.display='none';},500);
-  }
+  setTimeout(()=>{ if(localStorage.getItem('ageConfirmed')!=='true') ageModal.style.opacity='1'; else ageModal.style.display='none'; },100);
+  enterBtn.onclick = () => { localStorage.setItem('ageConfirmed','true'); ageModal.style.opacity='0'; setTimeout(()=>{ageModal.style.display='none';},500); }
   leaveBtn.onclick = () => window.location.href="https://www.google.com";
 
-  // --- Cookies ---
+  // Cookies
   const banner = document.getElementById('cookieBanner');
   if(localStorage.getItem('cookiesAccepted')!=='true'){ setTimeout(()=>{banner.style.bottom='0';},300);}
-  document.getElementById('acceptCookies').onclick=()=>{
-    localStorage.setItem('cookiesAccepted','true'); 
-    banner.style.bottom='-100px'; 
-    setTimeout(()=>{banner.style.display='none';},500);
-  }
+  document.getElementById('acceptCookies').onclick=()=>{ localStorage.setItem('cookiesAccepted','true'); banner.style.bottom='-100px'; setTimeout(()=>{banner.style.display='none';},500); }
 
-  // --- Fetch VIP Videos ---
+  // VIP Videos
   fetch('./vip.json').then(res=>res.json()).then(videos=>{
     if(!videos.length) return;
     const container=document.getElementById('vipList'); container.innerHTML='';
@@ -266,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
     li.appendChild(thumb); li.appendChild(link); container.appendChild(li);
   });
 
-  // --- Fetch Content Folders & Latest Video ---
+  // Content Folders & Latest Video
   fetch('./videos.json').then(res=>res.json()).then(videos=>{
     const folders={};
     videos.forEach(v=>{ if(!folders[v.folder]) folders[v.folder]=[]; folders[v.folder].push(v); });
@@ -285,11 +249,15 @@ document.addEventListener('DOMContentLoaded', () => {
       <h2>🎥Latest Video🎥</h2>
       <ul class="folder-grid">
         <li>
-          <img src="${BASE_URL+latestVideo.thumbnail}" style="width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;">
+          <img src="${BASE_URL+latestVideo.thumbnail}" style="width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer
+
+          ; margin-bottom:5px;">
           <a href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" class="folder-link">Watch Now: New Video Available!!!</a>
         </li>
       </ul>`;
-    latestDiv.querySelector("img").onclick=()=>window.location.href="folder.html?folder="+encodeURIComponent(latestVideo.folder);
+    latestDiv.querySelector("img").onclick = () => {
+      window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.folder);
+    };
   });
 });
 </script>
