@@ -4,209 +4,245 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Folder Videos</title>
+
 <style>
 body { font-family:Arial,sans-serif; background:#1a1a1a; color:#fff; margin:0; padding:15px; }
 h2 { color:#ff4444; border-bottom:2px solid #ff4444; padding-bottom:5px; text-align:center; }
 .description { text-align:center; color:#fff; margin-bottom:20px; }
+
 .videoBox { background:#222; padding:10px; border-radius:8px; margin-bottom:20px; }
-.preview { width:100%; height:220px; cursor:pointer; overflow:hidden; border-radius:5px; display:flex; align-items:center; justify-content:center; }
-.preview img { width:100%; height:100%; object-fit:cover; border-radius:5px; transition: transform 0.3s ease; }
+
+.preview {
+  width:100%;
+  height:220px;
+  cursor:pointer;
+  overflow:hidden;
+  border-radius:5px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.preview img {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:5px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity:0;
+}
+
+.preview img.loaded {
+  opacity:1;
+}
+
 .preview img:hover { transform:scale(1.05); }
 
 .videoTitle {
   text-align: center;
-  margin: 4px 0 4px 0; /* smaller spacing above & below for tight stacking */
+  margin: 4px 0 4px 0;
   color: #ddd;
   font-size: 16px;
-  font-weight: normal; /* thin text */
+  font-weight: normal;
   cursor: pointer;
-  text-decoration: underline; /* underline */
-  transition: color 0.2s ease; /* only color transition */
+  text-decoration: underline;
+  transition: color 0.2s ease;
 }
-.videoTitle:hover { color: #fff; } /* no scaling, only color change */
+.videoTitle:hover { color: #fff; }
 
-.download { display:block; width:fit-content; margin:6px auto 0 auto; padding:8px 15px; color:#fff; background:#ff4444; font-weight:bold; text-decoration:none; border-radius:5px; text-align:center; transition: background 0.2s ease; }
+.download {
+  display:block;
+  width:fit-content;
+  margin:6px auto 0 auto;
+  padding:8px 15px;
+  color:#fff;
+  background:#ff4444;
+  font-weight:bold;
+  text-decoration:none;
+  border-radius:5px;
+  text-align:center;
+  transition: background 0.2s ease;
+}
 .download:hover { background:#ff2222; }
+
+/* Skeleton Loader */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #2a2a2a;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150px;
+  width: 150px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(300px); }
+}
+
+.skeleton-img { width:100%; height:220px; border-radius:5px; }
+.skeleton-text { height:14px; width:70%; margin:10px auto; border-radius:4px; }
+.skeleton-btn { height:34px; width:120px; margin:10px auto; border-radius:5px; }
 </style>
 </head>
+
 <body>
 
-  <!-- JuicyAds PopUnders v3 Start -->
+<!-- JuicyAds PopUnders -->
 <script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p294137434&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
-<!-- JuicyAds PopUnders v3 End -->
 
 <h2 id="folderTitle">Folder Videos</h2>
 <p class="description" id="folderDesc">Enjoy our latest videos.</p>
 
-  <!-- Replaced Bottom JuicyAds -->
+<!-- TOP AD -->
 <div style="position: relative; width: 300px; height: 112px; margin: 20px auto; border: 2px solid red; border-radius: 8px; overflow: hidden; text-align: center;">
-
-  <!-- 🔴 Live label -->
-  <div style="
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: red;
-    color: white;
-    font-weight: bold;
-    font-size: 12px;
-    padding: 2px 6px;
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
-    z-index: 9999;
-    pointer-events: none;
-    animation: glow 1s infinite alternate;
-  ">
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);background:red;color:#fff;font-weight:bold;font-size:12px;padding:2px 6px;border-bottom-left-radius:4px;border-bottom-right-radius:4px;z-index:9999;pointer-events:none;animation:glow 1s infinite alternate;">
     🔴 Live
   </div>
 
-  <!-- JuicyAds script -->
-  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-  <ins id="1113290" data-width="300" data-height="112" style="position: relative; z-index: 1;"></ins>
-  <script type="text/javascript" data-cfasync="false" async>
+  <script async src="https://poweredby.jads.co/js/jads.js"></script>
+  <ins id="1113290" data-width="300" data-height="112"></ins>
+  <script async>
     (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113290});
   </script>
 </div>
 
-<!-- Glowing animation -->
 <style>
 @keyframes glow {
-  0% {
-    box-shadow: 0 0 2px #fff, 0 0 5px red;
-    opacity: 0.8;
-  }
-  50% {
-    box-shadow: 0 0 6px #fff, 0 0 12px red;
-    opacity: 1;
-  }
-  100% {
-    box-shadow: 0 0 2px #fff, 0 0 5px red;
-    opacity: 0.8;
-  }
+  0% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
+  50% { box-shadow:0 0 6px #fff,0 0 12px red; opacity:1; }
+  100% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
 }
 </style>
 
 <div id="videoList"></div>
 
 <script>
-// Get folder from URL query ?folder=...
+// Folder setup
 const params = new URLSearchParams(window.location.search);
 let folderName = params.get('folder') || 'Unknown';
 folderName = folderName.replace(/-/g," ").replace(/\b\w/g,c=>c.toUpperCase());
 
 document.getElementById("folderTitle").textContent = folderName + " Folder";
-document.getElementById("folderDesc").textContent = `Enjoy our latest ${folderName} videos, updated regularly for your viewing pleasure.`;
+document.getElementById("folderDesc").textContent =
+`Enjoy our latest ${folderName} videos, updated regularly for your viewing pleasure.`;
 
-// Fetch videos.json
+// Skeletons first
+const container = document.getElementById("videoList");
+for (let i = 0; i < 6; i++) {
+  const box = document.createElement("div");
+  box.className = "videoBox";
+  box.innerHTML = `
+    <div class="preview skeleton skeleton-img"></div>
+    <div class="skeleton skeleton-text"></div>
+    <div class="skeleton skeleton-btn"></div>
+  `;
+  container.appendChild(box);
+}
+
+// Fetch real data
 fetch('videos.json')
   .then(res => res.json())
   .then(videos => {
-    const container = document.getElementById("videoList");
-    const folderVideos = videos.filter(v => v.folder.toLowerCase() === folderName.toLowerCase());
+
+    container.innerHTML = "";
+
+    const folderVideos = videos.filter(v =>
+      v.folder.toLowerCase() === folderName.toLowerCase()
+    );
+
     folderVideos.sort((a,b) => new Date(b.date) - new Date(a.date));
 
     if(folderVideos.length === 0){
-      container.innerHTML = '<p style="text-align:center;color:#ff4444;">No videos found in this folder.</p>';
+      container.innerHTML = '<p style="text-align:center;color:#ff4444;">No videos found.</p>';
       return;
     }
+
+    const IMAGE_BASE = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
 
     folderVideos.forEach(v => {
       const box = document.createElement("div");
       box.className = "videoBox";
 
-      // Thumbnail preview clickable
       const preview = document.createElement("div");
       preview.className = "preview";
+
       const img = document.createElement("img");
-      img.src = v.thumbnail;
+      img.src = IMAGE_BASE + v.thumbnail;
       img.alt = v.title;
+
+      // fade in when loaded
+      img.onload = () => img.classList.add("loaded");
+
       preview.appendChild(img);
-      preview.addEventListener("click", () => window.open(v.url,"_blank")); // click thumbnail opens video
+      preview.onclick = () => window.open(v.url,"_blank");
       box.appendChild(preview);
 
-      // Title above download button using VIP style
-      const titleEl = document.createElement("h3");
-      titleEl.className = "videoTitle";
-      titleEl.textContent = v.title;
-      titleEl.addEventListener("click", () => window.open(v.url,"_blank")); // click title opens video
-      box.appendChild(titleEl);
+      const title = document.createElement("h3");
+      title.className = "videoTitle";
+      title.textContent = v.title;
+      title.onclick = () => window.open(v.url,"_blank");
+      box.appendChild(title);
 
-      // Download button
-      const button = document.createElement("a");
-      button.className = "download";
-      button.href = v.url;
-      button.target = "_blank";
-      button.textContent = `Download (${v.size})`;
-      box.appendChild(button);
+      const btn = document.createElement("a");
+      btn.className = "download";
+      btn.href = v.url;
+      btn.target = "_blank";
+      btn.textContent = `Download (${v.size})`;
+      box.appendChild(btn);
 
       container.appendChild(box);
     });
+
   })
-  .catch(err => {
-    console.error("Failed to load videos.json:", err);
-    document.getElementById("videoList").innerHTML = '<p style="text-align:center;color:#ff4444;">Failed to load videos.</p>';
+  .catch(() => {
+    container.innerHTML = '<p style="text-align:center;color:#ff4444;">Failed to load videos.</p>';
   });
 </script>
 
-<!-- BOTTOM AD (Styled with JuicyAds) -->
+<!-- BOTTOM AD -->
 <div class="bottom-ad">
-  <div class="ad-label">
-    <span class="blink-slow">🔴 Live Cams</span>
-  </div>
-  <!-- JuicyAds v3.0 -->
-  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+  <div class="ad-label"><span class="blink-slow">🔴 Live Cams</span></div>
+
+  <script async src="https://poweredby.jads.co/js/jads.js"></script>
   <ins id="1113289" data-width="308" data-height="298"></ins>
-  <script type="text/javascript" data-cfasync="false" async>
+  <script async>
     (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113289});
   </script>
-  <!-- JuicyAds END -->
 </div>
 
 <style>
 .bottom-ad {
-  position: relative;
-  width: 308px;
-  height: 302px;
-  border: 2px solid red;
-  border-radius: 8px;
-  overflow: hidden;
-  text-align: center;
-  margin: 0 auto; /* center horizontally */
+  width:308px;
+  height:302px;
+  border:2px solid red;
+  border-radius:8px;
+  margin:0 auto;
+  position:relative;
+  overflow:hidden;
 }
 
-.bottom-ad .ad-label {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  background: red;
-  color: white;
-  font-weight: bold;
-  font-size: 12px;
-  padding: 2px 6px;
-  border-bottom-left-radius: 4px;
-  border-bottom-right-radius: 4px;
-  z-index: 9999;
-  pointer-events: none;
-  animation: glow 1s infinite alternate;
+.ad-label {
+  position:absolute;
+  top:0;
+  left:50%;
+  transform:translateX(-50%);
+  background:red;
+  color:#fff;
+  font-size:12px;
+  padding:2px 6px;
+  animation:glow 1s infinite alternate;
 }
 
-/* Glow effect for the label */
-@keyframes glow {
-  0% { box-shadow: 0 0 2px #fff, 0 0 5px red; }
-  50% { box-shadow: 0 0 6px #fff, 0 0 12px red; }
-  100% { box-shadow: 0 0 2px #fff, 0 0 5px red; }
-}
-
-/* Blinking label */
-.blink-slow { 
-  animation: blink-slow 1.6s infinite; 
-}
-@keyframes blink-slow { 
-  0%, 100% { opacity: 1; } 
-  50% { opacity: 0; } 
-}
+.blink-slow { animation: blink 1.6s infinite; }
+@keyframes blink { 50% { opacity:0; } }
 </style>
 
 </body>
