@@ -109,7 +109,6 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   text-align: center;
 }
 #popupImage { width:100%; height:auto; border-radius:10px; margin-bottom:15px; }
-#popupSkeleton { border-radius:10px; margin-bottom:15px; }
 #popupContent button { flex:1 1 45%; min-width:120px; margin-top:8px; }
 @media(max-width:500px){ #popupContent button { flex:1 1 100%; } }
 </style>
@@ -117,15 +116,13 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 </head>
 <body>
 
-  <!-- JuicyAds PopUnders -->
+<!-- JuicyAds PopUnders -->
 <script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p294137434&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
 
 <!-- 18+ Age Verification Modal -->
 <div id="ageModal">
   <div id="popupContent">
-    <!-- Only image skeleton -->
-    <div id="popupSkeleton" class="skeleton"></div>
-    <img id="popupImage" src="" alt="AnywhereCum" style="display:none;">
+    <img id="popupImage" src="" alt="AnywhereCum" style="display:none; border-radius:10px; margin-bottom:15px;">
     <h2 id="popupTitle" style="color:#ff4444; font-size:24px; margin-bottom:10px; display:none;">⚠️ 18+ ONLY ⚠️</h2>
     <p id="popupDesc" style="color:#fff; font-size:16px; margin-bottom:20px; display:none;">
       You must be 18 years or older to enter this site. Click below to confirm your age or leave the site if you are under 18.
@@ -190,7 +187,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   <li class="skeleton" style="height:180px;"></li>
 </ul>
 
-<!-- Bottom LIVE Ad Block -->
+  <!-- Bottom LIVE Ad Block -->
 <div class="ad-wrapper">
   <div class="ad-container">
     <div class="ad-text"><span class="blink">🔴 LIVE</span> Check This Out!</div>
@@ -229,16 +226,15 @@ document.addEventListener('DOMContentLoaded', () => {
   headerImg.onload = () => { headerSkeleton.style.display = 'none'; headerImg.style.display = 'block'; }
   headerImg.src = BASE_URL + "header-image.webp";
 
-  // Popup Skeleton
+  // Popup Image & Age Modal
   const popupImg = document.getElementById('popupImage');
-  const popupSkeleton = document.getElementById('popupSkeleton');
   const popupTitle = document.getElementById('popupTitle');
   const popupDesc = document.getElementById('popupDesc');
   const enterBtn = document.getElementById('enterSiteBtn');
   const leaveBtn = document.getElementById('leaveSiteBtn');
+  const ageModal = document.getElementById('ageModal');
 
   popupImg.onload = () => {
-    popupSkeleton.style.display = 'none';
     popupImg.style.display = 'block';
     popupTitle.style.display = 'block';
     popupDesc.style.display = 'block';
@@ -247,16 +243,26 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   popupImg.src = BASE_URL + "header-image.webp";
 
-  // Age Modal
-  const ageModal = document.getElementById('ageModal');
-  setTimeout(()=>{ if(localStorage.getItem('ageConfirmed')!=='true') ageModal.style.opacity='1'; else ageModal.style.display='none'; }, 100);
-  enterBtn.onclick=()=>{ localStorage.setItem('ageConfirmed','true'); ageModal.style.opacity='0'; setTimeout(()=>{ageModal.style.display='none';},500);}
-  leaveBtn.onclick=()=>window.location.href="https://www.google.com";
+  setTimeout(() => {
+    if(localStorage.getItem('ageConfirmed')!=='true') ageModal.style.opacity='1'; 
+    else ageModal.style.display='none';
+  }, 100);
+
+  enterBtn.onclick = () => {
+    localStorage.setItem('ageConfirmed','true'); 
+    ageModal.style.opacity='0'; 
+    setTimeout(() => { ageModal.style.display='none'; }, 500);
+  }
+  leaveBtn.onclick = () => window.location.href="https://www.google.com";
 
   // Cookies
   const banner=document.getElementById('cookieBanner');
   if(localStorage.getItem('cookiesAccepted')!=='true'){ setTimeout(()=>{banner.style.bottom='0';},300);}
-  document.getElementById('acceptCookies').onclick=()=>{ localStorage.setItem('cookiesAccepted','true'); banner.style.bottom='-100px'; setTimeout(()=>{banner.style.display='none';},500); }
+  document.getElementById('acceptCookies').onclick=()=>{ 
+    localStorage.setItem('cookiesAccepted','true'); 
+    banner.style.bottom='-100px'; 
+    setTimeout(()=>{banner.style.display='none';},500); 
+  }
 
   // VIP Videos
   fetch('./vip.json').then(res=>res.json()).then(videos=>{
@@ -277,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
     Object.keys(folders).sort().forEach(folderName=>{
       const folderVideos=folders[folderName]; folderVideos.sort((a,b)=>new Date(b.date)-new Date(a.date));
       const latest=folderVideos[0]; const li=document.createElement('li');
-    const thumb=document.createElement('img'); 
+      const thumb=document.createElement('img'); 
       thumb.src=BASE_URL + latest.thumbnail; 
       thumb.alt=folderName; 
       thumb.onclick=()=>window.location.href="folder.html?folder="+encodeURIComponent(folderName);
