@@ -39,29 +39,27 @@ a.folder-link:hover { color: #ff4444; text-decoration: underline; }
 #latestVideo { margin-bottom: 20px; }
 #vipList li img, #folderList li img { width: 100%; height: 180px; border-radius: 5px; object-fit: cover; margin-bottom: 5px; }
 
-/* Skeleton Loader Styles */
+/* --- Skeleton Loader Styles --- */
 .skeleton { background: #333; border-radius: 5px; position: relative; overflow: hidden; }
 .skeleton::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); animation: loading 1.5s infinite; }
 @keyframes loading { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
 
-/* Header & PopUp Skeleton (720x200) */
-.skeleton-header, .skeleton-popup {
-  width: 720px;       
-  max-width: 100%;    
-  height: 200px;      
-  border-radius: 10px;
-  position: relative;
-  overflow: hidden;
-  background: #444;
-  margin: 0 auto 15px auto;
-}
-.skeleton-header::after, .skeleton-popup::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
+/* --- Header Skeleton (matches header image) --- */
+.skeleton-header {
   width: 100%;
   height: 100%;
+  max-height: 200px;
+  border-radius: 10px;
+  background: #444;
+  position: absolute;
+  top: 0; left: 0;
+  overflow: hidden;
+}
+.skeleton-header::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
   animation: headerLoading 1.5s infinite;
 }
@@ -71,31 +69,44 @@ a.folder-link:hover { color: #ff4444; text-decoration: underline; }
   100% { left: 100%; }
 }
 
-/* Images matching skeleton size */
-#headerImage, #popupImage {
-  width: 720px;
-  max-width: 100%;
-  height: 200px;
+/* --- Popup Skeleton (matches popup image) --- */
+.skeleton-popup {
+  width: 100%;
+  height: 100%;
+  max-height: 200px;
   border-radius: 10px;
-  display: none;
-  margin: 0 auto 15px auto;
-  object-fit: cover;
+  background: #333;
+  position: absolute;
+  top: 0; left: 0;
+  overflow: hidden;
+}
+.skeleton-popup::after {
+  content: "";
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.2), transparent);
+  animation: popupLoading 1.5s infinite;
+}
+@keyframes popupLoading {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
 }
 
+/* Footer, Media Queries & Animations */
 footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; background: #111; margin-top: 10px; }
-
 @media(max-width:600px){ ul { grid-template-columns: 1fr; } }
-
 .folder-grid { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; margin: 0; }
 @media(max-width:600px){ .folder-grid { grid-template-columns: 1fr; } }
 
 @keyframes flash { 0% { text-shadow: 0 0 5px #ff4444; } 50% { text-shadow: 0 0 20px #ff4444, 0 0 30px #ff8888; } 100% { text-shadow: 0 0 5px #ff4444; } }
 @keyframes bounceLeft { 0% { transform: translateX(0); } 50% { transform: translateX(5px); } 100% { transform: translateX(0); } }
 @keyframes bounceRight { 0% { transform: translateX(0); } 50% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
-
 .blink { animation: blink 1s infinite; }
 @keyframes blink { 0% {opacity:1;} 50% {opacity:0;} 100% {opacity:1;} }
 
+/* Ad Wrapper */
 .ad-wrapper { width:100%; display:flex; justify-content:center; margin-top:20px; }
 .ad-container { text-align:center; border:1px solid #ff0000; border-radius:10px; background-color:#1a1a1a; display:inline-block; cursor:default; overflow:hidden; transition:transform 0.2s, box-shadow 0.2s; padding-top:6px; }
 .ad-container:hover { transform:scale(1.05); box-shadow:0 0 12px #ff0000; }
@@ -107,15 +118,15 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 </head>
 <body>
 
-<!-- JuicyAds PopUnders -->
+<!-- 1️⃣ JuicyAds PopUnders -->
 <script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p294137434&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
 
-<!-- 18+ Age Modal -->
+<!-- 18+ Age Verification Modal -->
 <div id="ageModal" style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); display:flex; justify-content:center; align-items:center; z-index:9999; text-align:center; padding:20px; opacity:0; transition: opacity 0.8s ease-in-out;">
-  <div style="max-width:400px;width:90%;background:#111;padding:25px;border-radius:12px;box-shadow:0 0 15px #ff4444;">
+  <div style="position: relative; max-width:400px;width:90%;background:#111;padding:25px;border-radius:12px;box-shadow:0 0 15px #ff4444;">
     <!-- Popup Skeleton -->
     <div class="skeleton-popup" id="popupSkeleton"></div>
-    <img src="" alt="AnywhereCum" id="popupImage">
+    <img id="popupImage" src="" alt="AnywhereCum" style="display:none; width:100%; border-radius:10px; margin-bottom:20px;">
     
     <h2 style="color:#ff4444; font-size:24px; margin-bottom:10px;">⚠️ 18+ ONLY ⚠️</h2>
     <p style="color:#fff; font-size:16px; margin-bottom:20px;">You must be 18 years or older to enter this site. Click below to confirm your age or leave the site if you are under 18.</p>
@@ -127,15 +138,16 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 </div>
 
 <!-- Header -->
-<header>
-  <h1>AnywhereCum</h1>
-  <p>Explore our exclusive content folders</p>
-  <!-- Header Skeleton -->
+<div style="position: relative; width:100%; max-width:720px; margin:0 auto;">
   <div class="skeleton-header"></div>
-  <img src="" alt="AnywhereCum" id="headerImage">
-</header>
+  <img src="" alt="AnywhereCum" style="display:none; width:100%; border-radius:8px;" id="headerImage">
+  <header>
+    <h1>AnywhereCum</h1>
+    <p>Explore our exclusive content folders</p>
+  </header>
+</div>
 
-<!-- Top LIVE Banner Ad -->
+  <!-- 2️⃣ Top LIVE Banner Ad -->
 <div class="ad-wrapper">
   <div class="ad-container">
     <div class="ad-text"><span class="blink">🔴 LIVE</span> Exclusive Stream</div>
@@ -155,7 +167,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   </ul>
 </div>
 
-  <!-- VIP Section Skeleton -->
+<!-- VIP Section Skeleton -->
 <section id="vipSection">
   <h2>🔒VIP Vault🔒</h2>
   <div id="vipCTA" style="text-align:center; margin-bottom:15px;">
@@ -176,7 +188,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   <li class="skeleton" style="height:180px;"></li>
 </ul>
 
-<!-- Bottom LIVE Ad Block -->
+<!-- 3️⃣ Bottom LIVE Ad Block -->
 <div class="ad-wrapper">
   <div class="ad-container">
     <div class="ad-text"><span class="blink">🔴 LIVE</span> Check This Out!</div>
@@ -196,7 +208,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   </div>
 </footer>
 
-<!-- Cookie Banner -->
+<!-- Cookie Consent Banner -->
 <div id="cookieBanner" style="position:fixed; bottom:-100px; left:0; width:100%; background-color:#222; color:#fff; padding:12px 15px; text-align:center; font-size:14px; z-index:9998; display:flex; justify-content:center; align-items:center; gap:10px; box-sizing:border-box; transition: bottom 0.5s ease-in-out; flex-wrap: wrap;">
   <span style="max-width: 100%; text-align: center;">
     We use cookies to improve your experience. 
@@ -209,19 +221,19 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 document.addEventListener('DOMContentLoaded', () => {
   const BASE_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
 
-  // Header Skeleton Load
+  // --- Header Skeleton Load ---
   const headerImg = document.getElementById('headerImage');
   const headerSkeleton = document.querySelector('.skeleton-header');
   headerImg.onload = () => { headerSkeleton.style.display = 'none'; headerImg.style.display = 'block'; }
   headerImg.src = BASE_URL + "header-image.webp";
 
-  // Popup Skeleton Load
+  // --- Popup Skeleton Load ---
   const popupImg = document.getElementById('popupImage');
   const popupSkeleton = document.getElementById('popupSkeleton');
   popupImg.onload = () => { popupSkeleton.style.display = 'none'; popupImg.style.display = 'block'; }
   popupImg.src = BASE_URL + "header-image.webp";
 
-  // Age Modal
+  // --- Age Modal ---
   const ageModal = document.getElementById('ageModal');
   const enterBtn = document.getElementById('enterSiteBtn');
   const leaveBtn = document.getElementById('leaveSiteBtn');
@@ -236,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   leaveBtn.onclick = () => window.location.href="https://www.google.com";
 
-  // Cookies
+  // --- Cookies ---
   const banner = document.getElementById('cookieBanner');
   if(localStorage.getItem('cookiesAccepted')!=='true'){ setTimeout(()=>{banner.style.bottom='0';},300);}
   document.getElementById('acceptCookies').onclick=()=>{
@@ -245,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(()=>{banner.style.display='none';},500);
   }
 
-  // VIP Videos
+  // --- Fetch VIP Videos ---
   fetch('./vip.json').then(res=>res.json()).then(videos=>{
     if(!videos.length) return;
     const container=document.getElementById('vipList'); container.innerHTML='';
@@ -258,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
     li.appendChild(thumb); li.appendChild(link); container.appendChild(li);
   });
 
-  // Content Folders
+  // --- Fetch Content Folders ---
   fetch('./videos.json').then(res=>res.json()).then(videos=>{
     const folders={};
     videos.forEach(v=>{ if(!folders[v.folder]) folders[v.folder]=[]; folders[v.folder].push(v); });
@@ -272,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
       li.appendChild(thumb); li.appendChild(link); folderList.appendChild(li);
     });
 
-    // Latest Video
+    // Latest Video Section Update
     const latestVideo=videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
     const latestDiv=document.getElementById('latestVideo'); latestDiv.innerHTML=`
       <h2>🎥Latest Video🎥</h2>
