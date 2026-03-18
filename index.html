@@ -45,11 +45,11 @@ a.folder-link:hover { color: #ff4444; text-decoration: underline; }
 
 @keyframes loading { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
 
-/* Header & PopUp Skeleton (720x200) */
+/* Header & PopUp Skeleton */
 .skeleton-header, .skeleton-popup {
-  width: 720px;
-  max-width: 100%;
-  height: 200px;
+  width: 100%;
+  max-width: 720px;
+  height: auto;
   border-radius: 10px;
   position: relative;
   overflow: hidden;
@@ -59,23 +59,16 @@ a.folder-link:hover { color: #ff4444; text-decoration: underline; }
 .skeleton-header::after, .skeleton-popup::after {
   content: "";
   position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
   animation: headerLoading 1.5s infinite;
 }
-@keyframes headerLoading {
-  0% { left: -100%; }
-  50% { left: 100%; }
-  100% { left: 100%; }
-}
+@keyframes headerLoading { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
 
 footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; background: #111; margin-top: 10px; }
 
 @media(max-width:600px){ ul { grid-template-columns: 1fr; } }
-
 .folder-grid { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; margin: 0; }
 @media(max-width:600px){ .folder-grid { grid-template-columns: 1fr; } }
 
@@ -98,7 +91,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 </head>
 <body>
 
-<!-- 1️⃣ JuicyAds PopUnders -->
+<!-- JuicyAds PopUnders -->
 <script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p294137434&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
 
 <!-- 18+ Age Verification Modal -->
@@ -126,7 +119,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   <img src="" alt="AnywhereCum" style="display:none; border-radius:8px; margin-top:5px; max-width:100%;" id="headerImage">
 </header>
 
-<!-- 2️⃣ Top LIVE Banner Ad -->
+<!-- Top LIVE Banner Ad -->
 <div class="ad-wrapper">
   <div class="ad-container">
     <div class="ad-text"><span class="blink">🔴 LIVE</span> Exclusive Stream</div>
@@ -146,7 +139,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   </ul>
 </div>
 
-<!-- VIP Section Skeleton -->
+  <!-- VIP Section Skeleton -->
 <section id="vipSection">
   <h2>🔒VIP Vault🔒</h2>
   <div id="vipCTA" style="text-align:center; margin-bottom:15px;">
@@ -167,7 +160,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   <li class="skeleton" style="height:180px;"></li>
 </ul>
 
-<!-- 3️⃣ Bottom LIVE Ad Block -->
+<!-- Bottom LIVE Ad Block -->
 <div class="ad-wrapper">
   <div class="ad-container">
     <div class="ad-text"><span class="blink">🔴 LIVE</span> Check This Out!</div>
