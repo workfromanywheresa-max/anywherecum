@@ -42,47 +42,54 @@ a.folder-link:hover { color: #ff4444; text-decoration: underline; }
 /* Skeleton Loader Styles */
 .skeleton { background: #333; border-radius: 5px; position: relative; overflow: hidden; }
 .skeleton::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); animation: loading 1.5s infinite; }
-
 @keyframes loading { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
 
 /* Header Skeleton */
-.skeleton-header { width: 100%; max-width:720px; height:200px; border-radius:10px; background:#444; margin:0 auto 15px; position:relative; overflow:hidden; }
-.skeleton-header::after { content:""; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); animation: headerLoading 1.5s infinite; }
-@keyframes headerLoading { 0%{left:-100%;}50%{left:100%;}100%{left:100%;} }
-
-/* Popup Skeleton */
-.skeleton-popup { width: 100%; max-width: 400px; height: auto; min-height:200px; border-radius:12px; background:#444; margin-bottom:15px; position:relative; overflow:hidden; }
-.skeleton-popup::after { content:""; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); animation: loading 1.5s infinite; }
+.skeleton-header { width:100%; max-width:720px; border-radius:10px; margin:0 auto 15px auto; overflow:hidden; background:#444; height:200px; position:relative;}
+.skeleton-header::after { content:""; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); animation:loading 1.5s infinite;}
 
 footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; background: #111; margin-top: 10px; }
+@media(max-width:600px){ ul { grid-template-columns: 1fr; } }
+.folder-grid { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; margin: 0; }
+@media(max-width:600px){ .folder-grid { grid-template-columns: 1fr; } }
 
-@media(max-width:600px){ ul { grid-template-columns: 1fr; } .folder-grid { grid-template-columns:1fr; } }
+@keyframes flash { 0% { text-shadow: 0 0 5px #ff4444; } 50% { text-shadow: 0 0 20px #ff4444, 0 0 30px #ff8888; } 100% { text-shadow: 0 0 5px #ff4444; } }
+@keyframes bounceLeft { 0% { transform: translateX(0); } 50% { transform: translateX(5px); } 100% { transform: translateX(0); } }
+@keyframes bounceRight { 0% { transform: translateX(0); } 50% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+.blink { animation: blink 1s infinite; }
+@keyframes blink { 0% {opacity:1;} 50% {opacity:0;} 100% {opacity:1;} }
 
-@keyframes flash { 0% { text-shadow: 0 0 5px #ff4444; } 50% { text-shadow: 0 0 20px #ff4444,0 0 30px #ff8888;} 100%{text-shadow:0 0 5px #ff4444;} }
-@keyframes bounceLeft{0%{transform:translateX(0);}50%{transform:translateX(5px);}100%{transform:translateX(0);}}
-@keyframes bounceRight{0%{transform:translateX(0);}50%{transform:translateX(-5px);}100%{transform:translateX(0);}}
-
-.blink{animation:blink 1s infinite;}
-@keyframes blink{0%{opacity:1;}50%{opacity:0;}100%{opacity:1;}}
+.ad-wrapper { width:100%; display:flex; justify-content:center; margin-top:20px; }
+.ad-container { text-align:center; border:1px solid #ff0000; border-radius:10px; background-color:#1a1a1a; display:inline-block; cursor:default; overflow:hidden; transition:transform 0.2s, box-shadow 0.2s; padding-top:6px; }
+.ad-container:hover { transform:scale(1.05); box-shadow:0 0 12px #ff0000; }
+.ad-text { display:block; margin:0 0 4px 0; font-size:14px; font-weight:bold; color:#fff; user-select:none; pointer-events:none; }
+.ad-container ins { display:block; margin:0 auto; }
 </style>
+<meta name="juicyads-site-verification" content="00ec8046b1fdd1c8dfe12992c41ff734">
 </head>
 <body>
 
+<!-- 1️⃣ JuicyAds PopUnders -->
+<script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p294137434&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
+
 <!-- 18+ Age Verification Modal -->
-<div id="ageModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;justify-content:center;align-items:center;z-index:9999;text-align:center;padding:20px;opacity:0;transition:opacity 0.8s ease-in-out;">
-  <div style="max-width:400px;width:90%;background:#111;padding:25px;border-radius:12px;box-shadow:0 0 15px #ff4444;position:relative;">
+<div id="ageModal" style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); display:flex; justify-content:center; align-items:center; z-index:9999; text-align:center; padding:20px; opacity:0; transition: opacity 0.8s ease-in-out;">
+  <div id="popupContent" style="max-width:400px; width:90%; background:#111; padding:25px; border-radius:12px; box-shadow:0 0 15px #ff4444; position: relative;">
     
-    <!-- Popup Skeleton covering image -->
-    <div class="skeleton-popup" id="popupFullSkeleton"></div>
+    <!-- Popup Skeleton (dynamic size) -->
+    <div id="popupSkeleton" class="skeleton" style="width:100%; height:200px; border-radius:10px; margin-bottom:15px;"></div>
+    
+    <!-- Actual Image -->
+    <img id="popupImage" src="" alt="AnywhereCum" style="display:none; max-width:100%; border-radius:10px; margin-bottom:20px;">
 
-    <img id="popupImage" src="" alt="AnywhereCum" style="display:none; max-width:100%; border-radius:12px; margin-bottom:20px;">
-
-    <h2 style="color:#ff4444; font-size:24px; margin-bottom:10px;">⚠️ 18+ ONLY ⚠️</h2>
-    <p style="color:#fff; font-size:16px; margin-bottom:20px;">You must be 18 years or older to enter this site. Click below to confirm your age or leave if under 18.</p>
-
+    <!-- Title & Description -->
+    <h2 id="popupTitle" style="color:#ff4444; font-size:24px; margin-bottom:10px; display:none;">⚠️ 18+ ONLY ⚠️</h2>
+    <p id="popupDesc" style="color:#fff; font-size:16px; margin-bottom:20px; display:none;">You must be 18 years or older to enter this site. Click below to confirm your age or leave the site if you are under 18.</p>
+    
+    <!-- Buttons -->
     <div style="display:flex; gap:15px; flex-wrap:wrap; justify-content:center;">
-      <button id="enterSiteBtn" style="padding:12px 25px; font-size:16px; font-weight:bold; color:#fff; background-color:#ff4444; border:none; border-radius:8px; cursor:pointer; box-shadow:0 0 10px #ff4444; transition:0.3s;">I am 18 or Older</button>
-      <button id="leaveSiteBtn" style="padding:12px 25px; font-size:16px; font-weight:bold; color:#fff; background-color:#555; border:none; border-radius:8px; cursor:pointer; box-shadow:0 0 10px #777; transition:0.3s;">Leave Site</button>
+      <button id="enterSiteBtn" style="padding:12px 25px; font-size:16px; font-weight:bold; color:#fff; background-color:#ff4444; border:none; border-radius:8px; cursor:pointer; box-shadow:0 0 10px #ff4444; transition:0.3s; display:none;">I am 18 or Older</button>
+      <button id="leaveSiteBtn" style="padding:12px 25px; font-size:16px; font-weight:bold; color:#fff; background-color:#555; border:none; border-radius:8px; cursor:pointer; box-shadow:0 0 10px #777; transition:0.3s; display:none;">Leave Site</button>
     </div>
   </div>
 </div>
@@ -91,13 +98,12 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 <header>
   <h1>AnywhereCum</h1>
   <p>Explore our exclusive content folders</p>
+  <!-- Header Skeleton -->
   <div class="skeleton-header"></div>
-  <img src="" id="headerImage" style="display:none; max-width:100%; border-radius:8px; margin-top:5px;" alt="AnywhereCum">
+  <img src="" alt="AnywhereCum" style="display:none; border-radius:8px; margin-top:5px; max-width:100%;" id="headerImage">
 </header>
 
-<!-- Part 2 will include the rest: Ads, Latest Video, VIP, Folders, Footer, JS -->
-
-  <!-- 2️⃣ Top LIVE Banner Ad -->
+<!-- 2️⃣ Top LIVE Banner Ad -->
 <div class="ad-wrapper">
   <div class="ad-container">
     <div class="ad-text"><span class="blink">🔴 LIVE</span> Exclusive Stream</div>
@@ -109,7 +115,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   </div>
 </div>
 
-<!-- Latest Video Skeleton -->
+  <!-- Latest Video Skeleton -->
 <div id="latestVideo">
   <h2>🎥Latest Video🎥</h2>
   <ul class="folder-grid">
@@ -179,18 +185,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- Popup Skeleton Load ---
   const popupImg = document.getElementById('popupImage');
-  const popupSkeleton = document.getElementById('popupFullSkeleton');
-  popupImg.onload = () => { popupSkeleton.style.display = 'none'; popupImg.style.display = 'block'; }
+  const popupSkeleton = document.getElementById('popupSkeleton');
+  const popupTitle = document.getElementById('popupTitle');
+  const popupDesc = document.getElementById('popupDesc');
+  const enterBtn = document.getElementById('enterSiteBtn');
+  const leaveBtn = document.getElementById('leaveSiteBtn');
+
+  popupImg.onload = () => {
+    popupSkeleton.style.display = 'none';
+    popupImg.style.display = 'block';
+    popupTitle.style.display = 'block';
+    popupDesc.style.display = 'block';
+    enterBtn.style.display = 'inline-block';
+    leaveBtn.style.display = 'inline-block';
+  };
   popupImg.src = BASE_URL + "header-image.webp";
 
   // --- Age Modal ---
   const ageModal = document.getElementById('ageModal');
-  const enterBtn = document.getElementById('enterSiteBtn');
-  const leaveBtn = document.getElementById('leaveSiteBtn');
   setTimeout(() => {
     if(localStorage.getItem('ageConfirmed') !== 'true') ageModal.style.opacity = '1';
     else ageModal.style.display = 'none';
   }, 100);
+
   enterBtn.onclick = () => { 
     localStorage.setItem('ageConfirmed','true'); 
     ageModal.style.opacity='0'; 
@@ -220,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
     li.appendChild(thumb); li.appendChild(link); container.appendChild(li);
   });
 
-  // --- Fetch Content Folders ---
+  // --- Fetch Content Folders & Latest Video ---
   fetch('./videos.json').then(res=>res.json()).then(videos=>{
     const folders={};
     videos.forEach(v=>{ if(!folders[v.folder]) folders[v.folder]=[]; folders[v.folder].push(v); });
@@ -234,7 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
       li.appendChild(thumb); li.appendChild(link); folderList.appendChild(li);
     });
 
-    // Latest Video Section Update
     const latestVideo=videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
     const latestDiv=document.getElementById('latestVideo'); latestDiv.innerHTML=`
       <h2>🎥Latest Video🎥</h2>
