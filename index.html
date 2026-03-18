@@ -39,14 +39,10 @@ a.folder-link:hover { color: #ff4444; text-decoration: underline; }
 #latestVideo { margin-bottom: 20px; }
 #vipList li img, #folderList li img { width: 100%; height: 180px; border-radius: 5px; object-fit: cover; margin-bottom: 5px; }
 
-/* Skeleton Loader Styles */
+/* Skeleton Loader Styles (only for popup, VIP, latest video, folders) */
 .skeleton { background: #333; border-radius: 5px; position: relative; overflow: hidden; }
 .skeleton::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); animation: loading 1.5s infinite; }
 @keyframes loading { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
-
-/* Header Skeleton */
-.skeleton-header { width:100%; max-width:720px; border-radius:10px; margin:0 auto 15px auto; overflow:hidden; background:#444; height:200px; position:relative;}
-.skeleton-header::after { content:""; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); animation:loading 1.5s infinite;}
 
 footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; background: #111; margin-top: 10px; }
 @media(max-width:600px){ ul { grid-template-columns: 1fr; } }
@@ -57,7 +53,6 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 @keyframes bounceLeft { 0% { transform: translateX(0); } 50% { transform: translateX(5px); } 100% { transform: translateX(0); } }
 @keyframes bounceRight { 0% { transform: translateX(0); } 50% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
 .blink { animation: blink 1s infinite; }
-@keyframes blink { 0% {opacity:1;} 50% {opacity:0;} 100% {opacity:1;} }
 
 .ad-wrapper { width:100%; display:flex; justify-content:center; margin-top:20px; }
 .ad-container { text-align:center; border:1px solid #ff0000; border-radius:10px; background-color:#1a1a1a; display:inline-block; cursor:default; overflow:hidden; transition:transform 0.2s, box-shadow 0.2s; padding-top:6px; }
@@ -98,12 +93,10 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 <header>
   <h1>AnywhereCum</h1>
   <p>Explore our exclusive content folders</p>
-  <!-- Header Skeleton -->
-  <div class="skeleton-header"></div>
-  <img src="" alt="AnywhereCum" style="display:none; border-radius:8px; margin-top:5px; max-width:100%;" id="headerImage">
+  <img src="https://anywherecum.workfromanywhere-sa.workers.dev/images/header-image.webp" alt="AnywhereCum" style="border-radius:8px; margin-top:5px; max-width:100%;" id="headerImage">
 </header>
 
-<!-- 2️⃣ Top LIVE Banner Ad -->
+  <!-- 2️⃣ Top LIVE Banner Ad -->
 <div class="ad-wrapper">
   <div class="ad-container">
     <div class="ad-text"><span class="blink">🔴 LIVE</span> Exclusive Stream</div>
@@ -123,7 +116,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   </ul>
 </div>
 
-  <!-- VIP Section Skeleton -->
+<!-- VIP Section Skeleton -->
 <section id="vipSection">
   <h2>🔒VIP Vault🔒</h2>
   <div id="vipCTA" style="text-align:center; margin-bottom:15px;">
@@ -177,12 +170,6 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 document.addEventListener('DOMContentLoaded', () => {
   const BASE_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
 
-  // --- Header Skeleton Load ---
-  const headerImg = document.getElementById('headerImage');
-  const headerSkeleton = document.querySelector('.skeleton-header');
-  headerImg.onload = () => { headerSkeleton.style.display = 'none'; headerImg.style.display = 'block'; }
-  headerImg.src = BASE_URL + "header-image.webp";
-
   // --- Popup Skeleton Load ---
   const popupImg = document.getElementById('popupImage');
   const popupSkeleton = document.getElementById('popupSkeleton');
@@ -199,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
     enterBtn.style.display = 'inline-block';
     leaveBtn.style.display = 'inline-block';
   };
-  popupImg.src = BASE_URL + "popup-image.webp"; // <-- Updated popup image
+  popupImg.src = BASE_URL + "header-image.webp";
 
   // --- Age Modal ---
   const ageModal = document.getElementById('ageModal');
