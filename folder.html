@@ -76,13 +76,9 @@ h2 { color:#ff4444; border-bottom:2px solid #ff4444; padding-bottom:5px; text-al
 .skeleton-text { height:14px; width:70%; margin:10px auto; }
 .skeleton-btn { height:34px; width:120px; margin:10px auto; }
 </style>
-
 </head>
 
 <body>
-
-<!-- Popunder Ads -->
-<script src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p294137434"></script>
 
 <h2 id="folderTitle">Folder Videos</h2>
 <p class="description" id="folderDesc"></p>
@@ -91,8 +87,6 @@ h2 { color:#ff4444; border-bottom:2px solid #ff4444; padding-bottom:5px; text-al
 
 <script>
 const params = new URLSearchParams(window.location.search);
-
-// ✅ SINGLE SOURCE OF TRUTH
 const rawFolder = params.get('folder') || '';
 const folderName = rawFolder.toLowerCase();
 
@@ -138,15 +132,35 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
+// format views
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K+";
   return num;
 }
 
-function increaseViews(id){
-  runTransaction(ref(db,"views/"+id),(v)=>(v||0)+1);
+// ✅ increase views + timestamps
+function increaseViews(videoId){
+  const viewRef = ref(db,"views/"+videoId);
+  const timeRef = ref(db,"viewTimes/"+videoId);
+
+  runTransaction(viewRef,(v)=>(v||0)+1);
+
+  runTransaction(timeRef,(current)=>{
+    const now = Date.now();
+    let arr = current ? Object.values(current) : [];
+
+    arr.push(now);
+    if(arr.length > 200) arr = arr.slice(-200);
+
+    const obj = {};
+    arr.forEach((t,i)=> obj[i]=t);
+
+    return obj;
+  });
 }
+
+const videoStates = {};
 
 fetch('videos.json')
 .then(res=>res.json())
@@ -156,18 +170,14 @@ fetch('videos.json')
 
   const IMAGE_BASE = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
 
-  // ✅ FIXED FILTER
   const folderVideos = videos.filter(v =>
     v.folder.toLowerCase() === folderName
   );
 
-  // ✅ EMPTY CHECK
   if(folderVideos.length === 0){
     container.innerHTML = `<p style="text-align:center;color:#aaa;">No videos found.</p>`;
     return;
   }
-
-  folderVideos.sort((a,b)=> new Date(b.date)-new Date(a.date));
 
   folderVideos.forEach(v=>{
 
@@ -193,10 +203,51 @@ fetch('videos.json')
     btn.textContent = `Download (${v.size})`;
 
     const viewRef = ref(db,"views/"+v.id);
+    const timeRef = ref(db,"viewTimes/"+v.id);
+
+    let views = 0;
+    let timestamps = [];
+
+    function getLast24hCount(){
+      const now = Date.now();
+      return timestamps.filter(t => now - t <= 86400000).length;
+    }
+
+    function updateUI(){
+      const last24h = getLast24hCount();
+
+      if(last24h >= 10){
+        viewsEl.textContent = "🔥Trending | Views: " + formatViews(views);
+        viewsEl.style.color = "#ffcc00";
+      } else {
+        viewsEl.textContent = "Views: " + formatViews(views);
+        viewsEl.style.color = "#aaa";
+      }
+    }
+
+    videoStates[v.id] = {
+      element: box,
+      getScore: () => getLast24hCount()
+    };
+
+    function sortVideos(){
+      const sorted = Object.values(videoStates)
+        .sort((a,b)=> b.getScore() - a.getScore());
+
+      sorted.forEach(v => container.appendChild(v.element));
+    }
 
     onValue(viewRef,snap=>{
-      const views = snap.val() || 0;
-      viewsEl.textContent = "👁 Views: " + formatViews(views);
+      views = snap.val() || 0;
+      updateUI();
+      sortVideos();
+    });
+
+    onValue(timeRef,snap=>{
+      const data = snap.val();
+      timestamps = data ? Object.values(data) : [];
+      updateUI();
+      sortVideos();
     });
 
     function openVideo(){
