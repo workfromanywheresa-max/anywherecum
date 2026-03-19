@@ -120,6 +120,47 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 /*]]>/* */
 </script>
 
+  <script type="module">
+  // Import Firebase modules
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getDatabase, ref, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
+
+  // Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWHoNqPpppR4kx0",
+    authDomain: "anywherecum-1c8d0.firebaseapp.com",
+    databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
+    projectId: "anywherecum-1c8d0",
+    storageBucket: "anywherecum-1c8d0.appspot.com",
+    messagingSenderId: "686718460803",
+    appId: "1:686718460803:web:5d0ec20634dfe2a7d98cb6",
+    measurementId: "G-6XXPPV4727"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  const db = getDatabase(app);
+
+  // Reference to homepage views
+  const viewsRef = ref(db, "views/homepage");
+
+  // Increment once per session
+  if (!sessionStorage.getItem("viewCounted")) {
+    runTransaction(viewsRef, (current) => {
+      return (current || 0) + 1;
+    });
+    sessionStorage.setItem("viewCounted", "true");
+  }
+
+  // Listen for live updates
+  onValue(viewsRef, (snapshot) => {
+    const count = snapshot.val() || 0;
+    document.getElementById("viewCount").innerText = count;
+  });
+  </script>
+
 </head>
 <body>
 
@@ -330,23 +371,6 @@ document.addEventListener('DOMContentLoaded', () => {
       latestDiv.querySelector("img").onclick=()=>window.open("folder.html?folder="+encodeURIComponent(latestVideo.folder), "_blank");
     }
   });
-});
-
-  // Firebase Views Counter
-const viewsRef = firebase.database().ref("views/homepage");
-
-// Increment views once per session
-if (!sessionStorage.getItem("viewCounted")) {
-  viewsRef.transaction((current) => {
-    return (current || 0) + 1;
-  });
-  sessionStorage.setItem("viewCounted", "true");
-}
-
-// Display views
-viewsRef.on("value", (snapshot) => {
-  const count = snapshot.val() || 0;
-  document.getElementById("viewCount").innerText = count;
 });
                                                                  
 </script>
