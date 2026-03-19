@@ -119,15 +119,20 @@ function increaseViews(videoId) {
 
   runTransaction(timeRef, (current) => {
     const now = Date.now();
-    let arr = current || [];
+    let arr = Object.values(current || {});
     arr.push(now);
 
-    // limit stored timestamps
     if (arr.length > 200) arr = arr.slice(-200);
 
-    return arr;
+    const obj = {};
+    arr.forEach((t, i) => obj[i] = t);
+
+    return obj;
   });
 }
+
+// Store video DOM + scoring
+const videoStates = {};
 
 // Load videos
 fetch('vip.json')
@@ -174,9 +179,13 @@ fetch('vip.json')
     let views = 0;
     let timestamps = [];
 
-    function updateUI() {
+    function getLast24hCount() {
       const now = Date.now();
-      const last24hViews = timestamps.filter(t => now - t <= 86400000).length;
+      return timestamps.filter(t => now - t <= 86400000).length;
+    }
+
+    function updateUI() {
+      const last24hViews = getLast24hCount();
 
       if (last24hViews >= 10) {
         viewsEl.textContent = "🔥 Trending | 👁 Views: " + formatViews(views);
@@ -187,14 +196,30 @@ fetch('vip.json')
       }
     }
 
+    // Register for sorting
+    videoStates[v.id] = {
+      element: box,
+      getScore: () => getLast24hCount()
+    };
+
+    function sortVideos() {
+      const sorted = Object.values(videoStates)
+        .sort((a, b) => b.getScore() - a.getScore());
+
+      container.innerHTML = "";
+      sorted.forEach(v => container.appendChild(v.element));
+    }
+
     onValue(viewRef, (snap) => {
       views = snap.val() || 0;
       updateUI();
+      sortVideos();
     });
 
     onValue(timeRef, (snap) => {
-      timestamps = snap.val() || [];
+      timestamps = Object.values(snap.val() || {});
       updateUI();
+      sortVideos();
     });
 
     const button = document.createElement("a");
