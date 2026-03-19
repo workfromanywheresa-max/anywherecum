@@ -235,6 +235,20 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
+// 👉 YOUR IP
+const OWNER_IP = "102.214.117.74";
+
+// Get user IP
+async function getUserIP() {
+  try {
+    const res = await fetch("https://api.ipify.org?format=json");
+    const data = await res.json();
+    return data.ip;
+  } catch (e) {
+    return null;
+  }
+}
+
 // Format views
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0", "") + "M+";
@@ -242,8 +256,17 @@ function formatViews(num) {
   return num;
 }
 
-// Increase views + timestamps
-function increaseViews(videoId) {
+// Increase views + timestamps (with IP block)
+async function increaseViews(videoId) {
+
+  const userIP = await getUserIP();
+
+  // ❌ Block your own IP
+  if (userIP && userIP === OWNER_IP) {
+    console.log("Owner detected — view not counted");
+    return;
+  }
+
   const viewRef = ref(db, "views/" + videoId);
   const timeRef = ref(db, "viewTimes/" + videoId);
 
@@ -273,7 +296,6 @@ fetch('vip.json')
 .then(res => res.json())
 .then(vipData => {
 
-  // REMOVE skeletons
   container.innerHTML = "";
 
   vipData.sort((a, b) => new Date(b.date) - new Date(a.date));
