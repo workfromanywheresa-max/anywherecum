@@ -50,6 +50,12 @@ h2 { color:#ff4444; border-bottom:2px solid #ff4444; padding-bottom:5px; text-al
 }
 .videoTitle:hover { color: #fff; }
 
+.views {
+  text-align:center;
+  color:#aaa;
+  margin:5px 0;
+}
+
 .download {
   display:block;
   width:fit-content;
@@ -92,17 +98,15 @@ h2 { color:#ff4444; border-bottom:2px solid #ff4444; padding-bottom:5px; text-al
 .skeleton-btn { height:34px; width:120px; margin:10px auto; border-radius:5px; }
 </style>
 
- <script type="text/javascript" data-cfasync="false">
-/*<![CDATA[/* */
+<script type="text/javascript" data-cfasync="false">
 (function(){var s=window,r="e96ba20fb672184d3896e3dc42c0737a",j=[["siteId",625-935+980-708*158+5396680],["minBid",0],["popundersPerIP","0"],["delayBetween",0],["default",false],["defaultPerDay",0],["topmostLayer","auto"]],k=["d3d3LmRpc3BsYXl2ZXJ0aXNpbmcuY29tL3JqcXVlcnkubGV0dGVyaW5nLm1pbi5jc3M=","ZDNtem9rdHk5NTFjNXcuY2xvdWRmcm9udC5uZXQva3l0L2tzd2l0Y2h5Lm1pbi5qcw=="],g=-1,o,e,c=function(){clearTimeout(e);g++;if(k[g]&&!(1799759567000<(new Date).getTime()&&1<g)){o=s.document.createElement("script");o.type="text/javascript";o.async=!0;var d=s.document.getElementsByTagName("script")[0];o.src="https://"+atob(k[g]);o.crossOrigin="anonymous";o.onerror=c;o.onload=function(){clearTimeout(e);s[r.slice(0,16)+r.slice(0,16)]||c()};e=setTimeout(c,5E3);d.parentNode.insertBefore(o,d)}};if(!s[r]){try{Object.freeze(s[r]=j)}catch(e){}c()}})();
-/*]]>/* */
- </script> 
-  
+</script>
+
 </head>
 
 <body>
 
-<!-- JuicyAds PopUnders -->
+<!-- Popunder Ads -->
 <script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p294137434&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
 
 <h2 id="folderTitle">Folder Videos</h2>
@@ -130,89 +134,6 @@ h2 { color:#ff4444; border-bottom:2px solid #ff4444; padding-bottom:5px; text-al
 </style>
 
 <div id="videoList"></div>
-
-<script>
-// Folder setup
-const params = new URLSearchParams(window.location.search);
-let folderName = params.get('folder') || 'Unknown';
-folderName = folderName.replace(/-/g," ").replace(/\b\w/g,c=>c.toUpperCase());
-
-document.getElementById("folderTitle").textContent = folderName + " Folder";
-document.getElementById("folderDesc").textContent =
-`Enjoy our latest ${folderName} videos, updated regularly for your viewing pleasure.`;
-
-// Skeletons first
-const container = document.getElementById("videoList");
-for (let i = 0; i < 6; i++) {
-  const box = document.createElement("div");
-  box.className = "videoBox";
-  box.innerHTML = `
-    <div class="preview skeleton skeleton-img"></div>
-    <div class="skeleton skeleton-text"></div>
-    <div class="skeleton skeleton-btn"></div>
-  `;
-  container.appendChild(box);
-}
-
-// Fetch real data
-fetch('videos.json')
-  .then(res => res.json())
-  .then(videos => {
-
-    container.innerHTML = "";
-
-    const folderVideos = videos.filter(v =>
-      v.folder.toLowerCase() === folderName.toLowerCase()
-    );
-
-    folderVideos.sort((a,b) => new Date(b.date) - new Date(a.date));
-
-    if(folderVideos.length === 0){
-      container.innerHTML = '<p style="text-align:center;color:#ff4444;">No videos found.</p>';
-      return;
-    }
-
-    const IMAGE_BASE = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
-
-    folderVideos.forEach(v => {
-      const box = document.createElement("div");
-      box.className = "videoBox";
-
-      const preview = document.createElement("div");
-      preview.className = "preview";
-
-      const img = document.createElement("img");
-      img.src = IMAGE_BASE + v.thumbnail;
-      img.alt = v.title;
-
-      // fade in when loaded
-      img.onload = () => img.classList.add("loaded");
-
-      preview.appendChild(img);
-      preview.onclick = () => window.open(v.url,"_blank");
-      box.appendChild(preview);
-
-      const title = document.createElement("h3");
-      title.className = "videoTitle";
-      title.textContent = v.title;
-      title.onclick = () => window.open(v.url,"_blank");
-      box.appendChild(title);
-
-      const btn = document.createElement("a");
-      btn.className = "download";
-      btn.href = v.url;
-      btn.target = "_blank";
-      btn.textContent = `Download (${v.size})`;
-      box.appendChild(btn);
-
-      container.appendChild(box);
-    });
-
-  })
-  .catch(() => {
-    container.innerHTML = '<p style="text-align:center;color:#ff4444;">Failed to load videos.</p>';
-  });
-</script>
 
 <!-- BOTTOM AD -->
 <div class="bottom-ad">
@@ -249,8 +170,192 @@ fetch('videos.json')
 }
 
 .blink-slow { animation: blink 1.6s infinite; }
-@keyframes blink { 50% { opacity:0; } }
+
+@keyframes blink {
+  50% { opacity:0; }
+}
 </style>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+let folderName = params.get('folder') || 'Unknown';
+folderName = folderName.replace(/-/g," ").replace(/\b\w/g,c=>c.toUpperCase());
+
+document.getElementById("folderTitle").textContent = folderName + " Folder";
+document.getElementById("folderDesc").textContent =
+`Enjoy our latest ${folderName} videos, updated regularly for your viewing pleasure.`;
+
+const container = document.getElementById("videoList");
+
+// Skeletons
+for (let i = 0; i < 6; i++) {
+  const box = document.createElement("div");
+  box.className = "videoBox";
+  box.innerHTML = `
+    <div class="preview skeleton skeleton-img"></div>
+    <div class="skeleton skeleton-text"></div>
+    <div class="skeleton skeleton-btn"></div>
+  `;
+  container.appendChild(box);
+}
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getDatabase, ref, runTransaction, onValue } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
+  authDomain: "anywherecum-1c8d0.firebaseapp.com",
+  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
+  projectId: "anywherecum-1c8d0",
+  storageBucket: "anywherecum-1c8d0.firebasestorage.app",
+  messagingSenderId: "686718460803",
+  appId: "1:686718460803:web:5d0ec20634dfe2a7d98cb6"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const container = document.getElementById("videoList");
+
+function formatViews(num) {
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0", "") + "M+";
+  if (num >= 1000) return (num / 1000).toFixed(1).replace(".0", "") + "K+";
+  return num;
+}
+
+function increaseViews(videoId) {
+  const viewRef = ref(db, "views/" + videoId);
+  const timeRef = ref(db, "viewTimes/" + videoId);
+
+  runTransaction(viewRef, (current) => (current || 0) + 1);
+
+  runTransaction(timeRef, (current) => {
+    const now = Date.now();
+    let arr = current ? Object.values(current) : [];
+    arr.push(now);
+    if (arr.length > 200) arr = arr.slice(-200);
+
+    const obj = {};
+    arr.forEach((t, i) => obj[i] = t);
+    return obj;
+  });
+}
+
+const videoStates = {};
+
+fetch('videos.json')
+.then(res => res.json())
+.then(videos => {
+
+  container.innerHTML = "";
+
+  const IMAGE_BASE = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
+
+  const folderName = new URLSearchParams(window.location.search)
+    .get('folder') || 'Unknown';
+
+  const folderVideos = videos.filter(v =>
+    v.folder.toLowerCase() === folderName.toLowerCase()
+  );
+
+  folderVideos.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  folderVideos.forEach(v => {
+
+    const box = document.createElement("div");
+    box.className = "videoBox";
+
+    const preview = document.createElement("div");
+    preview.className = "preview";
+
+    const img = document.createElement("img");
+    img.src = IMAGE_BASE + v.thumbnail;
+    img.onload = () => img.classList.add("loaded");
+
+    const title = document.createElement("h3");
+    title.className = "videoTitle";
+    title.textContent = v.title;
+
+    const viewsEl = document.createElement("div");
+    viewsEl.className = "views";
+
+    const btn = document.createElement("a");
+    btn.className = "download";
+    btn.href = v.url;
+    btn.target = "_blank";
+    btn.textContent = `Download (${v.size})`;
+
+    const viewRef = ref(db, "views/" + v.id);
+    const timeRef = ref(db, "viewTimes/" + v.id);
+
+    let views = 0;
+    let timestamps = [];
+
+    function getLast24hCount() {
+      const now = Date.now();
+      return timestamps.filter(t => now - t <= 86400000).length;
+    }
+
+    function updateUI() {
+      const last24h = getLast24hCount();
+
+      if (last24h >= 10) {
+        viewsEl.textContent = "🔥 Trending | 👁 Views: " + formatViews(views);
+        viewsEl.style.color = "#ffcc00";
+      } else {
+        viewsEl.textContent = "👁 Views: " + formatViews(views);
+        viewsEl.style.color = "#aaa";
+      }
+    }
+
+    onValue(viewRef, (snap) => {
+      views = snap.val() || 0;
+      updateUI();
+    });
+
+    onValue(timeRef, (snap) => {
+      const data = snap.val();
+      timestamps = data ? Object.values(data) : [];
+      updateUI();
+    });
+
+    function handleClick() {
+      increaseViews(v.id);
+    }
+
+    img.addEventListener("click", () => {
+      handleClick();
+      window.open(v.url, "_blank");
+    });
+
+    title.addEventListener("click", () => {
+      handleClick();
+      window.open(v.url, "_blank");
+    });
+
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      handleClick();
+      window.open(v.url, "_blank");
+    });
+
+    preview.appendChild(img);
+    box.appendChild(preview);
+    box.appendChild(title);
+    box.appendChild(viewsEl);
+    box.appendChild(btn);
+
+    container.appendChild(box);
+  });
+
+})
+.catch(() => {
+  container.innerHTML = '<p style="text-align:center;color:#ff4444;">Failed to load videos.</p>';
+});
+</script>
 
 </body>
 </html>
