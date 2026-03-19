@@ -141,8 +141,19 @@ const analytics = getAnalytics(app);
 const db = getDatabase(app);
 const viewsRef = ref(db, "views/homepage");
 
-// 👉 PUT YOUR PUBLIC IP HERE
+// 👉 YOUR IP
 const OWNER_IP = "102.214.117.74";
+
+// Format numbers into k / M
+function formatViews(num) {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+  }
+  return num;
+}
 
 // Get user IP
 async function getUserIP() {
@@ -158,11 +169,10 @@ async function getUserIP() {
 (async () => {
   const userIP = await getUserIP();
 
-  // ❌ If it's your IP, do NOT count
+  // ❌ Skip owner views
   if (userIP && userIP === OWNER_IP) {
     console.log("Owner detected — view not counted");
   } else {
-    // ✅ Count view
     if (!sessionStorage.getItem("viewCounted")) {
       runTransaction(viewsRef, (current) => {
         return (current || 0) + 1;
@@ -171,10 +181,10 @@ async function getUserIP() {
     }
   }
 
-  // Live view updates
+  // Live updates
   onValue(viewsRef, (snapshot) => {
     const count = snapshot.val() || 0;
-    document.getElementById("viewCount").innerText = count;
+    document.getElementById("viewCount").innerText = formatViews(count);
   });
 
 })();
