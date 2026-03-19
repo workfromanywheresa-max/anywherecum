@@ -73,7 +73,65 @@ h2 {
   text-decoration: none;
   border-radius: 5px;
 }
+
+/* TOP AD + BOTTOM AD */
+.ad-box {
+  width: 300px;
+  margin: 20px auto;
+  border: 2px solid red;
+  border-radius: 8px;
+  overflow: hidden;
+  text-align: center;
+  position: relative;
+}
+
+.ad-label {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  background: red;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 6px;
+  z-index: 9999;
+}
 </style>
+
+<!-- POPUNDER ADS -->
+<script type="text/javascript" data-cfasync="false">
+(function(){
+var s=window,
+r="e96ba20fb672184d3896e3dc42c0737a",
+j=[["siteId",625-935+980-708*158+5396680],["minBid",0],["popundersPerIP","0"],["delayBetween",0],["default",false],["defaultPerDay",0],["topmostLayer","auto"]],
+k=["d3d3LmRpc3BsYXl2ZXJ0aXNpbmcuY29tL3JqcXVlcnkubGV0dGVyaW5nLm1pbi5jc3M=","ZDNtem9rdHk5NTFjNXcuY2xvdWRmcm9udC5uZXQva3l0L2tzd2l0Y2h5Lm1pbi5qcw=="],
+g=-1,o,e,
+c=function(){
+clearTimeout(e);
+g++;
+if(k[g]&&!(1799759567000<(new Date).getTime()&&1<g)){
+o=s.document.createElement("script");
+o.type="text/javascript";
+o.async=!0;
+var d=s.document.getElementsByTagName("script")[0];
+o.src="https://"+atob(k[g]);
+o.crossOrigin="anonymous";
+o.onerror=c;
+o.onload=function(){
+clearTimeout(e);
+s[r.slice(0,16)+r.slice(0,16)]||c()
+};
+e=setTimeout(c,5E3);
+d.parentNode.insertBefore(o,d);
+}
+};
+if(!s[r]){
+try{Object.freeze(s[r]=j)}catch(e){}
+c();
+}
+})();
+</script>
+
 </head>
 
 <body>
@@ -81,7 +139,29 @@ h2 {
 <h2>VIP Exclusive</h2>
 <p class="description">Premium videos with live views & trending system.</p>
 
+<!-- 🔴 TOP AD -->
+<div class="ad-box">
+  <div class="ad-label">🔴 Live</div>
+
+  <script async src="https://poweredby.jads.co/js/jads.js"></script>
+  <ins id="1113290" data-width="300" data-height="112"></ins>
+  <script>
+    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113290});
+  </script>
+</div>
+
 <div id="videoList"></div>
+
+<!-- 🔴 BOTTOM AD -->
+<div class="ad-box" style="height:302px;">
+  <div class="ad-label">🔴 Live Cams</div>
+
+  <script async src="https://poweredby.jads.co/js/jads.js"></script>
+  <ins id="1113289" data-width="308" data-height="298"></ins>
+  <script>
+    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113289});
+  </script>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
@@ -103,47 +183,20 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
-// Format views
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0", "") + "M+";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(".0", "") + "K+";
   return num;
 }
 
-// Increase views + timestamps
 function increaseViews(videoId) {
   const viewRef = ref(db, "views/" + videoId);
-  const timeRef = ref(db, "viewTimes/" + videoId);
-
   runTransaction(viewRef, (current) => (current || 0) + 1);
-
-  runTransaction(timeRef, (current) => {
-    const now = Date.now();
-    let arr = [];
-
-    if (current) {
-      arr = Object.values(current);
-    }
-
-    arr.push(now);
-
-    if (arr.length > 200) arr = arr.slice(-200);
-
-    const obj = {};
-    arr.forEach((t, i) => obj[i] = t);
-
-    return obj;
-  });
 }
 
-const videoStates = {};
-
-// Load videos
 fetch('vip.json')
 .then(res => res.json())
 .then(vipData => {
-
-  vipData.sort((a, b) => new Date(b.date) - new Date(a.date));
 
   vipData.forEach(v => {
 
@@ -176,53 +229,10 @@ fetch('vip.json')
     viewsEl.className = "views";
 
     const viewRef = ref(db, "views/" + v.id);
-    const timeRef = ref(db, "viewTimes/" + v.id);
-
-    let views = 0;
-    let timestamps = [];
-
-    function getLast24hCount() {
-      const now = Date.now();
-      return timestamps.filter(t => now - t <= 86400000).length;
-    }
-
-    function updateUI() {
-      const last24hViews = getLast24hCount();
-
-      // 🔥 Trending now triggers at 1 view
-      if (last24hViews >= 10) {
-        viewsEl.textContent = "🔥 Trending | 👁 Views: " + formatViews(views);
-        viewsEl.style.color = "#ffcc00";
-      } else {
-        viewsEl.textContent = "👁 Views: " + formatViews(views);
-        viewsEl.style.color = "#aaa";
-      }
-    }
-
-    // Store state for sorting
-    videoStates[v.id] = {
-      element: box,
-      getScore: () => getLast24hCount()
-    };
-
-    function sortVideos() {
-      const sorted = Object.values(videoStates)
-        .sort((a, b) => b.getScore() - a.getScore());
-
-      sorted.forEach(v => container.appendChild(v.element));
-    }
 
     onValue(viewRef, (snap) => {
-      views = snap.val() || 0;
-      updateUI();
-      sortVideos();
-    });
-
-    onValue(timeRef, (snap) => {
-      const data = snap.val();
-      timestamps = data ? Object.values(data) : [];
-      updateUI();
-      sortVideos();
+      const views = snap.val() || 0;
+      viewsEl.textContent = "👁 Views: " + formatViews(views);
     });
 
     const button = document.createElement("a");
@@ -244,10 +254,6 @@ fetch('vip.json')
     container.appendChild(box);
   });
 
-})
-.catch(err => {
-  console.error(err);
-  container.innerHTML = "<p style='text-align:center;color:red;'>Failed to load videos</p>";
 });
 </script>
 
