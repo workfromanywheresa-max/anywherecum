@@ -62,13 +62,6 @@ h2 {
   margin: 5px 0;
 }
 
-.trending {
-  text-align: center;
-  color: #ffcc00;
-  font-weight: bold;
-  margin: 5px 0;
-}
-
 .download {
   display: block;
   width: fit-content;
@@ -110,7 +103,7 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
-// Format views (1K+, 1.2K+, etc.)
+// Format views
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0", "") + "M+";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(".0", "") + "K+";
@@ -162,34 +155,35 @@ fetch('vip.json')
     const viewsEl = document.createElement("div");
     viewsEl.className = "views";
 
-    const trendingEl = document.createElement("div");
-    trendingEl.className = "trending";
-
     const viewRef = ref(db, "views/" + v.id);
 
     onValue(viewRef, (snapshot) => {
       const views = snapshot.val() || 0;
 
-      viewsEl.textContent = "Views: " + formatViews(views);
-
-      // 🔥 Trending (permanent, no expiry)
+      // 🔥 Inline trending + views
       if (views >= 500) {
-        trendingEl.textContent = "🔥 Trending • " + formatViews(views);
-        trendingEl.style.display = "block";
+        viewsEl.textContent = "🔥 Trending | 👁 Views: " + formatViews(views);
+        viewsEl.style.color = "#ffcc00";
       } else {
-        trendingEl.style.display = "none";
+        viewsEl.textContent = "👁 Views: " + formatViews(views);
+        viewsEl.style.color = "#aaa";
       }
     });
 
     const button = document.createElement("a");
     button.className = "download";
     button.href = v.url;
-    button.target = "_blank";
     button.textContent = `Download (${v.size})`;
+
+    // Count view on download click
+    button.addEventListener("click", (e) => {
+      e.preventDefault();
+      increaseViews(v.id);
+      window.open(v.url, "_blank");
+    });
 
     box.appendChild(preview);
     box.appendChild(titleEl);
-    box.appendChild(trendingEl);
     box.appendChild(viewsEl);
     box.appendChild(button);
 
