@@ -153,6 +153,10 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   <img src="" alt="AnywhereCum" style="display:none; border-radius:8px; margin-top:5px; max-width:100%;" id="headerImage">
 </header>
 
+  <div id="pageViews" style="text-align:center; margin-top:8px; font-size:14px; color:#ff4444;">
+  Page Views: <span id="viewCount">0</span>
+  </div>
+
 <!-- Top LIVE Banner Ad -->
 <div class="ad-wrapper">
   <div class="ad-container">
@@ -327,6 +331,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+  // Firebase Views Counter
+const viewsRef = firebase.database().ref("views/homepage");
+
+// Increment views once per session
+if (!sessionStorage.getItem("viewCounted")) {
+  viewsRef.transaction((current) => {
+    return (current || 0) + 1;
+  });
+  sessionStorage.setItem("viewCounted", "true");
+}
+
+// Display views
+viewsRef.on("value", (snapshot) => {
+  const count = snapshot.val() || 0;
+  document.getElementById("viewCount").innerText = count;
+});
+                                                                 
 </script>
 
 </body>
