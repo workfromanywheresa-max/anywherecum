@@ -323,10 +323,10 @@ fetch('vip.json')
       const last24hViews = getLast24hCount();
 
       if (last24hViews >= 10) {
-        viewsEl.textContent = "🔥 Trending | 👁 Views: " + formatViews(views);
+        viewsEl.textContent = "🔥Trending | 👁Views: " + formatViews(views);
         viewsEl.style.color = "#ffcc00";
       } else {
-        viewsEl.textContent = "👁 Views: " + formatViews(views);
+        viewsEl.textContent = "👁Views: " + formatViews(views);
         viewsEl.style.color = "#aaa";
       }
     }
