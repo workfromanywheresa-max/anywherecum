@@ -110,10 +110,23 @@ function formatViews(num) {
   return num;
 }
 
-// Increase views
+// Increase views + store timestamp
 function increaseViews(videoId) {
   const viewRef = ref(db, "views/" + videoId);
+  const timeRef = ref(db, "viewTimes/" + videoId);
+
   runTransaction(viewRef, (current) => (current || 0) + 1);
+
+  runTransaction(timeRef, (current) => {
+    const now = Date.now();
+    let arr = current || [];
+    arr.push(now);
+
+    // limit stored timestamps
+    if (arr.length > 200) arr = arr.slice(-200);
+
+    return arr;
+  });
 }
 
 // Load videos
@@ -156,18 +169,32 @@ fetch('vip.json')
     viewsEl.className = "views";
 
     const viewRef = ref(db, "views/" + v.id);
+    const timeRef = ref(db, "viewTimes/" + v.id);
 
-    onValue(viewRef, (snapshot) => {
-      const views = snapshot.val() || 0;
+    let views = 0;
+    let timestamps = [];
 
-      // 🔥 Inline trending + views
-      if (views >= 500) {
+    function updateUI() {
+      const now = Date.now();
+      const last24hViews = timestamps.filter(t => now - t <= 86400000).length;
+
+      if (last24hViews >= 10) {
         viewsEl.textContent = "🔥 Trending | 👁 Views: " + formatViews(views);
         viewsEl.style.color = "#ffcc00";
       } else {
         viewsEl.textContent = "👁 Views: " + formatViews(views);
         viewsEl.style.color = "#aaa";
       }
+    }
+
+    onValue(viewRef, (snap) => {
+      views = snap.val() || 0;
+      updateUI();
+    });
+
+    onValue(timeRef, (snap) => {
+      timestamps = snap.val() || [];
+      updateUI();
     });
 
     const button = document.createElement("a");
@@ -175,7 +202,6 @@ fetch('vip.json')
     button.href = v.url;
     button.textContent = `Download (${v.size})`;
 
-    // Count view on download click
     button.addEventListener("click", (e) => {
       e.preventDefault();
       increaseViews(v.id);
