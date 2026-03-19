@@ -294,7 +294,7 @@ fetch('videos.json')
       const last24h = getLast24hCount();
 
       if(last24h >= 10){
-        viewsEl.textContent = "🔥Trending | Views: " + formatViews(views);
+        viewsEl.textContent = "🔥Trending | 👁Views: " + formatViews(views);
         viewsEl.style.color = "#ffcc00";
       } else {
         viewsEl.textContent = "👁Views: " + formatViews(views);
