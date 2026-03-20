@@ -103,14 +103,13 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
-// Folder
 const urlParams = new URLSearchParams(window.location.search);
 const folderName = (urlParams.get("folder") || "").toLowerCase();
 
 document.getElementById("folderTitle").textContent =
   folderName.charAt(0).toUpperCase() + folderName.slice(1);
 
-// ✅ Only listen to cycle (NO reset logic here)
+// Cycle listener
 const cycleRef = ref(db, "cycle");
 let cycleData = null;
 
@@ -120,20 +119,17 @@ onValue(cycleRef, snap => {
   }
 });
 
-// Format views
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K+";
   return num;
 }
 
-// Increase views
 function increaseViews(videoId){
   runTransaction(ref(db,"views/"+videoId),(v)=>(v||0)+1);
   runTransaction(ref(db,"cycleViews/"+videoId),(v)=>(v||0)+1);
 }
 
-// Store video states
 const videoStates = {};
 
 fetch('videos.json')
@@ -193,7 +189,6 @@ fetch('videos.json')
 
     videoStates[v.id] = {
       element: box,
-      originalIndex: index,
       getScore: () => cycleViews
     };
 
