@@ -60,7 +60,6 @@ h2 { color:#ff4444; border-bottom:2px solid #ff4444; padding-bottom:5px; text-al
 }
 .download:hover { background:#ff2222; }
 
-/* Skeleton */
 .skeleton { position:relative; overflow:hidden; background:#2a2a2a; }
 .skeleton::after {
   content:"";
@@ -115,8 +114,14 @@ for (let i = 0; i < 6; i++) {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { 
+  getDatabase, 
+  ref, 
+  runTransaction, 
+  onValue,
+  get,
+  set
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSy...",
@@ -133,35 +138,48 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
-// 👉 YOUR IP
 const OWNER_IP = "102.214.117.74";
 
-// get user IP
 async function getUserIP() {
   try {
     const res = await fetch("https://api.ipify.org?format=json");
     const data = await res.json();
     return data.ip;
-  } catch (e) {
+  } catch {
     return null;
   }
 }
 
-// format views
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K+";
   return num;
 }
 
-// increase views + timestamps
+// =======================
+// ✅ 24 HOUR CYCLE RESET
+// =======================
+async function handleCycleReset() {
+  const cycleRef = ref(db, "cycleStartTime");
+  const snap = await get(cycleRef);
+  let cycleStart = snap.val();
+
+  const now = Date.now();
+
+  if (!cycleStart || (now - cycleStart >= 86400000)) {
+    // RESET trending timestamps ONLY
+    await set(ref(db, "viewTimes"), null);
+
+    // set new cycle start
+    await set(cycleRef, now);
+  }
+}
+
 async function increaseViews(videoId){
 
   const userIP = await getUserIP();
 
-  if (userIP && userIP === OWNER_IP) {
-    return;
-  }
+  if (userIP && userIP === OWNER_IP) return;
 
   const viewRef = ref(db,"views/"+videoId);
   const timeRef = ref(db,"viewTimes/"+videoId);
@@ -184,119 +202,127 @@ async function increaseViews(videoId){
 
 const videoStates = {};
 
-fetch('videos.json')
-.then(res=>res.json())
-.then(videos=>{
+function formatLast24h(timestamps){
+  const now = Date.now();
+  return timestamps.filter(t => now - t <= 86400000).length;
+}
 
-  container.innerHTML = "";
+(async () => {
 
-  const IMAGE_BASE = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
+  // ✅ run cycle reset BEFORE loading videos
+  await handleCycleReset();
 
-  const folderVideos = videos.filter(v =>
-    v.folder.toLowerCase() === folderName
-  );
+  fetch('videos.json')
+  .then(res=>res.json())
+  .then(videos=>{
 
-  if(folderVideos.length === 0){
-    container.innerHTML = `<p style="text-align:center;color:#aaa;">No videos found.</p>`;
-    return;
-  }
+    container.innerHTML = "";
 
-  folderVideos.forEach(v=>{
+    const IMAGE_BASE = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
 
-    const box = document.createElement("div");
-    box.className = "videoBox";
+    const folderVideos = videos.filter(v =>
+      v.folder.toLowerCase() === folderName
+    );
 
-    const preview = document.createElement("div");
-    preview.className = "preview";
-
-    const img = document.createElement("img");
-    img.src = IMAGE_BASE + v.thumbnail;
-    img.onload = ()=> img.classList.add("loaded");
-
-    const title = document.createElement("h3");
-    title.className = "videoTitle";
-    title.textContent = v.title;
-
-    const viewsEl = document.createElement("div");
-    viewsEl.className = "views";
-
-    const btn = document.createElement("a");
-    btn.className = "download";
-    btn.textContent = `Download (${v.size})`;
-
-    const viewRef = ref(db,"views/"+v.id);
-    const timeRef = ref(db,"viewTimes/"+v.id);
-
-    let views = 0;
-    let timestamps = [];
-
-    function getLast24hCount(){
-      const now = Date.now();
-      return timestamps.filter(t => now - t <= 86400000).length;
+    if(folderVideos.length === 0){
+      container.innerHTML = `<p style="text-align:center;color:#aaa;">No videos found.</p>`;
+      return;
     }
 
-    function updateUI(){
-      const last24h = getLast24hCount();
+    folderVideos.forEach(v=>{
 
-      if(last24h >= 10){
-        viewsEl.textContent = "🔥Trending | 👁Views: " + formatViews(views);
-        viewsEl.style.color = "#ffcc00";
-      } else {
-        viewsEl.textContent = "👁Views: " + formatViews(views);
-        viewsEl.style.color = "#aaa";
+      const box = document.createElement("div");
+      box.className = "videoBox";
+
+      const preview = document.createElement("div");
+      preview.className = "preview";
+
+      const img = document.createElement("img");
+      img.src = IMAGE_BASE + v.thumbnail;
+      img.onload = ()=> img.classList.add("loaded");
+
+      const title = document.createElement("h3");
+      title.className = "videoTitle";
+      title.textContent = v.title;
+
+      const viewsEl = document.createElement("div");
+      viewsEl.className = "views";
+
+      const btn = document.createElement("a");
+      btn.className = "download";
+      btn.textContent = `Download (${v.size})`;
+
+      const viewRef = ref(db,"views/"+v.id);
+      const timeRef = ref(db,"viewTimes/"+v.id);
+
+      let views = 0;
+      let timestamps = [];
+
+      function getScore(){
+        return formatLast24h(timestamps);
       }
-    }
 
-    videoStates[v.id] = {
-      element: box,
-      getScore: () => {
-        const count = getLast24hCount();
-        return count >= 10 ? count : 0; // ✅ only counts when >= 10
+      function updateUI(){
+        const last24h = getScore();
+
+        if(last24h >= 10){
+          viewsEl.textContent = "🔥Trending | 👁Views: " + formatViews(views);
+          viewsEl.style.color = "#ffcc00";
+        } else {
+          viewsEl.textContent = "👁Views: " + formatViews(views);
+          viewsEl.style.color = "#aaa";
+        }
       }
-    };
 
-    function sortVideos(){
-      const sorted = Object.values(videoStates)
-        .sort((a,b)=> b.getScore() - a.getScore());
+      videoStates[v.id] = {
+        element: box,
+        getScore: () => getScore()
+      };
 
-      sorted.forEach(v => container.appendChild(v.element));
-    }
+      function sortVideos(){
+        const sorted = Object.values(videoStates)
+          .sort((a,b)=> b.getScore() - a.getScore());
 
-    onValue(viewRef,snap=>{
-      views = snap.val() || 0;
-      updateUI();
-      sortVideos();
+        sorted.forEach(v => container.appendChild(v.element));
+      }
+
+      onValue(viewRef,snap=>{
+        views = snap.val() || 0;
+        updateUI();
+        sortVideos();
+      });
+
+      onValue(timeRef,snap=>{
+        const data = snap.val();
+        timestamps = data ? Object.values(data) : [];
+        updateUI();
+        sortVideos();
+      });
+
+      function openVideo(){
+        increaseViews(v.id);
+        window.open(v.url,"_blank");
+      }
+
+      img.onclick = openVideo;
+      title.onclick = openVideo;
+      btn.onclick = (e)=>{ e.preventDefault(); openVideo(); };
+
+      preview.appendChild(img);
+      box.appendChild(preview);
+      box.appendChild(title);
+      box.appendChild(viewsEl);
+      box.appendChild(btn);
+
+      container.appendChild(box);
     });
 
-    onValue(timeRef,snap=>{
-      const data = snap.val();
-      timestamps = data ? Object.values(data) : [];
-      updateUI();
-      sortVideos();
-    });
-
-    function openVideo(){
-      increaseViews(v.id);
-      window.open(v.url,"_blank");
-    }
-
-    img.onclick = openVideo;
-    title.onclick = openVideo;
-    btn.onclick = (e)=>{ e.preventDefault(); openVideo(); };
-
-    preview.appendChild(img);
-    box.appendChild(preview);
-    box.appendChild(title);
-    box.appendChild(viewsEl);
-    box.appendChild(btn);
-
-    container.appendChild(box);
+  })
+  .catch(()=>{
+    container.innerHTML = '<p style="text-align:center;color:#ff4444;">Failed to load videos.</p>';
   });
 
-})
-.catch(()=>{
-  container.innerHTML = '<p style="text-align:center;color:#ff4444;">Failed to load videos.</p>';
-});
+})();
 </script>
 
 </body>
