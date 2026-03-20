@@ -109,16 +109,6 @@ const folderName = (urlParams.get("folder") || "").toLowerCase();
 document.getElementById("folderTitle").textContent =
   folderName.charAt(0).toUpperCase() + folderName.slice(1);
 
-// Cycle listener
-const cycleRef = ref(db, "cycle");
-let cycleData = null;
-
-onValue(cycleRef, snap => {
-  if (snap.exists()) {
-    cycleData = snap.val();
-  }
-});
-
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K+";
@@ -187,7 +177,6 @@ fetch('videos.json')
       }
     }
 
-    // Store state
     videoStates[v.id] = {
       element: box,
       getScore: () => cycleViews,
@@ -200,7 +189,6 @@ fetch('videos.json')
           const aScore = a.getScore();
           const bScore = b.getScore();
 
-          // Only allow movement if >= 10
           const aEffective = aScore >= 10 ? aScore : 0;
           const bEffective = bScore >= 10 ? bScore : 0;
 
@@ -208,7 +196,6 @@ fetch('videos.json')
             return bEffective - aEffective;
           }
 
-          // fallback to original order
           return a.originalIndex - b.originalIndex;
         });
 
@@ -249,7 +236,7 @@ fetch('videos.json')
   });
 
 });
-</script>
-
+    </script>
+  
 </body>
 </html>
