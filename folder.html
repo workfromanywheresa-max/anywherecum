@@ -1,197 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Folder Videos</title>
-
-<style>
-body { font-family:Arial,sans-serif; background:#1a1a1a; color:#fff; margin:0; padding:15px; }
-h2 { color:#ff4444; border-bottom:2px solid #ff4444; padding-bottom:5px; text-align:center; }
-.description { text-align:center; color:#fff; margin-bottom:20px; }
-
-.videoBox { background:#222; padding:10px; border-radius:8px; margin-bottom:20px; }
-
-.preview {
-  width:100%;
-  height:220px;
-  cursor:pointer;
-  overflow:hidden;
-  border-radius:5px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.preview img {
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  border-radius:5px;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  opacity:0;
-}
-
-.preview img.loaded { opacity:1; }
-.preview img:hover { transform:scale(1.05); }
-
-.videoTitle {
-  text-align:center;
-  margin:4px 0;
-  color:#ddd;
-  font-size:16px;
-  cursor:pointer;
-  text-decoration:underline;
-}
-.videoTitle:hover { color:#fff; }
-
-.views { text-align:center; color:#aaa; margin:5px 0; }
-
-.download {
-  display:block;
-  width:fit-content;
-  margin:6px auto;
-  padding:8px 15px;
-  color:#fff;
-  background:#ff4444;
-  font-weight:bold;
-  text-decoration:none;
-  border-radius:5px;
-}
-.download:hover { background:#ff2222; }
-
-/* Skeleton */
-.skeleton { position:relative; overflow:hidden; background:#2a2a2a; }
-.skeleton::after {
-  content:"";
-  position:absolute;
-  top:0; left:-150px;
-  width:150px; height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);
-  animation:shimmer 1.2s infinite;
-}
-@keyframes shimmer { 100% { transform:translateX(300px);} }
-
-.skeleton-img { height:220px; }
-.skeleton-text { height:14px; width:70%; margin:10px auto; }
-.skeleton-btn { height:34px; width:120px; margin:10px auto; }
-</style>
-
-  <script type="text/javascript" data-cfasync="false">
-/*<![CDATA[/* */
-(function(){var w=window,b="e96ba20fb672184d3896e3dc42c0737a",o=[["siteId",250-262*405*412+49002556],["minBid",0],["popundersPerIP","0"],["delayBetween",0],["default",false],["defaultPerDay",0],["topmostLayer","auto"]],h=["d3d3LmRpc3BsYXl2ZXJ0aXNpbmcuY29tL2FqcXVlcnkubGV0dGVyaW5nLm1pbi5jc3M=","ZDNtem9rdHk5NTFjNXcuY2xvdWRmcm9udC5uZXQvT1ZaUlIvY3N3aXRjaHkubWluLmpz"],u=-1,j,f,m=function(){clearTimeout(f);u++;if(h[u]&&!(1799881629000<(new Date).getTime()&&1<u)){j=w.document.createElement("script");j.type="text/javascript";j.async=!0;var y=w.document.getElementsByTagName("script")[0];j.src="https://"+atob(h[u]);j.crossOrigin="anonymous";j.onerror=m;j.onload=function(){clearTimeout(f);w[b.slice(0,16)+b.slice(0,16)]||m()};f=setTimeout(m,5E3);y.parentNode.insertBefore(j,y)}};if(!w[b]){try{Object.freeze(w[b]=o)}catch(e){}m()}})();
-/*]]>/* */
-</script>
-  
-</head>
-
-<body>
-
-<!-- JuicyAds PopUnders v3 Start -->
-<script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p294137434&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
-<!-- JuicyAds PopUnders v3 End -->
-
-<h2 id="folderTitle">Folder Videos</h2>
-<p class="description" id="folderDesc"></p>
-
-  <!-- TOP AD -->
-<div style="position: relative; width: 300px; height: 112px; margin: 20px auto; border: 2px solid red; border-radius: 8px; overflow: hidden; text-align: center;">
-  
-  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);background:red;color:#fff;font-weight:bold;font-size:12px;padding:2px 6px;border-bottom-left-radius:4px;border-bottom-right-radius:4px;z-index:9999;pointer-events:none;animation:glow 1s infinite alternate;">
-    🔴 Live
-  </div>
-
-  <script async src="https://poweredby.jads.co/js/jads.js"></script>
-  <ins id="1113290" data-width="300" data-height="112"></ins>
-  <script async>
-    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113290});
-  </script>
-</div>
-
-<style>
-@keyframes glow {
-  0% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
-  50% { box-shadow:0 0 6px #fff,0 0 12px red; opacity:1; }
-  100% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
-}
-</style>
-
-<div id="videoList"></div>
-
-  <!-- BOTTOM AD -->
-<div class="bottom-ad">
-  
-  <div class="ad-label">
-    <span class="blink-slow">🔴 Live Cams</span>
-  </div>
-
-  <script async src="https://poweredby.jads.co/js/jads.js"></script>
-  <ins id="1113289" data-width="308" data-height="298"></ins>
-  <script async>
-    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113289});
-  </script>
-
-</div>
-
-<style>
-.bottom-ad {
-  width:308px;
-  height:302px;
-  border:2px solid red;
-  border-radius:8px;
-  margin:0 auto;
-  position:relative;
-  overflow:hidden;
-}
-
-.ad-label {
-  position:absolute;
-  top:0;
-  left:50%;
-  transform:translateX(-50%);
-  background:red;
-  color:#fff;
-  font-size:12px;
-  padding:2px 6px;
-  animation:glow 1s infinite alternate;
-}
-
-.blink-slow {
-  animation: blink 1.6s infinite;
-}
-
-@keyframes blink {
-  50% { opacity:0; }
-}
-</style>
-
-<script>
-const params = new URLSearchParams(window.location.search);
-const rawFolder = params.get('folder') || '';
-const folderName = rawFolder.toLowerCase();
-
-const displayFolder = rawFolder
-  .replace(/-/g," ")
-  .replace(/\b\w/g,c=>c.toUpperCase());
-
-document.getElementById("folderTitle").textContent = displayFolder + " Folder";
-document.getElementById("folderDesc").textContent =
-`Enjoy our latest ${displayFolder} videos.`;
-
-// Skeleton
-const container = document.getElementById("videoList");
-for (let i = 0; i < 6; i++) {
-  const box = document.createElement("div");
-  box.className = "videoBox";
-  box.innerHTML = `
-    <div class="preview skeleton skeleton-img"></div>
-    <div class="skeleton skeleton-text"></div>
-    <div class="skeleton skeleton-btn"></div>
-  `;
-  container.appendChild(box);
-}
-</script>
-  <script type="module">
+<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, runTransaction, onValue } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
@@ -211,19 +18,8 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
-// 👉 YOUR IP
-const OWNER_IP = "102.214.117.74";
-
-// get user IP
-async function getUserIP() {
-  try {
-    const res = await fetch("https://api.ipify.org?format=json");
-    const data = await res.json();
-    return data.ip;
-  } catch {
-    return null;
-  }
-}
+// 👉 GLOBAL CYCLE REF
+const globalCycleRef = ref(db, "cycle/global");
 
 // format views
 function formatViews(num) {
@@ -234,9 +30,6 @@ function formatViews(num) {
 
 // increase views + timestamps
 async function increaseViews(videoId){
-
-  const userIP = await getUserIP();
-  if (userIP && userIP === OWNER_IP) return;
 
   const viewRef = ref(db,"views/"+videoId);
   const timeRef = ref(db,"viewTimes/"+videoId);
@@ -258,7 +51,9 @@ async function increaseViews(videoId){
 }
 
 const videoStates = {};
+let globalCycleStart = null;
 
+// fetch videos
 fetch('videos.json')
 .then(res=>res.json())
 .then(videos=>{
@@ -301,11 +96,9 @@ fetch('videos.json')
 
     const viewRef = ref(db,"views/"+v.id);
     const timeRef = ref(db,"viewTimes/"+v.id);
-    const cycleRef = ref(db,"cycleStart/"+v.id);
 
     let views = 0;
     let timestamps = [];
-    let cycleStart = null;
 
     function getCycleCount(){
       return timestamps.length;
@@ -345,44 +138,19 @@ fetch('videos.json')
         .filter(v => v.getScore() < 10)
         .sort((a, b) => a.originalIndex - b.originalIndex);
 
-      const finalOrder = [...trending, ...nonTrending];
-
-      finalOrder.forEach(v => container.appendChild(v.element));
+      [...trending, ...nonTrending].forEach(v => container.appendChild(v.element));
     }
 
-    // views listener
+    // listeners
     onValue(viewRef,snap=>{
       views = snap.val() || 0;
       updateUI();
       sortVideos();
     });
 
-    // timestamps listener
     onValue(timeRef,snap=>{
       const data = snap.val();
       timestamps = data ? Object.values(data) : [];
-      updateUI();
-      sortVideos();
-    });
-
-    // cycle logic (ROLLING RESET)
-    onValue(cycleRef,snap=>{
-      cycleStart = snap.val();
-
-      const now = Date.now();
-
-      if(!cycleStart || now - cycleStart >= 60000){
-
-        const newCycleTime = now;
-
-        runTransaction(cycleRef, ()=> newCycleTime);
-
-        // reset timestamps for new cycle
-        runTransaction(timeRef, ()=> ({}));
-
-        timestamps = [];
-      }
-
       updateUI();
       sortVideos();
     });
@@ -409,7 +177,38 @@ fetch('videos.json')
 .catch(()=>{
   container.innerHTML = '<p style="text-align:center;color:#ff4444;">Failed to load videos.</p>';
 });
-    </script>
 
-</body>
-</html>
+// ✅ GLOBAL CYCLE LISTENER + RESET TIMER
+onValue(globalCycleRef, snap=>{
+  globalCycleStart = snap.val();
+});
+
+// ensure cycle exists
+runTransaction(globalCycleRef, (current)=>{
+  return current || Date.now();
+});
+
+// timer that enforces reset
+setInterval(()=>{
+
+  if(!globalCycleStart) return;
+
+  const now = Date.now();
+
+  if(now - globalCycleStart >= 60000){
+
+    const newCycle = now;
+
+    // update global cycle
+    runTransaction(globalCycleRef, ()=> newCycle);
+
+    // reset ALL video timestamps
+    Object.keys(videoStates).forEach(videoId=>{
+      runTransaction(ref(db,"viewTimes/"+videoId), ()=> ({}));
+    });
+
+  }
+
+}, 5000);
+
+</script>
