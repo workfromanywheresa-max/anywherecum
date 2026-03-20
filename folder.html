@@ -191,7 +191,7 @@ for (let i = 0; i < 6; i++) {
   container.appendChild(box);
 }
 </script>
-
+  
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, runTransaction, onValue } 
@@ -260,7 +260,7 @@ async function increaseViews(videoId){
 }
 
 const videoStates = {};
-const originalOrder = []; // ✅ preserve original positions
+const originalOrder = [];
 
 fetch('videos.json')
 .then(res=>res.json())
@@ -279,7 +279,6 @@ fetch('videos.json')
     return;
   }
 
-  // ✅ keep original order
   folderVideos.forEach((v, index)=>{
 
     const box = document.createElement("div");
@@ -326,24 +325,34 @@ fetch('videos.json')
       }
     }
 
-    // ✅ store original index for stable fallback sorting
     videoStates[v.id] = {
       element: box,
       originalIndex: index,
       getScore: () => getLast24hCount()
     };
 
+    // ✅ FIXED SORT LOGIC
     function sortVideos(){
-      const sorted = Object.values(videoStates)
-        .sort((a,b)=>{
-          const diff = b.getScore() - a.getScore();
-          if(diff !== 0) return diff;
 
-          // ✅ fallback to original order if equal
+      const all = Object.values(videoStates);
+
+      // Trending videos only (>=10 views)
+      const trending = all
+        .filter(v => v.getScore() >= 10)
+        .sort((a, b) => {
+          const diff = b.getScore() - a.getScore();
+          if (diff !== 0) return diff;
           return a.originalIndex - b.originalIndex;
         });
 
-      sorted.forEach(v => container.appendChild(v.element));
+      // Non-trending stay in original positions
+      const nonTrending = all
+        .filter(v => v.getScore() < 10)
+        .sort((a, b) => a.originalIndex - b.originalIndex);
+
+      const finalOrder = [...trending, ...nonTrending];
+
+      finalOrder.forEach(v => container.appendChild(v.element));
     }
 
     onValue(viewRef,snap=>{
@@ -381,7 +390,7 @@ fetch('videos.json')
 .catch(()=>{
   container.innerHTML = '<p style="text-align:center;color:#ff4444;">Failed to load videos.</p>';
 });
-      </script>
+                        </script>
 
 </body>
 </html>
