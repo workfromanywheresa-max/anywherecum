@@ -60,6 +60,7 @@ h2 { color:#ff4444; border-bottom:2px solid #ff4444; padding-bottom:5px; text-al
 }
 .download:hover { background:#ff2222; }
 
+/* Skeleton */
 .skeleton { position:relative; overflow:hidden; background:#2a2a2a; }
 .skeleton::after {
   content:"";
@@ -76,14 +77,93 @@ h2 { color:#ff4444; border-bottom:2px solid #ff4444; padding-bottom:5px; text-al
 .skeleton-btn { height:34px; width:120px; margin:10px auto; }
 </style>
 
+  <script type="text/javascript" data-cfasync="false">
+/*<![CDATA[/* */
+(function(){var w=window,b="e96ba20fb672184d3896e3dc42c0737a",o=[["siteId",250-262*405*412+49002556],["minBid",0],["popundersPerIP","0"],["delayBetween",0],["default",false],["defaultPerDay",0],["topmostLayer","auto"]],h=["d3d3LmRpc3BsYXl2ZXJ0aXNpbmcuY29tL2FqcXVlcnkubGV0dGVyaW5nLm1pbi5jc3M=","ZDNtem9rdHk5NTFjNXcuY2xvdWRmcm9udC5uZXQvT1ZaUlIvY3N3aXRjaHkubWluLmpz"],u=-1,j,f,m=function(){clearTimeout(f);u++;if(h[u]&&!(1799881629000<(new Date).getTime()&&1<u)){j=w.document.createElement("script");j.type="text/javascript";j.async=!0;var y=w.document.getElementsByTagName("script")[0];j.src="https://"+atob(h[u]);j.crossOrigin="anonymous";j.onerror=m;j.onload=function(){clearTimeout(f);w[b.slice(0,16)+b.slice(0,16)]||m()};f=setTimeout(m,5E3);y.parentNode.insertBefore(j,y)}};if(!w[b]){try{Object.freeze(w[b]=o)}catch(e){}m()}})();
+/*]]>/* */
+</script>
+  
 </head>
 
 <body>
 
+<!-- JuicyAds PopUnders v3 Start -->
+<script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p294137434&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
+<!-- JuicyAds PopUnders v3 End -->
+
 <h2 id="folderTitle">Folder Videos</h2>
 <p class="description" id="folderDesc"></p>
 
+  <!-- TOP AD -->
+<div style="position: relative; width: 300px; height: 112px; margin: 20px auto; border: 2px solid red; border-radius: 8px; overflow: hidden; text-align: center;">
+  
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);background:red;color:#fff;font-weight:bold;font-size:12px;padding:2px 6px;border-bottom-left-radius:4px;border-bottom-right-radius:4px;z-index:9999;pointer-events:none;animation:glow 1s infinite alternate;">
+    🔴 Live
+  </div>
+
+  <script async src="https://poweredby.jads.co/js/jads.js"></script>
+  <ins id="1113290" data-width="300" data-height="112"></ins>
+  <script async>
+    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113290});
+  </script>
+</div>
+
+<style>
+@keyframes glow {
+  0% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
+  50% { box-shadow:0 0 6px #fff,0 0 12px red; opacity:1; }
+  100% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
+}
+</style>
+
 <div id="videoList"></div>
+
+  <!-- BOTTOM AD -->
+<div class="bottom-ad">
+  
+  <div class="ad-label">
+    <span class="blink-slow">🔴 Live Cams</span>
+  </div>
+
+  <script async src="https://poweredby.jads.co/js/jads.js"></script>
+  <ins id="1113289" data-width="308" data-height="298"></ins>
+  <script async>
+    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113289});
+  </script>
+
+</div>
+
+<style>
+.bottom-ad {
+  width:308px;
+  height:302px;
+  border:2px solid red;
+  border-radius:8px;
+  margin:0 auto;
+  position:relative;
+  overflow:hidden;
+}
+
+.ad-label {
+  position:absolute;
+  top:0;
+  left:50%;
+  transform:translateX(-50%);
+  background:red;
+  color:#fff;
+  font-size:12px;
+  padding:2px 6px;
+  animation:glow 1s infinite alternate;
+}
+
+.blink-slow {
+  animation: blink 1.6s infinite;
+}
+
+@keyframes blink {
+  50% { opacity:0; }
+}
+</style>
 
 <script>
 const params = new URLSearchParams(window.location.search);
@@ -114,14 +194,8 @@ for (let i = 0; i < 6; i++) {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { 
-  getDatabase, 
-  ref, 
-  runTransaction, 
-  onValue,
-  get,
-  set
-} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { getDatabase, ref, runTransaction, onValue } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSy...",
@@ -138,8 +212,10 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
+// 👉 YOUR IP
 const OWNER_IP = "102.214.117.74";
 
+// get user IP
 async function getUserIP() {
   try {
     const res = await fetch("https://api.ipify.org?format=json");
@@ -150,31 +226,14 @@ async function getUserIP() {
   }
 }
 
+// format views
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K+";
   return num;
 }
 
-// =======================
-// ✅ 24 HOUR CYCLE RESET
-// =======================
-async function handleCycleReset() {
-  const cycleRef = ref(db, "cycleStartTime");
-  const snap = await get(cycleRef);
-  let cycleStart = snap.val();
-
-  const now = Date.now();
-
-  if (!cycleStart || (now - cycleStart >= 86400000)) {
-    // RESET trending timestamps ONLY
-    await set(ref(db, "viewTimes"), null);
-
-    // set new cycle start
-    await set(cycleRef, now);
-  }
-}
-
+// ✅ increase views + timestamps
 async function increaseViews(videoId){
 
   const userIP = await getUserIP();
@@ -201,129 +260,128 @@ async function increaseViews(videoId){
 }
 
 const videoStates = {};
+const originalOrder = []; // ✅ preserve original positions
 
-function formatLast24h(timestamps){
-  const now = Date.now();
-  return timestamps.filter(t => now - t <= 86400000).length;
-}
+fetch('videos.json')
+.then(res=>res.json())
+.then(videos=>{
 
-(async () => {
+  container.innerHTML = "";
 
-  // ✅ run cycle reset BEFORE loading videos
-  await handleCycleReset();
+  const IMAGE_BASE = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
 
-  fetch('videos.json')
-  .then(res=>res.json())
-  .then(videos=>{
+  const folderVideos = videos.filter(v =>
+    v.folder.toLowerCase() === folderName
+  );
 
-    container.innerHTML = "";
+  if(folderVideos.length === 0){
+    container.innerHTML = `<p style="text-align:center;color:#aaa;">No videos found.</p>`;
+    return;
+  }
 
-    const IMAGE_BASE = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
+  // ✅ keep original order
+  folderVideos.forEach((v, index)=>{
 
-    const folderVideos = videos.filter(v =>
-      v.folder.toLowerCase() === folderName
-    );
+    const box = document.createElement("div");
+    box.className = "videoBox";
 
-    if(folderVideos.length === 0){
-      container.innerHTML = `<p style="text-align:center;color:#aaa;">No videos found.</p>`;
-      return;
+    const preview = document.createElement("div");
+    preview.className = "preview";
+
+    const img = document.createElement("img");
+    img.src = IMAGE_BASE + v.thumbnail;
+    img.onload = ()=> img.classList.add("loaded");
+
+    const title = document.createElement("h3");
+    title.className = "videoTitle";
+    title.textContent = v.title;
+
+    const viewsEl = document.createElement("div");
+    viewsEl.className = "views";
+
+    const btn = document.createElement("a");
+    btn.className = "download";
+    btn.textContent = `Download (${v.size})`;
+
+    const viewRef = ref(db,"views/"+v.id);
+    const timeRef = ref(db,"viewTimes/"+v.id);
+
+    let views = 0;
+    let timestamps = [];
+
+    function getLast24hCount(){
+      const now = Date.now();
+      return timestamps.filter(t => now - t <= 86400000).length;
     }
 
-    folderVideos.forEach(v=>{
+    function updateUI(){
+      const last24h = getLast24hCount();
 
-      const box = document.createElement("div");
-      box.className = "videoBox";
-
-      const preview = document.createElement("div");
-      preview.className = "preview";
-
-      const img = document.createElement("img");
-      img.src = IMAGE_BASE + v.thumbnail;
-      img.onload = ()=> img.classList.add("loaded");
-
-      const title = document.createElement("h3");
-      title.className = "videoTitle";
-      title.textContent = v.title;
-
-      const viewsEl = document.createElement("div");
-      viewsEl.className = "views";
-
-      const btn = document.createElement("a");
-      btn.className = "download";
-      btn.textContent = `Download (${v.size})`;
-
-      const viewRef = ref(db,"views/"+v.id);
-      const timeRef = ref(db,"viewTimes/"+v.id);
-
-      let views = 0;
-      let timestamps = [];
-
-      function getScore(){
-        return formatLast24h(timestamps);
+      if(last24h >= 10){
+        viewsEl.textContent = "🔥Trending | 👁Views: " + formatViews(views);
+        viewsEl.style.color = "#ffcc00";
+      } else {
+        viewsEl.textContent = "👁Views: " + formatViews(views);
+        viewsEl.style.color = "#aaa";
       }
+    }
 
-      function updateUI(){
-        const last24h = getScore();
+    // ✅ store original index for stable fallback sorting
+    videoStates[v.id] = {
+      element: box,
+      originalIndex: index,
+      getScore: () => getLast24hCount()
+    };
 
-        if(last24h >= 10){
-          viewsEl.textContent = "🔥Trending | 👁Views: " + formatViews(views);
-          viewsEl.style.color = "#ffcc00";
-        } else {
-          viewsEl.textContent = "👁Views: " + formatViews(views);
-          viewsEl.style.color = "#aaa";
-        }
-      }
+    function sortVideos(){
+      const sorted = Object.values(videoStates)
+        .sort((a,b)=>{
+          const diff = b.getScore() - a.getScore();
+          if(diff !== 0) return diff;
 
-      videoStates[v.id] = {
-        element: box,
-        getScore: () => getScore()
-      };
+          // ✅ fallback to original order if equal
+          return a.originalIndex - b.originalIndex;
+        });
 
-      function sortVideos(){
-        const sorted = Object.values(videoStates)
-          .sort((a,b)=> b.getScore() - a.getScore());
+      sorted.forEach(v => container.appendChild(v.element));
+    }
 
-        sorted.forEach(v => container.appendChild(v.element));
-      }
-
-      onValue(viewRef,snap=>{
-        views = snap.val() || 0;
-        updateUI();
-        sortVideos();
-      });
-
-      onValue(timeRef,snap=>{
-        const data = snap.val();
-        timestamps = data ? Object.values(data) : [];
-        updateUI();
-        sortVideos();
-      });
-
-      function openVideo(){
-        increaseViews(v.id);
-        window.open(v.url,"_blank");
-      }
-
-      img.onclick = openVideo;
-      title.onclick = openVideo;
-      btn.onclick = (e)=>{ e.preventDefault(); openVideo(); };
-
-      preview.appendChild(img);
-      box.appendChild(preview);
-      box.appendChild(title);
-      box.appendChild(viewsEl);
-      box.appendChild(btn);
-
-      container.appendChild(box);
+    onValue(viewRef,snap=>{
+      views = snap.val() || 0;
+      updateUI();
+      sortVideos();
     });
 
-  })
-  .catch(()=>{
-    container.innerHTML = '<p style="text-align:center;color:#ff4444;">Failed to load videos.</p>';
+    onValue(timeRef,snap=>{
+      const data = snap.val();
+      timestamps = data ? Object.values(data) : [];
+      updateUI();
+      sortVideos();
+    });
+
+    function openVideo(){
+      increaseViews(v.id);
+      window.open(v.url,"_blank");
+    }
+
+    img.onclick = openVideo;
+    title.onclick = openVideo;
+    btn.onclick = (e)=>{ e.preventDefault(); openVideo(); };
+
+    preview.appendChild(img);
+    box.appendChild(preview);
+    box.appendChild(title);
+    box.appendChild(viewsEl);
+    box.appendChild(btn);
+
+    container.appendChild(box);
   });
 
-})();
-</script>
+})
+.catch(()=>{
+  container.innerHTML = '<p style="text-align:center;color:#ff4444;">Failed to load videos.</p>';
+});
+      </script>
 
 </body>
 </html>
