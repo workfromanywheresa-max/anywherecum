@@ -110,41 +110,34 @@ const folderName = (urlParams.get("folder") || "").toLowerCase();
 document.getElementById("folderTitle").textContent =
   folderName.charAt(0).toUpperCase() + folderName.slice(1);
 
-// Cycle reference
-const cycleRef = ref(db, "cycle/startTime");
+// Cycle reference (with endTime)
+const cycleRef = ref(db, "cycle");
 
-let cycleStart = 0;
+let cycleData = null;
 
-// Ensure cycle exists
+// Initialize / sync cycle
 onValue(cycleRef, snap => {
   if (!snap.exists()) {
-    set(cycleRef, Date.now());
-  } else {
-    cycleStart = snap.val();
+    const now = Date.now();
+    set(cycleRef, {
+      startTime: now,
+      endTime: now + 60000
+    });
+    return;
   }
-});
 
-// Check expiry
-function isExpired(startTime) {
-  return Date.now() - startTime >= 60000; // 1 minute
-}
+  cycleData = snap.val();
 
-// Reset globally
-function resetCycle() {
-  set(cycleRef, Date.now());
-  remove(ref(db, "cycleViews"));
-  remove(ref(db, "viewTimes"));
-}
+  // If expired → reset globally
+  if (Date.now() >= cycleData.endTime) {
+    const now = Date.now();
+    set(cycleRef, {
+      startTime: now,
+      endTime: now + 60000
+    });
 
-// Listen for cycle changes (THIS drives everything)
-onValue(cycleRef, snap => {
-  if (!snap.exists()) return;
-
-  const start = snap.val();
-
-  // If expired → reset once globally
-  if (isExpired(start)) {
-    resetCycle();
+    remove(ref(db, "cycleViews"));
+    remove(ref(db, "viewTimes"));
   }
 });
 
@@ -161,6 +154,7 @@ function increaseViews(videoId){
   runTransaction(ref(db,"cycleViews/"+videoId),(v)=>(v||0)+1);
 }
 
+// Store video states
 const videoStates = {};
 
 fetch('videos.json')
