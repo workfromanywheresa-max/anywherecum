@@ -112,32 +112,29 @@ document.getElementById("folderTitle").textContent =
 const TREND_THRESHOLD = 10;
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
 
-// Format views
+// ✅ Format views
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K+";
   return num;
 }
 
-// 🔥 OPTIMIZED VIEW INCREMENT
+// ✅ Increment views + send timestamp
 async function increaseViews(videoId){
-
-  // ⚡ instant + safe increment
   runTransaction(ref(db, "views/" + videoId), (current) => {
     return (current || 0) + 1;
   });
 
-  // 🔥 send timestamp (background)
   fetch(`${WORKER_URL}/increment`, {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ videoId })
-  });
+  }).catch(()=>{});
 }
 
-// 🔥 TRENDING LOGIC
+// ✅ Trending calculation
 function getTrendingCount(timestamps) {
-  if (!timestamps) return 0;
+  if (!timestamps || typeof timestamps !== "object") return 0;
 
   const now = Date.now();
   const THIRTY_MIN = 30 * 60 * 1000;
@@ -225,15 +222,16 @@ fetch('videos.json')
       sorted.forEach(v=>container.appendChild(v.element));
     }
 
-    // 🔥 REALTIME TOTAL VIEWS
+    // ✅ Real-time views
     onValue(viewRef,snap=>{
       totalViews = snap.val() || 0;
       updateUI();
     });
 
-    // 🔥 REALTIME TRENDING
+    // ✅ Real-time timestamps → trending
     onValue(viewTimesRef,snap=>{
       const timestamps = snap.val();
+
       cycleViews = getTrendingCount(timestamps);
 
       updateUI();
