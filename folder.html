@@ -110,24 +110,10 @@ const folderName = (urlParams.get("folder") || "").toLowerCase();
 document.getElementById("folderTitle").textContent =
   folderName.charAt(0).toUpperCase() + folderName.slice(1);
 
-function formatViews(num) {
-  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
-  if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K+";
-  return num;
-}
-
-async function increaseViews(videoId){
-  const viewRef = ref(db,"views/"+videoId);
-  runTransaction(viewRef,(v)=>(v||0)+1);
-}
-
-// 🔥 Global cycle reference
+// Global cycle
 const cycleRef = ref(db, "cycle/startTime");
-
-const videoStates = {};
 let cycleStart = null;
 
-// Ensure global cycle exists
 onValue(cycleRef, snap => {
   if (!snap.exists()) {
     set(cycleRef, Date.now());
@@ -136,18 +122,45 @@ onValue(cycleRef, snap => {
   }
 });
 
-// Reset function (global)
+function isCycleExpired(){
+  if (!cycleStart) return false;
+  return Date.now() - cycleStart >= 60000; // 1 minute
+}
+
 function resetCycleGlobal(){
   set(cycleRef, Date.now());
 }
 
-// Check if cycle expired (1 minute)
-function isCycleExpired(){
-  if (!cycleStart) return false;
-  return Date.now() - cycleStart >= 60000;
+// Format views
+function formatViews(num) {
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
+  if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K+";
+  return num;
 }
 
-// Build UI
+// Increase views
+async function increaseViews(videoId){
+  const viewRef = ref(db,"views/"+videoId);
+  const timeRef = ref(db,"viewTimes/"+videoId);
+
+  runTransaction(viewRef,(v)=>(v||0)+1);
+
+  runTransaction(timeRef,(current)=>{
+    const now = Date.now();
+    let arr = current ? Object.values(current) : [];
+
+    arr.push(now);
+    if(arr.length > 200) arr = arr.slice(-200);
+
+    const obj = {};
+    arr.forEach((t,i)=> obj[i]=t);
+
+    return obj;
+  });
+}
+
+const videoStates = {};
+
 fetch('videos.json')
 .then(res=>res.json())
 .then(videos=>{
@@ -188,22 +201,52 @@ fetch('videos.json')
     btn.textContent = `Download (${v.size})`;
 
     const viewRef = ref(db,"views/"+v.id);
+    const timeRef = ref(db,"viewTimes/"+v.id);
 
     let views = 0;
+    let timestamps = [];
+
+    function getCycleCount(){
+      const now = Date.now();
+      return timestamps.filter(t => now - t <= 86400000).length;
+    }
 
     function updateUI(){
-      viewsEl.textContent = "👁Views: " + formatViews(views);
-      viewsEl.style.color = "#aaa";
+      const count = getCycleCount();
+
+      if(count >= 10){
+        viewsEl.textContent = "🔥Trending | 👁Views: " + formatViews(views);
+        viewsEl.style.color = "#ffcc00";
+      } else {
+        viewsEl.textContent = "👁Views: " + formatViews(views);
+        viewsEl.style.color = "#aaa";
+      }
     }
 
     videoStates[v.id] = {
       element: box,
-      originalIndex: index
+      originalIndex: index,
+      getScore: () => getCycleCount()
     };
+
+    function sortVideos(){
+      const sorted = Object.values(videoStates)
+        .sort((a,b)=>b.getScore()-a.getScore());
+
+      sorted.forEach(v=>container.appendChild(v.element));
+    }
 
     onValue(viewRef,snap=>{
       views = snap.val() || 0;
       updateUI();
+      sortVideos();
+    });
+
+    onValue(timeRef,snap=>{
+      const data = snap.val();
+      timestamps = data ? Object.values(data) : [];
+      updateUI();
+      sortVideos();
     });
 
     function openVideo(){
@@ -226,16 +269,17 @@ fetch('videos.json')
 
 });
 
-// 🔁 Global sync reset checker (runs for all users)
+// 🔁 Global 1-minute reset
 setInterval(() => {
   if (cycleStart && isCycleExpired()) {
+
     resetCycleGlobal();
 
-    // Reset UI order locally to original
-    const sorted = Object.values(videoStates)
+    // Return videos to original order
+    const sortedBack = Object.values(videoStates)
       .sort((a,b)=>a.originalIndex - b.originalIndex);
 
-    sorted.forEach(v => container.appendChild(v.element));
+    sortedBack.forEach(v => container.appendChild(v.element));
   }
 }, 2000);
 
