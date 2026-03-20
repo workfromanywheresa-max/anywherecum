@@ -140,8 +140,8 @@ function formatViews(num) {
 
 // Increase views
 async function increaseViews(videoId){
-  const viewRef = ref(db,"views/"+videoId);           // total views
-  const cycleViewRef = ref(db,"cycleViews/"+videoId); // cycle views
+  const viewRef = ref(db,"views/"+videoId);
+  const cycleViewRef = ref(db,"cycleViews/"+videoId);
 
   runTransaction(viewRef,(v)=>(v||0)+1);
   runTransaction(cycleViewRef,(v)=>(v||0)+1);
@@ -255,17 +255,25 @@ setInterval(() => {
 
     resetCycleGlobal();
 
-    // Reset cycle views
+    // Reset Firebase cycle data
     remove(ref(db, "cycleViews"));
-
-    // Optional: reset timestamps if you still use them elsewhere
     remove(ref(db, "viewTimes"));
+
+    // Reset local values + UI immediately
+    Object.values(videoStates).forEach(v=>{
+      v.getScore = () => 0;
+
+      const viewsEl = v.element.querySelector(".views");
+      viewsEl.textContent = "👁Views: 0";
+      viewsEl.style.color = "#aaa";
+    });
 
     // Restore original order
     const sortedBack = Object.values(videoStates)
       .sort((a,b)=>a.originalIndex - b.originalIndex);
 
     sortedBack.forEach(v => container.appendChild(v.element));
+
   }
 }, 2000);
 
