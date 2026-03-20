@@ -109,6 +109,8 @@ const folderName = (urlParams.get("folder") || "").toLowerCase();
 document.getElementById("folderTitle").textContent =
   folderName.charAt(0).toUpperCase() + folderName.slice(1);
 
+const TREND_THRESHOLD = 10;
+
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K+";
@@ -168,7 +170,7 @@ fetch('videos.json')
     let cycleViews = 0;
 
     function updateUI(){
-      if(cycleViews >= 10){
+      if(cycleViews >= TREND_THRESHOLD){
         viewsEl.textContent = "🔥Trending | 👁Views: " + formatViews(totalViews);
         viewsEl.style.color = "#ffcc00";
       } else {
@@ -189,8 +191,8 @@ fetch('videos.json')
           const aScore = a.getScore();
           const bScore = b.getScore();
 
-          const aEffective = aScore >= 10 ? aScore : 0;
-          const bEffective = bScore >= 10 ? bScore : 0;
+          const aEffective = aScore >= TREND_THRESHOLD ? aScore : 0;
+          const bEffective = bScore >= TREND_THRESHOLD ? bScore : 0;
 
           if (bEffective !== aEffective) {
             return bEffective - aEffective;
@@ -202,19 +204,19 @@ fetch('videos.json')
       sorted.forEach(v=>container.appendChild(v.element));
     }
 
-    function refresh(){
+    function refreshUI(){
       updateUI();
-      sortVideos();
     }
 
     onValue(viewRef,snap=>{
       totalViews = snap.val() || 0;
-      refresh();
+      refreshUI(); // ✅ no sorting here
     });
 
     onValue(cycleViewRef,snap=>{
       cycleViews = snap.val() || 0;
-      refresh();
+      updateUI();   // update label first
+      sortVideos();  // ✅ sorting only when cycleViews changes
     });
 
     function openVideo(){
@@ -236,7 +238,7 @@ fetch('videos.json')
   });
 
 });
-    </script>
+</script>
   
 </body>
 </html>
