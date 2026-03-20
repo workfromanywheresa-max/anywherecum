@@ -191,8 +191,7 @@ for (let i = 0; i < 6; i++) {
   container.appendChild(box);
 }
 </script>
-  
-<script type="module">
+  <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, runTransaction, onValue } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
@@ -233,11 +232,10 @@ function formatViews(num) {
   return num;
 }
 
-// ✅ increase views + timestamps
+// increase views + timestamps
 async function increaseViews(videoId){
 
   const userIP = await getUserIP();
-
   if (userIP && userIP === OWNER_IP) return;
 
   const viewRef = ref(db,"views/"+videoId);
@@ -260,7 +258,6 @@ async function increaseViews(videoId){
 }
 
 const videoStates = {};
-const originalOrder = [];
 
 fetch('videos.json')
 .then(res=>res.json())
@@ -304,19 +301,20 @@ fetch('videos.json')
 
     const viewRef = ref(db,"views/"+v.id);
     const timeRef = ref(db,"viewTimes/"+v.id);
+    const cycleRef = ref(db,"cycleStart/"+v.id);
 
     let views = 0;
     let timestamps = [];
+    let cycleStart = null;
 
-    function getLast24hCount(){
-      const now = Date.now();
-      return timestamps.filter(t => now - t <= 86400000).length;
+    function getCycleCount(){
+      return timestamps.length;
     }
 
     function updateUI(){
-      const last24h = getLast24hCount();
+      const count = getCycleCount();
 
-      if(last24h >= 10){
+      if(count >= 10){
         viewsEl.textContent = "🔥Trending | 👁Views: " + formatViews(views);
         viewsEl.style.color = "#ffcc00";
       } else {
@@ -328,15 +326,13 @@ fetch('videos.json')
     videoStates[v.id] = {
       element: box,
       originalIndex: index,
-      getScore: () => getLast24hCount()
+      getScore: () => getCycleCount()
     };
 
-    // ✅ FIXED SORT LOGIC
     function sortVideos(){
 
       const all = Object.values(videoStates);
 
-      // Trending videos only (>=10 views)
       const trending = all
         .filter(v => v.getScore() >= 10)
         .sort((a, b) => {
@@ -345,7 +341,6 @@ fetch('videos.json')
           return a.originalIndex - b.originalIndex;
         });
 
-      // Non-trending stay in original positions
       const nonTrending = all
         .filter(v => v.getScore() < 10)
         .sort((a, b) => a.originalIndex - b.originalIndex);
@@ -355,15 +350,39 @@ fetch('videos.json')
       finalOrder.forEach(v => container.appendChild(v.element));
     }
 
+    // views listener
     onValue(viewRef,snap=>{
       views = snap.val() || 0;
       updateUI();
       sortVideos();
     });
 
+    // timestamps listener
     onValue(timeRef,snap=>{
       const data = snap.val();
       timestamps = data ? Object.values(data) : [];
+      updateUI();
+      sortVideos();
+    });
+
+    // cycle logic (ROLLING RESET)
+    onValue(cycleRef,snap=>{
+      cycleStart = snap.val();
+
+      const now = Date.now();
+
+      if(!cycleStart || now - cycleStart >= 86400000){
+
+        const newCycleTime = now;
+
+        runTransaction(cycleRef, ()=> newCycleTime);
+
+        // reset timestamps for new cycle
+        runTransaction(timeRef, ()=> ({}));
+
+        timestamps = [];
+      }
+
       updateUI();
       sortVideos();
     });
@@ -390,7 +409,7 @@ fetch('videos.json')
 .catch(()=>{
   container.innerHTML = '<p style="text-align:center;color:#ff4444;">Failed to load videos.</p>';
 });
-                        </script>
+    </script>
 
 </body>
 </html>
