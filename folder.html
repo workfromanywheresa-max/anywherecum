@@ -136,7 +136,7 @@ import { getDatabase, ref, runTransaction, onValue }
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSy...",
+  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
   authDomain: "anywherecum-1c8d0.firebaseapp.com",
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
   projectId: "anywherecum-1c8d0",
@@ -150,19 +150,23 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
-// 👉 GLOBAL CYCLE REF
-const globalCycleRef = ref(db, "cycle/global");
+// ✅ FIX ADDED HERE
+const urlParams = new URLSearchParams(window.location.search);
+const folderName = (urlParams.get("folder") || "").toLowerCase();
 
-// format views
+// Set title
+document.getElementById("folderTitle").textContent =
+  folderName.charAt(0).toUpperCase() + folderName.slice(1);
+
+// Format views
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K+";
   return num;
 }
 
-// increase views + timestamps
+// Increase views
 async function increaseViews(videoId){
-
   const viewRef = ref(db,"views/"+videoId);
   const timeRef = ref(db,"viewTimes/"+videoId);
 
@@ -183,9 +187,7 @@ async function increaseViews(videoId){
 }
 
 const videoStates = {};
-let globalCycleStart = null;
 
-// fetch videos
 fetch('videos.json')
 .then(res=>res.json())
 .then(videos=>{
@@ -194,6 +196,7 @@ fetch('videos.json')
 
   const IMAGE_BASE = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
 
+  // FILTER BY FOLDER
   const folderVideos = videos.filter(v =>
     v.folder.toLowerCase() === folderName
   );
@@ -203,7 +206,7 @@ fetch('videos.json')
     return;
   }
 
-  folderVideos.forEach((v, index)=>{
+  folderVideos.forEach((v,index)=>{
 
     const box = document.createElement("div");
     box.className = "videoBox";
@@ -213,7 +216,6 @@ fetch('videos.json')
 
     const img = document.createElement("img");
     img.src = IMAGE_BASE + v.thumbnail;
-    img.onload = ()=> img.classList.add("loaded");
 
     const title = document.createElement("h3");
     title.className = "videoTitle";
@@ -233,7 +235,8 @@ fetch('videos.json')
     let timestamps = [];
 
     function getCycleCount(){
-      return timestamps.length;
+      const now = Date.now();
+      return timestamps.filter(t => now - t <= 86400000).length;
     }
 
     function updateUI(){
@@ -255,25 +258,12 @@ fetch('videos.json')
     };
 
     function sortVideos(){
+      const sorted = Object.values(videoStates)
+        .sort((a,b)=>b.getScore()-a.getScore());
 
-      const all = Object.values(videoStates);
-
-      const trending = all
-        .filter(v => v.getScore() >= 10)
-        .sort((a, b) => {
-          const diff = b.getScore() - a.getScore();
-          if (diff !== 0) return diff;
-          return a.originalIndex - b.originalIndex;
-        });
-
-      const nonTrending = all
-        .filter(v => v.getScore() < 10)
-        .sort((a, b) => a.originalIndex - b.originalIndex);
-
-      [...trending, ...nonTrending].forEach(v => container.appendChild(v.element));
+      sorted.forEach(v=>container.appendChild(v.element));
     }
 
-    // listeners
     onValue(viewRef,snap=>{
       views = snap.val() || 0;
       updateUI();
@@ -305,45 +295,8 @@ fetch('videos.json')
     container.appendChild(box);
   });
 
-})
-.catch(()=>{
-  container.innerHTML = '<p style="text-align:center;color:#ff4444;">Failed to load videos.</p>';
 });
-
-// ✅ GLOBAL CYCLE LISTENER + RESET TIMER
-onValue(globalCycleRef, snap=>{
-  globalCycleStart = snap.val();
-});
-
-// ensure cycle exists
-runTransaction(globalCycleRef, (current)=>{
-  return current || Date.now();
-});
-
-// timer that enforces reset
-setInterval(()=>{
-
-  if(!globalCycleStart) return;
-
-  const now = Date.now();
-
-  if(now - globalCycleStart >= 60000){
-
-    const newCycle = now;
-
-    // update global cycle
-    runTransaction(globalCycleRef, ()=> newCycle);
-
-    // reset ALL video timestamps
-    Object.keys(videoStates).forEach(videoId=>{
-      runTransaction(ref(db,"viewTimes/"+videoId), ()=> ({}));
-    });
-
-  }
-
-}, 5000);
-
-                       </script>
+</script>
 
 </body>
 </html>
