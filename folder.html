@@ -85,7 +85,7 @@ h2 {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue, set } 
+import { getDatabase, ref, runTransaction, onValue, set, remove } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -110,7 +110,7 @@ const folderName = (urlParams.get("folder") || "").toLowerCase();
 document.getElementById("folderTitle").textContent =
   folderName.charAt(0).toUpperCase() + folderName.slice(1);
 
-// Global cycle
+// Cycle system
 const cycleRef = ref(db, "cycle/startTime");
 let cycleStart = null;
 
@@ -140,23 +140,11 @@ function formatViews(num) {
 
 // Increase views
 async function increaseViews(videoId){
-  const viewRef = ref(db,"views/"+videoId);
-  const timeRef = ref(db,"viewTimes/"+videoId);
+  const viewRef = ref(db,"views/"+videoId);           // total views
+  const cycleViewRef = ref(db,"cycleViews/"+videoId); // cycle views
 
   runTransaction(viewRef,(v)=>(v||0)+1);
-
-  runTransaction(timeRef,(current)=>{
-    const now = Date.now();
-    let arr = current ? Object.values(current) : [];
-
-    arr.push(now);
-    if(arr.length > 200) arr = arr.slice(-200);
-
-    const obj = {};
-    arr.forEach((t,i)=> obj[i]=t);
-
-    return obj;
-  });
+  runTransaction(cycleViewRef,(v)=>(v||0)+1);
 }
 
 const videoStates = {};
@@ -201,24 +189,17 @@ fetch('videos.json')
     btn.textContent = `Download (${v.size})`;
 
     const viewRef = ref(db,"views/"+v.id);
-    const timeRef = ref(db,"viewTimes/"+v.id);
+    const cycleViewRef = ref(db,"cycleViews/"+v.id);
 
-    let views = 0;
-    let timestamps = [];
-
-    function getCycleCount(){
-      const now = Date.now();
-      return timestamps.filter(t => now - t <= 86400000).length;
-    }
+    let totalViews = 0;
+    let cycleViews = 0;
 
     function updateUI(){
-      const count = getCycleCount();
-
-      if(count >= 10){
-        viewsEl.textContent = "🔥Trending | 👁Views: " + formatViews(views);
+      if(cycleViews >= 10){
+        viewsEl.textContent = "🔥Trending | 👁Views: " + formatViews(totalViews);
         viewsEl.style.color = "#ffcc00";
       } else {
-        viewsEl.textContent = "👁Views: " + formatViews(views);
+        viewsEl.textContent = "👁Views: " + formatViews(totalViews);
         viewsEl.style.color = "#aaa";
       }
     }
@@ -226,7 +207,7 @@ fetch('videos.json')
     videoStates[v.id] = {
       element: box,
       originalIndex: index,
-      getScore: () => getCycleCount()
+      getScore: () => cycleViews
     };
 
     function sortVideos(){
@@ -237,14 +218,13 @@ fetch('videos.json')
     }
 
     onValue(viewRef,snap=>{
-      views = snap.val() || 0;
+      totalViews = snap.val() || 0;
       updateUI();
       sortVideos();
     });
 
-    onValue(timeRef,snap=>{
-      const data = snap.val();
-      timestamps = data ? Object.values(data) : [];
+    onValue(cycleViewRef,snap=>{
+      cycleViews = snap.val() || 0;
       updateUI();
       sortVideos();
     });
@@ -275,7 +255,13 @@ setInterval(() => {
 
     resetCycleGlobal();
 
-    // Return videos to original order
+    // Reset cycle views
+    remove(ref(db, "cycleViews"));
+
+    // Optional: reset timestamps if you still use them elsewhere
+    remove(ref(db, "viewTimes"));
+
+    // Restore original order
     const sortedBack = Object.values(videoStates)
       .sort((a,b)=>a.originalIndex - b.originalIndex);
 
