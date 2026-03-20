@@ -119,7 +119,7 @@ function formatViews(num) {
   return num;
 }
 
-// ✅ Increment views + send timestamp
+// ✅ Increment views + send timestamp to worker
 async function increaseViews(videoId){
   runTransaction(ref(db, "views/" + videoId), (current) => {
     return (current || 0) + 1;
@@ -132,7 +132,7 @@ async function increaseViews(videoId){
   }).catch(()=>{});
 }
 
-// ✅ Trending calculation
+// ✅ Count views within 30 min
 function getTrendingCount(timestamps) {
   if (!timestamps || typeof timestamps !== "object") return 0;
 
@@ -222,16 +222,15 @@ fetch('videos.json')
       sorted.forEach(v=>container.appendChild(v.element));
     }
 
-    // ✅ Real-time views
+    // ✅ Total views
     onValue(viewRef,snap=>{
       totalViews = snap.val() || 0;
       updateUI();
     });
 
-    // ✅ Real-time timestamps → trending
+    // ✅ Trending views (timestamps)
     onValue(viewTimesRef,snap=>{
       const timestamps = snap.val();
-
       cycleViews = getTrendingCount(timestamps);
 
       updateUI();
