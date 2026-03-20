@@ -187,28 +187,47 @@ fetch('videos.json')
       }
     }
 
+    // Store state
     videoStates[v.id] = {
       element: box,
-      getScore: () => cycleViews
+      getScore: () => cycleViews,
+      originalIndex: index
     };
 
     function sortVideos(){
       const sorted = Object.values(videoStates)
-        .sort((a,b)=>b.getScore()-a.getScore());
+        .sort((a,b)=>{
+          const aScore = a.getScore();
+          const bScore = b.getScore();
+
+          // Only allow movement if >= 10
+          const aEffective = aScore >= 10 ? aScore : 0;
+          const bEffective = bScore >= 10 ? bScore : 0;
+
+          if (bEffective !== aEffective) {
+            return bEffective - aEffective;
+          }
+
+          // fallback to original order
+          return a.originalIndex - b.originalIndex;
+        });
 
       sorted.forEach(v=>container.appendChild(v.element));
     }
 
-    onValue(viewRef,snap=>{
-      totalViews = snap.val() || 0;
+    function refresh(){
       updateUI();
       sortVideos();
+    }
+
+    onValue(viewRef,snap=>{
+      totalViews = snap.val() || 0;
+      refresh();
     });
 
     onValue(cycleViewRef,snap=>{
       cycleViews = snap.val() || 0;
-      updateUI();
-      sortVideos();
+      refresh();
     });
 
     function openVideo(){
