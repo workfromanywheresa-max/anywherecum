@@ -110,10 +110,12 @@ const folderName = (urlParams.get("folder") || "").toLowerCase();
 document.getElementById("folderTitle").textContent =
   folderName.charAt(0).toUpperCase() + folderName.slice(1);
 
-// Cycle system
+// Cycle reference
 const cycleRef = ref(db, "cycle/startTime");
-let cycleStart = null;
 
+let cycleStart = 0;
+
+// Ensure cycle exists
 onValue(cycleRef, snap => {
   if (!snap.exists()) {
     set(cycleRef, Date.now());
@@ -122,14 +124,29 @@ onValue(cycleRef, snap => {
   }
 });
 
-function isCycleExpired(){
-  if (!cycleStart) return false;
-  return Date.now() - cycleStart >= 60000; // 1 minute
+// Check expiry
+function isExpired(startTime) {
+  return Date.now() - startTime >= 60000; // 1 minute
 }
 
-function resetCycleGlobal(){
+// Reset globally
+function resetCycle() {
   set(cycleRef, Date.now());
+  remove(ref(db, "cycleViews"));
+  remove(ref(db, "viewTimes"));
 }
+
+// Listen for cycle changes (THIS drives everything)
+onValue(cycleRef, snap => {
+  if (!snap.exists()) return;
+
+  const start = snap.val();
+
+  // If expired → reset once globally
+  if (isExpired(start)) {
+    resetCycle();
+  }
+});
 
 // Format views
 function formatViews(num) {
@@ -139,12 +156,9 @@ function formatViews(num) {
 }
 
 // Increase views
-async function increaseViews(videoId){
-  const viewRef = ref(db,"views/"+videoId);
-  const cycleViewRef = ref(db,"cycleViews/"+videoId);
-
-  runTransaction(viewRef,(v)=>(v||0)+1);
-  runTransaction(cycleViewRef,(v)=>(v||0)+1);
+function increaseViews(videoId){
+  runTransaction(ref(db,"views/"+videoId),(v)=>(v||0)+1);
+  runTransaction(ref(db,"cycleViews/"+videoId),(v)=>(v||0)+1);
 }
 
 const videoStates = {};
@@ -248,35 +262,6 @@ fetch('videos.json')
   });
 
 });
-
-// 🔁 Global 1-minute reset
-setInterval(() => {
-  if (cycleStart && isCycleExpired()) {
-
-    resetCycleGlobal();
-
-    // Reset Firebase cycle data
-    remove(ref(db, "cycleViews"));
-    remove(ref(db, "viewTimes"));
-
-    // Reset local values + UI immediately
-    Object.values(videoStates).forEach(v=>{
-      v.getScore = () => 0;
-
-      const viewsEl = v.element.querySelector(".views");
-      viewsEl.textContent = "👁Views: 0";
-      viewsEl.style.color = "#aaa";
-    });
-
-    // Restore original order
-    const sortedBack = Object.values(videoStates)
-      .sort((a,b)=>a.originalIndex - b.originalIndex);
-
-    sortedBack.forEach(v => container.appendChild(v.element));
-
-  }
-}, 2000);
-
 </script>
 
 </body>
