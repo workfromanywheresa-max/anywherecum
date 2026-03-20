@@ -371,7 +371,7 @@ fetch('videos.json')
 
       const now = Date.now();
 
-      if(!cycleStart || now - cycleStart >= 86400000){
+      if(!cycleStart || now - cycleStart >= 60000){
 
         const newCycleTime = now;
 
