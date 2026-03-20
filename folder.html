@@ -73,42 +73,6 @@ h2 {
   text-decoration: none;
   border-radius: 5px;
 }
-
-/* Skeleton */
-.skeleton {
-  background: #222;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-.skeleton-preview {
-  width: 100%;
-  height: 220px;
-  border-radius: 5px;
-  background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-}
-
-.skeleton-line {
-  height: 14px;
-  margin: 10px auto;
-  width: 60%;
-  border-radius: 4px;
-  background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-}
-
-.skeleton-small {
-  width: 40%;
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
 </style>
 </head>
 
@@ -117,22 +81,11 @@ h2 {
 <h2 id="folderTitle">Folder</h2>
 <p class="description">Enjoy videos in this folder</p>
 
-<div id="videoList">
-  <div class="skeleton">
-    <div class="skeleton-preview"></div>
-    <div class="skeleton-line"></div>
-    <div class="skeleton-line skeleton-small"></div>
-  </div>
-  <div class="skeleton">
-    <div class="skeleton-preview"></div>
-    <div class="skeleton-line"></div>
-    <div class="skeleton-line skeleton-small"></div>
-  </div>
-</div>
+<div id="videoList"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue } 
+import { getDatabase, ref, runTransaction, onValue, set } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -150,44 +103,51 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
-// ✅ FIX ADDED HERE
+// Folder
 const urlParams = new URLSearchParams(window.location.search);
 const folderName = (urlParams.get("folder") || "").toLowerCase();
 
-// Set title
 document.getElementById("folderTitle").textContent =
   folderName.charAt(0).toUpperCase() + folderName.slice(1);
 
-// Format views
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K+";
   return num;
 }
 
-// Increase views
 async function increaseViews(videoId){
   const viewRef = ref(db,"views/"+videoId);
-  const timeRef = ref(db,"viewTimes/"+videoId);
-
   runTransaction(viewRef,(v)=>(v||0)+1);
-
-  runTransaction(timeRef,(current)=>{
-    const now = Date.now();
-    let arr = current ? Object.values(current) : [];
-
-    arr.push(now);
-    if(arr.length > 200) arr = arr.slice(-200);
-
-    const obj = {};
-    arr.forEach((t,i)=> obj[i]=t);
-
-    return obj;
-  });
 }
 
-const videoStates = {};
+// 🔥 Global cycle reference
+const cycleRef = ref(db, "cycle/startTime");
 
+const videoStates = {};
+let cycleStart = null;
+
+// Ensure global cycle exists
+onValue(cycleRef, snap => {
+  if (!snap.exists()) {
+    set(cycleRef, Date.now());
+  } else {
+    cycleStart = snap.val();
+  }
+});
+
+// Reset function (global)
+function resetCycleGlobal(){
+  set(cycleRef, Date.now());
+}
+
+// Check if cycle expired (1 minute)
+function isCycleExpired(){
+  if (!cycleStart) return false;
+  return Date.now() - cycleStart >= 60000;
+}
+
+// Build UI
 fetch('videos.json')
 .then(res=>res.json())
 .then(videos=>{
@@ -196,7 +156,6 @@ fetch('videos.json')
 
   const IMAGE_BASE = "https://anywherecum.workfromanywhere-sa.workers.dev/images/";
 
-  // FILTER BY FOLDER
   const folderVideos = videos.filter(v =>
     v.folder.toLowerCase() === folderName
   );
@@ -229,52 +188,22 @@ fetch('videos.json')
     btn.textContent = `Download (${v.size})`;
 
     const viewRef = ref(db,"views/"+v.id);
-    const timeRef = ref(db,"viewTimes/"+v.id);
 
     let views = 0;
-    let timestamps = [];
-
-    function getCycleCount(){
-      const now = Date.now();
-      return timestamps.filter(t => now - t <= 86400000).length;
-    }
 
     function updateUI(){
-      const count = getCycleCount();
-
-      if(count >= 10){
-        viewsEl.textContent = "🔥Trending | 👁Views: " + formatViews(views);
-        viewsEl.style.color = "#ffcc00";
-      } else {
-        viewsEl.textContent = "👁Views: " + formatViews(views);
-        viewsEl.style.color = "#aaa";
-      }
+      viewsEl.textContent = "👁Views: " + formatViews(views);
+      viewsEl.style.color = "#aaa";
     }
 
     videoStates[v.id] = {
       element: box,
-      originalIndex: index,
-      getScore: () => getCycleCount()
+      originalIndex: index
     };
-
-    function sortVideos(){
-      const sorted = Object.values(videoStates)
-        .sort((a,b)=>b.getScore()-a.getScore());
-
-      sorted.forEach(v=>container.appendChild(v.element));
-    }
 
     onValue(viewRef,snap=>{
       views = snap.val() || 0;
       updateUI();
-      sortVideos();
-    });
-
-    onValue(timeRef,snap=>{
-      const data = snap.val();
-      timestamps = data ? Object.values(data) : [];
-      updateUI();
-      sortVideos();
     });
 
     function openVideo(){
@@ -296,6 +225,20 @@ fetch('videos.json')
   });
 
 });
+
+// 🔁 Global sync reset checker (runs for all users)
+setInterval(() => {
+  if (cycleStart && isCycleExpired()) {
+    resetCycleGlobal();
+
+    // Reset UI order locally to original
+    const sorted = Object.values(videoStates)
+      .sort((a,b)=>a.originalIndex - b.originalIndex);
+
+    sorted.forEach(v => container.appendChild(v.element));
+  }
+}, 2000);
+
 </script>
 
 </body>
