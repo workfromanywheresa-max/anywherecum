@@ -85,7 +85,7 @@ h2 {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue, set, remove } 
+import { getDatabase, ref, runTransaction, onValue } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -110,34 +110,13 @@ const folderName = (urlParams.get("folder") || "").toLowerCase();
 document.getElementById("folderTitle").textContent =
   folderName.charAt(0).toUpperCase() + folderName.slice(1);
 
-// Cycle reference (with endTime)
+// ✅ Only listen to cycle (NO reset logic here)
 const cycleRef = ref(db, "cycle");
-
 let cycleData = null;
 
-// Initialize / sync cycle
 onValue(cycleRef, snap => {
-  if (!snap.exists()) {
-    const now = Date.now();
-    set(cycleRef, {
-      startTime: now,
-      endTime: now + 60000
-    });
-    return;
-  }
-
-  cycleData = snap.val();
-
-  // If expired → reset globally
-  if (Date.now() >= cycleData.endTime) {
-    const now = Date.now();
-    set(cycleRef, {
-      startTime: now,
-      endTime: now + 60000
-    });
-
-    remove(ref(db, "cycleViews"));
-    remove(ref(db, "viewTimes"));
+  if (snap.exists()) {
+    cycleData = snap.val();
   }
 });
 
