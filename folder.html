@@ -172,6 +172,16 @@ async function increaseViews(videoId){
 }
 
 const videoStates = {};
+let originalOrder = [];
+
+// ✅ debounce sort
+let sortTimeout = null;
+function scheduleSort(){
+  if (sortTimeout) clearTimeout(sortTimeout);
+  sortTimeout = setTimeout(() => {
+    sortVideos();
+  }, 100);
+}
 
 fetch('videos.json')
 .then(res=>res.json())
@@ -191,6 +201,8 @@ fetch('videos.json')
   }
 
   folderVideos.forEach(v=>{
+
+    originalOrder.push(v.id);
 
     const box = document.createElement("div");
     box.className = "videoBox";
@@ -232,53 +244,63 @@ fetch('videos.json')
         if (!videoStates[v.id].locked){
           videoStates[v.id].locked = true;
           videoStates[v.id].lockTime = Date.now();
-          sortVideos();
         }
 
         viewsEl.textContent = "🔥Trending | 👁Views: " + formatViews(views);
         viewsEl.style.color = "#ffcc00";
 
       } else {
+
+        if (videoStates[v.id].locked){
+          videoStates[v.id].locked = false;
+        }
+
         viewsEl.textContent = "👁Views: " + formatViews(views);
         viewsEl.style.color = "#aaa";
       }
     }
 
     videoStates[v.id] = {
+      id: v.id,
       element: box,
-      getScore: () => getLast24hCount(),
       locked: false,
       lockTime: 0
     };
 
     function sortVideos(){
-      const sorted = Object.values(videoStates)
-        .sort((a,b)=> {
 
-          if (a.locked && b.locked){
-            return b.lockTime - a.lockTime;
-          }
+      const now = Date.now();
 
-          if (a.locked && !b.locked) return -1;
-          if (!a.locked && b.locked) return 1;
+      const trending = [];
+      const normal = [];
 
-          return 0;
-        });
+      Object.values(videoStates).forEach(v => {
 
-      sorted.forEach(v => container.appendChild(v.element));
+        if (v.locked && now - v.lockTime > 86400000){
+          v.locked = false;
+        }
+
+        if (v.locked) trending.push(v);
+        else normal.push(v);
+      });
+
+      normal.sort((a,b)=> originalOrder.indexOf(a.id) - originalOrder.indexOf(b.id));
+      trending.sort((a,b)=> a.lockTime - b.lockTime);
+
+      [...trending, ...normal].forEach(v => container.appendChild(v.element));
     }
 
     onValue(viewRef,snap=>{
       views = snap.val() || 0;
       updateUI();
-      sortVideos();
+      scheduleSort();
     });
 
     onValue(timeRef,snap=>{
       const data = snap.val();
       timestamps = data ? Object.values(data) : [];
       updateUI();
-      sortVideos();
+      scheduleSort();
     });
 
     function openVideo(){
