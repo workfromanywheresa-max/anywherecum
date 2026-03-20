@@ -85,7 +85,7 @@ h2 {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue } 
+import { getDatabase, ref, onValue } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -111,15 +111,36 @@ document.getElementById("folderTitle").textContent =
 
 const TREND_THRESHOLD = 10;
 
+// 🔥 Worker URL (PUT YOUR REAL WORKER URL HERE)
+const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/";
+
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K+";
   return num;
 }
 
-function increaseViews(videoId){
-  runTransaction(ref(db,"views/"+videoId),(v)=>(v||0)+1);
-  runTransaction(ref(db,"cycleViews/"+videoId),(v)=>(v||0)+1);
+// 🔥 Send view to Worker
+async function increaseViews(videoId){
+  await fetch(`${WORKER_URL}/increment`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ videoId })
+  });
+}
+
+// 🔥 Calculate trending (last 30 minutes)
+function getTrendingCount(timestamps) {
+  if (!timestamps) return 0;
+
+  const now = Date.now();
+  const THIRTY_MIN = 30 * 60 * 1000;
+
+  return Object.values(timestamps)
+    .filter(t => now - t <= THIRTY_MIN)
+    .length;
 }
 
 const videoStates = {};
@@ -164,7 +185,7 @@ fetch('videos.json')
     btn.textContent = `Download (${v.size})`;
 
     const viewRef = ref(db,"views/"+v.id);
-    const cycleViewRef = ref(db,"cycleViews/"+v.id);
+    const viewTimesRef = ref(db,"viewTimes/"+v.id);
 
     let totalViews = 0;
     let cycleViews = 0;
@@ -204,19 +225,19 @@ fetch('videos.json')
       sorted.forEach(v=>container.appendChild(v.element));
     }
 
-    function refreshUI(){
-      updateUI();
-    }
-
+    // Total views listener
     onValue(viewRef,snap=>{
       totalViews = snap.val() || 0;
-      refreshUI(); // ✅ no sorting here
+      updateUI();
     });
 
-    onValue(cycleViewRef,snap=>{
-      cycleViews = snap.val() || 0;
-      updateUI();   // update label first
-      sortVideos();  // ✅ sorting only when cycleViews changes
+    // 🔥 REAL-TIME TRENDING
+    onValue(viewTimesRef,snap=>{
+      const timestamps = snap.val();
+      cycleViews = getTrendingCount(timestamps);
+
+      updateUI();
+      sortVideos();
     });
 
     function openVideo(){
