@@ -504,30 +504,5 @@ fetch('./videos.json')
                                                                  
 </script>
 
-  <script>
-if ('scrollRestoration' in history) {
-  history.scrollRestoration = 'manual';
-}
-
-function restoreScroll() {
-  const scrollPos = localStorage.getItem("scrollPos_index");
-  if (scrollPos !== null) {
-    const pos = parseInt(scrollPos);
-
-    requestAnimationFrame(() => window.scrollTo(0, pos));
-    setTimeout(() => window.scrollTo(0, pos), 100);
-    setTimeout(() => window.scrollTo(0, pos), 300);
-  }
-}
-
-// Save scroll before leaving
-window.addEventListener("beforeunload", () => {
-  localStorage.setItem("scrollPos_index", window.scrollY);
-});
-
-// Restore AFTER everything is rendered
-window.addEventListener("load", restoreScroll);
-  </script>
-
 </body>
 </html>
