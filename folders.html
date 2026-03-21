@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Folders</title>
+
+<style>
+body {
+  font-family: Arial;
+  background:#1a1a1a;
+  color:#fff;
+  margin:0;
+  padding:15px;
+}
+
+h2 {
+  text-align:center;
+  color:#ff4444;
+}
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:15px;
+}
+
+.card {
+  background:#222;
+  padding:10px;
+  border-radius:8px;
+  text-align:center;
+}
+
+.card a {
+  color:#fff;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+.card a:hover {
+  color:#ff4444;
+}
+</style>
+</head>
+
+<body>
+
+<h2>📂 All Folders</h2>
+
+<div id="folders" class="grid"></div>
+
+<script>
+fetch('videos.json')
+.then(res => res.json())
+.then(videos => {
+
+  const container = document.getElementById("folders");
+
+  // Get unique folders
+  const folders = [...new Set(videos.map(v => v.folder))];
+
+  folders.forEach(folder => {
+    const div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `
+      <a href="folder.html?folder=${encodeURIComponent(folder)}">
+        ${folder}
+      </a>
+    `;
+
+    container.appendChild(div);
+  });
+
+});
+</script>
+
+</body>
+</html>
