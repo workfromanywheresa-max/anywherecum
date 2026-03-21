@@ -123,7 +123,7 @@ h2 {
 
 <body>
 
-<button onclick="goHome()" style="
+<button onclick="goBack()" style="
   display:inline-block;
   margin-bottom:15px;
   padding:8px 14px;
@@ -138,13 +138,20 @@ h2 {
 </button>
 
 <script>
-function goHome() {
-  // Go back if possible
-  if (document.referrer && document.referrer.includes(window.location.hostname)) {
+function goBack() {
+  // If there is browser history, go back normally
+  if (window.history.length > 1) {
     history.back();
   } else {
-    // Fallback: go to homepage without forcing reload behavior issues
-    window.location.href = "index.html"; 
+    // Fallback: go to previous folder via URL state (no refresh)
+    const params = new URLSearchParams(window.location.search);
+    
+    // Example: remove folder param or go to a default state
+    if (params.has("folder")) {
+      params.delete("folder");
+      const newUrl = window.location.pathname + (params.toString() ? "?" + params.toString() : "");
+      window.location.replace(newUrl); // replaces without adding history entry
+    }
   }
 }
 </script>
