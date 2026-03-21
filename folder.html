@@ -112,19 +112,27 @@ document.getElementById("folderTitle").textContent =
 const TREND_THRESHOLD = 10;
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
 
-// ✅ Format views
+// ✅ format views
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K+";
   return num;
 }
 
-// ✅ Increment views + notify worker
+// ✅ CLICK HANDLER (both views + cycleViews)
 async function increaseViews(videoId){
+
+  // views
   runTransaction(ref(db, "views/" + videoId), (current) => {
     return (current || 0) + 1;
   });
 
+  // cycleViews
+  runTransaction(ref(db, "cycleViews/" + videoId), (current) => {
+    return (current || 0) + 1;
+  });
+
+  // worker log only
   fetch(`${WORKER_URL}/increment`, {
     method: "POST",
     headers: {"Content-Type": "application/json"},
@@ -210,16 +218,13 @@ fetch('videos.json')
       sorted.forEach(v=>container.appendChild(v.element));
     }
 
-    // ✅ Total views listener
     onValue(viewRef,snap=>{
       totalViews = snap.val() || 0;
       updateUI();
     });
 
-    // ✅ Trending views (cycleViews now)
     onValue(cycleViewsRef, snap=>{
       cycleViews = snap.val() || 0;
-
       updateUI();
       sortVideos();
     });
