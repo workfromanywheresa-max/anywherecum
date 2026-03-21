@@ -19,14 +19,12 @@ h2 {
   color:#ff4444;
 }
 
-/* LIST LAYOUT */
 .list {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-/* CARD STYLE */
 .card {
   background:#222;
   padding:12px;
@@ -44,7 +42,6 @@ h2 {
   transform: scale(1.01);
 }
 
-/* VIP CARD */
 .vip {
   border: 1px solid #ff4444;
   background: #2a1a1a;
@@ -52,23 +49,19 @@ h2 {
   align-items: flex-start;
 }
 
-/* THUMBNAIL */
 .thumb {
   width:50px;
   height:50px;
   object-fit:cover;
   border-radius:6px;
-  flex-shrink:0;
 }
 
-/* LINKS TEXT */
 .card span, .card a {
   color:#fff;
   text-decoration:none;
   font-weight:bold;
 }
 
-/* VIP WRAPPER */
 .vip-wrapper {
   display: flex;
   flex-direction: column;
@@ -76,7 +69,6 @@ h2 {
   margin-bottom: 14px;
 }
 
-/* VIP TOP ROW */
 .vip-top {
   display:flex;
   align-items:center;
@@ -84,29 +76,18 @@ h2 {
   width:100%;
 }
 
-/* CTA CARD */
 .vip-cta-card {
   justify-content:center;
   text-align:center;
   padding: 8px;
-  margin-top:0;
-  border-top-left-radius:0;
-  border-top-right-radius:0;
 }
 
-/* CTA TEXT */
-.vip-cta-card span {
-  font-size: 12px;
-}
-
-/* CTA LINK */
 .vip-cta-card a {
-  font-size: 12px;
   color:#ff4444;
   margin: 0 4px;
+  font-size: 12px;
 }
 
-/* ARROWS */
 .arrow {
   font-size: 18px;
   color: #ff4444;
@@ -129,54 +110,6 @@ h2 {
   0% { transform: translateX(0); opacity: 0.6; }
   100% { transform: translateX(6px); opacity: 1; }
 }
-
-/* SKELETON */
-.skeleton {
-  background: #2a2a2a;
-  position: relative;
-  overflow: hidden;
-}
-
-.skeleton::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -150px;
-  width: 150px;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
-  animation: shimmer 1.2s infinite;
-}
-
-@keyframes shimmer {
-  100% {
-    transform: translateX(300px);
-  }
-}
-
-.skeleton-thumb {
-  width:50px;
-  height:50px;
-  border-radius:6px;
-  background:#333;
-}
-
-.skeleton-text {
-  height:12px;
-  width:120px;
-  background:#333;
-  border-radius:4px;
-}
-
-/* FOOTER */
-footer {
-  text-align:center;
-  padding:20px;
-  font-size:12px;
-  color:#aaa;
-  background:#111;
-  margin-top:10px;
-}
 </style>
 </head>
 
@@ -186,63 +119,9 @@ footer {
 
 <div id="folders" class="list"></div>
 
-<footer>
-  © 2026 AnywhereCum – Legal content only. 18+<br>
-
-  <div style="margin-top:8px; font-size:8px;">
-
-    <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank" style="margin:0 5px;">
-      <img src="https://www.facebook.com/images/fb_icon_325x325.png" style="width:14px; height:14px;">
-    </a><span>|</span>
-
-    <a href="contact.html" style="color:#ff4444; margin:0 5px;">📨Contact</a><span>|</span>
-
-    <a href="terms-privacy.html" style="color:#ff4444; margin:0 5px;">⚖️Terms & Privacy</a><span>|</span>
-
-    <a href="/" style="color:#ff4444; margin:0 5px;">🏠Home</a><span>|</span>
-
-    <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" style="color:#ff4444; margin:0 5px;">
-      ⬆️Back to Top
-    </a>
-
-  </div>
-</footer>
-
 <script>
 const BASE_URL = "https://anywherecum.pages.dev/images/";
 const container = document.getElementById("folders");
-
-/* ================= SKELETON ================= */
-function showSkeleton() {
-  container.innerHTML = "";
-
-  const vipSkeleton = `
-    <div class="card vip skeleton">
-      <div class="vip-top">
-        <div class="skeleton-thumb"></div>
-        <div class="skeleton-text"></div>
-      </div>
-    </div>
-
-    <div class="card vip-cta-card skeleton">
-      <div class="skeleton-text" style="width:200px;"></div>
-    </div>
-  `;
-
-  let folderSkeletons = "";
-  for (let i = 0; i < 5; i++) {
-    folderSkeletons += `
-      <div class="card skeleton">
-        <div class="skeleton-thumb"></div>
-        <div class="skeleton-text"></div>
-      </div>
-    `;
-  }
-
-  container.innerHTML = vipSkeleton + folderSkeletons;
-}
-
-showSkeleton();
 
 Promise.all([
   fetch('vip.json').then(res => res.json()).catch(() => null),
@@ -262,13 +141,14 @@ Promise.all([
     const vipCard = document.createElement("div");
     vipCard.className = "card vip";
 
+    // ✅ VIP CARD OPENS SHORTLINK
     vipCard.onclick = () => {
       window.open("https://fc-lc.xyz/al0L8qyP", "_blank");
     };
 
     vipCard.innerHTML = `
       <div class="vip-top">
-        <img src="${BASE_URL + vipItem.thumbnail}" class="thumb" alt="VIP">
+        <img src="${BASE_URL + vipItem.thumbnail}" class="thumb">
         <span>⭐VIP Exclusive</span>
       </div>
     `;
@@ -276,22 +156,17 @@ Promise.all([
     const ctaCard = document.createElement("div");
     ctaCard.className = "card vip-cta-card";
 
-    // Prevent parent click when clicking links
     ctaCard.onclick = (e) => {
       e.stopPropagation();
     };
 
+    // ✅ CTA TEXT + STREAMTAPE LINK
     ctaCard.innerHTML = `
       <span class="arrow left">➡️</span>
 
       <span>
-        Click & Watch 
         <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4" target="_blank">
-          Watch Video
-        </a>
-        | 
-        <a href="https://fc-lc.xyz/al0L8qyP" target="_blank">
-          Unlock VIP
+          Click & Watch How To Unlock VIP Access
         </a>
       </span>
 
@@ -320,7 +195,6 @@ Promise.all([
 
   folders.forEach(folder => {
     const firstVideo = folderMap[folder][0];
-    const thumbnail = firstVideo.thumbnail;
 
     const div = document.createElement("div");
     div.className = "card";
@@ -330,7 +204,7 @@ Promise.all([
     };
 
     div.innerHTML = `
-      <img src="${BASE_URL + thumbnail}" class="thumb" alt="thumb">
+      <img src="${BASE_URL + firstVideo.thumbnail}" class="thumb">
       <span>${folder}</span>
     `;
 
