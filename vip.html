@@ -241,6 +241,20 @@ const container = document.getElementById("videoList");
 const TREND_THRESHOLD = 10;
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
 
+// ✅ YOUR IP (blocked)
+const OWNER_IP = "102.214.117.74";
+
+// ✅ get user IP
+async function getUserIP() {
+  try {
+    const res = await fetch("https://api.ipify.org?format=json");
+    const data = await res.json();
+    return data.ip;
+  } catch (e) {
+    return null;
+  }
+}
+
 // ✅ format views
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
@@ -248,15 +262,23 @@ function formatViews(num) {
   return num;
 }
 
-// ✅ CLICK HANDLER (views + cycleViews)
+// ✅ CLICK HANDLER (views + cycleViews + IP block)
 async function increaseViews(videoId){
 
-  // total views
+  const userIP = await getUserIP();
+
+  // 🚫 block your IP
+  if (userIP && userIP === OWNER_IP) {
+    console.log("Owner detected — not counting");
+    return;
+  }
+
+  // ✅ total views
   runTransaction(ref(db, "views/" + videoId), (current) => {
     return (current || 0) + 1;
   });
 
-  // cycleViews (for trending)
+  // ✅ cycleViews (trending)
   runTransaction(ref(db, "cycleViews/" + videoId), (current) => {
     return (current || 0) + 1;
   });
@@ -277,7 +299,7 @@ fetch('vip.json')
 
   container.innerHTML = "";
 
-  // keep newest first initially
+  // newest first
   vipData.sort((a, b) => new Date(b.date) - new Date(a.date));
 
   vipData.forEach((v, index) => {
@@ -378,7 +400,7 @@ fetch('vip.json')
   console.error(err);
   container.innerHTML = "<p style='text-align:center;color:red;'>Failed to load videos</p>";
 });
-</script>
+        </script>
   
 </body>
 </html>
