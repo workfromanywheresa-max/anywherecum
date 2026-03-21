@@ -44,15 +44,22 @@ h2 {
   background:#2b2b2b;
   transform: scale(1.01);
 }
-.vip-cta-card a {
-  font-size: 12px; /* adjust as you like */
-  }
 
 .vip {
   border: 1px solid #ff4444;
   background: #2a1a1a;
-  flex-direction: column;
-  align-items: flex-start;
+
+  /* match folder cards exactly */
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.vip-cta-card {
+  justify-content:center;
+  text-align:center;
+  padding:8px;
+  margin-top:0;
 }
 
 .thumb {
@@ -66,26 +73,6 @@ h2 {
   color:#fff;
   text-decoration:none;
   font-weight:bold;
-}
-
-.vip-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  margin-bottom: 14px;
-}
-
-.vip-top {
-  display:flex;
-  align-items:center;
-  gap:10px;
-  width:100%;
-}
-
-.vip-cta-card {
-  justify-content:center;
-  text-align:center;
-  padding: 8px;
 }
 
 .arrow {
@@ -179,49 +166,6 @@ h2 {
 <div id="vipContainer" class="list"></div>
 <div id="folders" class="list"></div>
 
-<footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
-  © 2026 AnywhereCum – Legal content only. 18+<br>
-
-  <div style="margin-top:8px; font-size:8px;">
-
-    <!-- Facebook -->
-    <a href="https://www.facebook.com/profile.php?id=100069048046082" 
-       target="_blank" 
-       rel="noopener noreferrer" 
-       style="margin:0 5px; display:inline-block;">
-      <img src="https://www.facebook.com/images/fb_icon_325x325.png" 
-           alt="Facebook" 
-           style="width:14px; height:14px; vertical-align:middle;">
-    </a><span>|</span>
-
-    <!-- Contact -->
-    <a href="contact.html" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block;">
-      📨Contact
-    </a><span>|</span>
-
-    <!-- Terms & Privacy -->
-    <a href="terms-privacy.html" 
-       style="color:#ff4444; text-decoration:underline; margin:0 5px; display:inline-block;">
-      ⚖️Terms & Privacy
-    </a><span>|</span>
-
-    <!-- Home -->
-    <a href="/" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block;">
-      🏠Home
-    </a><span>|</span>
-
-    <!-- Back to Top -->
-    <a href="#" 
-       onclick="window.scrollTo({top:0, behavior:'smooth'});" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block; white-space:nowrap;">
-      ⬆️Back to Top
-    </a>
-
-  </div>
-</footer>
-
 <script>
 const BASE_URL = "https://anywherecum.pages.dev/images/";
 const vipContainer = document.getElementById("vipContainer");
@@ -235,11 +179,10 @@ function renderVipSkeleton() {
         <div class="skeleton-thumb"></div>
         <div class="skeleton-line"></div>
       </div>
-      <div class="skeleton-line" style="width:80%;"></div>
     </div>
 
-    <div class="card vip skeleton skeleton-vip">
-      <div class="skeleton-line" style="width:90%;"></div>
+    <div class="card vip-cta-card skeleton">
+      <div class="skeleton-line" style="width:80%;"></div>
     </div>
   `;
 }
@@ -275,8 +218,12 @@ Promise.all([
     const vipItem = Array.isArray(vipData) ? vipData[0] : vipData;
 
     const vipWrapper = document.createElement("div");
-    vipWrapper.className = "vip-wrapper";
+    vipWrapper.style.display = "flex";
+    vipWrapper.style.flexDirection = "column";
+    vipWrapper.style.gap = "0";
+    vipWrapper.style.marginBottom = "14px";
 
+    /* VIP CARD */
     const vipCard = document.createElement("div");
     vipCard.className = "card vip";
 
@@ -285,12 +232,11 @@ Promise.all([
     };
 
     vipCard.innerHTML = `
-      <div class="vip-top">
-        <img src="${BASE_URL + vipItem.thumbnail}" class="thumb">
-        <span>⭐VIP Exclusive</span>
-      </div>
+      <img src="${BASE_URL + vipItem.thumbnail}" class="thumb">
+      <span>⭐VIP Exclusive</span>
     `;
 
+    /* CTA CARD */
     const ctaCard = document.createElement("div");
     ctaCard.className = "card vip-cta-card";
 
