@@ -509,54 +509,29 @@ if ('scrollRestoration' in history) {
   history.scrollRestoration = 'manual';
 }
 
-// Save scroll position
+// Save scroll position before leaving
 window.addEventListener("beforeunload", () => {
   localStorage.setItem("scrollPos_index", window.scrollY);
 });
 
-// Restore scroll AFTER content is rendered
+// Restore scroll ASAP
 function restoreScroll() {
   const scrollPos = localStorage.getItem("scrollPos_index");
   if (scrollPos !== null) {
     const pos = parseInt(scrollPos);
-    window.scrollTo(0, pos);
+
+    // Run before paint
+    requestAnimationFrame(() => {
+      window.scrollTo(0, pos);
+    });
   }
 }
 
-// Your folder loading
-fetch('./videos.json')
-  .then(res => res.json())
-  .then(videos => {
-    const folders = {};
+// Trigger early
+document.addEventListener("DOMContentLoaded", restoreScroll);
 
-    videos.forEach(v => {
-      if (!folders[v.folder]) folders[v.folder] = [];
-      folders[v.folder].push(v);
-    });
-
-    const folderList = document.getElementById('folderList');
-    folderList.innerHTML = '';
-
-    Object.keys(folders).sort().forEach(folderName => {
-      const folderVideos = folders[folderName];
-
-      const div = document.createElement('div');
-      div.textContent = folderName;
-      folderList.appendChild(div);
-    });
-
-    // ✅ Restore scroll AFTER DOM is fully populated
-    requestAnimationFrame(() => {
-      restoreScroll();
-    });
-  });
-
-// Also handle back/forward cache
-window.addEventListener("pageshow", () => {
-  requestAnimationFrame(() => {
-    restoreScroll();
-  });
-});
+// Also handle back/forward cache (prevents layout shift on back button)
+window.addEventListener("pageshow", restoreScroll);
   </script>
   
 </body>
