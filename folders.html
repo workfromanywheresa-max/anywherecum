@@ -12,6 +12,9 @@ body {
   color:#fff;
   margin:0;
   padding:15px;
+  user-select: none;              /* ✅ disable text selection globally */
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 
 h2 {
@@ -35,6 +38,11 @@ h2 {
   flex-wrap: wrap;
   cursor: pointer;
   transition: 0.2s;
+
+  user-select: none;              /* ✅ prevent selection */
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;    /* ✅ disable long-press menu */
+  touch-action: manipulation;     /* ✅ improve tap behavior */
 }
 
 .card:hover {
@@ -141,7 +149,7 @@ Promise.all([
     const vipCard = document.createElement("div");
     vipCard.className = "card vip";
 
-    // ✅ VIP CARD OPENS SHORTLINK
+    // VIP CARD OPENS SHORTLINK
     vipCard.onclick = () => {
       window.open("https://fc-lc.xyz/al0L8qyP", "_blank");
     };
@@ -160,7 +168,7 @@ Promise.all([
       e.stopPropagation();
     };
 
-    // ✅ CTA TEXT + STREAMTAPE LINK
+    // CTA TEXT + STREAMTAPE LINK
     ctaCard.innerHTML = `
       <span class="arrow left">➡️</span>
 
