@@ -173,7 +173,7 @@ h2 {
 
 <div id="folders" class="list">
 
-  <!-- SKELETON LOADERS (shown initially) -->
+  <!-- SKELETON LOADERS -->
   <div class="card skeleton skeleton-card">
     <div class="skeleton-thumb skeleton"></div>
     <div class="skeleton-text skeleton"></div>
@@ -205,26 +205,13 @@ alt="Facebook"
 style="width:14px; height:14px; vertical-align:middle;">
 </a><span>|</span>
 
-<a href="contact.html" 
-style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block;">
-📨Contact
-</a><span>|</span>
+<a href="contact.html" style="color:#ff4444; text-decoration:none; margin:0 5px;">📨Contact</a><span>|</span>
 
-<a href="terms-privacy.html" 
-style="color:#ff4444; text-decoration:underline; margin:0 5px; display:inline-block;">
-⚖️Terms & Privacy
-</a><span>|</span>
+<a href="terms-privacy.html" style="color:#ff4444; text-decoration:underline; margin:0 5px;">⚖️Terms & Privacy</a><span>|</span>
 
-<a href="/" 
-style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block;">
-🏠Home
-</a><span>|</span>
+<a href="/" style="color:#ff4444; text-decoration:none; margin:0 5px;">🏠Home</a><span>|</span>
 
-<a href="#" 
-onclick="window.scrollTo({top:0, behavior:'smooth'});" 
-style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block; white-space:nowrap;">
-⬆️Back to Top
-</a>
+<a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" style="color:#ff4444; text-decoration:none; margin:0 5px;">⬆️Back to Top</a>
 
 </div>
 </footer>
@@ -233,13 +220,33 @@ style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block; 
 const BASE_URL = "https://anywherecum.pages.dev/images/";
 const container = document.getElementById("folders");
 
+/* Show skeletons immediately */
+function showSkeletons() {
+  container.innerHTML = `
+    <div class="card skeleton skeleton-card">
+      <div class="skeleton-thumb skeleton"></div>
+      <div class="skeleton-text skeleton"></div>
+    </div>
+    <div class="card skeleton skeleton-card">
+      <div class="skeleton-thumb skeleton"></div>
+      <div class="skeleton-text skeleton"></div>
+    </div>
+    <div class="card skeleton skeleton-card">
+      <div class="skeleton-thumb skeleton"></div>
+      <div class="skeleton-text skeleton"></div>
+    </div>
+  `;
+}
+
+showSkeletons();
+
 Promise.all([
   fetch('vip.json').then(res => res.json()).catch(() => null),
   fetch('videos.json').then(res => res.json()).catch(() => [])
 ])
 .then(([vipData, videos]) => {
 
-  container.innerHTML = "";
+  container.innerHTML = ""; // remove skeletons
 
   /* ================= VIP ================= */
   if (vipData) {
@@ -265,25 +272,20 @@ Promise.all([
     const ctaCard = document.createElement("div");
     ctaCard.className = "card vip-cta-card";
 
-    ctaCard.onclick = (e) => {
-      e.stopPropagation();
-    };
+    ctaCard.onclick = (e) => e.stopPropagation();
 
     ctaCard.innerHTML = `
       <span class="arrow left">➡️</span>
-
       <span>
         <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4" target="_blank">
           Click & Watch How To Unlock VIP Access
         </a>
       </span>
-
       <span class="arrow right">⬅️</span>
     `;
 
     vipWrapper.appendChild(vipCard);
     vipWrapper.appendChild(ctaCard);
-
     container.appendChild(vipWrapper);
   }
 
