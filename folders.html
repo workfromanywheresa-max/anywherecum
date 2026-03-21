@@ -35,6 +35,13 @@ h2 {
   align-items:center;
   gap:10px;
   flex-wrap: wrap;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.card:hover {
+  background:#2b2b2b;
+  transform: scale(1.01);
 }
 
 /* VIP CARD */
@@ -54,15 +61,11 @@ h2 {
   flex-shrink:0;
 }
 
-/* LINKS */
-.card a {
+/* LINKS TEXT */
+.card span, .card a {
   color:#fff;
   text-decoration:none;
   font-weight:bold;
-}
-
-.card a:hover {
-  color:#ff4444;
 }
 
 /* VIP WRAPPER */
@@ -92,11 +95,8 @@ h2 {
 }
 
 /* CTA TEXT */
-.vip-cta-card a {
+.vip-cta-card span {
   font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* ARROWS */
@@ -123,7 +123,7 @@ h2 {
   100% { transform: translateX(6px); opacity: 1; }
 }
 
-/* ================= SKELETON LOADER ================= */
+/* SKELETON */
 .skeleton {
   background: #2a2a2a;
   position: relative;
@@ -160,6 +160,16 @@ h2 {
   background:#333;
   border-radius:4px;
 }
+
+/* FOOTER */
+footer {
+  text-align:center;
+  padding:20px;
+  font-size:12px;
+  color:#aaa;
+  background:#111;
+  margin-top:10px;
+}
 </style>
 </head>
 
@@ -169,43 +179,22 @@ h2 {
 
 <div id="folders" class="list"></div>
 
-<footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
+<footer>
   © 2026 AnywhereCum – Legal content only. 18+<br>
 
   <div style="margin-top:8px; font-size:8px;">
 
-    <!-- Facebook -->
-    <a href="https://www.facebook.com/profile.php?id=100069048046082" 
-       target="_blank" 
-       rel="noopener noreferrer" 
-       style="margin:0 5px; display:inline-block;">
-      <img src="https://www.facebook.com/images/fb_icon_325x325.png" 
-           alt="Facebook" 
-           style="width:14px; height:14px; vertical-align:middle;">
+    <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank" style="margin:0 5px;">
+      <img src="https://www.facebook.com/images/fb_icon_325x325.png" style="width:14px; height:14px;">
     </a><span>|</span>
 
-    <!-- Contact -->
-    <a href="contact.html" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block;">
-      📨Contact
-    </a><span>|</span>
+    <a href="contact.html" style="color:#ff4444; margin:0 5px;">📨Contact</a><span>|</span>
 
-    <!-- Terms & Privacy -->
-    <a href="terms-privacy.html" 
-       style="color:#ff4444; text-decoration:underline; margin:0 5px; display:inline-block;">
-      ⚖️Terms & Privacy
-    </a><span>|</span>
+    <a href="terms-privacy.html" style="color:#ff4444; margin:0 5px;">⚖️Terms & Privacy</a><span>|</span>
 
-    <!-- Home -->
-    <a href="/" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block;">
-      🏠Home
-    </a><span>|</span>
+    <a href="/" style="color:#ff4444; margin:0 5px;">🏠Home</a><span>|</span>
 
-    <!-- Back to Top -->
-    <a href="#" 
-       onclick="window.scrollTo({top:0, behavior:'smooth'});" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block; white-space:nowrap;">
+    <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" style="color:#ff4444; margin:0 5px;">
       ⬆️Back to Top
     </a>
 
@@ -216,11 +205,10 @@ h2 {
 const BASE_URL = "https://anywherecum.pages.dev/images/";
 const container = document.getElementById("folders");
 
-/* ================= SKELETON UI ================= */
+/* ================= SKELETON ================= */
 function showSkeleton() {
   container.innerHTML = "";
 
-  // VIP skeleton
   const vipSkeleton = `
     <div class="card vip skeleton">
       <div class="vip-top">
@@ -234,7 +222,6 @@ function showSkeleton() {
     </div>
   `;
 
-  // Folder skeletons
   let folderSkeletons = "";
   for (let i = 0; i < 5; i++) {
     folderSkeletons += `
@@ -248,7 +235,6 @@ function showSkeleton() {
   container.innerHTML = vipSkeleton + folderSkeletons;
 }
 
-/* Show skeleton immediately */
 showSkeleton();
 
 Promise.all([
@@ -259,7 +245,7 @@ Promise.all([
 
   container.innerHTML = "";
 
-  /* VIP SECTION */
+  /* ================= VIP ================= */
   if (vipData) {
     const vipItem = Array.isArray(vipData) ? vipData[0] : vipData;
 
@@ -269,23 +255,27 @@ Promise.all([
     const vipCard = document.createElement("div");
     vipCard.className = "card vip";
 
+    vipCard.onclick = () => {
+      window.open("https://fc-lc.xyz/al0L8qyP", "_blank");
+    };
+
     vipCard.innerHTML = `
       <div class="vip-top">
         <img src="${BASE_URL + vipItem.thumbnail}" class="thumb" alt="VIP">
-        <a href="https://fc-lc.xyz/al0L8qyP" target="_blank">
-          ⭐VIP Exclusive
-        </a>
+        <span>⭐VIP Exclusive</span>
       </div>
     `;
 
     const ctaCard = document.createElement("div");
     ctaCard.className = "card vip-cta-card";
 
+    ctaCard.onclick = () => {
+      window.open("https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4", "_blank");
+    };
+
     ctaCard.innerHTML = `
       <span class="arrow left">➡️</span>
-      <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4" target="_blank">
-        Click & Watch How To Unlock Free VIP Access
-      </a>
+      <span>Click & Watch How To Unlock Free VIP Access</span>
       <span class="arrow right">⬅️</span>
     `;
 
@@ -295,7 +285,7 @@ Promise.all([
     container.appendChild(vipWrapper);
   }
 
-  /* FOLDERS */
+  /* ================= FOLDERS ================= */
   const folderMap = {};
 
   videos.forEach(v => {
@@ -316,11 +306,13 @@ Promise.all([
     const div = document.createElement("div");
     div.className = "card";
 
+    div.onclick = () => {
+      window.location.href = `folder.html?folder=${encodeURIComponent(folder)}`;
+    };
+
     div.innerHTML = `
       <img src="${BASE_URL + thumbnail}" class="thumb" alt="thumb">
-      <a href="folder.html?folder=${encodeURIComponent(folder)}">
-        ${folder}
-      </a>
+      <span>${folder}</span>
     `;
 
     container.appendChild(div);
