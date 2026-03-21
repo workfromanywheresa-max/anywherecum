@@ -26,6 +26,13 @@ h2 {
   gap: 10px;
 }
 
+/* WRAPPER FOR VIP + CTA (NO GAP BETWEEN THEM) */
+.vip-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
 /* CARD STYLE */
 .card {
   background:#222;
@@ -78,6 +85,9 @@ h2 {
   justify-content:center;
   text-align:center;
   padding: 8px;
+  margin-top:0;
+  border-top-left-radius:0;
+  border-top-right-radius:0;
 }
 
 /* CTA TEXT SMALL + SINGLE LINE */
@@ -164,10 +174,14 @@ Promise.all([
 ])
 .then(([vipData, videos]) => {
 
-  /* ===== VIP CARD (ONLY TOP) ===== */
+  /* ===== VIP WRAPPER (VIP + CTA TO TOUCH) ===== */
   if (vipData) {
     const vipItem = Array.isArray(vipData) ? vipData[0] : vipData;
 
+    const vipWrapper = document.createElement("div");
+    vipWrapper.className = "vip-wrapper";
+
+    /* VIP CARD */
     const vipCard = document.createElement("div");
     vipCard.className = "card vip";
 
@@ -180,9 +194,7 @@ Promise.all([
       </div>
     `;
 
-    container.appendChild(vipCard);
-
-    /* ===== CTA CARD (OUTSIDE VIP BORDER) ===== */
+    /* CTA CARD (DIRECTLY ATTACHED) */
     const ctaCard = document.createElement("div");
     ctaCard.className = "card vip-cta-card";
 
@@ -194,7 +206,10 @@ Promise.all([
       <span class="arrow right">⬅️</span>
     `;
 
-    container.appendChild(ctaCard);
+    vipWrapper.appendChild(vipCard);
+    vipWrapper.appendChild(ctaCard);
+
+    container.appendChild(vipWrapper);
   }
 
   /* ===== GROUP FOLDERS ===== */
