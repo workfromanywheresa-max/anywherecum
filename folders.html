@@ -98,8 +98,6 @@ fetch('videos.json')
 .then(videos => {
 
   const container = document.getElementById("folders");
-
-  // Group videos by folder
   const folderMap = {};
 
   videos.forEach(v => {
@@ -109,14 +107,13 @@ fetch('videos.json')
     folderMap[v.folder].push(v);
   });
 
-  // Sort folder names
   const folders = Object.keys(folderMap).sort((a, b) =>
     a.toLowerCase().localeCompare(b.toLowerCase())
   );
 
   folders.forEach(folder => {
     const firstVideo = folderMap[folder][0];
-    const thumbnail = firstVideo.thumbnail || "https://via.placeholder.com/50";
+    const thumbnail = firstVideo.thumbnail;
 
     const div = document.createElement("div");
     div.className = "card";
