@@ -26,14 +26,6 @@ h2 {
   gap: 10px;
 }
 
-/* WRAPPER FOR VIP + CTA */
-.vip-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  margin-bottom: 14px; /* ✅ small gap below CTA */
-}
-
 /* CARD STYLE */
 .card {
   background:#222;
@@ -71,6 +63,14 @@ h2 {
 
 .card a:hover {
   color:#ff4444;
+}
+
+/* VIP WRAPPER */
+.vip-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 14px;
 }
 
 /* VIP TOP ROW */
@@ -123,6 +123,44 @@ h2 {
   100% { transform: translateX(6px); opacity: 1; }
 }
 
+/* ================= SKELETON LOADER ================= */
+.skeleton {
+  background: #2a2a2a;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150px;
+  width: 150px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(300px);
+  }
+}
+
+.skeleton-thumb {
+  width:50px;
+  height:50px;
+  border-radius:6px;
+  background:#333;
+}
+
+.skeleton-text {
+  height:12px;
+  width:120px;
+  background:#333;
+  border-radius:4px;
+}
+
 /* FOOTER */
 footer {
   text-align:center;
@@ -167,13 +205,48 @@ footer {
 const BASE_URL = "https://anywherecum.pages.dev/images/";
 const container = document.getElementById("folders");
 
-container.innerHTML = "";
+/* ================= SKELETON UI ================= */
+function showSkeleton() {
+  container.innerHTML = "";
+
+  // VIP skeleton
+  const vipSkeleton = `
+    <div class="card vip skeleton">
+      <div class="vip-top">
+        <div class="skeleton-thumb"></div>
+        <div class="skeleton-text"></div>
+      </div>
+    </div>
+
+    <div class="card vip-cta-card skeleton">
+      <div class="skeleton-text" style="width:200px;"></div>
+    </div>
+  `;
+
+  // Folder skeletons
+  let folderSkeletons = "";
+  for (let i = 0; i < 5; i++) {
+    folderSkeletons += `
+      <div class="card skeleton">
+        <div class="skeleton-thumb"></div>
+        <div class="skeleton-text"></div>
+      </div>
+    `;
+  }
+
+  container.innerHTML = vipSkeleton + folderSkeletons;
+}
+
+/* Show skeleton immediately */
+showSkeleton();
 
 Promise.all([
   fetch('vip.json').then(res => res.json()).catch(() => null),
   fetch('videos.json').then(res => res.json()).catch(() => [])
 ])
 .then(([vipData, videos]) => {
+
+  container.innerHTML = "";
 
   /* VIP SECTION */
   if (vipData) {
