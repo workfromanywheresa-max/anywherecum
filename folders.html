@@ -38,11 +38,6 @@ h2 {
   flex-wrap: wrap;
   cursor: pointer;
   transition: 0.2s;
-
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-  touch-action: manipulation;
 }
 
 .card:hover {
@@ -90,12 +85,6 @@ h2 {
   padding: 8px;
 }
 
-.vip-cta-card a {
-  color: #ffffff;
-  margin: 0 4px;
-  font-size: 12px;
-}
-
 .arrow {
   font-size: 18px;
   color: #ff4444;
@@ -119,28 +108,26 @@ h2 {
   100% { transform: translateX(6px); opacity: 1; }
 }
 
-/* ================= SKELETON LOADER ================= */
+/* ================= SKELETON ================= */
 .skeleton {
-  background: #2b2b2b;
   position: relative;
   overflow: hidden;
+  background:#2b2b2b;
 }
 
 .skeleton::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -150px;
-  height: 100%;
-  width: 150px;
+  content:"";
+  position:absolute;
+  top:0;
+  left:-150px;
+  height:100%;
+  width:150px;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
   animation: shimmer 1.2s infinite;
 }
 
 @keyframes shimmer {
-  100% {
-    left: 100%;
-  }
+  100% { left:100%; }
 }
 
 .skeleton-thumb {
@@ -153,8 +140,8 @@ h2 {
 .skeleton-text {
   height:14px;
   width:120px;
-  background:#333;
   border-radius:4px;
+  background:#333;
 }
 
 .skeleton-card {
@@ -164,6 +151,21 @@ h2 {
   padding:12px;
   border-radius:8px;
 }
+
+.skeleton-vip {
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:12px;
+  border-radius:8px;
+}
+
+.skeleton-line {
+  height:14px;
+  width:60%;
+  background:#333;
+  border-radius:4px;
+}
 </style>
 </head>
 
@@ -171,74 +173,52 @@ h2 {
 
 <h2>📂 All Folders</h2>
 
-<div id="folders" class="list">
-
-  <!-- SKELETON LOADERS -->
-  <div class="card skeleton skeleton-card">
-    <div class="skeleton-thumb skeleton"></div>
-    <div class="skeleton-text skeleton"></div>
-  </div>
-
-  <div class="card skeleton skeleton-card">
-    <div class="skeleton-thumb skeleton"></div>
-    <div class="skeleton-text skeleton"></div>
-  </div>
-
-  <div class="card skeleton skeleton-card">
-    <div class="skeleton-thumb skeleton"></div>
-    <div class="skeleton-text skeleton"></div>
-  </div>
-
-</div>
+<div id="vipContainer" class="list"></div>
+<div id="folders" class="list"></div>
 
 <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
-© 2026 AnywhereCum – Legal content only. 18+<br>
-
-<div style="margin-top:8px; font-size:8px;">
-
-<a href="https://www.facebook.com/profile.php?id=100069048046082" 
-target="_blank" 
-rel="noopener noreferrer" 
-style="margin:0 5px; display:inline-block;">
-<img src="https://www.facebook.com/images/fb_icon_325x325.png" 
-alt="Facebook" 
-style="width:14px; height:14px; vertical-align:middle;">
-</a><span>|</span>
-
-<a href="contact.html" style="color:#ff4444; text-decoration:none; margin:0 5px;">📨Contact</a><span>|</span>
-
-<a href="terms-privacy.html" style="color:#ff4444; text-decoration:underline; margin:0 5px;">⚖️Terms & Privacy</a><span>|</span>
-
-<a href="/" style="color:#ff4444; text-decoration:none; margin:0 5px;">🏠Home</a><span>|</span>
-
-<a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" style="color:#ff4444; text-decoration:none; margin:0 5px;">⬆️Back to Top</a>
-
-</div>
+© 2026 AnywhereCum – Legal content only. 18+
 </footer>
 
 <script>
 const BASE_URL = "https://anywherecum.pages.dev/images/";
-const container = document.getElementById("folders");
+const vipContainer = document.getElementById("vipContainer");
+const foldersContainer = document.getElementById("folders");
 
-/* Show skeletons immediately */
-function showSkeletons() {
-  container.innerHTML = `
-    <div class="card skeleton skeleton-card">
-      <div class="skeleton-thumb skeleton"></div>
-      <div class="skeleton-text skeleton"></div>
+/* ================= VIP SKELETON ================= */
+function renderVipSkeleton() {
+  vipContainer.innerHTML = `
+    <div class="card vip skeleton skeleton-vip">
+      <div style="display:flex; gap:10px; align-items:center;">
+        <div class="skeleton-thumb"></div>
+        <div class="skeleton-line"></div>
+      </div>
+      <div class="skeleton-line" style="width:80%;"></div>
     </div>
-    <div class="card skeleton skeleton-card">
-      <div class="skeleton-thumb skeleton"></div>
-      <div class="skeleton-text skeleton"></div>
-    </div>
-    <div class="card skeleton skeleton-card">
-      <div class="skeleton-thumb skeleton"></div>
-      <div class="skeleton-text skeleton"></div>
+
+    <div class="card vip skeleton skeleton-vip">
+      <div class="skeleton-line" style="width:90%;"></div>
     </div>
   `;
 }
 
-showSkeletons();
+/* ================= FOLDER SKELETON ================= */
+function renderFolderSkeleton(count = 5) {
+  foldersContainer.innerHTML = "";
+  for (let i = 0; i < count; i++) {
+    const skel = document.createElement("div");
+    skel.className = "card skeleton skeleton-card";
+    skel.innerHTML = `
+      <div class="skeleton-thumb"></div>
+      <div class="skeleton-text"></div>
+    `;
+    foldersContainer.appendChild(skel);
+  }
+}
+
+/* Initial load */
+renderVipSkeleton();
+renderFolderSkeleton();
 
 Promise.all([
   fetch('vip.json').then(res => res.json()).catch(() => null),
@@ -246,9 +226,9 @@ Promise.all([
 ])
 .then(([vipData, videos]) => {
 
-  container.innerHTML = ""; // remove skeletons
-
   /* ================= VIP ================= */
+  vipContainer.innerHTML = "";
+
   if (vipData) {
     const vipItem = Array.isArray(vipData) ? vipData[0] : vipData;
 
@@ -286,44 +266,44 @@ Promise.all([
 
     vipWrapper.appendChild(vipCard);
     vipWrapper.appendChild(ctaCard);
-    container.appendChild(vipWrapper);
+    vipContainer.appendChild(vipWrapper);
   }
 
   /* ================= FOLDERS ================= */
+  foldersContainer.innerHTML = "";
+
   const folderMap = {};
 
   videos.forEach(v => {
-    if (!folderMap[v.folder]) {
-      folderMap[v.folder] = [];
-    }
+    if (!folderMap[v.folder]) folderMap[v.folder] = [];
     folderMap[v.folder].push(v);
   });
 
-  const folders = Object.keys(folderMap).sort((a, b) =>
-    a.toLowerCase().localeCompare(b.toLowerCase())
-  );
+  Object.keys(folderMap)
+    .sort((a,b)=>a.toLowerCase().localeCompare(b.toLowerCase()))
+    .forEach(folder => {
 
-  folders.forEach(folder => {
-    const firstVideo = folderMap[folder][0];
+      const firstVideo = folderMap[folder][0];
 
-    const div = document.createElement("div");
-    div.className = "card";
+      const div = document.createElement("div");
+      div.className = "card";
 
-    div.onclick = () => {
-      window.location.href = `folder.html?folder=${encodeURIComponent(folder)}`;
-    };
+      div.onclick = () => {
+        window.location.href = `folder.html?folder=${encodeURIComponent(folder)}`;
+      };
 
-    div.innerHTML = `
-      <img src="${BASE_URL + firstVideo.thumbnail}" class="thumb">
-      <span>${folder}</span>
-    `;
+      div.innerHTML = `
+        <img src="${BASE_URL + firstVideo.thumbnail}" class="thumb">
+        <span>${folder}</span>
+      `;
 
-    container.appendChild(div);
-  });
+      foldersContainer.appendChild(div);
+    });
 
 })
 .catch(() => {
-  container.innerHTML = "<p style='text-align:center;'>Failed to load folders.</p>";
+  vipContainer.innerHTML = "<p style='text-align:center;'>Failed to load VIP.</p>";
+  foldersContainer.innerHTML = "<p style='text-align:center;'>Failed to load folders.</p>";
 });
 </script>
 
