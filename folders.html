@@ -55,6 +55,39 @@ h2 {
 .card a:hover {
   color:#ff4444;
 }
+
+/* ===== SKELETON LOADER ===== */
+.skeleton {
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+  border-radius:6px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-thumb {
+  width:50px;
+  height:50px;
+}
+
+.skeleton-text {
+  height:14px;
+  width:120px;
+}
+
+/* FOOTER */
+footer {
+  text-align:center;
+  padding:20px;
+  font-size:12px;
+  color:#aaa;
+  background:#111;
+  margin-top:10px;
+}
 </style>
 </head>
 
@@ -64,7 +97,7 @@ h2 {
 
 <div id="folders" class="list"></div>
 
-<footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
+<footer>
   © 2026 AnywhereCum – Legal content only. 18+<br>
 
   <div style="margin-top:8px; font-size:12px;">
@@ -94,12 +127,32 @@ h2 {
 
 <script>
 const BASE_URL = "https://anywherecum.pages.dev/images/";
+const container = document.getElementById("folders");
+
+/* ===== CREATE SKELETON LOADERS ===== */
+function showSkeletons(count = 6) {
+  container.innerHTML = "";
+
+  for (let i = 0; i < count; i++) {
+    const div = document.createElement("div");
+    div.className = "card";
+
+    div.innerHTML = `
+      <div class="skeleton skeleton-thumb"></div>
+      <div class="skeleton skeleton-text"></div>
+    `;
+
+    container.appendChild(div);
+  }
+}
+
+/* Show skeletons immediately */
+showSkeletons();
 
 fetch('videos.json')
 .then(res => res.json())
 .then(videos => {
 
-  const container = document.getElementById("folders");
   const folderMap = {};
 
   videos.forEach(v => {
@@ -112,6 +165,8 @@ fetch('videos.json')
   const folders = Object.keys(folderMap).sort((a, b) =>
     a.toLowerCase().localeCompare(b.toLowerCase())
   );
+
+  container.innerHTML = ""; // remove skeletons
 
   folders.forEach(folder => {
     const firstVideo = folderMap[folder][0];
@@ -130,6 +185,9 @@ fetch('videos.json')
     container.appendChild(div);
   });
 
+})
+.catch(() => {
+  container.innerHTML = "<p style='text-align:center;'>Failed to load folders.</p>";
 });
 </script>
 
