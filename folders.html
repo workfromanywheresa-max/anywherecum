@@ -12,7 +12,7 @@ body {
   color:#fff;
   margin:0;
   padding:15px;
-  user-select: none;              /* ✅ disable text selection globally */
+  user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
 }
@@ -39,10 +39,10 @@ h2 {
   cursor: pointer;
   transition: 0.2s;
 
-  user-select: none;              /* ✅ prevent selection */
+  user-select: none;
   -webkit-user-select: none;
-  -webkit-touch-callout: none;    /* ✅ disable long-press menu */
-  touch-action: manipulation;     /* ✅ improve tap behavior */
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
 }
 
 .card:hover {
@@ -91,7 +91,7 @@ h2 {
 }
 
 .vip-cta-card a {
-  color: #ffffff;   /* change from red to white */
+  color: #ffffff;
   margin: 0 4px;
   font-size: 12px;
 }
@@ -118,6 +118,52 @@ h2 {
   0% { transform: translateX(0); opacity: 0.6; }
   100% { transform: translateX(6px); opacity: 1; }
 }
+
+/* ================= SKELETON LOADER ================= */
+.skeleton {
+  background: #2b2b2b;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150px;
+  height: 100%;
+  width: 150px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    left: 100%;
+  }
+}
+
+.skeleton-thumb {
+  width:50px;
+  height:50px;
+  border-radius:6px;
+  background:#333;
+}
+
+.skeleton-text {
+  height:14px;
+  width:120px;
+  background:#333;
+  border-radius:4px;
+}
+
+.skeleton-card {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px;
+  border-radius:8px;
+}
 </style>
 </head>
 
@@ -125,50 +171,63 @@ h2 {
 
 <h2>📂 All Folders</h2>
 
-<div id="folders" class="list"></div>
+<div id="folders" class="list">
 
-  <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
-  © 2026 AnywhereCum – Legal content only. 18+<br>
-
-  <div style="margin-top:8px; font-size:8px;">
-
-    <!-- Facebook -->
-    <a href="https://www.facebook.com/profile.php?id=100069048046082" 
-       target="_blank" 
-       rel="noopener noreferrer" 
-       style="margin:0 5px; display:inline-block;">
-      <img src="https://www.facebook.com/images/fb_icon_325x325.png" 
-           alt="Facebook" 
-           style="width:14px; height:14px; vertical-align:middle;">
-    </a><span>|</span>
-
-    <!-- Contact -->
-    <a href="contact.html" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block;">
-      📨Contact
-    </a><span>|</span>
-
-    <!-- Terms & Privacy -->
-    <a href="terms-privacy.html" 
-       style="color:#ff4444; text-decoration:underline; margin:0 5px; display:inline-block;">
-      ⚖️Terms & Privacy
-    </a><span>|</span>
-
-    <!-- Home -->
-    <a href="/" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block;">
-      🏠Home
-    </a><span>|</span>
-
-    <!-- Back to Top -->
-    <a href="#" 
-       onclick="window.scrollTo({top:0, behavior:'smooth'});" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block; white-space:nowrap;">
-      ⬆️Back to Top
-    </a>
-
+  <!-- SKELETON LOADERS (shown initially) -->
+  <div class="card skeleton skeleton-card">
+    <div class="skeleton-thumb skeleton"></div>
+    <div class="skeleton-text skeleton"></div>
   </div>
-  </footer>
+
+  <div class="card skeleton skeleton-card">
+    <div class="skeleton-thumb skeleton"></div>
+    <div class="skeleton-text skeleton"></div>
+  </div>
+
+  <div class="card skeleton skeleton-card">
+    <div class="skeleton-thumb skeleton"></div>
+    <div class="skeleton-text skeleton"></div>
+  </div>
+
+</div>
+
+<footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
+© 2026 AnywhereCum – Legal content only. 18+<br>
+
+<div style="margin-top:8px; font-size:8px;">
+
+<a href="https://www.facebook.com/profile.php?id=100069048046082" 
+target="_blank" 
+rel="noopener noreferrer" 
+style="margin:0 5px; display:inline-block;">
+<img src="https://www.facebook.com/images/fb_icon_325x325.png" 
+alt="Facebook" 
+style="width:14px; height:14px; vertical-align:middle;">
+</a><span>|</span>
+
+<a href="contact.html" 
+style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block;">
+📨Contact
+</a><span>|</span>
+
+<a href="terms-privacy.html" 
+style="color:#ff4444; text-decoration:underline; margin:0 5px; display:inline-block;">
+⚖️Terms & Privacy
+</a><span>|</span>
+
+<a href="/" 
+style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block;">
+🏠Home
+</a><span>|</span>
+
+<a href="#" 
+onclick="window.scrollTo({top:0, behavior:'smooth'});" 
+style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block; white-space:nowrap;">
+⬆️Back to Top
+</a>
+
+</div>
+</footer>
 
 <script>
 const BASE_URL = "https://anywherecum.pages.dev/images/";
@@ -192,7 +251,6 @@ Promise.all([
     const vipCard = document.createElement("div");
     vipCard.className = "card vip";
 
-    // VIP CARD OPENS SHORTLINK
     vipCard.onclick = () => {
       window.open("https://fc-lc.xyz/al0L8qyP", "_blank");
     };
@@ -211,7 +269,6 @@ Promise.all([
       e.stopPropagation();
     };
 
-    // CTA TEXT + STREAMTAPE LINK
     ctaCard.innerHTML = `
       <span class="arrow left">➡️</span>
 
