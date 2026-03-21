@@ -509,19 +509,30 @@ if ('scrollRestoration' in history) {
   history.scrollRestoration = 'manual';
 }
 
-// Save scroll before leaving
+// Save scroll position before leaving
 window.addEventListener("beforeunload", () => {
   localStorage.setItem("scrollPos_index", window.scrollY);
 });
 
-// Restore scroll immediately on load
-window.addEventListener("load", () => {
+// Restore scroll ASAP
+function restoreScroll() {
   const scrollPos = localStorage.getItem("scrollPos_index");
   if (scrollPos !== null) {
-    window.scrollTo(0, parseInt(scrollPos));
-  }
-});
-  </script>
+    const pos = parseInt(scrollPos);
 
+    // Run before paint
+    requestAnimationFrame(() => {
+      window.scrollTo(0, pos);
+    });
+  }
+}
+
+// Trigger early
+document.addEventListener("DOMContentLoaded", restoreScroll);
+
+// Also handle back/forward cache (prevents layout shift on back button)
+window.addEventListener("pageshow", restoreScroll);
+  </script>
+  
 </body>
 </html>
