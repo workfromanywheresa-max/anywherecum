@@ -488,17 +488,15 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
   <script>
-window.addEventListener("DOMContentLoaded", () => {
-  const lastFolder = localStorage.getItem("lastFolder");
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    const scrollPos = localStorage.getItem("scrollPos");
 
-  if (lastFolder) {
-    console.log("User last viewed:", lastFolder);
-
-    // OPTIONAL: auto reopen folder
-    // window.location.href = "folder.html?folder=" + lastFolder;
-
-    // OR highlight it in UI instead of redirect
-  }
+    if (scrollPos !== null) {
+      window.scrollTo(0, parseInt(scrollPos));
+      localStorage.removeItem("scrollPos");
+    }
+  }, 100);
 });
   </script>
 
