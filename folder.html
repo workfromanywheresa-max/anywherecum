@@ -192,6 +192,20 @@ document.getElementById("folderTitle").textContent =
 const TREND_THRESHOLD = 10;
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
 
+// ✅ YOUR IP (blocked)
+const OWNER_IP = "102.214.117.74";
+
+// ✅ get user IP
+async function getUserIP() {
+  try {
+    const res = await fetch("https://api.ipify.org?format=json");
+    const data = await res.json();
+    return data.ip;
+  } catch (e) {
+    return null;
+  }
+}
+
 // ✅ format views
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
@@ -199,8 +213,16 @@ function formatViews(num) {
   return num;
 }
 
-// ✅ CLICK HANDLER (both views + cycleViews)
+// ✅ CLICK HANDLER (both views + cycleViews + IP block)
 async function increaseViews(videoId){
+
+  const userIP = await getUserIP();
+
+  // 🚫 block your IP
+  if (userIP && userIP === OWNER_IP) {
+    console.log("Owner detected — not counting");
+    return;
+  }
 
   // views
   runTransaction(ref(db, "views/" + videoId), (current) => {
@@ -329,6 +351,5 @@ fetch('videos.json')
 
 });
 </script>
-  
 </body>
 </html>
