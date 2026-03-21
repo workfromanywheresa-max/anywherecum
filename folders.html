@@ -19,23 +19,27 @@ h2 {
   color:#ff4444;
 }
 
-.grid {
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:15px;
+/* LIST LAYOUT */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
+/* CARD STYLE */
 .card {
   background:#222;
-  padding:10px;
+  padding:12px;
   border-radius:8px;
-  text-align:center;
+  text-align:left;
 }
 
 .card a {
   color:#fff;
   text-decoration:none;
   font-weight:bold;
+  display:block;
+  width:100%;
 }
 
 .card a:hover {
@@ -48,9 +52,10 @@ h2 {
 
 <h2>📂 All Folders</h2>
 
-<div id="folders" class="grid"></div>
+<!-- LIST CONTAINER -->
+<div id="folders" class="list"></div>
 
-  <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
+<footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
   © 2026 AnywhereCum – Legal content only. 18+<br>
 
   <div style="margin-top:8px; font-size:12px;">
@@ -91,7 +96,7 @@ h2 {
     </a>
 
   </div>
-  </footer>
+</footer>
 
 <script>
 fetch('videos.json')
