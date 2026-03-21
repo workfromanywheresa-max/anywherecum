@@ -238,72 +238,49 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
-// 👉 YOUR IP
-const OWNER_IP = "102.214.117.74";
+const TREND_THRESHOLD = 10;
+const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
 
-// Get user IP
-async function getUserIP() {
-  try {
-    const res = await fetch("https://api.ipify.org?format=json");
-    const data = await res.json();
-    return data.ip;
-  } catch (e) {
-    return null;
-  }
-}
-
-// Format views
+// ✅ format views
 function formatViews(num) {
-  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0", "") + "M+";
-  if (num >= 1000) return (num / 1000).toFixed(1).replace(".0", "") + "K+";
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
+  if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K+";
   return num;
 }
 
-// Increase views + timestamps (with IP block)
-async function increaseViews(videoId) {
+// ✅ CLICK HANDLER (views + cycleViews)
+async function increaseViews(videoId){
 
-  const userIP = await getUserIP();
-
-  // ❌ Block your own IP
-  if (userIP && userIP === OWNER_IP) {
-    console.log("Owner detected — view not counted");
-    return;
-  }
-
-  const viewRef = ref(db, "views/" + videoId);
-  const timeRef = ref(db, "viewTimes/" + videoId);
-
-  runTransaction(viewRef, (current) => (current || 0) + 1);
-
-  runTransaction(timeRef, (current) => {
-    const now = Date.now();
-    let arr = [];
-
-    if (current) arr = Object.values(current);
-
-    arr.push(now);
-
-    if (arr.length > 200) arr = arr.slice(-200);
-
-    const obj = {};
-    arr.forEach((t, i) => obj[i] = t);
-
-    return obj;
+  // total views
+  runTransaction(ref(db, "views/" + videoId), (current) => {
+    return (current || 0) + 1;
   });
+
+  // cycleViews (for trending)
+  runTransaction(ref(db, "cycleViews/" + videoId), (current) => {
+    return (current || 0) + 1;
+  });
+
+  // optional worker log
+  fetch(`${WORKER_URL}/increment`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ videoId })
+  }).catch(()=>{});
 }
 
 const videoStates = {};
 
-// Load videos
 fetch('vip.json')
 .then(res => res.json())
 .then(vipData => {
 
   container.innerHTML = "";
 
+  // keep newest first initially
   vipData.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  vipData.forEach(v => {
+  vipData.forEach((v, index) => {
 
     const box = document.createElement("div");
     box.className = "videoBox";
@@ -314,84 +291,80 @@ fetch('vip.json')
     const img = document.createElement("img");
     img.src = "https://anywherecum.pages.dev/images/" + v.thumbnail;
 
-    img.addEventListener("click", () => {
-      increaseViews(v.id);
-      window.open(v.url, "_blank");
-    });
-
-    preview.appendChild(img);
-
     const titleEl = document.createElement("h3");
     titleEl.className = "videoTitle";
     titleEl.textContent = v.title;
 
-    titleEl.addEventListener("click", () => {
-      increaseViews(v.id);
-      window.open(v.url, "_blank");
-    });
-
     const viewsEl = document.createElement("div");
     viewsEl.className = "views";
-
-    const viewRef = ref(db, "views/" + v.id);
-    const timeRef = ref(db, "viewTimes/" + v.id);
-
-    let views = 0;
-    let timestamps = [];
-
-    function getLast24hCount() {
-      const now = Date.now();
-      return timestamps.filter(t => now - t <= 86400000).length;
-    }
-
-    function updateUI() {
-      const last24hViews = getLast24hCount();
-
-      if (last24hViews >= 10) {
-        viewsEl.textContent = "🔥Trending | 👁Views: " + formatViews(views);
-        viewsEl.style.color = "#ffcc00";
-      } else {
-        viewsEl.textContent = "👁Views: " + formatViews(views);
-        viewsEl.style.color = "#aaa";
-      }
-    }
-
-    videoStates[v.id] = {
-      element: box,
-      getScore: () => getLast24hCount()
-    };
-
-    function sortVideos() {
-      const sorted = Object.values(videoStates)
-        .sort((a, b) => b.getScore() - a.getScore());
-
-      sorted.forEach(v => container.appendChild(v.element));
-    }
-
-    onValue(viewRef, (snap) => {
-      views = snap.val() || 0;
-      updateUI();
-      sortVideos();
-    });
-
-    onValue(timeRef, (snap) => {
-      const data = snap.val();
-      timestamps = data ? Object.values(data) : [];
-      updateUI();
-      sortVideos();
-    });
 
     const button = document.createElement("a");
     button.className = "download";
     button.href = v.url;
     button.textContent = `Download (${v.size})`;
 
-    button.addEventListener("click", (e) => {
-      e.preventDefault();
-      increaseViews(v.id);
-      window.open(v.url, "_blank");
+    const viewRef = ref(db, "views/" + v.id);
+    const cycleViewsRef = ref(db, "cycleViews/" + v.id);
+
+    let totalViews = 0;
+    let cycleViews = 0;
+
+    function updateUI(){
+      if(cycleViews >= TREND_THRESHOLD){
+        viewsEl.textContent = "🔥 Trending | 👁 " + formatViews(totalViews);
+        viewsEl.style.color = "#ffcc00";
+      } else {
+        viewsEl.textContent = "👁 " + formatViews(totalViews);
+        viewsEl.style.color = "#aaa";
+      }
+    }
+
+    videoStates[v.id] = {
+      element: box,
+      getScore: () => cycleViews,
+      originalIndex: index
+    };
+
+    function sortVideos(){
+      const sorted = Object.values(videoStates)
+        .sort((a,b)=>{
+          const aScore = a.getScore();
+          const bScore = b.getScore();
+
+          const aEff = aScore >= TREND_THRESHOLD ? aScore : 0;
+          const bEff = bScore >= TREND_THRESHOLD ? bScore : 0;
+
+          if (bEff !== aEff) return bEff - aEff;
+          return a.originalIndex - b.originalIndex;
+        });
+
+      sorted.forEach(v => container.appendChild(v.element));
+    }
+
+    onValue(viewRef, snap => {
+      totalViews = snap.val() || 0;
+      updateUI();
     });
 
+    onValue(cycleViewsRef, snap => {
+      cycleViews = snap.val() || 0;
+      updateUI();
+      sortVideos();
+    });
+
+    function openVideo(){
+      increaseViews(v.id);
+      window.open(v.url, "_blank");
+    }
+
+    img.onclick = openVideo;
+    titleEl.onclick = openVideo;
+    button.onclick = (e) => {
+      e.preventDefault();
+      openVideo();
+    };
+
+    preview.appendChild(img);
     box.appendChild(preview);
     box.appendChild(titleEl);
     box.appendChild(viewsEl);
@@ -406,6 +379,6 @@ fetch('vip.json')
   container.innerHTML = "<p style='text-align:center;color:red;'>Failed to load videos</p>";
 });
 </script>
-
+  
 </body>
 </html>
