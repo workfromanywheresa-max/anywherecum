@@ -445,46 +445,47 @@ document.addEventListener('DOMContentLoaded', () => {
     li.appendChild(thumb); li.appendChild(link); container.appendChild(li);
   });
 
-  // Content Folders & Latest Video
+ // Content Folders & Latest Video
 fetch('./videos.json')
-.then(res => res.json())
-.then(videos => {
-  const folders = {};
+  .then(res => res.json())
+  .then(videos => {
+    const folders = {};
 
-  videos.forEach(v => {
-    if (!folders[v.folder]) folders[v.folder] = [];
-    folders[v.folder].push(v);
+    videos.forEach(v => {
+      if (!folders[v.folder]) folders[v.folder] = [];
+      folders[v.folder].push(v);
+    });
+
+    const folderList = document.getElementById('folderList');
+    folderList.innerHTML = '';
+
+    Object.keys(folders).sort().forEach(folderName => {
+      const folderVideos = folders[folderName];
+      folderVideos.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      const latest = folderVideos[0];
+      const li = document.createElement('li');
+
+      const thumb = document.createElement('img');
+      thumb.src = BASE_URL + latest.thumbnail;
+      thumb.alt = folderName;
+
+      // Open in same tab instead of new tab
+      thumb.onclick = () => {
+        window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
+      };
+
+      const link = document.createElement('a');
+      link.className = "folder-link";
+      link.href = "folder.html?folder=" + encodeURIComponent(folderName);
+      // Removed: link.target = "_blank";
+      link.textContent = folderName;
+
+      li.appendChild(thumb);
+      li.appendChild(link);
+      folderList.appendChild(li);
+    });
   });
-
-  const folderList = document.getElementById('folderList');
-  folderList.innerHTML = '';
-
-  Object.keys(folders).sort().forEach(folderName => {
-    const folderVideos = folders[folderName];
-    folderVideos.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    const latest = folderVideos[0];
-    const li = document.createElement('li');
-
-    const thumb = document.createElement('img');
-    thumb.src = BASE_URL + latest.thumbnail;
-    thumb.alt = folderName;
-
-    // ✅ Navigate in same tab
-    thumb.onclick = () => {
-      window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
-    };
-
-    const link = document.createElement('a');
-    link.className = "folder-link";
-    link.href = "folder.html?folder=" + encodeURIComponent(folderName);
-    link.textContent = folderName;
-
-    li.appendChild(thumb);
-    li.appendChild(link);
-    folderList.appendChild(li);
-  });
-});
 
     // Latest Video
     if(videos.length){
