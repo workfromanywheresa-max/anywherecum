@@ -65,7 +65,7 @@ h2 {
   color:#ff4444;
 }
 
-/* VIP LINK ROW */
+/* VIP TOP ROW */
 .vip-top {
   display:flex;
   align-items:center;
@@ -184,10 +184,8 @@ footer {
 const BASE_URL = "https://anywherecum.pages.dev/images/";
 const container = document.getElementById("folders");
 
-/* INITIAL LOAD */
 container.innerHTML = "";
 
-/* FETCH DATA */
 Promise.all([
   fetch('vip.json').then(res => res.json()).catch(() => null),
   fetch('videos.json').then(res => res.json()).catch(() => [])
@@ -209,7 +207,6 @@ Promise.all([
         </a>
       </div>
 
-      <!-- CTA UNDER VIP -->
       <div class="vip-cta">
         <span class="arrow left">⬅️</span>
         <a href="https://fc-lc.xyz/al0L8qyP" target="_blank">
