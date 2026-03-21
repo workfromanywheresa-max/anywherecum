@@ -62,6 +62,52 @@ h2 {
   color:#ff4444;
 }
 
+/* VIP LINK WRAPPER */
+.vip-link-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+/* ARROWS */
+.arrow {
+  font-size: 18px;
+  color: #ff4444;
+}
+
+/* RIGHT ARROW ANIMATION */
+.arrow.right {
+  animation: moveRight 1s infinite alternate;
+}
+
+/* LEFT ARROW ANIMATION */
+.arrow.left {
+  animation: moveLeft 1s infinite alternate;
+}
+
+@keyframes moveRight {
+  0% { transform: translateX(0); opacity: 0.6; }
+  100% { transform: translateX(6px); opacity: 1; }
+}
+
+@keyframes moveLeft {
+  0% { transform: translateX(0); opacity: 0.6; }
+  100% { transform: translateX(-6px); opacity: 1; }
+}
+
+/* VIP TEXT */
+.vip-text {
+  font-weight: bold;
+  color: #fff;
+  text-decoration: none;
+}
+
+.vip-text:hover {
+  color: #ff4444;
+}
+
 /* SKELETON LOADER */
 .skeleton {
   background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
@@ -135,7 +181,7 @@ footer {
 const BASE_URL = "https://anywherecum.pages.dev/images/";
 const container = document.getElementById("folders");
 
-/* ===== VIP SKELETON ===== */
+/* VIP SKELETON */
 function showVipSkeleton() {
   const div = document.createElement("div");
   div.className = "card vip";
@@ -146,7 +192,7 @@ function showVipSkeleton() {
   container.appendChild(div);
 }
 
-/* ===== FOLDER SKELETONS ===== */
+/* FOLDER SKELETONS */
 function showSkeletons(count = 5) {
   for (let i = 0; i < count; i++) {
     const div = document.createElement("div");
@@ -164,7 +210,7 @@ container.innerHTML = "";
 showVipSkeleton();
 showSkeletons();
 
-/* ===== FETCH DATA ===== */
+/* FETCH DATA */
 Promise.all([
   fetch('vip.json').then(res => res.json()).catch(() => null),
   fetch('videos.json').then(res => res.json()).catch(() => [])
@@ -173,7 +219,7 @@ Promise.all([
 
   container.innerHTML = "";
 
-  /* ===== VIP CARD ===== */
+  /* VIP CARD */
   if (vipData) {
     const vipItem = Array.isArray(vipData) ? vipData[0] : vipData;
 
@@ -182,15 +228,24 @@ Promise.all([
 
     vipCard.innerHTML = `
       <img src="${BASE_URL + vipItem.thumbnail}" class="thumb" alt="VIP">
-      <a href="https://fc-lc.xyz/al0L8qyP" target="_blank">
-        ⭐ VIP Exclusive
-      </a>
+
+      <div class="vip-link-wrapper">
+        <span class="arrow left">⬅️</span>
+
+        <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4" 
+           target="_blank"
+           class="vip-text">
+          Click & Watch How To Unlock Free VIP Access
+        </a>
+
+        <span class="arrow right">➡️</span>
+      </div>
     `;
 
     container.appendChild(vipCard);
   }
 
-  /* ===== GROUP FOLDERS ===== */
+  /* GROUP FOLDERS */
   const folderMap = {};
 
   videos.forEach(v => {
