@@ -140,7 +140,7 @@ h2 {
 
 <script>
 function goHome() {
-  // Save current folder before leaving
+  // Save folder (optional)
   const params = new URLSearchParams(window.location.search);
   const folder = params.get("folder");
 
@@ -148,7 +148,10 @@ function goHome() {
     localStorage.setItem("lastFolder", folder);
   }
 
-  // Go to homepage
+  // Save scroll position BEFORE leaving homepage context
+  localStorage.setItem("scrollPos", window.scrollY);
+
+  // Go home
   window.location.href = "index.html";
 }
 </script>
