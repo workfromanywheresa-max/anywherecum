@@ -119,7 +119,7 @@ function formatViews(num) {
   return num;
 }
 
-// ✅ Increment views + send timestamp to worker
+// ✅ Increment views + notify worker
 async function increaseViews(videoId){
   runTransaction(ref(db, "views/" + videoId), (current) => {
     return (current || 0) + 1;
@@ -130,18 +130,6 @@ async function increaseViews(videoId){
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ videoId })
   }).catch(()=>{});
-}
-
-// ✅ Count views within 30 min
-function getTrendingCount(timestamps) {
-  if (!timestamps || typeof timestamps !== "object") return 0;
-
-  const now = Date.now();
-  const THIRTY_MIN = 30 * 60 * 1000;
-
-  return Object.values(timestamps)
-    .filter(t => now - t <= THIRTY_MIN)
-    .length;
 }
 
 const videoStates = {};
@@ -185,7 +173,7 @@ fetch('videos.json')
     btn.textContent = `Download (${v.size})`;
 
     const viewRef = ref(db,"views/"+v.id);
-    const viewTimesRef = ref(db,"viewTimes/"+v.id);
+    const cycleViewsRef = ref(db,"cycleViews/"+v.id);
 
     let totalViews = 0;
     let cycleViews = 0;
@@ -222,16 +210,15 @@ fetch('videos.json')
       sorted.forEach(v=>container.appendChild(v.element));
     }
 
-    // ✅ Total views
+    // ✅ Total views listener
     onValue(viewRef,snap=>{
       totalViews = snap.val() || 0;
       updateUI();
     });
 
-    // ✅ Trending views (timestamps)
-    onValue(viewTimesRef,snap=>{
-      const timestamps = snap.val();
-      cycleViews = getTrendingCount(timestamps);
+    // ✅ Trending views (cycleViews now)
+    onValue(cycleViewsRef, snap=>{
+      cycleViews = snap.val() || 0;
 
       updateUI();
       sortVideos();
