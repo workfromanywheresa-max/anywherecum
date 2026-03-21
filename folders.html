@@ -26,11 +26,12 @@ h2 {
   gap: 10px;
 }
 
-/* WRAPPER FOR VIP + CTA (NO GAP BETWEEN THEM) */
+/* WRAPPER FOR VIP + CTA */
 .vip-wrapper {
   display: flex;
   flex-direction: column;
   gap: 0;
+  margin-bottom: 10px; /* ✅ small gap below CTA */
 }
 
 /* CARD STYLE */
@@ -90,7 +91,7 @@ h2 {
   border-top-right-radius:0;
 }
 
-/* CTA TEXT SMALL + SINGLE LINE */
+/* CTA TEXT */
 .vip-cta-card a {
   font-size: 12px;
   white-space: nowrap;
@@ -140,7 +141,7 @@ footer {
 
 <div id="folders" class="list"></div>
 
-<footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
+<footer>
   © 2026 AnywhereCum – Legal content only. 18+<br>
 
   <div style="margin-top:8px; font-size:8px;">
@@ -174,14 +175,13 @@ Promise.all([
 ])
 .then(([vipData, videos]) => {
 
-  /* ===== VIP WRAPPER (VIP + CTA TO TOUCH) ===== */
+  /* VIP SECTION */
   if (vipData) {
     const vipItem = Array.isArray(vipData) ? vipData[0] : vipData;
 
     const vipWrapper = document.createElement("div");
     vipWrapper.className = "vip-wrapper";
 
-    /* VIP CARD */
     const vipCard = document.createElement("div");
     vipCard.className = "card vip";
 
@@ -194,7 +194,6 @@ Promise.all([
       </div>
     `;
 
-    /* CTA CARD (DIRECTLY ATTACHED) */
     const ctaCard = document.createElement("div");
     ctaCard.className = "card vip-cta-card";
 
@@ -212,7 +211,7 @@ Promise.all([
     container.appendChild(vipWrapper);
   }
 
-  /* ===== GROUP FOLDERS ===== */
+  /* FOLDERS */
   const folderMap = {};
 
   videos.forEach(v => {
