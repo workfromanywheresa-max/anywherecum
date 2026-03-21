@@ -99,6 +99,13 @@ h2 {
   font-size: 12px;
 }
 
+/* CTA LINK */
+.vip-cta-card a {
+  font-size: 12px;
+  color:#ff4444;
+  margin: 0 4px;
+}
+
 /* ARROWS */
 .arrow {
   font-size: 18px;
@@ -269,13 +276,25 @@ Promise.all([
     const ctaCard = document.createElement("div");
     ctaCard.className = "card vip-cta-card";
 
-    ctaCard.onclick = () => {
-      window.open("https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4", "_blank");
+    // Prevent parent click when clicking links
+    ctaCard.onclick = (e) => {
+      e.stopPropagation();
     };
 
     ctaCard.innerHTML = `
       <span class="arrow left">➡️</span>
-      <span>Click & Watch How To Unlock Free VIP Access</span>
+
+      <span>
+        Click & Watch 
+        <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4" target="_blank">
+          Watch Video
+        </a>
+        | 
+        <a href="https://fc-lc.xyz/al0L8qyP" target="_blank">
+          Unlock VIP
+        </a>
+      </span>
+
       <span class="arrow right">⬅️</span>
     `;
 
