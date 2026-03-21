@@ -93,6 +93,8 @@ h2 {
 </footer>
 
 <script>
+const BASE_URL = "https://anywherecum.pages.dev/images/";
+
 fetch('videos.json')
 .then(res => res.json())
 .then(videos => {
@@ -119,7 +121,7 @@ fetch('videos.json')
     div.className = "card";
 
     div.innerHTML = `
-      <img src="${thumbnail}" class="thumb" alt="thumb">
+      <img src="${BASE_URL + thumbnail}" class="thumb" alt="thumb">
       <a href="folder.html?folder=${encodeURIComponent(folder)}">
         ${folder}
       </a>
