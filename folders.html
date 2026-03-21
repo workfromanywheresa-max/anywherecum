@@ -105,8 +105,10 @@ fetch('videos.json')
 
   const container = document.getElementById("folders");
 
-  // Get unique folders
-  const folders = [...new Set(videos.map(v => v.folder))];
+  // Get unique folders and sort alphabetically (case-insensitive)
+  const folders = [...new Set(videos.map(v => v.folder))].sort((a, b) =>
+    a.toLowerCase().localeCompare(b.toLowerCase())
+  );
 
   folders.forEach(folder => {
     const div = document.createElement("div");
