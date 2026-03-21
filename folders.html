@@ -70,16 +70,13 @@ h2 {
   display:flex;
   align-items:center;
   gap:10px;
+  width:100%;
 }
 
-/* CTA UNDER VIP */
-.vip-cta {
-  display:flex;
-  align-items:center;
+/* CTA CARD */
+.vip-cta-card {
   justify-content:center;
-  width:100%;
-  margin-top:8px;
-  gap:8px;
+  text-align:center;
 }
 
 /* ARROWS */
@@ -104,40 +101,6 @@ h2 {
 @keyframes moveRight {
   0% { transform: translateX(0); opacity: 0.6; }
   100% { transform: translateX(6px); opacity: 1; }
-}
-
-/* CTA TEXT */
-.vip-cta a {
-  font-weight:bold;
-  color:#fff;
-  text-decoration:none;
-}
-
-.vip-cta a:hover {
-  color:#ff4444;
-}
-
-/* SKELETON */
-.skeleton {
-  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-  border-radius:6px;
-}
-
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-.skeleton-thumb {
-  width:50px;
-  height:50px;
-}
-
-.skeleton-text {
-  height:14px;
-  width:120px;
 }
 
 /* FOOTER */
@@ -192,7 +155,7 @@ Promise.all([
 ])
 .then(([vipData, videos]) => {
 
-  /* ===== VIP CARD ===== */
+  /* ===== VIP CARD (ONLY TOP) ===== */
   if (vipData) {
     const vipItem = Array.isArray(vipData) ? vipData[0] : vipData;
 
@@ -206,17 +169,23 @@ Promise.all([
           ⭐ VIP Exclusive Folder
         </a>
       </div>
-
-      <div class="vip-cta">
-        <span class="arrow left">⬅️</span>
-        <a href="https://fc-lc.xyz/al0L8qyP" target="_blank">
-          Click & Watch How To Unlock Free VIP Access
-        </a>
-        <span class="arrow right">➡️</span>
-      </div>
     `;
 
     container.appendChild(vipCard);
+
+    /* ===== CTA CARD (OUTSIDE VIP BORDER) ===== */
+    const ctaCard = document.createElement("div");
+    ctaCard.className = "card vip-cta-card";
+
+    ctaCard.innerHTML = `
+      <span class="arrow left">⬅️</span>
+      <a href="https://fc-lc.xyz/al0L8qyP" target="_blank">
+        Click & Watch How To Unlock Free VIP Access
+      </a>
+      <span class="arrow right">➡️</span>
+    `;
+
+    container.appendChild(ctaCard);
   }
 
   /* ===== GROUP FOLDERS ===== */
