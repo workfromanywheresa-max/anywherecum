@@ -5,34 +5,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AnywhereCum - Browse Video Folders & Exclusive Content</title>
 
+  <!-- Favicon -->
 <link rel="icon" type="image/png" sizes="32x32" href="https://anywherecum.pages.dev/images/favicon.webp">
 <link rel="apple-touch-icon" href="https://anywherecum.pages.dev/images/favicon.webp">
 <link rel="shortcut icon" href="https://anywherecum.pages.dev/images/favicon.webp">
 
+<!-- SEO Meta -->
 <meta name="description" content="Browse categorized video folders and explore exclusive video content. Fast, organized video library with easy navigation and latest uploads.">
 <meta name="keywords" content="video folders, browse video collections, exclusive video content, online video library, categorized videos, media streaming folders, video directory">
 <meta name="robots" content="index, follow">
 <meta name="author" content="AnywhereCum">
 <link rel="canonical" href="https://anywherecum.pages.dev/">
 
+<!-- Open Graph (Social Sharing) -->
 <meta property="og:title" content="AnywhereCum - Video Folders & Exclusive Content">
 <meta property="og:description" content="Browse categorized video folders and discover exclusive video content in a fast and organized layout.">
 <meta property="og:url" content="https://anywherecum.pages.dev/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://anywherecum.pages.dev/images/header-image.webp">
 
+<!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="AnywhereCum">
 <meta name="twitter:description" content="Browse video folders and exclusive content easily.">
 <meta name="twitter:image" content="https://anywherecum.pages.dev/images/header-image.webp">
 
+<!-- Structured Data -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "AnywhereCum",
   "url": "https://anywherecum.pages.dev/",
-  "description": "Browse categorized video folders and exclusive content."
+  "description": "Browse categorized video folders and exclusive content.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://anywherecum.pages.dev/?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
 }
 </script>
 
@@ -43,36 +53,109 @@
 body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; margin: 0; padding: 15px; }
 header { text-align: center; padding: 5px 10px; background: #111; }
 header h1 { color: #ff4444; margin: 2px 0; font-size: 20px; }
+header p { margin: 0 0 2px 0; font-size: 12px; }
+
+#visitSite { font-size: 12px; text-align: center; margin-bottom: 10px; }
+#visitSite a { color: #ff4444; text-decoration: none; font-weight: bold; animation: flash 1s infinite alternate; position: relative; padding: 0 25px; display: inline-block; font-size: 12px; }
+#visitSite a::before { content: "➤"; position: absolute; left: 5px; animation: bounceLeft 1s infinite alternate; }
+#visitSite a::after { content: "◀"; position: absolute; right: 5px; animation: bounceRight 1s infinite alternate; }
+#visitSite a:hover { color: #fff; text-decoration: underline; }
+
+h2 { color: #ff4444; border-bottom: 2px solid #ff4444; padding-bottom: 5px; margin-top:20px; text-align: center; }
 
 ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; }
-li { background: #222; padding: 10px; border-radius: 8px; text-align: center; }
+li { background: #222; padding: 10px; border-radius: 8px; text-align: center; transition: 0.3s; cursor: pointer; }
+li:hover { background: #333; }
 
-.folder-link { color: #fff; font-weight: bold; text-decoration: none; display: block; margin-top: 5px; }
+a.folder-link { color: #fff; font-weight: bold; text-decoration: none; display: block; margin-top: 5px; }
+a.folder-link:hover { color: #ff4444; text-decoration: underline; }
 
-#folderList li img { width: 100%; height: 180px; border-radius: 5px; object-fit: cover; margin-bottom: 5px; }
+.blogspot-style-link { color: #fff; font-weight: bold; text-decoration: none; font-size: 12px; display: inline-block; animation: flash 1s infinite alternate; position: relative; padding: 0 25px; }
+.blogspot-style-link::before { content: "➤"; position: absolute; left: 5px; animation: bounceLeft 1s infinite alternate; }
+.blogspot-style-link::after { content: "◀"; position: absolute; right: 5px; animation: bounceRight 1s infinite alternate; }
+.blogspot-style-link:hover { color: #ff4444; text-decoration: underline; }
 
-/* Skeleton */
-.skeleton { background: #333; border-radius: 5px; position: relative; overflow: hidden; height: 180px; }
-.skeleton::after {
+#latestVideo { margin-bottom: 20px; }
+#vipList li img, #folderList li img { width: 100%; height: 180px; border-radius: 5px; object-fit: cover; margin-bottom: 5px; }
+
+/* Skeleton Loader Styles */
+.skeleton { background: #333; border-radius: 5px; position: relative; overflow: hidden; }
+.skeleton::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); animation: loading 1.5s infinite; }
+
+/* Header Skeleton for header image only */
+#headerSkeleton {
+  background: #333;           
+  border-radius: 8px;         
+  width: 720px;               
+  max-width: 100%;            
+  height: 90px;              
+  margin: 5px auto;           
+  position: relative;
+  overflow: hidden;
+}
+#headerSkeleton::after {
   content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   animation: loading 1.5s infinite;
 }
 
-@keyframes loading {
-  0% { left: -100%; }
-  100% { left: 100%; }
+@keyframes loading { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
+
+footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; background: #111; margin-top: 10px; }
+@media(max-width:600px){ ul { grid-template-columns: 1fr; } }
+.folder-grid { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; margin: 0; }
+@media(max-width:600px){ .folder-grid { grid-template-columns: 1fr; } }
+
+@keyframes flash { 0% { text-shadow: 0 0 5px #ff4444; } 50% { text-shadow: 0 0 20px #ff4444, 0 0 30px #ff8888; } 100% { text-shadow: 0 0 5px #ff4444; } }
+@keyframes bounceLeft { 0% { transform: translateX(0); } 50% { transform: translateX(5px); } 100% { transform: translateX(0); } }
+@keyframes bounceRight { 0% { transform: translateX(0); } 50% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+.blink { animation: blink 1s infinite; }
+@keyframes blink { 0% {opacity:1;} 50% {opacity:0;} 100% {opacity:1;} }
+
+.ad-wrapper { width:100%; display:flex; justify-content:center; margin-top:20px; }
+.ad-container { text-align:center; border:1px solid #ff0000; border-radius:10px; background-color:#1a1a1a; display:inline-block; cursor:default; overflow:hidden; transition:transform 0.2s, box-shadow 0.2s; padding-top:6px; }
+.ad-container:hover { transform:scale(1.05); box-shadow:0 0 12px #ff0000; }
+.ad-text { display:block; margin:0 0 4px 0; font-size:14px; font-weight:bold; color:#fff; user-select:none; pointer-events:none; }
+.ad-container ins { display:block; margin:0 auto; }
+
+/* Popup Fix for Mobile Centering */
+#ageModal {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  text-align: center;
+  padding: 15px;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
 }
+#popupContent {
+  max-width: 400px;
+  width: 90%;
+  background: #111;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px #ff4444;
+  text-align: center;
+}
+#popupImage { width:100%; height:auto; border-radius:10px; margin-bottom:15px; }
+#popupContent button { flex:1 1 45%; min-width:120px; margin-top:8px; }
+@media(max-width:500px){ #popupContent button { flex:1 1 100%; } }
 </style>
 
-<script type="module">
+  <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getDatabase, ref, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWHoNqPpppR4kx0",
@@ -82,78 +165,327 @@ const firebaseConfig = {
   storageBucket: "anywherecum-1c8d0.appspot.com",
   messagingSenderId: "686718460803",
   appId: "1:686718460803:web:5d0ec20634dfe2a7d98cb6",
+  measurementId: "G-6XXPPV4727"
 };
 
 const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 const db = getDatabase(app);
 const viewsRef = ref(db, "views/homepage");
 
-// 🔥 SKELETON LOADER FUNCTION
-function showFolderSkeletons(count = 10) {
-  const folderList = document.getElementById('folderList');
-  folderList.innerHTML = '';
+// 👉 YOUR IP
+const OWNER_IP = "102.214.117.74";
 
-  for (let i = 0; i < count; i++) {
-    const li = document.createElement('li');
-    li.className = 'skeleton';
-    folderList.appendChild(li);
+// Format numbers into k / M
+function formatViews(num) {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+  }
+  return num;
+}
+
+// Get user IP
+async function getUserIP() {
+  try {
+    const res = await fetch("https://api.ipify.org?format=json");
+    const data = await res.json();
+    return data.ip;
+  } catch (e) {
+    return null;
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+(async () => {
+  const userIP = await getUserIP();
 
-  // 👉 SHOW 10 SKELETONS IMMEDIATELY
-  showFolderSkeletons(10);
-
-  fetch('./videos.json')
-    .then(res => res.json())
-    .then(videos => {
-
-      const folders = {};
-      videos.forEach(v => {
-        if (!folders[v.folder]) folders[v.folder] = [];
-        folders[v.folder].push(v);
+  // ❌ Skip owner views
+  if (userIP && userIP === OWNER_IP) {
+    console.log("Owner detected — view not counted");
+  } else {
+    if (!sessionStorage.getItem("viewCounted")) {
+      runTransaction(viewsRef, (current) => {
+        return (current || 0) + 1;
       });
+      sessionStorage.setItem("viewCounted", "true");
+    }
+  }
 
-      const folderList = document.getElementById('folderList');
-      folderList.innerHTML = '';
+  // Live updates
+  onValue(viewsRef, (snapshot) => {
+    const count = snapshot.val() || 0;
+    document.getElementById("viewCount").innerText = formatViews(count);
+  });
 
-      Object.keys(folders).sort().forEach(folderName => {
-        const folderVideos = folders[folderName];
-        folderVideos.sort((a, b) => new Date(b.date) - new Date(a.date));
+})();
+  </script>
 
-        const latest = folderVideos[0];
-        const li = document.createElement('li');
-
-        const thumb = document.createElement('img');
-        thumb.src = latest.thumbnail;
-        thumb.onclick = () => window.open("folder.html?folder=" + encodeURIComponent(folderName), "_blank");
-
-        const link = document.createElement('a');
-        link.className = "folder-link";
-        link.href = "folder.html?folder=" + encodeURIComponent(folderName);
-        link.target = "_blank";
-        link.textContent = folderName;
-
-        li.appendChild(thumb);
-        li.appendChild(link);
-        folderList.appendChild(li);
-      });
-
-    });
-
-});
+  <script type="text/javascript" data-cfasync="false">
+/*<![CDATA[/* */
+(function(){var w=window,b="e96ba20fb672184d3896e3dc42c0737a",o=[["siteId",250-262*405*412+49002556],["minBid",0],["popundersPerIP","0"],["delayBetween",0],["default",false],["defaultPerDay",0],["topmostLayer","auto"]],h=["d3d3LmRpc3BsYXl2ZXJ0aXNpbmcuY29tL2FqcXVlcnkubGV0dGVyaW5nLm1pbi5jc3M=","ZDNtem9rdHk5NTFjNXcuY2xvdWRmcm9udC5uZXQvT1ZaUlIvY3N3aXRjaHkubWluLmpz"],u=-1,j,f,m=function(){clearTimeout(f);u++;if(h[u]&&!(1799881629000<(new Date).getTime()&&1<u)){j=w.document.createElement("script");j.type="text/javascript";j.async=!0;var y=w.document.getElementsByTagName("script")[0];j.src="https://"+atob(h[u]);j.crossOrigin="anonymous";j.onerror=m;j.onload=function(){clearTimeout(f);w[b.slice(0,16)+b.slice(0,16)]||m()};f=setTimeout(m,5E3);y.parentNode.insertBefore(j,y)}};if(!w[b]){try{Object.freeze(w[b]=o)}catch(e){}m()}})();
+/*]]>/* */
 </script>
 
+</head>
 <body>
 
+<!-- JuicyAds PopUnders v3 Start -->
+<script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p294137434&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
+<!-- JuicyAds PopUnders v3 End -->
+
+<!-- 18+ Age Verification Modal -->
+<div id="ageModal">
+  <div id="popupContent">
+    <img id="popupImage" src="" alt="AnywhereCum" style="display:none; border-radius:10px; margin-bottom:15px;">
+    <h2 id="popupTitle" style="color:#ff4444; font-size:24px; margin-bottom:10px; display:none;">⚠️ 18+ ONLY ⚠️</h2>
+    <p id="popupDesc" style="color:#fff; font-size:16px; margin-bottom:20px; display:none;">
+      You must be 18 years or older to enter this site. Click below to confirm your age or leave the site if you are under 18.
+    </p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+      <button id="enterSiteBtn" style="display:none;">I am 18+</button>
+      <button id="leaveSiteBtn" style="display:none;">Leave Site</button>
+    </div>
+  </div>
+</div>
+
+  <div id="pageViews" style="position: absolute; top: 0; right: 0; text-align:left; font-size:8px; color:#FFD700;">
+  👁 <span id="viewCount">0</span>
+  </div>
+  
+<!-- Header -->
 <header>
   <h1>AnywhereCum - Video Folders & Exclusive Content</h1>
+
+  <nav style="margin-top:10px; font-size:10px; color:#fff;">
+  <a href="folders.html" style="color:#fff; margin:0 8px;">📂All Folders</a> |
+  <a href="contact.html" style="color:#fff; margin:0 8px;">📨Contact</a> |
+  <a href="terms-privacy.html" style="color:#fff; margin:0 8px;">⚖️Terms & Privacy</a>
+  </nav>
+  
+  <!-- Header Skeleton -->
+  <div id="headerSkeleton" class="skeleton"></div>
+
+  <!-- Actual Header Image -->
+  <img src="" alt="AnywhereCum" style="display:none; border-radius:8px; margin-top:5px; max-width:100%;" id="headerImage">
 </header>
 
-<h2 style="text-align:center;">📂Content Folders📂</h2>
+<!-- Top LIVE Banner Ad -->
+<div class="ad-wrapper">
+  <div class="ad-container">
+    <div class="ad-text"><span class="blink">🔴 LIVE</span> Exclusive Stream</div>
+    <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+    <ins id="1113180" data-width="300" data-height="62"></ins>
+    <script type="text/javascript" data-cfasync="false" async>
+      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113180});
+    </script>
+  </div>
+</div>
 
-<ul id="folderList"></ul>
+<!-- Latest Video Skeleton -->
+<div id="latestVideo">
+  <h2>🎥Latest Video🎥</h2>
+  <ul class="folder-grid">
+    <li class="skeleton" style="height:180px;"></li>
+  </ul>
+</div>
+
+<h2>📂Content Folders📂</h2>
+<ul id="folderList">
+  <li class="skeleton" style="height:180px;"></li>
+  <li class="skeleton" style="height:180px;"></li>
+</ul>
+
+  <!-- VIP Section Skeleton -->
+<section id="vipSection">
+  <h2>🔒VIP Vault🔒</h2>
+  <div id="vipCTA" style="text-align:center; margin-bottom:15px;">
+  <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4" target="_blank" class="blogspot-style-link">
+    Click & Watch how to unlock Free VIP Access
+  </a>
+  </div>
+  <ul id="vipList">
+    <li class="skeleton" style="height:180px;"></li>
+  </ul>
+</section>
+
+<div id="visitSite">
+  <a href="https://anywhereincome.workfromanywhere-sa.workers.dev/" target="_blank">Click & Learn How To Make Money Online</a>
+</div>
+
+<!-- BOTTOM AD (REPLACED) -->
+<div style="position:relative;width:308px;height:298px;border:2px solid red;border-radius:8px;overflow:hidden;text-align:center;margin:20px auto;">
+  <!-- 🔴 Live Cams label -->
+  <div style="
+      position:absolute;
+      top:0;
+      left:50%;
+      transform:translateX(-50%);
+      background:red;
+      color:white;
+      font-weight:bold;
+      font-size:12px;
+      padding:2px 6px;
+      border-bottom-left-radius:4px;
+      border-bottom-right-radius:4px;
+      z-index:9999;
+      pointer-events:none;
+      animation:glow 1s infinite alternate;
+  ">
+    <span class="blink-slow">🔴 Live Cams</span>
+  </div>
+
+  <!-- JuicyAds bottom ad -->
+  <ins id="1113289" data-width="308" data-height="298"></ins>
+  <script type="text/javascript" data-cfasync="false" async>
+    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113289});
+  </script>
+</div>
+
+  <footer style="text-align:center; padding:15px; color:#fff; font-size:12px;">
+  © 2026 AnywhereCum – Legal content only. 18+<br>
+
+  <div style="margin-top:8px; font-size:10px;">
+    
+    <a href="https://www.facebook.com/profile.php?id=100069048046082" 
+       target="_blank" 
+       rel="noopener noreferrer" 
+       style="margin:0 10px; display:inline-block;">
+      <img src="https://www.facebook.com/images/fb_icon_325x325.png" 
+           alt="Facebook" 
+           style="width:14px; height:14px; vertical-align:middle;">
+    </a> |
+
+    <a href="contact.html" 
+       style="color:#ff4444; text-decoration:none; margin:0 10px;">
+      📨Contact
+    </a> |
+
+    <a href="terms-privacy.html" 
+       style="color:#ff4444; text-decoration:underline; margin:0 10px;">
+      ⚖️Terms & Privacy
+    </a> |
+
+    <a href="#" 
+       onclick="window.scrollTo({top:0, behavior:'smooth'});" 
+       style="color:#ff4444; text-decoration:none; margin:0 10px; white-space:nowrap;">
+      ⬆️Back To Top
+    </a>
+
+  </div>
+  </footer>
+
+<!-- Cookie Consent Banner -->
+<div id="cookieBanner" style="position:fixed; bottom:-100px; left:0; width:100%; background-color:#222; color:#fff; padding:12px 15px; text-align:center; font-size:14px; z-index:9998; display:flex; justify-content:center; align-items:center; gap:10px; box-sizing:border-box; transition: bottom 0.5s ease-in-out; flex-wrap: wrap;">
+  <span style="max-width: 100%; text-align: center;">
+    We use cookies to improve your experience. 
+    <a href="https://anywherecum.pages.dev/terms-privacy.html" target="_blank" style="color:#ff4444; text-decoration: underline;">Privacy Policy</a>
+  </span>
+  <button id="acceptCookies" style="padding:6px 15px; font-size:14px; font-weight:bold; color:#fff; background-color:#ff4444; border:none; border-radius:5px; cursor:pointer; box-shadow:0 0 5px #ff4444;">Accept</button>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const BASE_URL = "https://anywherecum.pages.dev/images/";
+
+  // Header Image
+  const headerImg = document.getElementById('headerImage');
+  const headerSkeleton = document.getElementById('headerSkeleton');
+  headerImg.onload = () => { headerSkeleton.style.display = 'none'; headerImg.style.display = 'block'; }
+  headerImg.src = BASE_URL + "header-image.webp";
+
+  // Popup Image & Age Modal
+  const popupImg = document.getElementById('popupImage');
+  const popupTitle = document.getElementById('popupTitle');
+  const popupDesc = document.getElementById('popupDesc');
+  const enterBtn = document.getElementById('enterSiteBtn');
+  const leaveBtn = document.getElementById('leaveSiteBtn');
+  const ageModal = document.getElementById('ageModal');
+
+  popupImg.onload = () => {
+    popupImg.style.display = 'block';
+    popupTitle.style.display = 'block';
+    popupDesc.style.display = 'block';
+    enterBtn.style.display = 'inline-block';
+    leaveBtn.style.display = 'inline-block';
+  };
+  popupImg.src = BASE_URL + "header-image.webp";
+
+  setTimeout(() => {
+    if(localStorage.getItem('ageConfirmed')!=='true') ageModal.style.opacity='1'; 
+    else ageModal.style.display='none';
+  }, 100);
+
+  enterBtn.onclick = () => {
+    localStorage.setItem('ageConfirmed','true'); 
+    ageModal.style.opacity='0'; 
+    setTimeout(() => { ageModal.style.display='none'; }, 500);
+  }
+  leaveBtn.onclick = () => window.location.href="https://www.google.com";
+
+  // Cookies
+  const banner=document.getElementById('cookieBanner');
+  if(localStorage.getItem('cookiesAccepted')!=='true'){ setTimeout(()=>{banner.style.bottom='0';},300);}
+  document.getElementById('acceptCookies').onclick=()=>{ 
+    localStorage.setItem('cookiesAccepted','true'); 
+    banner.style.bottom='-100px'; 
+    setTimeout(()=>{banner.style.display='none';},500); 
+  }
+
+  // VIP Videos (unchanged)
+  fetch('./vip.json').then(res=>res.json()).then(videos=>{
+    if(!videos.length) return;
+    const container=document.getElementById('vipList'); container.innerHTML='';
+    videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const latestVIP=videos[0]; const li=document.createElement('li');
+    const thumb=document.createElement('img'); thumb.src=BASE_URL+latestVIP.thumbnail; thumb.alt=latestVIP.folder;
+    thumb.onclick=()=>window.open("https://fc-lc.xyz/al0L8qyP","_blank");
+    const link=document.createElement('a'); link.className="folder-link"; link.href="https://fc-lc.xyz/al0L8qyP"; link.target="_blank"; link.textContent=latestVIP.folder;
+    li.appendChild(thumb); li.appendChild(link); container.appendChild(li);
+  });
+
+  // Content Folders & Latest Video
+  fetch('./videos.json').then(res=>res.json()).then(videos=>{
+    const folders={}; videos.forEach(v=>{ if(!folders[v.folder]) folders[v.folder]=[]; folders[v.folder].push(v); });
+    const folderList=document.getElementById('folderList'); folderList.innerHTML='';
+    Object.keys(folders).sort().forEach(folderName=>{
+      const folderVideos=folders[folderName]; folderVideos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+      const latest=folderVideos[0]; const li=document.createElement('li');
+      const thumb=document.createElement('img'); 
+      thumb.src=BASE_URL + latest.thumbnail; 
+      thumb.alt=folderName; 
+      thumb.onclick=()=>window.open("folder.html?folder="+encodeURIComponent(folderName), "_blank");
+
+      const link=document.createElement('a'); 
+      link.className="folder-link"; 
+      link.href="folder.html?folder="+encodeURIComponent(folderName); 
+      link.target="_blank"; // <-- NEW TAB
+      link.textContent=folderName;
+
+      li.appendChild(thumb); 
+      li.appendChild(link); 
+      folderList.appendChild(li);
+    });
+
+    // Latest Video
+    if(videos.length){
+      const latestVideo=videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+      const latestDiv=document.getElementById('latestVideo');
+      latestDiv.innerHTML=`
+        <h2>🎥Latest Video🎥</h2>
+        <ul class="folder-grid">
+          <li>
+            <img src="${BASE_URL+latestVideo.thumbnail}" style="width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;">
+            <a href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" class="folder-link" target="_blank">Watch Now: New Video Available!!!</a>
+          </li>
+        </ul>`;
+      latestDiv.querySelector("img").onclick=()=>window.open("folder.html?folder="+encodeURIComponent(latestVideo.folder), "_blank");
+    }
+  });
+});
+                                                                 
+</script>
 
 </body>
-</html>
+  </html>
