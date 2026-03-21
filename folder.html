@@ -109,6 +109,21 @@ h2 {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+  .footer-links {
+  margin-top: 8px;
+}
+
+.footer-links a {
+  color: #ff4444;
+  text-decoration: none;
+  margin: 0 10px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
 </style>
 
   <script type="text/javascript" data-cfasync="false">
@@ -220,13 +235,11 @@ h2 {
   <footer>
   © 2026 AnywhereCum – Legal content only. 18+<br>
 
-  <div style="margin-top:8px; font-size:14px;">
+  <div class="footer-links">
     
-    <a href="index.html" style="color:#ff4444; text-decoration:none; margin:0 10px;">
-      Home
-    </a> |
+    <a href="/">Home</a> |
 
-    <a href="folder.html" style="color:#ff4444; text-decoration:none; margin:0 10px;">
+    <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});">
       Back to Top
     </a>
 
