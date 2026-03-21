@@ -34,12 +34,15 @@ h2 {
   display:flex;
   align-items:center;
   gap:10px;
+  flex-wrap: wrap;
 }
 
 /* VIP CARD */
 .vip {
   border: 1px solid #ff4444;
   background: #2a1a1a;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 /* THUMBNAIL */
@@ -51,7 +54,7 @@ h2 {
   flex-shrink:0;
 }
 
-/* LINK */
+/* LINKS */
 .card a {
   color:#fff;
   text-decoration:none;
@@ -62,13 +65,21 @@ h2 {
   color:#ff4444;
 }
 
-/* VIP LINK WRAPPER */
-.vip-link-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
+/* VIP LINK ROW */
+.vip-top {
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* CTA UNDER VIP */
+.vip-cta {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  margin-top:8px;
+  gap:8px;
 }
 
 /* ARROWS */
@@ -77,19 +88,12 @@ h2 {
   color: #ff4444;
 }
 
-/* RIGHT ARROW ANIMATION */
-.arrow.right {
-  animation: moveRight 1s infinite alternate;
-}
-
-/* LEFT ARROW ANIMATION */
 .arrow.left {
   animation: moveLeft 1s infinite alternate;
 }
 
-@keyframes moveRight {
-  0% { transform: translateX(0); opacity: 0.6; }
-  100% { transform: translateX(6px); opacity: 1; }
+.arrow.right {
+  animation: moveRight 1s infinite alternate;
 }
 
 @keyframes moveLeft {
@@ -97,18 +101,23 @@ h2 {
   100% { transform: translateX(-6px); opacity: 1; }
 }
 
-/* VIP TEXT */
-.vip-text {
-  font-weight: bold;
-  color: #fff;
-  text-decoration: none;
+@keyframes moveRight {
+  0% { transform: translateX(0); opacity: 0.6; }
+  100% { transform: translateX(6px); opacity: 1; }
 }
 
-.vip-text:hover {
-  color: #ff4444;
+/* CTA TEXT */
+.vip-cta a {
+  font-weight:bold;
+  color:#fff;
+  text-decoration:none;
 }
 
-/* SKELETON LOADER */
+.vip-cta a:hover {
+  color:#ff4444;
+}
+
+/* SKELETON */
 .skeleton {
   background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
   background-size: 200% 100%;
@@ -154,23 +163,17 @@ footer {
 
   <div style="margin-top:8px; font-size:8px;">
 
-    <a href="https://www.facebook.com/profile.php?id=100069048046082" 
-       target="_blank" 
-       rel="noopener noreferrer"
-       style="margin:0 5px; display:inline-block;">
-      <img src="https://www.facebook.com/images/fb_icon_325x325.png" 
-           alt="Facebook" 
-           style="width:14px; height:14px;">
+    <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank" style="margin:0 5px;">
+      <img src="https://www.facebook.com/images/fb_icon_325x325.png" style="width:14px; height:14px;">
     </a><span>|</span>
 
-    <a href="contact.html" style="color:#ff4444; text-decoration:none; margin:0 5px;">📨Contact</a><span>|</span>
+    <a href="contact.html" style="color:#ff4444; margin:0 5px;">📨Contact</a><span>|</span>
 
-    <a href="terms-privacy.html" style="color:#ff4444; text-decoration:underline; margin:0 5px;">⚖️Terms & Privacy</a><span>|</span>
+    <a href="terms-privacy.html" style="color:#ff4444; margin:0 5px;">⚖️Terms & Privacy</a><span>|</span>
 
-    <a href="/" style="color:#ff4444; text-decoration:none; margin:0 5px;">🏠Home</a><span>|</span>
+    <a href="/" style="color:#ff4444; margin:0 5px;">🏠Home</a><span>|</span>
 
-    <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; white-space:nowrap;">
+    <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" style="color:#ff4444; margin:0 5px;">
       ⬆️Back to Top
     </a>
 
@@ -181,34 +184,8 @@ footer {
 const BASE_URL = "https://anywherecum.pages.dev/images/";
 const container = document.getElementById("folders");
 
-/* VIP SKELETON */
-function showVipSkeleton() {
-  const div = document.createElement("div");
-  div.className = "card vip";
-  div.innerHTML = `
-    <div class="skeleton skeleton-thumb"></div>
-    <div class="skeleton skeleton-text"></div>
-  `;
-  container.appendChild(div);
-}
-
-/* FOLDER SKELETONS */
-function showSkeletons(count = 5) {
-  for (let i = 0; i < count; i++) {
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `
-      <div class="skeleton skeleton-thumb"></div>
-      <div class="skeleton skeleton-text"></div>
-    `;
-    container.appendChild(div);
-  }
-}
-
 /* INITIAL LOAD */
 container.innerHTML = "";
-showVipSkeleton();
-showSkeletons();
 
 /* FETCH DATA */
 Promise.all([
@@ -217,9 +194,7 @@ Promise.all([
 ])
 .then(([vipData, videos]) => {
 
-  container.innerHTML = "";
-
-  /* VIP CARD */
+  /* ===== VIP CARD ===== */
   if (vipData) {
     const vipItem = Array.isArray(vipData) ? vipData[0] : vipData;
 
@@ -227,17 +202,19 @@ Promise.all([
     vipCard.className = "card vip";
 
     vipCard.innerHTML = `
-      <img src="${BASE_URL + vipItem.thumbnail}" class="thumb" alt="VIP">
+      <div class="vip-top">
+        <img src="${BASE_URL + vipItem.thumbnail}" class="thumb" alt="VIP">
+        <a href="https://fc-lc.xyz/al0L8qyP" target="_blank">
+          ⭐ VIP Exclusive Folder
+        </a>
+      </div>
 
-      <div class="vip-link-wrapper">
+      <!-- CTA UNDER VIP -->
+      <div class="vip-cta">
         <span class="arrow left">⬅️</span>
-
-        <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4" 
-           target="_blank"
-           class="vip-text">
+        <a href="https://fc-lc.xyz/al0L8qyP" target="_blank">
           Click & Watch How To Unlock Free VIP Access
         </a>
-
         <span class="arrow right">➡️</span>
       </div>
     `;
@@ -245,7 +222,7 @@ Promise.all([
     container.appendChild(vipCard);
   }
 
-  /* GROUP FOLDERS */
+  /* ===== GROUP FOLDERS ===== */
   const folderMap = {};
 
   videos.forEach(v => {
