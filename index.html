@@ -487,23 +487,25 @@ document.addEventListener('DOMContentLoaded', () => {
                                                                  
 </script>
 
-  <!-- Save scroll position before leaving homepage -->
-<script>
-window.addEventListener("beforeunload", () => {
-  localStorage.setItem("scrollPos", window.scrollY);
-});
-</script>
+  <script>
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
 
-<!-- Restore scroll position when returning -->
-<script>
-window.addEventListener("load", () => {
-  const scrollPos = localStorage.getItem("scrollPos");
+window.addEventListener("beforeunload", () => {
+  localStorage.setItem("scrollPos_index", window.scrollY);
+});
+
+window.addEventListener("pageshow", () => {
+  const scrollPos = localStorage.getItem("scrollPos_index");
 
   if (scrollPos !== null) {
-    window.scrollTo(0, parseInt(scrollPos));
+    requestAnimationFrame(() => {
+      window.scrollTo(0, parseInt(scrollPos));
+    });
   }
 });
-</script>
+  </script>
 
 </body>
 </html>
