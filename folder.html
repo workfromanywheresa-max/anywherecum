@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Folder Videos</title>
-  
+
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -21,36 +21,54 @@ h2 {
   text-align: center;
 }
 
-.description {
-  text-align: center;
-  margin-bottom: 20px;
+.folderSection {
+  margin-bottom: 30px;
+}
+
+.folderTitle {
+  color: #ff4444;
+  margin: 15px 0 10px;
+  border-left: 4px solid #ff4444;
+  padding-left: 8px;
 }
 
 .videoBox {
   background: #222;
   padding: 10px;
   border-radius: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
 }
 
-.preview {
+/* Thumbnail */
+.thumbnail {
   width: 100%;
-  height: 220px;
-  background: #000;
-  border-radius: 5px;
-  overflow: hidden;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 8px;
   cursor: pointer;
 }
 
-.preview img {
+/* Iframe */
+.videoFrameWrapper {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: 250px;
+  overflow: hidden;
+  position: relative;
+  border-radius: 8px;
+}
+
+.videoFrameWrapper iframe {
+  width: 100%;
+  height: 450px;
+  position: absolute;
+  top: -100px;
+  left: 0;
+  border: 0;
 }
 
 .videoTitle {
   text-align: center;
-  margin: 8px 0 5px 0;
+  margin: 8px 0 5px;
   color: #ddd;
   cursor: pointer;
   text-decoration: underline;
@@ -65,7 +83,7 @@ h2 {
 .download {
   display: block;
   width: fit-content;
-  margin: 10px auto 0 auto;
+  margin: 10px auto 0;
   padding: 8px 15px;
   color: #fff;
   background: #ff4444;
@@ -73,329 +91,13 @@ h2 {
   text-decoration: none;
   border-radius: 5px;
 }
-
-/* ================= Skeleton ================= */
-.skeleton {
-  background: #222;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-.skeleton-preview {
-  width: 100%;
-  height: 220px;
-  border-radius: 5px;
-  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-}
-
-.skeleton-line {
-  height: 14px;
-  margin: 10px auto;
-  width: 60%;
-  border-radius: 4px;
-  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-}
-
-.skeleton-small {
-  width: 40%;
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-  .footer-links {
-  margin-top: 8px;
-}
 </style>
-  
 </head>
 
 <body>
 
-  <button onclick="goBack()" style="
-  display:inline-block;
-  margin-bottom:15px;
-  padding:8px 14px;
-  background:#222;
-  color:#fff;
-  border:1px solid #ff4444;
-  border-radius:6px;
-  font-size:14px;
-  cursor:pointer;
-">
-  ← Back
-</button>
-
-<script>
-function goBack() {
-  if (window.history.length > 1) {
-    window.history.back();
-  } else {
-    window.location.href = "index.html";
-  }
-}
-</script>
-
-<h2 id="folderTitle">Folder</h2>
-<p class="description">Enjoy our videos, updated regularly for your viewing pleasure. </p>
-
-  <div style="
-  text-align: center;
-  position: relative;
-  width: 320px;
-  height: 50px;
-  margin: auto;
-  border: 2px solid red;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #fff;
-">
-
-  <!-- Ad Container -->
-  <div id="adContainer" style="width:100%; height:100%;">
-    
-    <script>
-      atOptions = {
-        'key' : '58e0d60dc3ec78d2ff8981481d093080',
-        'format' : 'iframe',
-        'height' : 50,
-        'width' : 320,
-        'params' : {}
-      };
-    </script>
-    <script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
-
-  </div>
-  </div>
-  
-<!-- Skeletons initially -->
-<div id="videoList">
-  <div class="skeleton">
-    <div class="skeleton-preview"></div>
-    <div class="skeleton-line"></div>
-    <div class="skeleton-line skeleton-small"></div>
-  </div>
-
-  <div class="skeleton">
-    <div class="skeleton-preview"></div>
-    <div class="skeleton-line"></div>
-    <div class="skeleton-line skeleton-small"></div>
-  </div>
-
-  <div class="skeleton">
-    <div class="skeleton-preview"></div>
-    <div class="skeleton-line"></div>
-    <div class="skeleton-line skeleton-small"></div>
-  </div>
-</div>
-
-  <script async="async" data-cfasync="false" src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js"></script>
-<div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
-
-  <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
-  © 2026 AnywhereCum – Legal content only. 18+<br>
-
-  <div style="margin-top:8px; font-size:8px;">
-
-    <!-- Facebook -->
-    <a href="https://www.facebook.com/profile.php?id=100069048046082" 
-       target="_blank" 
-       rel="noopener noreferrer" 
-       style="margin:0 5px; display:inline-block;">
-      <img src="https://www.facebook.com/images/fb_icon_325x325.png" 
-           alt="Facebook" 
-           style="width:14px; height:14px; vertical-align:middle;">
-    </a><span>|</span>
-
-    <!-- Contact -->
-    <a href="contact.html" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block;">
-      📨Contact
-    </a><span>|</span>
-
-    <!-- Terms & Privacy -->
-    <a href="terms-privacy.html" 
-       style="color:#ff4444; text-decoration:underline; margin:0 5px; display:inline-block;">
-      ⚖️Terms & Privacy
-    </a><span>|</span>
-
-    <!-- Home -->
-    <a href="/" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block;">
-      🏠Home
-    </a><span>|</span>
-
-    <!-- Back to Top -->
-    <a href="#" 
-       onclick="window.scrollTo({top:0, behavior:'smooth'});" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block; white-space:nowrap;">
-      ⬆️Back to Top
-    </a>
-
-  </div>
-  </footer>
-
-  <!-- BOTTOM AD (Flush + Auto Show + Countdown + Delayed Close Button + Reset Cycle) -->
-<div id="bottomAd" style="
-position: fixed;
-bottom: -200px;
-left: 50%;
-transform: translateX(-50%);
-width: 300px;
-height: 62px;
-border: 2px solid red;
-border-radius: 8px;
-overflow: hidden;
-text-align: center;
-z-index: 9999;
-background: #fff;
-opacity: 0;
-display: none;
-">
-
-  <!-- Countdown Timer -->
-  <div id="countdown"
-       style="position:absolute; top:2px; right:30px;
-       background:black; color:#fff; font-size:12px; font-weight:bold;
-       padding:2px 6px; border-radius:4px; z-index:10000;">
-    15s
-  </div>
-
-  <!-- Close Button -->
-  <div id="closeBtn"
-       onclick="hideAd()"
-       style="position:absolute; top:2px; right:4px;
-       width:20px; height:20px; line-height:20px;
-       text-align:center; background:#000; color:#fff;
-       font-size:14px; font-weight:bold; border-radius:4px;
-       cursor:pointer; z-index:10001; display:none;">
-    ✕
-  </div>
-
-  <!-- Live Badge -->
-  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);
-  background:red;color:#fff;font-weight:bold;font-size:12px;padding:2px 6px;
-  border-bottom-left-radius:4px;border-bottom-right-radius:4px;
-  z-index:9999;pointer-events:none;animation:glow 1s infinite alternate;">
-    🔴 Live
-  </div>
-
-  <!-- JuicyAds -->
-  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-  <ins id="1113670" data-width="300" data-height="62"></ins>
-  <script type="text/javascript" data-cfasync="false" async>
-    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});
-  </script>
-
-</div>
-
-<style>
-.slide-up {
-  animation: slideUp 0.6s ease-out forwards;
-}
-
-.slide-down {
-  animation: slideDown 0.4s ease-in forwards;
-}
-
-@keyframes slideUp {
-  from {
-    bottom: -200px;
-    opacity: 0;
-  }
-  to {
-    bottom: 0;
-    opacity: 1;
-  }
-}
-
-@keyframes slideDown {
-  from {
-    bottom: 0;
-    opacity: 1;
-  }
-  to {
-    bottom: -200px;
-    opacity: 0;
-  }
-}
-
-@keyframes glow {
-  0% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
-  50% { box-shadow:0 0 6px #fff,0 0 12px red; opacity:1; }
-  100% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
-}
-</style>
-
-<script>
-const ad = document.getElementById("bottomAd");
-const countdownEl = document.getElementById("countdown");
-const closeBtn = document.getElementById("closeBtn");
-
-let countdownInterval;
-let cycleTimeout;
-
-// Show ad
-function showAd() {
-  ad.style.display = "block";
-  ad.classList.remove("slide-down");
-  ad.classList.add("slide-up");
-
-  closeBtn.style.display = "none";
-
-  let timeLeft = 15;
-  countdownEl.textContent = timeLeft + "s";
-
-  clearInterval(countdownInterval);
-
-  // Delay countdown start to avoid rendering conflicts with ads
-  setTimeout(() => {
-    countdownInterval = setInterval(() => {
-      timeLeft--;
-      countdownEl.textContent = timeLeft + "s";
-
-      if (timeLeft <= 0) {
-        clearInterval(countdownInterval);
-        closeBtn.style.display = "block";
-      }
-    }, 1000);
-  }, 300);
-}
-
-// Hide ad
-function hideAd() {
-  ad.classList.remove("slide-up");
-  ad.classList.add("slide-down");
-
-  setTimeout(() => {
-    ad.style.display = "none";
-    scheduleNextAd();
-  }, 400);
-}
-
-// Schedule next ad in 1 minute
-function scheduleNextAd() {
-  clearTimeout(cycleTimeout);
-
-  cycleTimeout = setTimeout(() => {
-    showAd();
-  }, 60000);
-}
-
-// Initial load
-window.onload = function () {
-  setTimeout(() => {
-    showAd();
-    scheduleNextAd();
-  }, 2000);
-};
-</script>
+<h2>All Folders</h2>
+<div id="videoList"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
@@ -417,13 +119,9 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
-const urlParams = new URLSearchParams(window.location.search);
-const folderName = (urlParams.get("folder") || "").toLowerCase();
-
-document.getElementById("folderTitle").textContent =
-  folderName.charAt(0).toUpperCase() + folderName.slice(1);
-
+const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 const TREND_THRESHOLD = 10;
+
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
 const OWNER_IP = "102.214.117.74";
 
@@ -438,135 +136,136 @@ async function getUserIP() {
 }
 
 function formatViews(num) {
-  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
-  if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K+";
+  if (num >= 1000) return (num / 1000).toFixed(1) + "K+";
   return num;
 }
 
 async function increaseViews(videoId){
 
   const userIP = await getUserIP();
-
   if (userIP && userIP === OWNER_IP) return;
 
-  runTransaction(ref(db, "views/" + videoId), (current) => {
-    return (current || 0) + 1;
-  });
-
-  runTransaction(ref(db, "cycleViews/" + videoId), (current) => {
-    return (current || 0) + 1;
-  });
+  runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
+  runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
 
   fetch(`${WORKER_URL}/increment`, {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ videoId })
   }).catch(()=>{});
 }
 
-const videoStates = {};
-
+// Load videos
 fetch('videos.json')
-.then(res=>res.json())
-.then(videos=>{
+.then(res => res.json())
+.then(videos => {
 
-  container.innerHTML = ""; // remove skeletons
+  container.innerHTML = "";
 
-  const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
+  // Group by folder
+  const folders = {};
 
-  const folderVideos = videos.filter(v =>
-    v.folder.toLowerCase() === folderName
-  );
+  videos.forEach(v => {
+    const folder = v.folder || "Uncategorized";
+    if (!folders[folder]) folders[folder] = [];
+    folders[folder].push(v);
+  });
 
-  if(folderVideos.length === 0){
-    container.innerHTML = `<p style="text-align:center;color:#aaa;">No videos found.</p>`;
-    return;
-  }
+  // Render each folder
+  Object.keys(folders).forEach(folderName => {
 
-  folderVideos.forEach((v,index)=>{
-
-    const box = document.createElement("div");
-    box.className = "videoBox";
-
-    const preview = document.createElement("div");
-    preview.className = "preview";
-
-    const img = document.createElement("img");
-    img.src = IMAGE_BASE + v.thumbnail;
+    const section = document.createElement("div");
+    section.className = "folderSection";
 
     const title = document.createElement("h3");
-    title.className = "videoTitle";
-    title.textContent = v.title;
+    title.className = "folderTitle";
+    title.textContent = folderName;
 
-    const viewsEl = document.createElement("div");
-    viewsEl.className = "views";
+    section.appendChild(title);
 
-    const btn = document.createElement("a");
-    btn.className = "download";
-    btn.textContent = `Download (${v.size})`;
+    folders[folderName].forEach(v => {
 
-    const viewRef = ref(db,"views/"+v.id);
-    const cycleViewsRef = ref(db,"cycleViews/"+v.id);
+      const box = document.createElement("div");
+      box.className = "videoBox";
 
-    let totalViews = 0;
-    let cycleViews = 0;
+      const wrapper = document.createElement("div");
+      wrapper.className = "videoFrameWrapper";
 
-    function updateUI(){
-      if(cycleViews >= TREND_THRESHOLD){
-        viewsEl.textContent = "🔥 Trending | 👁 " + formatViews(totalViews);
-        viewsEl.style.color = "#ffcc00";
-      } else {
-        viewsEl.textContent = "👁 " + formatViews(totalViews);
-        viewsEl.style.color = "#aaa";
+      const img = document.createElement("img");
+      img.src = IMAGE_BASE + v.thumbnail;
+      img.className = "thumbnail";
+
+      img.onclick = () => {
+        increaseViews(v.id);
+
+        const iframe = document.createElement("iframe");
+        iframe.src = v.url;
+        iframe.allowFullscreen = true;
+        iframe.allow = "autoplay";
+
+        wrapper.innerHTML = "";
+        wrapper.appendChild(iframe);
+      };
+
+      wrapper.appendChild(img);
+
+      const titleEl = document.createElement("h3");
+      titleEl.className = "videoTitle";
+      titleEl.textContent = v.title;
+
+      titleEl.onclick = () => {
+        increaseViews(v.id);
+        window.open(v.url, "_blank");
+      };
+
+      const viewsEl = document.createElement("div");
+      viewsEl.className = "views";
+
+      const viewRef = ref(db,"views/"+v.id);
+      const cycleRef = ref(db,"cycleViews/"+v.id);
+
+      let totalViews = 0;
+      let cycleViews = 0;
+
+      function updateUI(){
+        if(cycleViews >= TREND_THRESHOLD){
+          viewsEl.textContent = "🔥 Trending | 👁 " + formatViews(totalViews);
+          viewsEl.style.color = "#ffcc00";
+        } else {
+          viewsEl.textContent = "👁 " + formatViews(totalViews);
+          viewsEl.style.color = "#aaa";
+        }
       }
-    }
 
-    videoStates[v.id] = {
-      element: box,
-      getScore: () => cycleViews,
-      originalIndex: index
-    };
+      onValue(viewRef, snap=>{
+        totalViews = snap.val() || 0;
+        updateUI();
+      });
 
-    function sortVideos(){
-      const sorted = Object.values(videoStates)
-        .sort((a,b)=>{
-          const aEff = a.getScore() >= TREND_THRESHOLD ? a.getScore() : 0;
-          const bEff = b.getScore() >= TREND_THRESHOLD ? b.getScore() : 0;
+      onValue(cycleRef, snap=>{
+        cycleViews = snap.val() || 0;
+        updateUI();
+      });
 
-          if (bEff !== aEff) return bEff - aEff;
-          return a.originalIndex - b.originalIndex;
-        });
+      const btn = document.createElement("a");
+      btn.className = "download";
+      btn.textContent = `Download (${v.size})`;
+      btn.href = "#";
+      btn.onclick = (e)=>{
+        e.preventDefault();
+        increaseViews(v.id);
+        window.open(v.url, "_blank");
+      };
 
-      sorted.forEach(v => container.appendChild(v.element));
-    }
+      box.appendChild(wrapper);
+      box.appendChild(titleEl);
+      box.appendChild(viewsEl);
+      box.appendChild(btn);
 
-    onValue(viewRef, snap=>{
-      totalViews = snap.val() || 0;
-      updateUI();
+      section.appendChild(box);
     });
 
-    onValue(cycleViewsRef, snap=>{
-      cycleViews = snap.val() || 0;
-      updateUI();
-      sortVideos();
-    });
-
-    function openVideo(){
-      increaseViews(v.id);
-      window.open(v.url,"_blank");
-    }
-
-    img.onclick = openVideo;
-    title.onclick = openVideo;
-    btn.onclick = (e)=>{ e.preventDefault(); openVideo(); };
-
-    preview.appendChild(img);
-    box.appendChild(preview);
-    box.appendChild(title);
-    box.appendChild(viewsEl);
-    box.appendChild(btn);
-
-    container.appendChild(box);
+    container.appendChild(section);
   });
 
 });
