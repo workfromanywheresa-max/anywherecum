@@ -33,18 +33,9 @@ h2 {
   margin-bottom: 20px;
 }
 
-.preview {
+iframe {
   width: 100%;
-  height: 220px;
-  background: #000;
-  border-radius: 5px;
-  overflow: hidden;
-  position: relative;
-}
-
-.preview iframe {
-  width: 100%;
-  height: 100%;
+  height: 600px;
   border: 0;
 }
 
@@ -103,11 +94,10 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
-// ✅ Dynamic folder from URL
+// Folder from URL
 const urlParams = new URLSearchParams(window.location.search);
 const folderName = (urlParams.get("folder") || "").toLowerCase();
 
-// Display folder name
 document.getElementById("folderTitle").textContent =
   folderName ? folderName.charAt(0).toUpperCase() + folderName.slice(1) : "All Videos";
 
@@ -126,7 +116,6 @@ fetch('videos.json')
 
   container.innerHTML = "";
 
-  // ✅ Dynamic filtering (no hardcoding)
   const folderVideos = folderName
     ? videos.filter(v => v.folder.toLowerCase() === folderName)
     : videos;
@@ -141,10 +130,7 @@ fetch('videos.json')
     const box = document.createElement("div");
     box.className = "videoBox";
 
-    const preview = document.createElement("div");
-    preview.className = "preview";
-
-    // ✅ IFRAME PREVIEW
+    // ✅ IFRAME DIRECTLY
     const iframe = document.createElement("iframe");
     iframe.src = v.url;
     iframe.setAttribute("allowfullscreen", "");
@@ -153,27 +139,18 @@ fetch('videos.json')
     iframe.setAttribute("scrolling", "no");
     iframe.setAttribute("frameborder", "0");
 
-    // Click overlay
-    const overlay = document.createElement("div");
-    overlay.style.position = "absolute";
-    overlay.style.top = "0";
-    overlay.style.left = "0";
-    overlay.style.width = "100%";
-    overlay.style.height = "100%";
-    overlay.style.cursor = "pointer";
-
-    overlay.onclick = () => {
+    iframe.onclick = () => {
       increaseViews(v.id);
       window.open(v.url, "_blank");
     };
 
-    preview.appendChild(iframe);
-    preview.appendChild(overlay);
-
     const title = document.createElement("h3");
     title.className = "videoTitle";
     title.textContent = v.title;
-    title.onclick = overlay.onclick;
+    title.onclick = () => {
+      increaseViews(v.id);
+      window.open(v.url, "_blank");
+    };
 
     const viewsEl = document.createElement("div");
     viewsEl.className = "views";
@@ -185,12 +162,14 @@ fetch('videos.json')
     const btn = document.createElement("a");
     btn.className = "download";
     btn.textContent = "Download";
+    btn.href = "#";
     btn.onclick = (e)=>{
       e.preventDefault();
-      overlay.onclick();
+      increaseViews(v.id);
+      window.open(v.url, "_blank");
     };
 
-    box.appendChild(preview);
+    box.appendChild(iframe);
     box.appendChild(title);
     box.appendChild(viewsEl);
     box.appendChild(btn);
