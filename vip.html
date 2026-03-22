@@ -133,30 +133,73 @@ h2 {
 <h2>VIP Exclusive</h2>
 <p class="description">Enjoy our VIP Exclusive videos, updated regularly for your viewing pleasure.</p>
 
-<!-- TOP AD (Styled 300x62) -->
-<div style="position: relative; width: 300px; height: 62px; margin: 20px auto; border: 2px solid red; border-radius: 8px; overflow: hidden; text-align: center;">
-  
-  <!-- Live Badge -->
-  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);background:red;color:#fff;font-weight:bold;font-size:12px;padding:2px 6px;border-bottom-left-radius:4px;border-bottom-right-radius:4px;z-index:9999;pointer-events:none;animation:glow 1s infinite alternate;">
-    🔴 Live
+<div style="
+  text-align: center;
+  position: relative;
+  width: 320px;
+  height: 50px;
+  margin: auto;
+  border: 2px solid red;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+">
+
+  <!-- Skeleton Loader -->
+  <div id="adSkeleton" class="skeleton"></div>
+
+  <!-- Ad Container -->
+  <div id="adContainer" style="opacity: 0; transition: opacity 0.5s; width:100%; height:100%;">
+    
+    <script>
+      atOptions = {
+        'key' : '58e0d60dc3ec78d2ff8981481d093080',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
+    </script>
+    <script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
+
   </div>
-
-  <!-- JuicyAds -->
-  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-  <ins id="1113670" data-width="300" data-height="62"></ins>
-  <script type="text/javascript" data-cfasync="false" async>
-    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});
-  </script>
-
 </div>
 
 <style>
-@keyframes glow {
-  0% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
-  50% { box-shadow:0 0 6px #fff,0 0 12px red; opacity:1; }
-  100% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
-}
+  .skeleton {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #eee 25%, #ddd 50%, #eee 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
 </style>
+
+<script>
+  window.addEventListener("load", function () {
+    const skeleton = document.getElementById("adSkeleton");
+    const adContainer = document.getElementById("adContainer");
+
+    function checkAdLoaded() {
+      const iframe = adContainer.querySelector("iframe");
+
+      if (iframe) {
+        skeleton.style.display = "none";
+        adContainer.style.opacity = "1";
+      } else {
+        setTimeout(checkAdLoaded, 300);
+      }
+    }
+
+    setTimeout(checkAdLoaded, 500);
+  });
+</script>
 
 <!-- Skeletons initially -->
 <div id="videoList">
@@ -178,6 +221,9 @@ h2 {
     <div class="skeleton-line skeleton-small"></div>
   </div>
 </div>
+
+  <script async="async" data-cfasync="false" src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js"></script>
+<div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
 
   <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
   © 2026 AnywhereCum – Legal content only. 18+<br>
