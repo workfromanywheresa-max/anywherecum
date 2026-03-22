@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Dashboard</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: #fff;
+  padding: 20px;
+}
+
+h2, h3 {
+  color: #ff4444;
+}
+
+.card {
+  background: #1c1c1c;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+}
+
+p {
+  margin: 5px 0;
+}
+</style>
+
+</head>
+<body>
+
+<script>
+// 🔐 PASSWORD PROTECTION
+const correctPassword = "anywherecum1099"; // change this
+
+(function () {
+  const entered = prompt("Enter admin password:");
+
+  if (entered !== correctPassword) {
+    document.write("<h2 style='color:red;text-align:center;margin-top:50px;'>⛔ Access Denied</h2>");
+    document.close();
+    throw new Error("Unauthorized");
+  }
+})();
+</script>
+
+<h2>📊 Admin Dashboard</h2>
+
+<div class="card">
+  <h3>Total Views</h3>
+  <p id="totalViews">Loading...</p>
+</div>
+
+<div class="card">
+  <h3>Per Page Views</h3>
+  <div id="pageViews">Loading...</div>
+</div>
+
+<div class="card">
+  <h3>Today's Views</h3>
+  <div id="dailyViews">Loading...</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWHoNqPpppR4kx0",
+  authDomain: "anywherecum-1c8d0.firebaseapp.com",
+  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
+  projectId: "anywherecum-1c8d0",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// 📅 Today
+const today = new Date().toISOString().split("T")[0];
+
+// 🔢 TOTAL VIEWS
+onValue(ref(db, "views/total"), (snap) => {
+  document.getElementById("totalViews").innerText = snap.val() || 0;
+});
+
+// 📄 PER PAGE VIEWS
+onValue(ref(db, "views/pages"), (snap) => {
+  const data = snap.val() || {};
+  const container = document.getElementById("pageViews");
+
+  container.innerHTML = "";
+
+  for (let page in data) {
+    container.innerHTML += `<p>${page}: ${data[page]}</p>`;
+  }
+});
+
+// 📅 DAILY VIEWS
+onValue(ref(db, "views/daily/" + today), (snap) => {
+  const data = snap.val() || {};
+  const container = document.getElementById("dailyViews");
+
+  container.innerHTML = "";
+
+  for (let page in data) {
+    container.innerHTML += `<p>${page}: ${data[page]}</p>`;
+  }
+});
+</script>
+
+</body>
+</html>
