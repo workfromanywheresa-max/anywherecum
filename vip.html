@@ -133,7 +133,7 @@ h2 {
 <h2>VIP Exclusive</h2>
 <p class="description">Enjoy our VIP Exclusive videos, updated regularly for your viewing pleasure.</p>
 
-<div style="
+  <div style="
   text-align: center;
   position: relative;
   width: 320px;
@@ -146,7 +146,7 @@ h2 {
 ">
 
   <!-- Ad Container -->
-  <div id="adContainer" style="opacity: 0; transition: opacity 0.5s; width:100%; height:100%;">
+  <div id="adContainer" style="width:100%; height:100%;">
     
     <script>
       atOptions = {
@@ -160,43 +160,7 @@ h2 {
     <script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
 
   </div>
-</div>
-
-<style>
-  .skeleton {
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
-    background: linear-gradient(90deg, #eee 25%, #ddd 50%, #eee 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.2s infinite;
-  }
-
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-</style>
-
-<script>
-  window.addEventListener("load", function () {
-    const skeleton = document.getElementById("adSkeleton");
-    const adContainer = document.getElementById("adContainer");
-
-    function checkAdLoaded() {
-      const iframe = adContainer.querySelector("iframe");
-
-      if (iframe) {
-        skeleton.style.display = "none";
-        adContainer.style.opacity = "1";
-      } else {
-        setTimeout(checkAdLoaded, 300);
-      }
-    }
-
-    setTimeout(checkAdLoaded, 500);
-  });
-</script>
+  </div>
 
 <!-- Skeletons initially -->
 <div id="videoList">
