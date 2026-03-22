@@ -36,7 +36,7 @@ h2 {
 /* Wrapper */
 .videoFrameWrapper {
   width: 100%;
-  height: 350px; /* visible area reduced */
+  height: 350px;
   overflow: hidden;
   position: relative;
   border-radius: 8px;
@@ -46,11 +46,10 @@ h2 {
   width: 100%;
   height: 560px;
   position: absolute;
-  top: -210px; /* keep this unchanged */
+  top: -210px;
   left: 0;
   border: 0;
-
-  transform: translateY(0px); /* 👈 adjust bottom here */
+  transform: translateY(0px);
 }
 
 .videoTitle {
@@ -124,7 +123,7 @@ function increaseViews(id){
   runTransaction(ref(db, "views/" + id), v => (v || 0) + 1);
 }
 
-// Lazy load + pause (unload) observer
+// Lazy load observer (FIXED)
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     const iframe = entry.target;
@@ -133,11 +132,8 @@ const observer = new IntersectionObserver((entries) => {
       if (!iframe.src) {
         iframe.src = iframe.dataset.src;
       }
-    } else {
-      if (iframe.src) {
-        iframe.src = "";
-      }
     }
+    // ❗ IMPORTANT: do NOT clear src when leaving viewport
   });
 }, {
   rootMargin: "200px",
