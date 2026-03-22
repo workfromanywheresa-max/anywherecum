@@ -149,8 +149,6 @@ async function increaseViews(videoId){
   if (userIP && userIP === OWNER_IP) return;
 
   runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
-
-  // trending cycle counter
   runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
 
   fetch(`${WORKER_URL}/increment`, {
@@ -264,7 +262,7 @@ fetch('videos.json')
 
     const btn = document.createElement("a");
     btn.className = "download";
-    btn.textContent = "Download";
+    btn.textContent = `Download (${v.size})`; // ✅ SIZE ADDED HERE
     btn.href = "#";
     btn.onclick = (e)=>{
       e.preventDefault();
