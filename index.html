@@ -283,20 +283,53 @@ async function getUserIP() {
   </ul>
 </div>
 
-  <div style="text-align: center;">
-  
-  <script>
-    atOptions = {
-      'key' : '58e0d60dc3ec78d2ff8981481d093080',
-      'format' : 'iframe',
-      'height' : 50,
-      'width' : 320,
-      'params' : {}
-    };
-  </script>
-  <script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
+  <div style="text-align: center; position: relative; width: 320px; margin: auto;">
+
+  <!-- Skeleton Loader -->
+  <div id="adSkeleton" class="skeleton"></div>
+
+  <!-- Ad Container -->
+  <div id="adContainer" style="opacity: 0; transition: opacity 0.5s;">
+    
+    <script>
+      atOptions = {
+        'key' : '58e0d60dc3ec78d2ff8981481d093080',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
+    </script>
+    <script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
 
   </div>
+</div>
+
+<style>
+  .skeleton {
+    width: 320px;
+    height: 50px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #eee 25%, #ddd 50%, #eee 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+</style>
+
+<script>
+  // Hide skeleton after a delay and show ad
+  window.addEventListener("load", function () {
+    setTimeout(() => {
+      document.getElementById("adSkeleton").style.display = "none";
+      document.getElementById("adContainer").style.opacity = "1";
+    }, 1500); // adjust timing if needed
+  });
+</script>
   
 <h2>📂Content Folders📂</h2>
 
