@@ -303,24 +303,54 @@ async function getUserIP() {
   <li class="skeleton" style="height:180px;"></li>
 </ul>
 
-  <div style="display:flex; justify-content:center; margin:20px 0;">
-  <div style="
-    border:2px solid red;
-    border-radius:12px;
-    overflow:hidden;
-    display:inline-block;
-  ">
-    
-    <!-- JuicyAds v3.0 -->
-    <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-    <ins id="1113664" data-width="308" data-height="298"></ins>
-    <script type="text/javascript" data-cfasync="false" async>
-      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113664});
-    </script>
-    <!--JuicyAds END-->
+  <!-- BOTTOM AD (Styled 308x298) -->
+<div style="
+  position: relative;
+  width: 308px;
+  height: 298px;
+  margin: 20px auto;
+  border: 2px solid red;
+  border-radius: 12px;
+  overflow: hidden;
+  text-align: center;
+">
 
+  <!-- Live Badge -->
+  <div style="
+    position:absolute;
+    top:0;
+    left:50%;
+    transform:translateX(-50%);
+    background:red;
+    color:#fff;
+    font-weight:bold;
+    font-size:12px;
+    padding:2px 8px;
+    border-bottom-left-radius:6px;
+    border-bottom-right-radius:6px;
+    z-index:9999;
+    pointer-events:none;
+    animation:glow 1s infinite alternate;
+  ">
+    🔴 Live
   </div>
-  </div>
+
+  <!-- JuicyAds -->
+  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+  <ins id="1113664" data-width="308" data-height="298"></ins>
+  <script type="text/javascript" data-cfasync="false" async>
+    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113664});
+  </script>
+
+</div>
+
+<style>
+@keyframes glow {
+  0% { box-shadow:0 0 2px #fff, 0 0 5px red; opacity:.8; }
+  50% { box-shadow:0 0 8px #fff, 0 0 15px red; opacity:1; }
+  100% { box-shadow:0 0 2px #fff, 0 0 5px red; opacity:.8; }
+}
+</style>
   
   <!-- VIP Section Skeleton -->
 <section id="vipSection">
