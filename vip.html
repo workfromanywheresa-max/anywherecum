@@ -179,10 +179,22 @@ h2 {
   </div>
 </div>
 
-  <!-- BOTTOM AD (Replaced with 300x62 Styled Version) -->
-<div id="bottomAd" style="position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
-width: 300px; height: 62px; border: 2px solid red; border-radius: 8px;
-overflow: hidden; text-align: center; z-index: 9999; background: #fff;">
+  <!-- BOTTOM AD (Slide In After Page Load) -->
+<div id="bottomAd" style="
+position: fixed;
+bottom: -200px;
+left: 50%;
+transform: translateX(-50%);
+width: 300px;
+height: 62px;
+border: 2px solid red;
+border-radius: 8px;
+overflow: hidden;
+text-align: center;
+z-index: 9999;
+background: #fff;
+opacity: 0;
+">
 
   <!-- Close Button -->
   <div onclick="document.getElementById('bottomAd').style.display='none'"
@@ -211,12 +223,42 @@ overflow: hidden; text-align: center; z-index: 9999; background: #fff;">
 </div>
 
 <style>
+.slide-up {
+  animation: slideUp 0.6s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from {
+    bottom: -200px;
+    opacity: 0;
+  }
+  to {
+    bottom: 10px;
+    opacity: 1;
+  }
+}
+
 @keyframes glow {
   0% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
   50% { box-shadow:0 0 6px #fff,0 0 12px red; opacity:1; }
   100% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
 }
 </style>
+
+<script>
+window.onload = function () {
+  const ad = document.getElementById("bottomAd");
+  ad.classList.add("slide-up");
+};
+</script>
+  <script>
+window.onload = function () {
+  setTimeout(function () {
+    const ad = document.getElementById("bottomAd");
+    ad.classList.add("slide-up");
+  }, 2000); // 2000ms = 2 seconds
+};
+  </script>
 
   <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
   © 2026 AnywhereCum – Legal content only. 18+<br>
