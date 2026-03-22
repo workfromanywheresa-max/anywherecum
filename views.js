@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, runTransaction } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
 
 const firebaseConfig = {
@@ -20,40 +20,22 @@ const db = getDatabase(app);
 // 📅 Today
 const today = new Date().toISOString().split("T")[0];
 
-// 📄 Detect current page (root pages supported)
+// 📄 Detect page
 const path = window.location.pathname;
 let page = path.split("/").pop();
 if (!page || page === "") page = "index.html";
 
-// 🔥 Database references
+// 🔥 References
 const totalRef = ref(db, "views/total");
-const pageTotalRef = ref(db, `views/pages/${page}`);
+const pageRef = ref(db, `views/pages/${page}`);
 const dailyRef = ref(db, `views/daily/${today}/${page}`);
 
-// 👇 Increment total views (site-wide)
-runTransaction(totalRef, (current) => (current || 0) + 1);
+// 🚀 Prevent double count per session
+if (!sessionStorage.getItem("viewed")) {
 
-// 👇 Increment per-page total views
-runTransaction(pageTotalRef, (current) => (current || 0) + 1);
+  runTransaction(totalRef, (val) => (val || 0) + 1);
+  runTransaction(pageRef, (val) => (val || 0) + 1);
+  runTransaction(dailyRef, (val) => (val || 0) + 1);
 
-// 👇 Increment daily views per page
-runTransaction(dailyRef, (current) => (current || 0) + 1);
-
-// (Optional) Display views if element exists
-onValue(totalRef, (snapshot) => {
-  const total = snapshot.val() || 0;
-  const el = document.getElementById("totalViews");
-  if (el) el.innerText = total;
-});
-
-onValue(pageTotalRef, (snapshot) => {
-  const count = snapshot.val() || 0;
-  const el = document.getElementById("pageViews");
-  if (el) el.innerText = count;
-});
-
-onValue(dailyRef, (snapshot) => {
-  const count = snapshot.val() || 0;
-  const el = document.getElementById("dailyViews");
-  if (el) el.innerText = count;
-});
+  sessionStorage.setItem("viewed", "true");
+}
