@@ -39,6 +39,7 @@ h2 {
   background: #000;
   border-radius: 5px;
   overflow: hidden;
+  position: relative;
 }
 
 .preview iframe {
@@ -72,71 +73,21 @@ h2 {
   text-decoration: none;
   border-radius: 5px;
 }
-
-/* Skeleton */
-.skeleton {
-  background: #222;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-}
-
-.skeleton-preview {
-  width: 100%;
-  height: 220px;
-  border-radius: 5px;
-  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-}
-
-.skeleton-line {
-  height: 14px;
-  margin: 10px auto;
-  width: 60%;
-  border-radius: 4px;
-  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
 </style>
 </head>
 
 <body>
 
-<button onclick="goBack()">← Back</button>
-
-<script>
-function goBack() {
-  if (window.history.length > 1) {
-    window.history.back();
-  } else {
-    window.location.href = "index.html";
-  }
-}
-</script>
-
 <h2 id="folderTitle">Folder</h2>
 <p class="description">Enjoy our videos</p>
 
-<div id="videoList">
-  <div class="skeleton">
-    <div class="skeleton-preview"></div>
-    <div class="skeleton-line"></div>
-  </div>
-</div>
+<div id="videoList"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, runTransaction, onValue } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-/* ✅ YOUR REAL KEYS (UNCHANGED) */
 const firebaseConfig = {
   apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
   authDomain: "anywherecum-1c8d0.firebaseapp.com",
@@ -158,8 +109,6 @@ const folderName = (urlParams.get("folder") || "").toLowerCase();
 document.getElementById("folderTitle").textContent =
   folderName.charAt(0).toUpperCase() + folderName.slice(1);
 
-const TREND_THRESHOLD = 10;
-
 function formatViews(num) {
   if (num >= 1000) return (num / 1000).toFixed(1) + "K+";
   return num;
@@ -167,14 +116,11 @@ function formatViews(num) {
 
 function increaseViews(id){
   runTransaction(ref(db, "views/" + id), v => (v || 0) + 1);
-  runTransaction(ref(db, "cycleViews/" + id), v => (v || 0) + 1);
 }
 
 fetch('videos.json')
 .then(res => res.json())
 .then(videos => {
-
-  container.innerHTML = "";
 
   const folderVideos = videos.filter(v =>
     v.folder.toLowerCase() === folderName
@@ -188,17 +134,36 @@ fetch('videos.json')
     const preview = document.createElement("div");
     preview.className = "preview";
 
-    /* ✅ IFRAME (MAIN CHANGE) */
+    // ✅ IFRAME
     const iframe = document.createElement("iframe");
     iframe.src = v.url;
-    iframe.allowFullscreen = true;
-    iframe.setAttribute("allow","autoplay");
+    iframe.setAttribute("allowfullscreen", "");
+    iframe.setAttribute("allowtransparency", "");
+    iframe.setAttribute("allow", "autoplay");
+    iframe.setAttribute("scrolling", "no");
+    iframe.setAttribute("frameborder", "0");
+
+    // overlay to capture clicks
+    const overlay = document.createElement("div");
+    overlay.style.position = "absolute";
+    overlay.style.top = "0";
+    overlay.style.left = "0";
+    overlay.style.width = "100%";
+    overlay.style.height = "100%";
+    overlay.style.cursor = "pointer";
+
+    overlay.onclick = () => {
+      increaseViews(v.id);
+      window.open(v.url, "_blank");
+    };
 
     preview.appendChild(iframe);
+    preview.appendChild(overlay);
 
     const title = document.createElement("h3");
     title.className = "videoTitle";
     title.textContent = v.title;
+    title.onclick = overlay.onclick;
 
     const viewsEl = document.createElement("div");
     viewsEl.className = "views";
@@ -212,8 +177,7 @@ fetch('videos.json')
     btn.textContent = "Download";
     btn.onclick = (e)=>{
       e.preventDefault();
-      increaseViews(v.id);
-      window.open(v.url,"_blank");
+      overlay.onclick();
     };
 
     box.appendChild(preview);
