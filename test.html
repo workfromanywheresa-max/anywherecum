@@ -40,10 +40,9 @@ h2 {
   object-fit: cover;
   border-radius: 8px;
   cursor: pointer;
-  display: block;
 }
 
-/* Wrapper */
+/* Iframe wrapper */
 .videoFrameWrapper {
   width: 100%;
   height: 350px;
@@ -61,6 +60,7 @@ h2 {
   border: 0;
 }
 
+/* Title */
 .videoTitle {
   text-align: center;
   margin: 8px 0 5px 0;
@@ -69,12 +69,14 @@ h2 {
   text-decoration: underline;
 }
 
+/* Views */
 .views {
   text-align: center;
   color: #aaa;
   margin: 5px 0;
 }
 
+/* Download button */
 .download {
   display: block;
   width: fit-content;
@@ -116,12 +118,15 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
-// Folder from URL
+// Folder filter
 const urlParams = new URLSearchParams(window.location.search);
 const folderName = (urlParams.get("folder") || "").toLowerCase();
 
 document.getElementById("folderTitle").textContent =
   folderName ? folderName.charAt(0).toUpperCase() + folderName.slice(1) : "All Videos";
+
+// Base URL for thumbnails
+const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
 function formatViews(num) {
   if (num >= 1000) return (num / 1000).toFixed(1) + "K+";
@@ -152,16 +157,15 @@ fetch('videos.json')
     const box = document.createElement("div");
     box.className = "videoBox";
 
-    // Wrapper
     const wrapper = document.createElement("div");
     wrapper.className = "videoFrameWrapper";
 
     // Thumbnail
     const thumb = document.createElement("img");
     thumb.className = "thumbnail";
-    thumb.src = v.thumbnail; // <-- from JSON
+    thumb.src = IMAGE_BASE + v.thumbnail;
 
-    // Click thumbnail → load iframe
+    // Load iframe on click
     thumb.onclick = () => {
       increaseViews(v.id);
 
@@ -193,7 +197,7 @@ fetch('videos.json')
       viewsEl.textContent = "👁 " + formatViews(snap.val()||0);
     });
 
-    // Download button
+    // Download
     const btn = document.createElement("a");
     btn.className = "download";
     btn.textContent = "Download";
