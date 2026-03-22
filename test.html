@@ -1,37 +1,231 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Video Player Test</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Folder Videos</title>
 
-  <style>
-    body {
-      margin: 0;
-      background: #111;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #1a1a1a;
+  color: #fff;
+  margin: 0;
+  padding: 15px;
+}
 
-    iframe {
-      max-width: 100%;
-      border: none;
-      border-radius: 10px;
-    }
-  </style>
+h2 {
+  color: #ff4444;
+  border-bottom: 2px solid #ff4444;
+  padding-bottom: 5px;
+  text-align: center;
+}
+
+.description {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.videoBox {
+  background: #222;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.preview {
+  width: 100%;
+  height: 220px;
+  background: #000;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.preview iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.videoTitle {
+  text-align: center;
+  margin: 8px 0 5px 0;
+  color: #ddd;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.views {
+  text-align: center;
+  color: #aaa;
+  margin: 5px 0;
+}
+
+.download {
+  display: block;
+  width: fit-content;
+  margin: 10px auto 0 auto;
+  padding: 8px 15px;
+  color: #fff;
+  background: #ff4444;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 5px;
+}
+
+/* Skeleton */
+.skeleton {
+  background: #222;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.skeleton-preview {
+  width: 100%;
+  height: 220px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+.skeleton-line {
+  height: 14px;
+  margin: 10px auto;
+  width: 60%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+</style>
 </head>
+
 <body>
 
-  <iframe 
-    src="https://streamtape.com/e/MqleXz40LQTmbA4/"
-    width="800"
-    height="600"
-    allowfullscreen
-    allow="autoplay"
-    scrolling="no">
-  </iframe>
+<button onclick="goBack()">← Back</button>
+
+<script>
+function goBack() {
+  if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    window.location.href = "index.html";
+  }
+}
+</script>
+
+<h2 id="folderTitle">Folder</h2>
+<p class="description">Enjoy our videos</p>
+
+<div id="videoList">
+  <div class="skeleton">
+    <div class="skeleton-preview"></div>
+    <div class="skeleton-line"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getDatabase, ref, runTransaction, onValue } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+
+/* ✅ YOUR REAL KEYS (UNCHANGED) */
+const firebaseConfig = {
+  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
+  authDomain: "anywherecum-1c8d0.firebaseapp.com",
+  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
+  projectId: "anywherecum-1c8d0",
+  storageBucket: "anywherecum-1c8d0.firebasestorage.app",
+  messagingSenderId: "686718460803",
+  appId: "1:686718460803:web:5d0ec20634dfe2a7d98cb6"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const container = document.getElementById("videoList");
+
+const urlParams = new URLSearchParams(window.location.search);
+const folderName = (urlParams.get("folder") || "").toLowerCase();
+
+document.getElementById("folderTitle").textContent =
+  folderName.charAt(0).toUpperCase() + folderName.slice(1);
+
+const TREND_THRESHOLD = 10;
+
+function formatViews(num) {
+  if (num >= 1000) return (num / 1000).toFixed(1) + "K+";
+  return num;
+}
+
+function increaseViews(id){
+  runTransaction(ref(db, "views/" + id), v => (v || 0) + 1);
+  runTransaction(ref(db, "cycleViews/" + id), v => (v || 0) + 1);
+}
+
+fetch('videos.json')
+.then(res => res.json())
+.then(videos => {
+
+  container.innerHTML = "";
+
+  const folderVideos = videos.filter(v =>
+    v.folder.toLowerCase() === folderName
+  );
+
+  folderVideos.forEach(v => {
+
+    const box = document.createElement("div");
+    box.className = "videoBox";
+
+    const preview = document.createElement("div");
+    preview.className = "preview";
+
+    /* ✅ IFRAME (MAIN CHANGE) */
+    const iframe = document.createElement("iframe");
+    iframe.src = v.url;
+    iframe.allowFullscreen = true;
+    iframe.setAttribute("allow","autoplay");
+
+    preview.appendChild(iframe);
+
+    const title = document.createElement("h3");
+    title.className = "videoTitle";
+    title.textContent = v.title;
+
+    const viewsEl = document.createElement("div");
+    viewsEl.className = "views";
+
+    onValue(ref(db,"views/"+v.id), snap=>{
+      viewsEl.textContent = "👁 " + formatViews(snap.val()||0);
+    });
+
+    const btn = document.createElement("a");
+    btn.className = "download";
+    btn.textContent = "Download";
+    btn.onclick = (e)=>{
+      e.preventDefault();
+      increaseViews(v.id);
+      window.open(v.url,"_blank");
+    };
+
+    box.appendChild(preview);
+    box.appendChild(title);
+    box.appendChild(viewsEl);
+    box.appendChild(btn);
+
+    container.appendChild(box);
+  });
+
+});
+</script>
 
 </body>
 </html>
