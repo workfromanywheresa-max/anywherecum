@@ -1,115 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Admin Dashboard</title>
-
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background: #111;
-  color: #fff;
-  padding: 20px;
-}
-
-h2, h3 {
-  color: #ff4444;
-}
-
-.card {
-  background: #1c1c1c;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 10px;
-}
-
-p {
-  margin: 5px 0;
-}
-</style>
-
-</head>
-<body>
-
-<script>
-// 🔐 PASSWORD PROTECTION
-const correctPassword = "anywherecum1099"; // change this
-
-(function () {
-  const entered = prompt("Enter admin password:");
-
-  if (entered !== correctPassword) {
-    document.write("<h2 style='color:red;text-align:center;margin-top:50px;'>⛔ Access Denied</h2>");
-    document.close();
-    throw new Error("Unauthorized");
-  }
-})();
-</script>
-
-<h2>📊 Admin Dashboard</h2>
-
-<div class="card">
-  <h3>Total Views</h3>
-  <p id="totalViews">Loading...</p>
-</div>
-
-<div class="card">
-  <h3>Per Page Views</h3>
-  <div id="pageViews">Loading...</div>
-</div>
-
-<div class="card">
-  <h3>Today's Views</h3>
-  <div id="dailyViews">Loading...</div>
-</div>
-
-<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getDatabase, ref, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWHoNqPpppR4kx0",
   authDomain: "anywherecum-1c8d0.firebaseapp.com",
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
   projectId: "anywherecum-1c8d0",
+  storageBucket: "anywherecum-1c8d0.appspot.com",
+  messagingSenderId: "686718460803",
+  appId: "1:686718460803:web:5d0ec20634dfe2a7d98cb6",
+  measurementId: "G-6XXPPV4727"
 };
 
 const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 const db = getDatabase(app);
 
 // 📅 Today
 const today = new Date().toISOString().split("T")[0];
 
-// 🔢 TOTAL VIEWS
-onValue(ref(db, "views/total"), (snap) => {
-  document.getElementById("totalViews").innerText = snap.val() || 0;
+// 📄 Detect current page (root pages supported)
+const path = window.location.pathname;
+let page = path.split("/").pop();
+if (!page || page === "") page = "index.html";
+
+// 🔥 Database references
+const totalRef = ref(db, "views/total");
+const pageTotalRef = ref(db, `views/pages/${page}`);
+const dailyRef = ref(db, `views/daily/${today}/${page}`);
+
+// 👇 Increment total views (site-wide)
+runTransaction(totalRef, (current) => (current || 0) + 1);
+
+// 👇 Increment per-page total views
+runTransaction(pageTotalRef, (current) => (current || 0) + 1);
+
+// 👇 Increment daily views per page
+runTransaction(dailyRef, (current) => (current || 0) + 1);
+
+// (Optional) Display views if element exists
+onValue(totalRef, (snapshot) => {
+  const total = snapshot.val() || 0;
+  const el = document.getElementById("totalViews");
+  if (el) el.innerText = total;
 });
 
-// 📄 PER PAGE VIEWS
-onValue(ref(db, "views/pages"), (snap) => {
-  const data = snap.val() || {};
-  const container = document.getElementById("pageViews");
-
-  container.innerHTML = "";
-
-  for (let page in data) {
-    container.innerHTML += `<p>${page}: ${data[page]}</p>`;
-  }
+onValue(pageTotalRef, (snapshot) => {
+  const count = snapshot.val() || 0;
+  const el = document.getElementById("pageViews");
+  if (el) el.innerText = count;
 });
 
-// 📅 DAILY VIEWS
-onValue(ref(db, "views/daily/" + today), (snap) => {
-  const data = snap.val() || {};
-  const container = document.getElementById("dailyViews");
-
-  container.innerHTML = "";
-
-  for (let page in data) {
-    container.innerHTML += `<p>${page}: ${data[page]}</p>`;
-  }
+onValue(dailyRef, (snapshot) => {
+  const count = snapshot.val() || 0;
+  const el = document.getElementById("dailyViews");
+  if (el) el.innerText = count;
 });
-</script>
-
-</body>
-</html>
