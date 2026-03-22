@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard</title>
 
 <style>
 body {
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   background: #0f0f0f;
   color: #fff;
   padding: 20px;
@@ -15,39 +15,11 @@ body {
 
 h2 { color: #ff4444; }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
-}
-
-.card {
-  background: #1c1c1c;
-  padding: 20px;
-  border-radius: 12px;
-}
-
-.card h3 {
-  margin: 0;
-  color: #aaa;
-  font-size: 14px;
-}
-
-.card p {
-  font-size: 26px;
-  margin-top: 10px;
-  font-weight: bold;
-}
-
 .section {
-  margin-top: 25px;
+  margin-top: 20px;
   background: #1c1c1c;
   padding: 15px;
-  border-radius: 12px;
-}
-
-.section h3 {
-  color: #ff4444;
+  border-radius: 10px;
 }
 
 .item {
@@ -62,50 +34,26 @@ h2 { color: #ff4444; }
 <body>
 
 <script>
-// 🔐 PASSWORD
+// 🔐 Password
 const correctPassword = "anywherecum1099";
-
-(function () {
-  const entered = prompt("Enter admin password:");
-  if (entered !== correctPassword) {
-    document.write("<h2 style='color:red;text-align:center;margin-top:50px;'>⛔ Access Denied</h2>");
-    document.close();
-    throw new Error("Unauthorized");
-  }
-})();
+const entered = prompt("Enter admin password:");
+if (entered !== correctPassword) {
+  document.write("<h2>⛔ Access Denied</h2>");
+  throw new Error("Unauthorized");
+}
 </script>
 
 <h2>📊 Admin Dashboard</h2>
 
-<div class="grid">
-  <div class="card">
-    <h3>Total Views</h3>
-    <p id="totalViews">0</p>
-  </div>
-
-  <div class="card">
-    <h3>Pages Tracked</h3>
-    <p id="pagesCount">0</p>
-  </div>
-
-  <div class="card">
-    <h3>Today's Pages</h3>
-    <p id="dailyCount">0</p>
-  </div>
-</div>
+<p>Total Views: <span id="totalViews">0</span></p>
 
 <div class="section">
-  <h3>📄 Per Page Views</h3>
-  <div id="pageViews">Loading...</div>
-</div>
-
-<div class="section">
-  <h3>📅 Today's Views</h3>
-  <div id="dailyViews">Loading...</div>
+  <h3>📁 Folder Views</h3>
+  <div id="folderViews">Loading...</div>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -115,26 +63,22 @@ const firebaseConfig = {
   projectId: "anywherecum-1c8d0",
 };
 
-const app = initializeApp(firebaseConfig);
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const today = new Date().toISOString().split("T")[0];
-
-// 🔢 TOTAL
+// Total views
 onValue(ref(db, "views/total"), (snap) => {
   document.getElementById("totalViews").innerText = snap.val() || 0;
 });
 
-// 📄 PER PAGE
-onValue(ref(db, "views/pages"), (snap) => {
+// Folder views
+onValue(ref(db, "views/folders"), (snap) => {
   const data = snap.val() || {};
-  const container = document.getElementById("pageViews");
+  const container = document.getElementById("folderViews");
 
   container.innerHTML = "";
 
   const entries = Object.entries(data);
-
-  document.getElementById("pagesCount").innerText = entries.length;
 
   if (entries.length === 0) {
     container.innerHTML = "<p>No data</p>";
@@ -143,47 +87,13 @@ onValue(ref(db, "views/pages"), (snap) => {
 
   entries.sort((a, b) => b[1] - a[1]);
 
-  entries.forEach(([page, views]) => {
-    container.innerHTML += `
-      <div class="item">
-        <span>${format(page)}</span>
-        <span>${views}</span>
-      </div>
-    `;
+  entries.forEach(([folder, views]) => {
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `<span>${folder}</span><span>${views}</span>`;
+    container.appendChild(div);
   });
 });
-
-// 📅 DAILY
-onValue(ref(db, "views/daily/" + today), (snap) => {
-  const data = snap.val() || {};
-  const container = document.getElementById("dailyViews");
-
-  container.innerHTML = "";
-
-  const entries = Object.entries(data);
-
-  document.getElementById("dailyCount").innerText = entries.length;
-
-  if (entries.length === 0) {
-    container.innerHTML = "<p>No data</p>";
-    return;
-  }
-
-  entries.sort((a, b) => b[1] - a[1]);
-
-  entries.forEach(([page, views]) => {
-    container.innerHTML += `
-      <div class="item">
-        <span>${format(page)}</span>
-        <span>${views}</span>
-      </div>
-    `;
-  });
-});
-
-function format(page) {
-  return page.replace(".html", "").replace("-", " ").toUpperCase();
-}
 </script>
 
 </body>
