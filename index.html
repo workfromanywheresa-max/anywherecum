@@ -330,6 +330,26 @@ async function getUserIP() {
     100% { background-position: 200% 0; }
   }
 </style>
+
+<script>
+  window.addEventListener("load", function () {
+    const skeleton = document.getElementById("adSkeleton");
+    const adContainer = document.getElementById("adContainer");
+
+    function checkAdLoaded() {
+      const iframe = adContainer.querySelector("iframe");
+
+      if (iframe) {
+        skeleton.style.display = "none";
+        adContainer.style.opacity = "1";
+      } else {
+        setTimeout(checkAdLoaded, 300);
+      }
+    }
+
+    setTimeout(checkAdLoaded, 500);
+  });
+</script>
   
 <h2>📂Content Folders📂</h2>
 
