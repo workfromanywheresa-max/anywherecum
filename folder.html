@@ -21,37 +21,31 @@ h2 {
   text-align: center;
 }
 
-.folderSection {
-  margin-bottom: 30px;
-}
-
-.folderTitle {
-  color: #ff4444;
-  margin: 15px 0 10px;
-  border-left: 4px solid #ff4444;
-  padding-left: 8px;
+.description {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .videoBox {
   background: #222;
   padding: 10px;
   border-radius: 8px;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 /* Thumbnail */
 .thumbnail {
   width: 100%;
-  height: 250px;
+  height: 350px;
   object-fit: cover;
   border-radius: 8px;
   cursor: pointer;
 }
 
-/* Iframe */
+/* Iframe wrapper */
 .videoFrameWrapper {
   width: 100%;
-  height: 250px;
+  height: 350px;
   overflow: hidden;
   position: relative;
   border-radius: 8px;
@@ -59,31 +53,34 @@ h2 {
 
 .videoFrameWrapper iframe {
   width: 100%;
-  height: 450px;
+  height: 560px;
   position: absolute;
-  top: -100px;
+  top: -210px;
   left: 0;
   border: 0;
 }
 
+/* Title */
 .videoTitle {
   text-align: center;
-  margin: 8px 0 5px;
+  margin: 8px 0 5px 0;
   color: #ddd;
   cursor: pointer;
   text-decoration: underline;
 }
 
+/* Views */
 .views {
   text-align: center;
   color: #aaa;
   margin: 5px 0;
 }
 
+/* Download button */
 .download {
   display: block;
   width: fit-content;
-  margin: 10px auto 0;
+  margin: 10px auto 0 auto;
   padding: 8px 15px;
   color: #fff;
   background: #ff4444;
@@ -96,7 +93,9 @@ h2 {
 
 <body>
 
-<h2>All Folders</h2>
+<h2 id="folderTitle">Folder</h2>
+<p class="description">Enjoy our videos</p>
+
 <div id="videoList"></div>
 
 <script type="module">
@@ -119,153 +118,102 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
+// Folder filter
+const urlParams = new URLSearchParams(window.location.search);
+const folderName = (urlParams.get("folder") || "").toLowerCase();
+
+document.getElementById("folderTitle").textContent =
+  folderName ? folderName.charAt(0).toUpperCase() + folderName.slice(1) : "All Videos";
+
+// Base URL for thumbnails
 const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
-const TREND_THRESHOLD = 10;
-
-const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
-const OWNER_IP = "102.214.117.74";
-
-async function getUserIP() {
-  try {
-    const res = await fetch("https://api.ipify.org?format=json");
-    const data = await res.json();
-    return data.ip;
-  } catch {
-    return null;
-  }
-}
 
 function formatViews(num) {
   if (num >= 1000) return (num / 1000).toFixed(1) + "K+";
   return num;
 }
 
-async function increaseViews(videoId){
-
-  const userIP = await getUserIP();
-  if (userIP && userIP === OWNER_IP) return;
-
-  runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
-  runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
-
-  fetch(`${WORKER_URL}/increment`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ videoId })
-  }).catch(()=>{});
+function increaseViews(id){
+  runTransaction(ref(db, "views/" + id), v => (v || 0) + 1);
 }
 
-// Load videos
 fetch('videos.json')
 .then(res => res.json())
 .then(videos => {
 
   container.innerHTML = "";
 
-  // Group by folder
-  const folders = {};
+  const folderVideos = folderName
+    ? videos.filter(v => v.folder.toLowerCase() === folderName)
+    : videos;
 
-  videos.forEach(v => {
-    const folder = v.folder || "Uncategorized";
-    if (!folders[folder]) folders[folder] = [];
-    folders[folder].push(v);
-  });
+  if(folderVideos.length === 0){
+    container.innerHTML = `<p style="text-align:center;color:#aaa;">No videos found.</p>`;
+    return;
+  }
 
-  // Render each folder
-  Object.keys(folders).forEach(folderName => {
+  folderVideos.forEach(v => {
 
-    const section = document.createElement("div");
-    section.className = "folderSection";
+    const box = document.createElement("div");
+    box.className = "videoBox";
 
+    const wrapper = document.createElement("div");
+    wrapper.className = "videoFrameWrapper";
+
+    // Thumbnail
+    const thumb = document.createElement("img");
+    thumb.className = "thumbnail";
+    thumb.src = IMAGE_BASE + v.thumbnail;
+
+    // Load iframe on click
+    thumb.onclick = () => {
+      increaseViews(v.id);
+
+      const iframe = document.createElement("iframe");
+      iframe.src = v.url;
+      iframe.setAttribute("allowfullscreen", "");
+      iframe.setAttribute("allow", "autoplay");
+
+      wrapper.innerHTML = "";
+      wrapper.appendChild(iframe);
+    };
+
+    wrapper.appendChild(thumb);
+
+    // Title
     const title = document.createElement("h3");
-    title.className = "folderTitle";
-    title.textContent = folderName;
+    title.className = "videoTitle";
+    title.textContent = v.title;
+    title.onclick = () => {
+      increaseViews(v.id);
+      window.open(v.url, "_blank");
+    };
 
-    section.appendChild(title);
+    // Views
+    const viewsEl = document.createElement("div");
+    viewsEl.className = "views";
 
-    folders[folderName].forEach(v => {
-
-      const box = document.createElement("div");
-      box.className = "videoBox";
-
-      const wrapper = document.createElement("div");
-      wrapper.className = "videoFrameWrapper";
-
-      const img = document.createElement("img");
-      img.src = IMAGE_BASE + v.thumbnail;
-      img.className = "thumbnail";
-
-      img.onclick = () => {
-        increaseViews(v.id);
-
-        const iframe = document.createElement("iframe");
-        iframe.src = v.url;
-        iframe.allowFullscreen = true;
-        iframe.allow = "autoplay";
-
-        wrapper.innerHTML = "";
-        wrapper.appendChild(iframe);
-      };
-
-      wrapper.appendChild(img);
-
-      const titleEl = document.createElement("h3");
-      titleEl.className = "videoTitle";
-      titleEl.textContent = v.title;
-
-      titleEl.onclick = () => {
-        increaseViews(v.id);
-        window.open(v.url, "_blank");
-      };
-
-      const viewsEl = document.createElement("div");
-      viewsEl.className = "views";
-
-      const viewRef = ref(db,"views/"+v.id);
-      const cycleRef = ref(db,"cycleViews/"+v.id);
-
-      let totalViews = 0;
-      let cycleViews = 0;
-
-      function updateUI(){
-        if(cycleViews >= TREND_THRESHOLD){
-          viewsEl.textContent = "🔥 Trending | 👁 " + formatViews(totalViews);
-          viewsEl.style.color = "#ffcc00";
-        } else {
-          viewsEl.textContent = "👁 " + formatViews(totalViews);
-          viewsEl.style.color = "#aaa";
-        }
-      }
-
-      onValue(viewRef, snap=>{
-        totalViews = snap.val() || 0;
-        updateUI();
-      });
-
-      onValue(cycleRef, snap=>{
-        cycleViews = snap.val() || 0;
-        updateUI();
-      });
-
-      const btn = document.createElement("a");
-      btn.className = "download";
-      btn.textContent = `Download (${v.size})`;
-      btn.href = "#";
-      btn.onclick = (e)=>{
-        e.preventDefault();
-        increaseViews(v.id);
-        window.open(v.url, "_blank");
-      };
-
-      box.appendChild(wrapper);
-      box.appendChild(titleEl);
-      box.appendChild(viewsEl);
-      box.appendChild(btn);
-
-      section.appendChild(box);
+    onValue(ref(db,"views/"+v.id), snap=>{
+      viewsEl.textContent = "👁 " + formatViews(snap.val()||0);
     });
 
-    container.appendChild(section);
+    // Download
+    const btn = document.createElement("a");
+    btn.className = "download";
+    btn.textContent = "Download";
+    btn.href = "#";
+    btn.onclick = (e)=>{
+      e.preventDefault();
+      increaseViews(v.id);
+      window.open(v.url, "_blank");
+    };
+
+    box.appendChild(wrapper);
+    box.appendChild(title);
+    box.appendChild(viewsEl);
+    box.appendChild(btn);
+
+    container.appendChild(box);
   });
 
 });
