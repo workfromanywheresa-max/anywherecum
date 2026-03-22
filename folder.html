@@ -118,23 +118,46 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
-// Folder filter
 const urlParams = new URLSearchParams(window.location.search);
 const folderName = (urlParams.get("folder") || "").toLowerCase();
 
 document.getElementById("folderTitle").textContent =
   folderName ? folderName.charAt(0).toUpperCase() + folderName.slice(1) : "All Videos";
 
-// Base URL for thumbnails
-const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
+const TREND_THRESHOLD = 10;
+const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
+const OWNER_IP = "102.214.117.74";
+
+async function getUserIP() {
+  try {
+    const res = await fetch("https://api.ipify.org?format=json");
+    const data = await res.json();
+    return data.ip;
+  } catch {
+    return null;
+  }
+}
 
 function formatViews(num) {
   if (num >= 1000) return (num / 1000).toFixed(1) + "K+";
   return num;
 }
 
-function increaseViews(id){
-  runTransaction(ref(db, "views/" + id), v => (v || 0) + 1);
+async function increaseViews(videoId){
+
+  const userIP = await getUserIP();
+  if (userIP && userIP === OWNER_IP) return;
+
+  runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
+
+  // trending cycle counter
+  runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
+
+  fetch(`${WORKER_URL}/increment`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ videoId })
+  }).catch(()=>{});
 }
 
 fetch('videos.json')
@@ -142,6 +165,8 @@ fetch('videos.json')
 .then(videos => {
 
   container.innerHTML = "";
+
+  const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
   const folderVideos = folderName
     ? videos.filter(v => v.folder.toLowerCase() === folderName)
@@ -152,7 +177,9 @@ fetch('videos.json')
     return;
   }
 
-  folderVideos.forEach(v => {
+  const videoStates = {};
+
+  folderVideos.forEach((v, index) => {
 
     const box = document.createElement("div");
     box.className = "videoBox";
@@ -160,12 +187,10 @@ fetch('videos.json')
     const wrapper = document.createElement("div");
     wrapper.className = "videoFrameWrapper";
 
-    // Thumbnail
     const thumb = document.createElement("img");
     thumb.className = "thumbnail";
     thumb.src = IMAGE_BASE + v.thumbnail;
 
-    // Load iframe on click
     thumb.onclick = () => {
       increaseViews(v.id);
 
@@ -180,7 +205,6 @@ fetch('videos.json')
 
     wrapper.appendChild(thumb);
 
-    // Title
     const title = document.createElement("h3");
     title.className = "videoTitle";
     title.textContent = v.title;
@@ -189,15 +213,55 @@ fetch('videos.json')
       window.open(v.url, "_blank");
     };
 
-    // Views
     const viewsEl = document.createElement("div");
     viewsEl.className = "views";
 
-    onValue(ref(db,"views/"+v.id), snap=>{
-      viewsEl.textContent = "👁 " + formatViews(snap.val()||0);
+    const viewRef = ref(db, "views/" + v.id);
+    const cycleRef = ref(db, "cycleViews/" + v.id);
+
+    let totalViews = 0;
+    let cycleViews = 0;
+
+    function updateUI(){
+      if(cycleViews >= TREND_THRESHOLD){
+        viewsEl.textContent = "🔥 Trending | 👁 " + formatViews(totalViews);
+        viewsEl.style.color = "#ffcc00";
+      } else {
+        viewsEl.textContent = "👁 " + formatViews(totalViews);
+        viewsEl.style.color = "#aaa";
+      }
+    }
+
+    videoStates[v.id] = {
+      element: box,
+      getScore: () => cycleViews,
+      originalIndex: index
+    };
+
+    function sortVideos(){
+      const sorted = Object.values(videoStates)
+        .sort((a,b)=>{
+          const aEff = a.getScore() >= TREND_THRESHOLD ? a.getScore() : 0;
+          const bEff = b.getScore() >= TREND_THRESHOLD ? b.getScore() : 0;
+
+          if (bEff !== aEff) return bEff - aEff;
+          return a.originalIndex - b.originalIndex;
+        });
+
+      sorted.forEach(v => container.appendChild(v.element));
+    }
+
+    onValue(viewRef, snap=>{
+      totalViews = snap.val() || 0;
+      updateUI();
     });
 
-    // Download
+    onValue(cycleRef, snap=>{
+      cycleViews = snap.val() || 0;
+      updateUI();
+      sortVideos();
+    });
+
     const btn = document.createElement("a");
     btn.className = "download";
     btn.textContent = "Download";
