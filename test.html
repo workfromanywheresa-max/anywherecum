@@ -33,10 +33,10 @@ h2 {
   margin-bottom: 20px;
 }
 
-/* ✅ Wrapper to crop iframe from top */
+/* Wrapper */
 .videoFrameWrapper {
   width: 100%;
-  height: 400px; /* visible height */
+  height: 400px;
   overflow: hidden;
   position: relative;
   border-radius: 8px;
@@ -44,9 +44,9 @@ h2 {
 
 .videoFrameWrapper iframe {
   width: 100%;
-  height: 600px; /* original iframe height */
+  height: 600px;
   position: absolute;
-  top: -100px; /* 👈 adjust this to crop more/less from top */
+  top: -100px;
   left: 0;
   border: 0;
 }
@@ -122,6 +122,28 @@ function increaseViews(id){
   runTransaction(ref(db, "views/" + id), v => (v || 0) + 1);
 }
 
+// Lazy load + pause (unload) observer
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    const iframe = entry.target;
+
+    if (entry.isIntersecting) {
+      // Load iframe
+      if (!iframe.src) {
+        iframe.src = iframe.dataset.src;
+      }
+    } else {
+      // Unload iframe (pause video)
+      if (iframe.src) {
+        iframe.src = "";
+      }
+    }
+  });
+}, {
+  rootMargin: "200px",
+  threshold: 0.25
+});
+
 fetch('videos.json')
 .then(res => res.json())
 .then(videos => {
@@ -142,16 +164,18 @@ fetch('videos.json')
     const box = document.createElement("div");
     box.className = "videoBox";
 
-    // IFRAME
+    // IFRAME (lazy)
     const iframe = document.createElement("iframe");
-    iframe.src = v.url;
+    iframe.dataset.src = v.url;
     iframe.setAttribute("allowfullscreen", "");
     iframe.setAttribute("allowtransparency", "");
     iframe.setAttribute("allow", "autoplay");
     iframe.setAttribute("scrolling", "no");
     iframe.setAttribute("frameborder", "0");
 
-    // Wrapper (for cropping)
+    observer.observe(iframe);
+
+    // Wrapper
     const wrapper = document.createElement("div");
     wrapper.className = "videoFrameWrapper";
     wrapper.appendChild(iframe);
