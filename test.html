@@ -26,18 +26,6 @@ h2 {
   margin-bottom: 20px;
 }
 
-.back-btn {
-  display:inline-block;
-  margin-bottom:15px;
-  padding:8px 14px;
-  background:#222;
-  color:#fff;
-  border:1px solid #ff4444;
-  border-radius:6px;
-  font-size:14px;
-  cursor:pointer;
-}
-
 .videoBox {
   background: #222;
   padding: 10px;
@@ -45,6 +33,7 @@ h2 {
   margin-bottom: 20px;
 }
 
+/* Wrapper */
 .videoFrameWrapper {
   width: 100%;
   height: 350px;
@@ -60,6 +49,7 @@ h2 {
   top: -210px;
   left: 0;
   border: 0;
+  transform: translateY(0px);
 }
 
 .videoTitle {
@@ -92,18 +82,6 @@ h2 {
 
 <body>
 
-<button class="back-btn" onclick="goBack()">← Back</button>
-
-<script>
-function goBack() {
-  if (window.history.length > 1) {
-    window.history.back();
-  } else {
-    window.location.href = "index.html";
-  }
-}
-</script>
-
 <h2 id="folderTitle">Folder</h2>
 <p class="description">Enjoy our videos</p>
 
@@ -129,61 +107,55 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
-/* Folder logic */
+// Folder from URL
 const urlParams = new URLSearchParams(window.location.search);
 const folderName = (urlParams.get("folder") || "").toLowerCase();
 
 document.getElementById("folderTitle").textContent =
-  folderName
-    ? folderName.charAt(0).toUpperCase() + folderName.slice(1)
-    : "All Videos";
+  folderName ? folderName.charAt(0).toUpperCase() + folderName.slice(1) : "All Videos";
 
-const TREND_THRESHOLD = 10;
-
-/* Utilities */
 function formatViews(num) {
-  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
-  if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K+";
+  if (num >= 1000) return (num / 1000).toFixed(1) + "K+";
   return num;
 }
 
-/* Increase views */
-function increaseViews(videoId){
-  runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
-  runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
+function increaseViews(id){
+  runTransaction(ref(db, "views/" + id), v => (v || 0) + 1);
 }
 
-/* Lazy load iframe */
+// Lazy load observer (FIXED)
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     const iframe = entry.target;
-    if (entry.isIntersecting && !iframe.src) {
-      iframe.src = iframe.dataset.src;
+
+    if (entry.isIntersecting) {
+      if (!iframe.src) {
+        iframe.src = iframe.dataset.src;
+      }
     }
+    // ❗ IMPORTANT: do NOT clear src when leaving viewport
   });
-}, { rootMargin: "200px", threshold: 0.25 });
+}, {
+  rootMargin: "200px",
+  threshold: 0.25
+});
 
-const videoStates = {};
-
-/* Load videos */
 fetch('videos.json')
 .then(res => res.json())
 .then(videos => {
 
   container.innerHTML = "";
 
-  const folderVideos = videos.filter(v =>
-    v.folder.toLowerCase() === folderName
-  );
+  const folderVideos = folderName
+    ? videos.filter(v => v.folder.toLowerCase() === folderName)
+    : videos;
 
   if(folderVideos.length === 0){
     container.innerHTML = `<p style="text-align:center;color:#aaa;">No videos found.</p>`;
     return;
   }
 
-  const IMAGE_BASE = "";
-
-  folderVideos.forEach((v, index) => {
+  folderVideos.forEach(v => {
 
     const box = document.createElement("div");
     box.className = "videoBox";
@@ -191,7 +163,9 @@ fetch('videos.json')
     const iframe = document.createElement("iframe");
     iframe.dataset.src = v.url;
     iframe.setAttribute("allowfullscreen", "");
+    iframe.setAttribute("allowtransparency", "");
     iframe.setAttribute("allow", "autoplay");
+    iframe.setAttribute("scrolling", "no");
     iframe.setAttribute("frameborder", "0");
 
     observer.observe(iframe);
@@ -200,65 +174,24 @@ fetch('videos.json')
     wrapper.className = "videoFrameWrapper";
     wrapper.appendChild(iframe);
 
-    function openVideo(){
+    iframe.onclick = () => {
       increaseViews(v.id);
-      window.open(v.url,"_blank");
-    }
-
-    iframe.onclick = openVideo;
+      window.open(v.url, "_blank");
+    };
 
     const title = document.createElement("h3");
     title.className = "videoTitle";
     title.textContent = v.title;
-    title.onclick = openVideo;
+    title.onclick = () => {
+      increaseViews(v.id);
+      window.open(v.url, "_blank");
+    };
 
     const viewsEl = document.createElement("div");
     viewsEl.className = "views";
 
-    const viewRef = ref(db,"views/"+v.id);
-    const cycleRef = ref(db,"cycleViews/"+v.id);
-
-    let totalViews = 0;
-    let cycleViews = 0;
-
-    function updateUI(){
-      if(cycleViews >= TREND_THRESHOLD){
-        viewsEl.textContent = "🔥 Trending | 👁 " + formatViews(totalViews);
-        viewsEl.style.color = "#ffcc00";
-      } else {
-        viewsEl.textContent = "👁 " + formatViews(totalViews);
-        viewsEl.style.color = "#aaa";
-      }
-    }
-
-    videoStates[v.id] = {
-      element: box,
-      getScore: () => cycleViews,
-      originalIndex: index
-    };
-
-    function sortVideos(){
-      const sorted = Object.values(videoStates)
-        .sort((a,b)=>{
-          const aEff = a.getScore() >= TREND_THRESHOLD ? a.getScore() : 0;
-          const bEff = b.getScore() >= TREND_THRESHOLD ? b.getScore() : 0;
-
-          if (bEff !== aEff) return bEff - aEff;
-          return a.originalIndex - b.originalIndex;
-        });
-
-      sorted.forEach(v => container.appendChild(v.element));
-    }
-
-    onValue(viewRef, snap=>{
-      totalViews = snap.val() || 0;
-      updateUI();
-    });
-
-    onValue(cycleRef, snap=>{
-      cycleViews = snap.val() || 0;
-      updateUI();
-      sortVideos();
+    onValue(ref(db,"views/"+v.id), snap=>{
+      viewsEl.textContent = "👁 " + formatViews(snap.val()||0);
     });
 
     const btn = document.createElement("a");
@@ -267,7 +200,8 @@ fetch('videos.json')
     btn.href = "#";
     btn.onclick = (e)=>{
       e.preventDefault();
-      openVideo();
+      increaseViews(v.id);
+      window.open(v.url, "_blank");
     };
 
     box.appendChild(wrapper);
