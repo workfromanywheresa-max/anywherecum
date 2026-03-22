@@ -33,9 +33,21 @@ h2 {
   margin-bottom: 20px;
 }
 
-iframe {
+/* ✅ Wrapper to crop iframe from top */
+.videoFrameWrapper {
   width: 100%;
-  height: 600px;
+  height: 400px; /* visible height */
+  overflow: hidden;
+  position: relative;
+  border-radius: 8px;
+}
+
+.videoFrameWrapper iframe {
+  width: 100%;
+  height: 600px; /* original iframe height */
+  position: absolute;
+  top: -100px; /* 👈 adjust this to crop more/less from top */
+  left: 0;
   border: 0;
 }
 
@@ -130,7 +142,7 @@ fetch('videos.json')
     const box = document.createElement("div");
     box.className = "videoBox";
 
-    // ✅ IFRAME DIRECTLY
+    // IFRAME
     const iframe = document.createElement("iframe");
     iframe.src = v.url;
     iframe.setAttribute("allowfullscreen", "");
@@ -138,6 +150,11 @@ fetch('videos.json')
     iframe.setAttribute("allow", "autoplay");
     iframe.setAttribute("scrolling", "no");
     iframe.setAttribute("frameborder", "0");
+
+    // Wrapper (for cropping)
+    const wrapper = document.createElement("div");
+    wrapper.className = "videoFrameWrapper";
+    wrapper.appendChild(iframe);
 
     iframe.onclick = () => {
       increaseViews(v.id);
@@ -169,7 +186,7 @@ fetch('videos.json')
       window.open(v.url, "_blank");
     };
 
-    box.appendChild(iframe);
+    box.appendChild(wrapper);
     box.appendChild(title);
     box.appendChild(viewsEl);
     box.appendChild(btn);
