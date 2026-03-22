@@ -180,9 +180,18 @@ h2 {
 </div>
 
   <!-- BOTTOM AD (JuicyAds 300x112 Fixed) -->
-<div style="position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
+<div id="bottomAd" style="position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
 width: 300px; height: 112px; border: 2px solid red; border-radius: 8px;
 overflow: hidden; text-align: center; z-index: 9999; background: #fff;">
+
+  <!-- Close Button -->
+  <div onclick="document.getElementById('bottomAd').style.display='none'"
+       style="position:absolute; top:2px; right:4px; cursor:pointer;
+       background:black; color:#fff; font-size:14px; font-weight:bold;
+       width:20px; height:20px; line-height:20px; text-align:center;
+       border-radius:50%; z-index:10000;">
+    ×
+  </div>
 
   <!-- Live Badge -->
   <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);
