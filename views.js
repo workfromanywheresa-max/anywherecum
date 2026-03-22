@@ -1,75 +1,115 @@
-// views.js
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Dashboard</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: #fff;
+  padding: 20px;
+}
+
+h2, h3 {
+  color: #ff4444;
+}
+
+.card {
+  background: #1c1c1c;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+}
+
+p {
+  margin: 5px 0;
+}
+</style>
+
+</head>
+<body>
+
+<script>
+// 🔐 PASSWORD PROTECTION
+const correctPassword = "anywherecum1099"; // change this
+
+(function () {
+  const entered = prompt("Enter admin password:");
+
+  if (entered !== correctPassword) {
+    document.write("<h2 style='color:red;text-align:center;margin-top:50px;'>⛔ Access Denied</h2>");
+    document.close();
+    throw new Error("Unauthorized");
+  }
+})();
+</script>
+
+<h2>📊 Admin Dashboard</h2>
+
+<div class="card">
+  <h3>Total Views</h3>
+  <p id="totalViews">Loading...</p>
+</div>
+
+<div class="card">
+  <h3>Per Page Views</h3>
+  <div id="pageViews">Loading...</div>
+</div>
+
+<div class="card">
+  <h3>Today's Views</h3>
+  <div id="dailyViews">Loading...</div>
+</div>
+
+<script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWHoNqPpppR4kx0",
   authDomain: "anywherecum-1c8d0.firebaseapp.com",
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
   projectId: "anywherecum-1c8d0",
-  storageBucket: "anywherecum-1c8d0.appspot.com",
-  messagingSenderId: "686718460803",
-  appId: "1:686718460803:web:5d0ec20634dfe2a7d98cb6",
-  measurementId: "G-6XXPPV4727"
 };
 
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const db = getDatabase(app);
 
-// 👉 ONE shared counter for ALL pages
-const viewsRef = ref(db, "views/homepage");
+// 📅 Today
+const today = new Date().toISOString().split("T")[0];
 
-// 👉 YOUR IP (won’t count your own views)
-const OWNER_IP = "102.214.117.74";
+// 🔢 TOTAL VIEWS
+onValue(ref(db, "views/total"), (snap) => {
+  document.getElementById("totalViews").innerText = snap.val() || 0;
+});
 
-// Format numbers (1.2k, 3.4M)
-function formatViews(num) {
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+// 📄 PER PAGE VIEWS
+onValue(ref(db, "views/pages"), (snap) => {
+  const data = snap.val() || {};
+  const container = document.getElementById("pageViews");
+
+  container.innerHTML = "";
+
+  for (let page in data) {
+    container.innerHTML += `<p>${page}: ${data[page]}</p>`;
   }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+});
+
+// 📅 DAILY VIEWS
+onValue(ref(db, "views/daily/" + today), (snap) => {
+  const data = snap.val() || {};
+  const container = document.getElementById("dailyViews");
+
+  container.innerHTML = "";
+
+  for (let page in data) {
+    container.innerHTML += `<p>${page}: ${data[page]}</p>`;
   }
-  return num;
-}
+});
+</script>
 
-// Get user IP
-async function getUserIP() {
-  try {
-    const res = await fetch("https://api.ipify.org?format=json");
-    const data = await res.json();
-    return data.ip;
-  } catch (e) {
-    return null;
-  }
-}
-
-(async () => {
-  const userIP = await getUserIP();
-
-  // ❌ Skip owner
-  if (userIP && userIP === OWNER_IP) {
-    console.log("Owner detected — view not counted");
-  } else {
-    // ✅ Count once per session (across all pages)
-    if (!sessionStorage.getItem("viewCounted")) {
-      runTransaction(viewsRef, (current) => {
-        return (current || 0) + 1;
-      });
-      sessionStorage.setItem("viewCounted", "true");
-    }
-  }
-
-  // ✅ Show views ONLY if element exists (homepage)
-  onValue(viewsRef, (snapshot) => {
-    const count = snapshot.val() || 0;
-    const el = document.getElementById("viewCount");
-
-    if (el) {
-      el.innerText = formatViews(count);
-    }
-  });
-
-})();
+</body>
+</html>
