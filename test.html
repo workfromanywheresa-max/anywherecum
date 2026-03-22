@@ -36,7 +36,7 @@ h2 {
 /* Wrapper */
 .videoFrameWrapper {
   width: 100%;
-  height: 400px;
+  height: 350px; /* visible area reduced */
   overflow: hidden;
   position: relative;
   border-radius: 8px;
@@ -44,9 +44,9 @@ h2 {
 
 .videoFrameWrapper iframe {
   width: 100%;
-  height: 600px;
+  height: 500px; /* reduced iframe height */
   position: absolute;
-  top: -100px;
+  top: -150px; /* crop more from TOP only */
   left: 0;
   border: 0;
 }
@@ -128,12 +128,10 @@ const observer = new IntersectionObserver((entries) => {
     const iframe = entry.target;
 
     if (entry.isIntersecting) {
-      // Load iframe
       if (!iframe.src) {
         iframe.src = iframe.dataset.src;
       }
     } else {
-      // Unload iframe (pause video)
       if (iframe.src) {
         iframe.src = "";
       }
@@ -164,7 +162,6 @@ fetch('videos.json')
     const box = document.createElement("div");
     box.className = "videoBox";
 
-    // IFRAME (lazy)
     const iframe = document.createElement("iframe");
     iframe.dataset.src = v.url;
     iframe.setAttribute("allowfullscreen", "");
@@ -175,7 +172,6 @@ fetch('videos.json')
 
     observer.observe(iframe);
 
-    // Wrapper
     const wrapper = document.createElement("div");
     wrapper.className = "videoFrameWrapper";
     wrapper.appendChild(iframe);
