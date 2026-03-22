@@ -122,20 +122,17 @@ function increaseViews(id){
   runTransaction(ref(db, "views/" + id), v => (v || 0) + 1);
 }
 
-// ✅ IntersectionObserver with pause-on-scroll (unload/reload iframe)
+// ✅ Improved IntersectionObserver (no black iframe issue)
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     const iframe = entry.target;
 
     if (entry.isIntersecting) {
-      // Load video when visible
       if (!iframe.src) {
         iframe.src = iframe.dataset.src;
       }
-    } else {
-      // Pause by unloading when out of view
-      iframe.src = "";
     }
+    // ❌ Do NOT clear src (prevents black screen)
   });
 }, {
   rootMargin: "200px",
