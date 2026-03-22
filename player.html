@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Player</title>
+</head>
+
+<body style="background:#000;color:#fff;text-align:center;">
+
+<h2 id="title">Loading...</h2>
+
+<video id="videoPlayer" width="90%" controls autoplay></video>
+
+<script type="module">
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getDatabase, ref, runTransaction } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWHoNqPpppR4kx0",
+  authDomain: "anywherecum-1c8d0.firebaseapp.com",
+  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
+  projectId: "anywherecum-1c8d0",
+};
+
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// Get video ID from URL
+const params = new URLSearchParams(window.location.search);
+const videoId = params.get("id");
+
+if (!videoId) {
+  document.body.innerHTML = "<h2>No video selected</h2>";
+}
+
+// Load JSON and find video
+fetch("videos.json")
+  .then(res => res.json())
+  .then(data => {
+
+    const video = data.find(v => v.id === videoId);
+
+    if (!video) {
+      document.body.innerHTML = "<h2>Video not found</h2>";
+      return;
+    }
+
+    const folder = video.folder;
+
+    // UI
+    document.getElementById("title").innerText = video.title;
+    document.getElementById("videoPlayer").src = video.url;
+
+    // Prevent double counting
+    if (!sessionStorage.getItem("viewed")) {
+
+      const totalRef = ref(db, "views/total");
+      const folderRef = ref(db, `views/folders/${folder}`);
+
+      runTransaction(totalRef, val => (val || 0) + 1);
+      runTransaction(folderRef, val => (val || 0) + 1);
+
+      sessionStorage.setItem("viewed", "true");
+    }
+
+  });
+
+</script>
+
+</body>
+</html>
