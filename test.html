@@ -2,20 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Iframe Test</title>
+  <title>Video Player Test</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    iframe {
+      max-width: 100%;
+      border: none;
+      border-radius: 10px;
+    }
+  </style>
 </head>
-<body style="margin:0; display:flex; justify-content:center; align-items:center; height:100vh; background:#000;">
+<body>
 
   <iframe 
-    src="https://streamtape.com/e/MqleXz40LQTmbA4/" 
-    width="800" 
-    height="600" 
-    allowfullscreen 
-    allowtransparency 
-    allow="autoplay" 
-    scrolling="no"
-    frameborder="0">
+    src="https://streamtape.com/e/MqleXz40LQTmbA4/"
+    width="800"
+    height="600"
+    allowfullscreen
+    allow="autoplay"
+    scrolling="no">
   </iframe>
 
 </body>
