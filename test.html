@@ -103,11 +103,13 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
+// ✅ Dynamic folder from URL
 const urlParams = new URLSearchParams(window.location.search);
 const folderName = (urlParams.get("folder") || "").toLowerCase();
 
+// Display folder name
 document.getElementById("folderTitle").textContent =
-  folderName.charAt(0).toUpperCase() + folderName.slice(1);
+  folderName ? folderName.charAt(0).toUpperCase() + folderName.slice(1) : "All Videos";
 
 function formatViews(num) {
   if (num >= 1000) return (num / 1000).toFixed(1) + "K+";
@@ -122,9 +124,17 @@ fetch('videos.json')
 .then(res => res.json())
 .then(videos => {
 
-  const folderVideos = videos.filter(v =>
-    v.folder.toLowerCase() === folderName
-  );
+  container.innerHTML = "";
+
+  // ✅ Dynamic filtering (no hardcoding)
+  const folderVideos = folderName
+    ? videos.filter(v => v.folder.toLowerCase() === folderName)
+    : videos;
+
+  if(folderVideos.length === 0){
+    container.innerHTML = `<p style="text-align:center;color:#aaa;">No videos found.</p>`;
+    return;
+  }
 
   folderVideos.forEach(v => {
 
@@ -134,7 +144,7 @@ fetch('videos.json')
     const preview = document.createElement("div");
     preview.className = "preview";
 
-    // ✅ IFRAME
+    // ✅ IFRAME PREVIEW
     const iframe = document.createElement("iframe");
     iframe.src = v.url;
     iframe.setAttribute("allowfullscreen", "");
@@ -143,7 +153,7 @@ fetch('videos.json')
     iframe.setAttribute("scrolling", "no");
     iframe.setAttribute("frameborder", "0");
 
-    // overlay to capture clicks
+    // Click overlay
     const overlay = document.createElement("div");
     overlay.style.position = "absolute";
     overlay.style.top = "0";
