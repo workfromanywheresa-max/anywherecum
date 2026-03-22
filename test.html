@@ -45,25 +45,14 @@ h2 {
   margin-bottom: 20px;
 }
 
-/* Wrapper */
 .videoFrameWrapper {
   width: 100%;
   height: 350px;
+  overflow: hidden;
   position: relative;
   border-radius: 8px;
-  overflow: hidden;
-  background: #000;
 }
 
-/* Thumbnail */
-.thumbnail {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  cursor: pointer;
-}
-
-/* Iframe */
 .videoFrameWrapper iframe {
   width: 100%;
   height: 560px;
@@ -71,7 +60,6 @@ h2 {
   top: -210px;
   left: 0;
   border: 0;
-  display: none;
 }
 
 .videoTitle {
@@ -141,51 +129,40 @@ const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
 
-const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
-const OWNER_IP = "102.214.117.74";
-const TREND_THRESHOLD = 10;
-
-/* Folder */
+/* Folder logic */
 const urlParams = new URLSearchParams(window.location.search);
 const folderName = (urlParams.get("folder") || "").toLowerCase();
 
 document.getElementById("folderTitle").textContent =
-  folderName.charAt(0).toUpperCase() + folderName.slice(1);
+  folderName
+    ? folderName.charAt(0).toUpperCase() + folderName.slice(1)
+    : "All Videos";
 
-/* Helpers */
-async function getUserIP() {
-  try {
-    const res = await fetch("https://api.ipify.org?format=json");
-    const data = await res.json();
-    return data.ip;
-  } catch {
-    return null;
-  }
-}
+const TREND_THRESHOLD = 10;
 
+/* Utilities */
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M+";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K+";
   return num;
 }
 
-/* Views */
-async function increaseViews(videoId){
-
-  const userIP = await getUserIP();
-  if (userIP && userIP === OWNER_IP) return;
-
+/* Increase views */
+function increaseViews(videoId){
   runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
   runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
-
-  fetch(`${WORKER_URL}/increment`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ videoId })
-  }).catch(()=>{});
 }
 
-/* State */
+/* Lazy load iframe */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    const iframe = entry.target;
+    if (entry.isIntersecting && !iframe.src) {
+      iframe.src = iframe.dataset.src;
+    }
+  });
+}, { rootMargin: "200px", threshold: 0.25 });
+
 const videoStates = {};
 
 /* Load videos */
@@ -194,8 +171,6 @@ fetch('videos.json')
 .then(videos => {
 
   container.innerHTML = "";
-
-  const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
   const folderVideos = videos.filter(v =>
     v.folder.toLowerCase() === folderName
@@ -206,28 +181,36 @@ fetch('videos.json')
     return;
   }
 
-  folderVideos.forEach((v,index)=>{
+  const IMAGE_BASE = "";
+
+  folderVideos.forEach((v, index) => {
 
     const box = document.createElement("div");
     box.className = "videoBox";
 
-    const wrapper = document.createElement("div");
-    wrapper.className = "videoFrameWrapper";
-
-    // Thumbnail
-    const thumb = document.createElement("img");
-    thumb.src = IMAGE_BASE + v.thumbnail;
-    thumb.className = "thumbnail";
-
-    // Iframe
     const iframe = document.createElement("iframe");
     iframe.dataset.src = v.url;
-    iframe.allowFullscreen = true;
+    iframe.setAttribute("allowfullscreen", "");
+    iframe.setAttribute("allow", "autoplay");
+    iframe.setAttribute("frameborder", "0");
 
-    // Title
+    observer.observe(iframe);
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "videoFrameWrapper";
+    wrapper.appendChild(iframe);
+
+    function openVideo(){
+      increaseViews(v.id);
+      window.open(v.url,"_blank");
+    }
+
+    iframe.onclick = openVideo;
+
     const title = document.createElement("h3");
     title.className = "videoTitle";
     title.textContent = v.title;
+    title.onclick = openVideo;
 
     const viewsEl = document.createElement("div");
     viewsEl.className = "views";
@@ -278,27 +261,14 @@ fetch('videos.json')
       sortVideos();
     });
 
-    function openVideo(){
-      increaseViews(v.id);
-      iframe.src = iframe.dataset.src;
-      iframe.style.display = "block";
-      thumb.style.display = "none";
-    }
-
-    thumb.onclick = openVideo;
-    title.onclick = openVideo;
-
     const btn = document.createElement("a");
     btn.className = "download";
-    btn.textContent = "Watch / Open";
+    btn.textContent = "Download";
     btn.href = "#";
     btn.onclick = (e)=>{
       e.preventDefault();
       openVideo();
     };
-
-    wrapper.appendChild(thumb);
-    wrapper.appendChild(iframe);
 
     box.appendChild(wrapper);
     box.appendChild(title);
