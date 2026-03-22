@@ -49,7 +49,6 @@ h2 {
   top: -210px;
   left: 0;
   border: 0;
-  transform: translateY(0px);
 }
 
 .videoTitle {
@@ -123,17 +122,20 @@ function increaseViews(id){
   runTransaction(ref(db, "views/" + id), v => (v || 0) + 1);
 }
 
-// Lazy load observer (FIXED)
+// ✅ IntersectionObserver with pause-on-scroll (unload/reload iframe)
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     const iframe = entry.target;
 
     if (entry.isIntersecting) {
+      // Load video when visible
       if (!iframe.src) {
         iframe.src = iframe.dataset.src;
       }
+    } else {
+      // Pause by unloading when out of view
+      iframe.src = "";
     }
-    // ❗ IMPORTANT: do NOT clear src when leaving viewport
   });
 }, {
   rootMargin: "200px",
