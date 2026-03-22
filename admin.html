@@ -8,37 +8,65 @@
 <style>
 body {
   font-family: Arial, sans-serif;
-  background: #111;
+  background: #0f0f0f;
   color: #fff;
   padding: 20px;
 }
 
-h2, h3 {
-  color: #ff4444;
+h2 { color: #ff4444; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
 }
 
 .card {
   background: #1c1c1c;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 10px;
+  padding: 20px;
+  border-radius: 12px;
 }
 
-p {
-  margin: 5px 0;
+.card h3 {
+  margin: 0;
+  color: #aaa;
+  font-size: 14px;
+}
+
+.card p {
+  font-size: 26px;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.section {
+  margin-top: 25px;
+  background: #1c1c1c;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.section h3 {
+  color: #ff4444;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #333;
 }
 </style>
-
 </head>
+
 <body>
 
 <script>
-// 🔐 PASSWORD PROTECTION
-const correctPassword = "anywherecum1099"; // change this
+// 🔐 PASSWORD
+const correctPassword = "anywherecum1099";
 
 (function () {
   const entered = prompt("Enter admin password:");
-
   if (entered !== correctPassword) {
     document.write("<h2 style='color:red;text-align:center;margin-top:50px;'>⛔ Access Denied</h2>");
     document.close();
@@ -49,18 +77,30 @@ const correctPassword = "anywherecum1099"; // change this
 
 <h2>📊 Admin Dashboard</h2>
 
-<div class="card">
-  <h3>Total Views</h3>
-  <p id="totalViews">Loading...</p>
+<div class="grid">
+  <div class="card">
+    <h3>Total Views</h3>
+    <p id="totalViews">0</p>
+  </div>
+
+  <div class="card">
+    <h3>Pages Tracked</h3>
+    <p id="pagesCount">0</p>
+  </div>
+
+  <div class="card">
+    <h3>Today's Pages</h3>
+    <p id="dailyCount">0</p>
+  </div>
 </div>
 
-<div class="card">
-  <h3>Per Page Views</h3>
+<div class="section">
+  <h3>📄 Per Page Views</h3>
   <div id="pageViews">Loading...</div>
 </div>
 
-<div class="card">
-  <h3>Today's Views</h3>
+<div class="section">
+  <h3>📅 Today's Views</h3>
   <div id="dailyViews">Loading...</div>
 </div>
 
@@ -78,37 +118,72 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// 📅 Today
 const today = new Date().toISOString().split("T")[0];
 
-// 🔢 TOTAL VIEWS
+// 🔢 TOTAL
 onValue(ref(db, "views/total"), (snap) => {
   document.getElementById("totalViews").innerText = snap.val() || 0;
 });
 
-// 📄 PER PAGE VIEWS
+// 📄 PER PAGE
 onValue(ref(db, "views/pages"), (snap) => {
   const data = snap.val() || {};
   const container = document.getElementById("pageViews");
 
   container.innerHTML = "";
 
-  for (let page in data) {
-    container.innerHTML += `<p>${page}: ${data[page]}</p>`;
+  const entries = Object.entries(data);
+
+  document.getElementById("pagesCount").innerText = entries.length;
+
+  if (entries.length === 0) {
+    container.innerHTML = "<p>No data</p>";
+    return;
   }
+
+  entries.sort((a, b) => b[1] - a[1]);
+
+  entries.forEach(([page, views]) => {
+    container.innerHTML += `
+      <div class="item">
+        <span>${format(page)}</span>
+        <span>${views}</span>
+      </div>
+    `;
+  });
 });
 
-// 📅 DAILY VIEWS
+// 📅 DAILY
 onValue(ref(db, "views/daily/" + today), (snap) => {
   const data = snap.val() || {};
   const container = document.getElementById("dailyViews");
 
   container.innerHTML = "";
 
-  for (let page in data) {
-    container.innerHTML += `<p>${page}: ${data[page]}</p>`;
+  const entries = Object.entries(data);
+
+  document.getElementById("dailyCount").innerText = entries.length;
+
+  if (entries.length === 0) {
+    container.innerHTML = "<p>No data</p>";
+    return;
   }
+
+  entries.sort((a, b) => b[1] - a[1]);
+
+  entries.forEach(([page, views]) => {
+    container.innerHTML += `
+      <div class="item">
+        <span>${format(page)}</span>
+        <span>${views}</span>
+      </div>
+    `;
+  });
 });
+
+function format(page) {
+  return page.replace(".html", "").replace("-", " ").toUpperCase();
+}
 </script>
 
 </body>
