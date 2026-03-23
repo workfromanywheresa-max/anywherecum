@@ -54,8 +54,7 @@ li {
 </div>
 
 <div class="card">
-  <h2>📁 All Videos (Folder Views)</h2>
-  <div>Total Folder Views: <span id="totalFoldersViews" class="value">Loading...</span></div>
+  <h2>📁 Folder Views</h2>
   <ul id="folderViews"></ul>
 </div>
 
@@ -64,7 +63,6 @@ const DB = "https://anywherecum-1c8d0-default-rtdb.firebaseio.com";
 
 async function fetchData(path) {
   const res = await fetch(`${DB}/${path}.json`);
-  if (!res.ok) return null;
   return await res.json();
 }
 
@@ -93,39 +91,19 @@ async function loadPages() {
 }
 
 async function loadFolders() {
-  const [folderData, videos] = await Promise.all([
-    fetchData("folderViews"),
-    fetch("videos.json").then(res => res.json())
-  ]);
-
+  const data = await fetchData("folderViews");
   const list = document.getElementById("folderViews");
   list.innerHTML = "";
 
-  if (!folderData || !videos) return;
+  if (!data) return;
 
-  // استخراج unique folders from videos.json
-  const folderSet = new Set();
-
-  videos.forEach(video => {
-    if (video.folder) {
-      folderSet.add(video.folder);
-    }
-  });
-
-  const folders = Array.from(folderSet);
-
-  let total = 0;
-
-  folders.forEach(folder => {
-    const value = typeof folderData[folder] === "number" ? folderData[folder] : 0;
-    total += value;
+  Object.keys(data).forEach(folder => {
+    const value = typeof data[folder] === "number" ? data[folder] : 0;
 
     const li = document.createElement("li");
     li.innerHTML = `<span>${folder}</span><span class="value">${value}</span>`;
     list.appendChild(li);
   });
-
-  document.getElementById("totalFoldersViews").innerText = total;
 }
 
 async function init() {
