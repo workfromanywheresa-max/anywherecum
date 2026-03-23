@@ -53,31 +53,33 @@ li {
 
 <body>
 
+<!-- 🔐 PASSWORD PROTECTION (HARD BLOCK) -->
 <script>
 const ADMIN_PASSWORD = "AnywhereCum1099";
 
-function checkPassword() {
-  const entered = prompt("Enter Admin Password:");
+const entered = prompt("Enter Admin Password:");
 
-  // handle cancel or empty
-  if (!entered || entered.trim() !== ADMIN_PASSWORD) {
-    alert("Access Denied ❌");
+if (!entered || entered.trim() !== ADMIN_PASSWORD) {
+  document.documentElement.innerHTML = `
+    <head>
+      <title>Access Denied</title>
+      <style>
+        body {
+          background:#121212;
+          color:red;
+          display:flex;
+          justify-content:center;
+          align-items:center;
+          height:100vh;
+          font-family:Arial;
+        }
+      </style>
+    </head>
+    <body>
+      <h1>❌ Access Denied</h1>
+    </body>
+  `;
 
-    // Completely replace page and STOP everything
-    document.body.innerHTML = `
-      <h1 style="color:red;text-align:center;margin-top:50px;">
-        Access Denied
-      </h1>
-    `;
-
-    return false;
-  }
-
-  return true;
-}
-
-// STOP PAGE if wrong password
-if (!checkPassword()) {
   throw new Error("Unauthorized");
 }
 </script>
