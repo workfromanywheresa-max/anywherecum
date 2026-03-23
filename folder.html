@@ -205,16 +205,32 @@ fetch('videos.json')
     thumb.onclick = () => {
       increaseViews(v.id);
 
-      // ✅ ADDED: open player.html (new tab)
-      window.open("player.html?id=" + v.id, "_blank");
-
       const iframe = document.createElement("iframe");
       iframe.src = v.url;
       iframe.setAttribute("allowfullscreen", "");
       iframe.setAttribute("allow", "autoplay");
 
+      // Overlay to detect click on video
+      const overlay = document.createElement("div");
+      overlay.style.position = "absolute";
+      overlay.style.top = "0";
+      overlay.style.left = "0";
+      overlay.style.width = "100%";
+      overlay.style.height = "100%";
+      overlay.style.cursor = "pointer";
+      overlay.style.zIndex = "2";
+
+      overlay.onclick = () => {
+        window.open("player.html?id=" + v.id, "_blank");
+      };
+
       wrapper.innerHTML = "";
+      wrapper.style.position = "relative";
+
+      iframe.style.zIndex = "1";
+
       wrapper.appendChild(iframe);
+      wrapper.appendChild(overlay);
     };
 
     wrapper.appendChild(thumb);
