@@ -17,9 +17,7 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 /* ---------------- Prevent Double Init ---------------- */
-if (window.__trackingInitialized) {
-  // stop duplicate execution
-} else {
+if (!window.__trackingInitialized) {
   window.__trackingInitialized = true;
 }
 
@@ -43,21 +41,10 @@ function trackOnce(key, firebasePath) {
 /* ---------------- Detect Page ---------------- */
 let path = window.location.pathname.toLowerCase();
 
-/* Normalize page name */
 let pageName;
 
 if (path === "/" || path === "/index.html") {
   pageName = "home";
-} else if (path.includes("folder")) {
-  // Folder page → use query param
-  const params = new URLSearchParams(window.location.search);
-  const folder = params.get("folder");
-
-  if (folder) {
-    pageName = "folder_" + folder;
-  } else {
-    pageName = "folder_unknown";
-  }
 } else {
   pageName = path.split("/").filter(Boolean).pop().replace(".html", "");
 }
