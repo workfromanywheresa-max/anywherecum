@@ -138,7 +138,7 @@ if (!sessionId) {
   sessionStorage.setItem("sessionId", sessionId);
 }
 
-/* ================= TRACK FOLDER (ONLY ON CLICK) ================= */
+/* ================= ORIGINAL FOLDER TRACK ================= */
 function trackFolderOnce(folderName) {
   const key = "folder_" + folderName.toLowerCase();
   const uniqueKey = key + "_" + sessionId;
@@ -146,6 +146,21 @@ function trackFolderOnce(folderName) {
   if (sessionStorage.getItem(uniqueKey)) return;
 
   sessionStorage.setItem(uniqueKey, "1");
+
+  fetch(`${PAGE_WORKER_URL}/increment`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ folder: folderName.toLowerCase() })
+  }).catch(()=>{});
+}
+
+/* ================= NEW CLICK-BASED FOLDER TRACK ================= */
+function trackFolderClickOnce(folderName){
+  const key = "folder_click_" + folderName.toLowerCase() + "_" + sessionId;
+
+  if (sessionStorage.getItem(key)) return;
+
+  sessionStorage.setItem(key, "1");
 
   fetch(`${PAGE_WORKER_URL}/increment`, {
     method: "POST",
@@ -226,8 +241,11 @@ fetch('videos.json')
     thumb.src = IMAGE_BASE + v.thumbnail;
 
     thumb.onclick = () => {
-      // ✅ Folder view tracked ONLY on first interaction
+      // ORIGINAL LOGIC (UNCHANGED)
       trackFolderOnce(folderName);
+
+      // ✅ NEW: click-based folder tracking (once per session per folder)
+      trackFolderClickOnce(v.folder);
 
       increaseViews(v.id);
 
@@ -245,6 +263,8 @@ fetch('videos.json')
     title.className = "videoTitle";
     title.textContent = v.title;
     title.onclick = () => {
+      const folder = v.folder;
+      trackFolderClickOnce(folder);
       increaseViews(v.id);
       window.open(v.url, "_blank");
     };
@@ -304,6 +324,10 @@ fetch('videos.json')
     btn.href = "#";
     btn.onclick = (e)=>{
       e.preventDefault();
+
+      const folder = v.folder;
+      trackFolderClickOnce(folder);
+
       increaseViews(v.id);
       window.open(v.url, "_blank");
     };
