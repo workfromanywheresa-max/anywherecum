@@ -33,24 +33,16 @@ h2 {
   margin-bottom: 20px;
 }
 
-/* Thumbnail */
-.thumbnail {
-  width: 100%;
-  height: 350px;
-  object-fit: cover;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* Iframe wrapper */
+/* Wrapper */
 .videoFrameWrapper {
   width: 100%;
   height: 350px;
-  overflow: hidden;
   position: relative;
+  overflow: hidden;
   border-radius: 8px;
 }
 
+/* Iframe preview */
 .videoFrameWrapper iframe {
   width: 100%;
   height: 560px;
@@ -59,6 +51,32 @@ h2 {
   left: 0;
   border: 0;
   pointer-events: none;
+  z-index: 1;
+}
+
+/* Thumbnail (kept as-is) */
+.thumbnail {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
+
+/* Click overlay (on top of everything) */
+.frameOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 350px;
+  cursor: pointer;
+  background: transparent;
+  z-index: 3;
 }
 
 /* Title */
@@ -90,7 +108,7 @@ h2 {
   border-radius: 5px;
 }
 
-/* Inline player container */
+/* Inline player */
 #playerContainer {
   display: none;
   width: 100%;
@@ -244,6 +262,11 @@ fetch('videos.json')
     const wrapper = document.createElement("div");
     wrapper.className = "videoFrameWrapper";
 
+    // iframe preview (new)
+    const iframePreview = document.createElement("iframe");
+    iframePreview.src = v.url;
+
+    // thumbnail (UNCHANGED)
     const thumb = document.createElement("img");
     thumb.className = "thumbnail";
     thumb.src = IMAGE_BASE + v.thumbnail;
@@ -257,7 +280,22 @@ fetch('videos.json')
       closeBtn.style.display = "block";
     };
 
+    // overlay (captures iframe clicks)
+    const overlay = document.createElement("div");
+    overlay.className = "frameOverlay";
+
+    overlay.onclick = () => {
+      increaseViews(v.id);
+
+      iframe.src = `player.html?id=${v.id}&url=${encodeURIComponent(v.url)}&folder=${v.folder}`;
+      playerContainer.style.display = "block";
+      container.style.display = "none";
+      closeBtn.style.display = "block";
+    };
+
+    wrapper.appendChild(iframePreview);
     wrapper.appendChild(thumb);
+    wrapper.appendChild(overlay);
 
     const title = document.createElement("h3");
     title.className = "videoTitle";
