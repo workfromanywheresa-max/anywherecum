@@ -22,14 +22,12 @@ h1, h2 { color: #ff4444; }
   border-radius: 10px;
 }
 
-/* TWO COLUMN LAYOUT باستخدام GRID */
 .container {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
 
-/* Responsive fallback */
 @media (max-width: 768px) {
   .container {
     grid-template-columns: 1fr;
@@ -50,7 +48,6 @@ li {
   font-weight: bold;
 }
 
-/* TOTAL CARD */
 .total-card {
   background: #1e1e1e;
   padding: 15px;
@@ -71,13 +68,11 @@ li {
 
 <div class="container">
 
-  <!-- PAGE VIEWS COLUMN -->
   <div class="card">
     <h2>📄 Page Views</h2>
     <ul id="pageViews"></ul>
   </div>
 
-  <!-- FOLDER VIEWS COLUMN -->
   <div class="card">
     <h2>📁 Folder Views</h2>
     <ul id="folderViews"></ul>
@@ -93,7 +88,7 @@ async function fetchData(path) {
   return await res.json();
 }
 
-/* ================= LOAD PAGE VIEWS ================= */
+/* ================= PAGE VIEWS ================= */
 async function loadPages() {
   const data = await fetchData("pageViews");
   const list = document.getElementById("pageViews");
@@ -115,7 +110,7 @@ async function loadPages() {
   return total;
 }
 
-/* ================= LOAD FOLDER VIEWS ================= */
+/* ================= FOLDER VIEWS ================= */
 async function loadFolders() {
   const data = await fetchData("folderViews");
   const list = document.getElementById("folderViews");
@@ -125,11 +120,13 @@ async function loadFolders() {
 
   if (data) {
     Object.keys(data).forEach(folder => {
+      const normalized = folder.toLowerCase();
       const value = typeof data[folder] === "number" ? data[folder] : 0;
+
       total += value;
 
       const li = document.createElement("li");
-      li.innerHTML = `<span>${folder}</span><span class="value">${value}</span>`;
+      li.innerHTML = `<span>${normalized}</span><span class="value">${value}</span>`;
       list.appendChild(li);
     });
   }
@@ -142,7 +139,8 @@ async function init() {
   const pageTotal = await loadPages();
   const folderTotal = await loadFolders();
 
-  document.getElementById("totalViews").innerText = pageTotal + folderTotal;
+  document.getElementById("totalViews").innerText =
+    pageTotal + folderTotal;
 }
 
 init();
