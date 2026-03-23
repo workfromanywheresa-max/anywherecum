@@ -88,7 +88,19 @@ h2 {
 
 <body>
 
-<button onclick="history.back()">← Back</button>
+<button onclick="history.back()" style="
+  display:inline-block;
+  margin-bottom:15px;
+  padding:8px 14px;
+  background:#222;
+  color:#fff;
+  border:1px solid #ff4444;
+  border-radius:6px;
+  font-size:14px;
+  cursor:pointer;
+">
+← Back
+</button>
 
 <h2 id="folderTitle">Folder</h2>
 <p class="description">Enjoy our videos, updated regularly for your viewing pleasure.</p>
@@ -97,7 +109,7 @@ h2 {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue } 
+import { getDatabase, ref, runTransaction, onValue, get, set, ref as dbRef } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -116,19 +128,46 @@ const db = getDatabase(app);
 const container = document.getElementById("videoList");
 
 const urlParams = new URLSearchParams(window.location.search);
-const rawFolder = urlParams.get("folder") || "";
-
-// Normalize folder (Capital first letter)
-function normalizeFolder(name) {
-  return name.trim().charAt(0).toUpperCase() + name.trim().slice(1).toLowerCase();
-}
-
-const folderName = normalizeFolder(rawFolder);
+const folderName = (urlParams.get("folder") || "").toLowerCase();
 
 document.getElementById("folderTitle").textContent =
-  folderName || "All Videos";
+  folderName ? folderName.charAt(0).toUpperCase() + folderName.slice(1) : "All Videos";
+
+/* =========================
+   ✅ VISIT TRACKING ADDED
+========================= */
+
+function getSessionId() {
+  let sessionId = sessionStorage.getItem("sessionId");
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    sessionStorage.setItem("sessionId", sessionId);
+  }
+  return sessionId;
+}
+
+const sessionId = getSessionId();
+
+async function trackFolderVisit() {
+  if (!folderName) return;
+
+  const visitRef = dbRef(db, `visits/${folderName}/${sessionId}`);
+
+  const snapshot = await get(visitRef);
+
+  if (!snapshot.exists()) {
+    await set(visitRef, {
+      timestamp: Date.now()
+    });
+  }
+}
+
+trackFolderVisit();
+
+/* ========================= */
 
 const TREND_THRESHOLD = 10;
+const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
 const OWNER_IP = "102.214.117.74";
 
 async function getUserIP() {
@@ -146,18 +185,18 @@ function formatViews(num) {
   return num;
 }
 
-async function increaseViews(videoId, folder){
-
+async function increaseViews(videoId){
   const userIP = await getUserIP();
   if (userIP && userIP === OWNER_IP) return;
 
   runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
   runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
 
-  if(folder){
-    const normalizedFolder = normalizeFolder(folder);
-    runTransaction(ref(db, "folderViews/" + normalizedFolder), v => (v || 0) + 1);
-  }
+  fetch(`${WORKER_URL}/increment`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ videoId })
+  }).catch(()=>{});
 }
 
 fetch('videos.json')
@@ -169,7 +208,7 @@ fetch('videos.json')
   const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
   const folderVideos = folderName
-    ? videos.filter(v => normalizeFolder(v.folder) === folderName)
+    ? videos.filter(v => v.folder.toLowerCase() === folderName)
     : videos;
 
   if(folderVideos.length === 0){
@@ -192,7 +231,7 @@ fetch('videos.json')
     thumb.src = IMAGE_BASE + v.thumbnail;
 
     thumb.onclick = () => {
-      increaseViews(v.id, v.folder);
+      increaseViews(v.id);
 
       const iframe = document.createElement("iframe");
       iframe.src = v.url;
@@ -209,7 +248,7 @@ fetch('videos.json')
     title.className = "videoTitle";
     title.textContent = v.title;
     title.onclick = () => {
-      increaseViews(v.id, v.folder);
+      increaseViews(v.id);
       window.open(v.url, "_blank");
     };
 
@@ -268,7 +307,7 @@ fetch('videos.json')
     btn.href = "#";
     btn.onclick = (e)=>{
       e.preventDefault();
-      increaseViews(v.id, v.folder);
+      increaseViews(v.id);
       window.open(v.url, "_blank");
     };
 
