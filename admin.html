@@ -119,14 +119,20 @@ async function loadFolders() {
   let total = 0;
 
   if (data) {
-    Object.keys(data).forEach(folder => {
-      const normalized = folder.toLowerCase();
-      const value = typeof data[folder] === "number" ? data[folder] : 0;
-
+    Object.keys(data).forEach(folderKey => {
+      const value = typeof data[folderKey] === "number" ? data[folderKey] : 0;
       total += value;
 
+      // Decode folder name safely
+      let displayName;
+      try {
+        displayName = decodeURIComponent(folderKey);
+      } catch {
+        displayName = folderKey;
+      }
+
       const li = document.createElement("li");
-      li.innerHTML = `<span>${normalized}</span><span class="value">${value}</span>`;
+      li.innerHTML = `<span>${displayName}</span><span class="value">${value}</span>`;
       list.appendChild(li);
     });
   }
@@ -144,6 +150,12 @@ async function init() {
 }
 
 init();
+
+/* ================= AUTO REFRESH ================= */
+setInterval(() => {
+  init();
+}, 10000); // refresh every 10 seconds
+
 </script>
 
 </body>
