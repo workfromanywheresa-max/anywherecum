@@ -109,9 +109,12 @@ h2 {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue, get, set, ref as dbRef } 
+import { getDatabase, ref, runTransaction, onValue } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
+/* =========================
+   🔥 FIREBASE (VIDEOS)
+========================= */
 const firebaseConfig = {
   apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
   authDomain: "anywherecum-1c8d0.firebaseapp.com",
@@ -125,6 +128,67 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+/* =========================
+   🚀 PAGE VIEWS (WORKER)
+========================= */
+const PAGE_WORKER_URL = "https://dashboard.workfromanywhere-sa.workers.dev";
+
+/* =========================
+   🎬 VIDEO WORKER
+========================= */
+const VIDEO_WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
+
+/* =========================
+   ✅ SESSION + TRACK ONCE
+========================= */
+
+if (!window.__trackingInitialized) {
+  window.__trackingInitialized = true;
+
+  let sessionId = sessionStorage.getItem("sessionId");
+
+  if (!sessionId) {
+    sessionId = Date.now() + "_" + Math.random();
+    sessionStorage.setItem("sessionId", sessionId);
+  }
+
+  function trackPageOnce(key, pageName) {
+    const uniqueKey = key + "_" + sessionId;
+
+    if (sessionStorage.getItem(uniqueKey)) return;
+
+    sessionStorage.setItem(uniqueKey, "1");
+
+    fetch(`${PAGE_WORKER_URL}/increment`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ page: pageName })
+    }).catch(()=>{});
+  }
+
+  let path = window.location.pathname.toLowerCase();
+  let pageName;
+
+  if (path.includes("folder")) {
+    const params = new URLSearchParams(window.location.search);
+    const folder = params.get("folder");
+
+    if (folder) {
+      pageName = "folder_" + folder;
+    } else {
+      pageName = "folder_unknown";
+    }
+  } else {
+    pageName = path.split("/").filter(Boolean).pop().replace(".html", "");
+  }
+
+  trackPageOnce("page_" + pageName, pageName);
+}
+
+/* =========================
+   🎬 VIDEO SYSTEM
+========================= */
+
 const container = document.getElementById("videoList");
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -133,41 +197,7 @@ const folderName = (urlParams.get("folder") || "").toLowerCase();
 document.getElementById("folderTitle").textContent =
   folderName ? folderName.charAt(0).toUpperCase() + folderName.slice(1) : "All Videos";
 
-/* =========================
-   ✅ VISIT TRACKING ADDED
-========================= */
-
-function getSessionId() {
-  let sessionId = sessionStorage.getItem("sessionId");
-  if (!sessionId) {
-    sessionId = crypto.randomUUID();
-    sessionStorage.setItem("sessionId", sessionId);
-  }
-  return sessionId;
-}
-
-const sessionId = getSessionId();
-
-async function trackFolderVisit() {
-  if (!folderName) return;
-
-  const visitRef = dbRef(db, `visits/${folderName}/${sessionId}`);
-
-  const snapshot = await get(visitRef);
-
-  if (!snapshot.exists()) {
-    await set(visitRef, {
-      timestamp: Date.now()
-    });
-  }
-}
-
-trackFolderVisit();
-
-/* ========================= */
-
 const TREND_THRESHOLD = 10;
-const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
 const OWNER_IP = "102.214.117.74";
 
 async function getUserIP() {
@@ -192,19 +222,22 @@ async function increaseViews(videoId){
   runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
   runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
 
-  fetch(`${WORKER_URL}/increment`, {
+  fetch(`${VIDEO_WORKER_URL}/increment`, {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ videoId })
   }).catch(()=>{});
 }
 
+/* =========================
+   📦 LOAD VIDEOS
+========================= */
+
 fetch('videos.json')
 .then(res => res.json())
 .then(videos => {
 
   container.innerHTML = "";
-
   const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
   const folderVideos = folderName
@@ -321,8 +354,6 @@ fetch('videos.json')
 
 });
 </script>
-
-  <script type="module" src="views.js"></script>
 
 </body>
 </html>
