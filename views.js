@@ -55,16 +55,9 @@ if (!path || path === "" || path === "index.html") {
 }
 
 /* --------------------------
-   TRACK PAGE VIEW
+   TRACK PAGE VIEW (ONLY ONCE)
 --------------------------- */
 trackOnce("page_" + path, "pageViews/" + path);
-
-/* --------------------------
-   OPTIONAL: HOME TRACK
---------------------------- */
-if (path === "home") {
-  trackOnce("home_view", "pageViews/home");
-}
 
 /* --------------------------
    FOLDER TRACKING (?folder=)
