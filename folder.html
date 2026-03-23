@@ -109,7 +109,7 @@ h2 {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue } 
+import { getDatabase, ref, runTransaction, onValue, get, set, ref as dbRef } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -132,6 +132,39 @@ const folderName = (urlParams.get("folder") || "").toLowerCase();
 
 document.getElementById("folderTitle").textContent =
   folderName ? folderName.charAt(0).toUpperCase() + folderName.slice(1) : "All Videos";
+
+/* =========================
+   ✅ VISIT TRACKING ADDED
+========================= */
+
+function getSessionId() {
+  let sessionId = sessionStorage.getItem("sessionId");
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    sessionStorage.setItem("sessionId", sessionId);
+  }
+  return sessionId;
+}
+
+const sessionId = getSessionId();
+
+async function trackFolderVisit() {
+  if (!folderName) return;
+
+  const visitRef = dbRef(db, `visits/${folderName}/${sessionId}`);
+
+  const snapshot = await get(visitRef);
+
+  if (!snapshot.exists()) {
+    await set(visitRef, {
+      timestamp: Date.now()
+    });
+  }
+}
+
+trackFolderVisit();
+
+/* ========================= */
 
 const TREND_THRESHOLD = 10;
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
@@ -289,7 +322,7 @@ fetch('videos.json')
 });
 </script>
 
-<script type="module" src="views.js"></script>
+  <script type="module" src="views.js"></script>
 
 </body>
 </html>
