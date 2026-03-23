@@ -130,39 +130,28 @@ const db = getDatabase(app);
 const PAGE_WORKER_URL = "https://dashboard.workfromanywhere-sa.workers.dev";
 const VIDEO_WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
 
-/* ================= FOLDER TRACKING (FIXED) ================= */
-if (!window.__trackingInitialized) {
-  window.__trackingInitialized = true;
+/* ================= SESSION ================= */
+let sessionId = sessionStorage.getItem("sessionId");
 
-  let sessionId = sessionStorage.getItem("sessionId");
+if (!sessionId) {
+  sessionId = Date.now() + "_" + Math.random();
+  sessionStorage.setItem("sessionId", sessionId);
+}
 
-  if (!sessionId) {
-    sessionId = Date.now() + "_" + Math.random();
-    sessionStorage.setItem("sessionId", sessionId);
-  }
+/* ================= TRACK FOLDER (ONLY ON CLICK) ================= */
+function trackFolderOnce(folderName) {
+  const key = "folder_" + folderName.toLowerCase();
+  const uniqueKey = key + "_" + sessionId;
 
-  function trackFolderOnce(key, folderName) {
-    const uniqueKey = key + "_" + sessionId;
+  if (sessionStorage.getItem(uniqueKey)) return;
 
-    if (sessionStorage.getItem(uniqueKey)) return;
+  sessionStorage.setItem(uniqueKey, "1");
 
-    sessionStorage.setItem(uniqueKey, "1");
-
-    fetch(`${PAGE_WORKER_URL}/increment`, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ folder: folderName.toLowerCase() })
-    }).catch(()=>{});
-  }
-
-  const params = new URLSearchParams(window.location.search);
-  let folder = params.get("folder");
-
-  let folderName = folder
-    ? decodeURIComponent(folder).toLowerCase()
-    : "unknown";
-
-  trackFolderOnce("folder_" + folderName, folderName);
+  fetch(`${PAGE_WORKER_URL}/increment`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ folder: folderName.toLowerCase() })
+  }).catch(()=>{});
 }
 
 /* ================= VIDEO TRACKING ================= */
@@ -237,6 +226,9 @@ fetch('videos.json')
     thumb.src = IMAGE_BASE + v.thumbnail;
 
     thumb.onclick = () => {
+      // ✅ Folder view tracked ONLY on first interaction
+      trackFolderOnce(folderName);
+
       increaseViews(v.id);
 
       const iframe = document.createElement("iframe");
