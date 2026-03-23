@@ -24,14 +24,8 @@ h1, h2 { color: #ff4444; }
 
 .container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 20px;
-}
-
-@media (max-width: 768px) {
-  .container {
-    grid-template-columns: 1fr;
-  }
 }
 
 ul { list-style: none; padding: 0; }
@@ -73,11 +67,6 @@ li {
     <ul id="pageViews"></ul>
   </div>
 
-  <div class="card">
-    <h2>📁 Folder Views</h2>
-    <ul id="folderViews"></ul>
-  </div>
-
 </div>
 
 <script>
@@ -110,11 +99,9 @@ async function loadPages() {
   return total;
 }
 
-/* ================= FOLDER VIEWS ================= */
+/* ================= FOLDER VIEWS (LOGIC KEPT, UI REMOVED) ================= */
 async function loadFolders() {
   const data = await fetchData("folderViews");
-  const list = document.getElementById("folderViews");
-  list.innerHTML = "";
 
   let total = 0;
 
@@ -122,18 +109,6 @@ async function loadFolders() {
     Object.keys(data).forEach(folderKey => {
       const value = typeof data[folderKey] === "number" ? data[folderKey] : 0;
       total += value;
-
-      // Decode folder name safely
-      let displayName;
-      try {
-        displayName = decodeURIComponent(folderKey);
-      } catch {
-        displayName = folderKey;
-      }
-
-      const li = document.createElement("li");
-      li.innerHTML = `<span>${displayName}</span><span class="value">${value}</span>`;
-      list.appendChild(li);
     });
   }
 
@@ -154,8 +129,7 @@ init();
 /* ================= AUTO REFRESH ================= */
 setInterval(() => {
   init();
-}, 10000); // refresh every 10 seconds
-
+}, 10000);
 </script>
 
 </body>
