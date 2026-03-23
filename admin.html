@@ -1,97 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Admin Dashboard</title>
 
 <style>
 body {
-  font-family: Arial;
-  background: #0f0f0f;
+  font-family: Arial, sans-serif;
+  background: #111;
   color: #fff;
   padding: 20px;
 }
 
-h2 { color: #ff4444; }
-
-.section {
-  margin-top: 20px;
-  background: #1c1c1c;
-  padding: 15px;
-  border-radius: 10px;
+h2 {
+  text-align: center;
+  color: #ff4444;
+  margin-bottom: 20px;
 }
 
-.item {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 0;
+.section {
+  margin-bottom: 30px;
+}
+
+.box {
+  background: #1e1e1e;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #333;
+}
+
+.folderTitle {
+  color: #ff4444;
+  margin-bottom: 10px;
+}
+
+.videoItem {
+  padding: 5px 0;
   border-bottom: 1px solid #333;
+  font-size: 14px;
+}
+
+.videoItem:last-child {
+  border-bottom: none;
 }
 </style>
 </head>
 
 <body>
 
-<script>
-// 🔐 Password
-const correctPassword = "anywherecum1099";
-const entered = prompt("Enter admin password:");
-if (entered !== correctPassword) {
-  document.write("<h2>⛔ Access Denied</h2>");
-  throw new Error("Unauthorized");
-}
-</script>
-
 <h2>📊 Admin Dashboard</h2>
 
-<p>Total Views: <span id="totalViews">0</span></p>
-
 <div class="section">
-  <h3>📁 Folder Views</h3>
-  <div id="folderViews">Loading...</div>
+  <h3>🎬 Player Views (By Folder)</h3>
+  <div id="playerViewsContainer"></div>
 </div>
 
 <script type="module">
-import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getDatabase, ref, onValue } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWHoNqPpppR4kx0",
+  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
   authDomain: "anywherecum-1c8d0.firebaseapp.com",
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
   projectId: "anywherecum-1c8d0",
+  storageBucket: "anywherecum-1c8d0.firebasestorage.app",
+  messagingSenderId: "686718460803",
+  appId: "1:686718460803:web:5d0ec20634dfe2a7d98cb6"
 };
 
-const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Total views
-onValue(ref(db, "views/total"), (snap) => {
-  document.getElementById("totalViews").innerText = snap.val() || 0;
-});
+const playerContainer = document.getElementById("playerViewsContainer");
 
-// Folder views
-onValue(ref(db, "views/folders"), (snap) => {
-  const data = snap.val() || {};
-  const container = document.getElementById("folderViews");
+const playerRef = ref(db, "playerViews");
 
-  container.innerHTML = "";
+onValue(playerRef, (snapshot) => {
+  const data = snapshot.val();
+  playerContainer.innerHTML = "";
 
-  const entries = Object.entries(data);
-
-  if (entries.length === 0) {
-    container.innerHTML = "<p>No data</p>";
+  if (!data) {
+    playerContainer.innerHTML = "<p>No player views yet.</p>";
     return;
   }
 
-  entries.sort((a, b) => b[1] - a[1]);
+  Object.keys(data).forEach(folder => {
 
-  entries.forEach(([folder, views]) => {
-    const div = document.createElement("div");
-    div.className = "item";
-    div.innerHTML = `<span>${folder}</span><span>${views}</span>`;
-    container.appendChild(div);
+    const folderBox = document.createElement("div");
+    folderBox.className = "box";
+
+    const title = document.createElement("div");
+    title.className = "folderTitle";
+    title.textContent = "📁 " + folder;
+
+    folderBox.appendChild(title);
+
+    const videos = data[folder];
+
+    Object.keys(videos).forEach(videoId => {
+
+      const count = videos[videoId];
+
+      const item = document.createElement("div");
+      item.className = "videoItem";
+      item.textContent = `▶ ${videoId} — ${count} views`;
+
+      folderBox.appendChild(item);
+    });
+
+    playerContainer.appendChild(folderBox);
   });
 });
 </script>
