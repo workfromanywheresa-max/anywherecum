@@ -88,54 +88,29 @@ const db = getDatabase(app);
 
 const container = document.getElementById("folderStats");
 
-// Normalize folder names
-function normalize(name){
-  return name.trim().charAt(0).toUpperCase() + name.trim().slice(1).toLowerCase();
-}
-
-async function loadData() {
-
-  // Load videos first
-  const res = await fetch("videos.json");
-  const videos = await res.json();
-
-  // Extract unique folders
-  const foldersSet = new Set();
-  videos.forEach(v => {
-    if(v.folder){
-      foldersSet.add(normalize(v.folder));
-    }
-  });
-
-  const folders = Array.from(foldersSet);
-
+function loadData() {
   const folderRef = ref(db, "folderViews");
 
   onValue(folderRef, (snapshot) => {
     const data = snapshot.val() || {};
 
+    const sorted = Object.entries(data)
+      .sort((a, b) => b[1] - a[1]);
+
     container.innerHTML = "";
 
-    if (folders.length === 0) {
-      container.innerHTML = "<p style='text-align:center;color:#aaa;'>No folders found</p>";
+    if (sorted.length === 0) {
+      container.innerHTML = "<p style='text-align:center;color:#aaa;'>No data found</p>";
       return;
     }
 
-    // Sort folders by views
-    const sorted = folders.map(folder => {
-      return {
-        name: folder,
-        views: data[folder] || 0
-      };
-    }).sort((a,b)=> b.views - a.views);
-
-    sorted.forEach(f => {
+    sorted.forEach(([folder, views]) => {
       const div = document.createElement("div");
       div.className = "card";
 
       div.innerHTML = `
-        <div class="folderName">📁 ${f.name}</div>
-        <div class="views">👁 Views: ${f.views}</div>
+        <div class="folderName">📁 ${folder}</div>
+        <div class="views">👁 Views: ${views}</div>
       `;
 
       container.appendChild(div);
