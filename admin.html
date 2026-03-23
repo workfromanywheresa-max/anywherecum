@@ -1,117 +1,127 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard - Site Views</title>  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #121212;
-      color: #fff;
-      margin: 0;
-      padding: 20px;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Dashboard - Site Views</title>
 
-    h1, h2 {
-      color: #ff4444;
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #121212;
+  color: #fff;
+  margin: 0;
+  padding: 20px;
+}
 
-    .card {
-      background: #1e1e1e;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
+h1, h2 { color: #ff4444; }
 
-    ul {
-      list-style: none;
-      padding: 0;
-    }
+.card {
+  background: #1e1e1e;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
 
-    li {
-      padding: 8px;
-      border-bottom: 1px solid #333;
-      display: flex;
-      justify-content: space-between;
-    }
+ul { list-style: none; padding: 0; }
 
-    .value {
-      color: #00ffcc;
-      font-weight: bold;
-    }
+li {
+  padding: 8px;
+  border-bottom: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+}
 
-    button {
-      padding: 8px 12px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      background: #ff4444;
-      color: #fff;
-    }
+.value {
+  color: #00ffcc;
+  font-weight: bold;
+}
 
-    button:hover {
-      opacity: 0.8;
-    }
-  </style></head>
-<body>  <h1>📊 Admin Dashboard</h1>  <div class="card">
-    <h2>🏠 Home Views</h2>
-    <div id="homeViews" class="value">Loading...</div>
-  </div>  <div class="card">
-    <h2>📄 Page Views</h2>
-    <ul id="pageViews"></ul>
-  </div>  <div class="card">
-    <h2>📁 Folder Views</h2>
-    <ul id="folderViews"></ul>
-  </div>  <div class="card">
-    <button onclick="refreshData()">🔄 Refresh</button>
-  </div>  <script>
-    const DB = "https://anywherecum-1c8d0-default-rtdb.firebaseio.com";
+button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #ff4444;
+  color: #fff;
+}
+</style>
+</head>
 
-    async function fetchData(path) {
-      const res = await fetch(`${DB}/${path}.json`);
-      return await res.json();
-    }
+<body>
 
-    async function loadHome() {
-      const data = await fetchData("siteViews/home");
-      document.getElementById("homeViews").innerText = data || 0;
-    }
+<h1>📊 Admin Dashboard</h1>
 
-    async function loadPages() {
-      const data = await fetchData("siteViews/pages");
-      const list = document.getElementById("pageViews");
-      list.innerHTML = "";
+<div class="card">
+  <h2>🏠 Home Views</h2>
+  <div id="homeViews" class="value">Loading...</div>
+</div>
 
-      if (!data) return;
+<div class="card">
+  <h2>📄 Page Views</h2>
+  <ul id="pageViews"></ul>
+</div>
 
-      Object.keys(data).forEach(page => {
-        const li = document.createElement("li");
-        li.innerHTML = `<span>${page}</span><span class="value">${data[page]}</span>`;
-        list.appendChild(li);
-      });
-    }
+<div class="card">
+  <h2>📁 Folder Views</h2>
+  <ul id="folderViews"></ul>
+</div>
 
-    async function loadFolders() {
-      const data = await fetchData("siteViews/folders");
-      const list = document.getElementById("folderViews");
-      list.innerHTML = "";
+<div class="card">
+  <button onclick="refreshData()">🔄 Refresh</button>
+</div>
 
-      if (!data) return;
+<script>
+const DB = "https://anywherecum-1c8d0-default-rtdb.firebaseio.com";
 
-      Object.keys(data).forEach(folder => {
-        const li = document.createElement("li");
-        li.innerHTML = `<span>${folder}</span><span class="value">${data[folder]}</span>`;
-        list.appendChild(li);
-      });
-    }
+async function fetchData(path) {
+  const res = await fetch(`${DB}/${path}.json`);
+  return await res.json();
+}
 
-    async function refreshData() {
-      await loadHome();
-      await loadPages();
-      await loadFolders();
-    }
+async function loadHome() {
+  const data = await fetchData("pageViews/home");
+  document.getElementById("homeViews").innerText = data || 0;
+}
 
-    // Auto load on start
-    refreshData();
-  </script></body>
+async function loadPages() {
+  const data = await fetchData("pageViews");
+  const list = document.getElementById("pageViews");
+  list.innerHTML = "";
+
+  if (!data) return;
+
+  Object.keys(data).forEach(page => {
+    if (page === "home") return;
+
+    const li = document.createElement("li");
+    li.innerHTML = `<span>${page}</span><span class="value">${data[page]}</span>`;
+    list.appendChild(li);
+  });
+}
+
+async function loadFolders() {
+  const data = await fetchData("folderViews");
+  const list = document.getElementById("folderViews");
+  list.innerHTML = "";
+
+  if (!data) return;
+
+  Object.keys(data).forEach(folder => {
+    const li = document.createElement("li");
+    li.innerHTML = `<span>${folder}</span><span class="value">${data[folder]}</span>`;
+    list.appendChild(li);
+  });
+}
+
+async function refreshData() {
+  await loadHome();
+  await loadPages();
+  await loadFolders();
+}
+
+refreshData();
+</script>
+
+</body>
 </html>
