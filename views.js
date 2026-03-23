@@ -2,6 +2,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/fireba
 import { getDatabase, ref, runTransaction } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
+/* --------------------------
+   FIREBASE CONFIG
+--------------------------- */
 const firebaseConfig = {
   apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
   authDomain: "anywherecum-1c8d0.firebaseapp.com",
@@ -15,21 +18,24 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+/* --------------------------
+   WORKER URL (optional)
+--------------------------- */
 const WORKER_URL = "https://admin.workfromanywhere-sa.workers.dev";
 
+/* --------------------------
+   SESSION ID
+--------------------------- */
 let sessionId = sessionStorage.getItem("sessionId");
+
 if (!sessionId) {
   sessionId = Date.now() + "_" + Math.random();
   sessionStorage.setItem("sessionId", sessionId);
 }
 
-function countOnce(key, callback) {
-  if (sessionStorage.getItem(key)) return;
-  sessionStorage.setItem(key, "1");
-  callback();
-}
-
-// Normalize page name
+/* --------------------------
+   GET PAGE NAME
+--------------------------- */
 let path = window.location.pathname;
 
 if (path === "/" || path.includes("index")) {
@@ -39,54 +45,52 @@ if (path === "/" || path.includes("index")) {
 }
 
 /* --------------------------
-   PAGE TRACKING
+   TRACK FUNCTION
 --------------------------- */
+function trackOnce(key, firebasePath, workerPath, body = null) {
+  if (sessionStorage.getItem(key)) return;
 
-countOnce("page_" + path, () => {
+  sessionStorage.setItem(key, "1");
 
-  runTransaction(ref(db, "pageViews/" + path), v => (v || 0) + 1);
+  // Firebase increment
+  runTransaction(ref(db, firebasePath), (v) => (v || 0) + 1);
 
-  fetch(`${WORKER_URL}/page`, {
+  // Worker call (optional)
+  fetch(`${WORKER_URL}/${workerPath}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ page: path })
-  }).catch(()=>{});
-
-});
+    headers: body ? { "Content-Type": "application/json" } : {},
+    body: body ? JSON.stringify(body) : undefined
+  }).catch(() => {});
+}
 
 /* --------------------------
    HOME TRACKING
 --------------------------- */
-
 if (path === "home") {
-  countOnce("home_view", () => {
-
-    runTransaction(ref(db, "pageViews/home"), v => (v || 0) + 1);
-
-    fetch(`${WORKER_URL}/home`, {
-      method: "POST"
-    }).catch(()=>{});
-
-  });
+  trackOnce("home_view", "pageViews/home", "home");
 }
+
+/* --------------------------
+   PAGE TRACKING
+--------------------------- */
+trackOnce(
+  "page_" + path,
+  "pageViews/" + path,
+  "page",
+  { page: path }
+);
 
 /* --------------------------
    FOLDER TRACKING
 --------------------------- */
-
 const params = new URLSearchParams(window.location.search);
 const folder = params.get("folder");
 
 if (folder) {
-  countOnce("folder_" + folder, () => {
-
-    runTransaction(ref(db, "folderViews/" + folder), v => (v || 0) + 1);
-
-    fetch(`${WORKER_URL}/folder`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ folder })
-    }).catch(()=>{});
-
-  });
-            }
+  trackOnce(
+    "folder_" + folder,
+    "folderViews/" + folder,
+    "folder",
+    { folder }
+  );
+}
