@@ -80,7 +80,6 @@ async function loadPages() {
 
   Object.keys(data).forEach(page => {
     const value = typeof data[page] === "number" ? data[page] : 0;
-
     total += value;
 
     const li = document.createElement("li");
