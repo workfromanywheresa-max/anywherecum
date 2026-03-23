@@ -22,16 +22,18 @@ h1, h2 { color: #ff4444; }
   border-radius: 10px;
 }
 
-/* TWO COLUMN LAYOUT */
+/* TWO COLUMN LAYOUT باستخدام GRID */
 .container {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 20px;
-  flex-wrap: wrap;
 }
 
-.column {
-  flex: 1;
-  min-width: 300px;
+/* Responsive fallback */
+@media (max-width: 768px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
 }
 
 ul { list-style: none; padding: 0; }
@@ -63,26 +65,22 @@ li {
 <h1>📊 Admin Dashboard</h1>
 
 <div class="total-card">
-  <h2>🔥 Total Views</h2>
+  <h2>🔥 Total Views (Pages + Folders)</h2>
   <div id="totalViews" class="value">Loading...</div>
 </div>
 
 <div class="container">
 
   <!-- PAGE VIEWS COLUMN -->
-  <div class="column">
-    <div class="card">
-      <h2>📄 Page Views</h2>
-      <ul id="pageViews"></ul>
-    </div>
+  <div class="card">
+    <h2>📄 Page Views</h2>
+    <ul id="pageViews"></ul>
   </div>
 
   <!-- FOLDER VIEWS COLUMN -->
-  <div class="column">
-    <div class="card">
-      <h2>📁 Folder Views</h2>
-      <ul id="folderViews"></ul>
-    </div>
+  <div class="card">
+    <h2>📁 Folder Views</h2>
+    <ul id="folderViews"></ul>
   </div>
 
 </div>
