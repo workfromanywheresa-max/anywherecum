@@ -130,7 +130,7 @@ const db = getDatabase(app);
 const PAGE_WORKER_URL = "https://dashboard.workfromanywhere-sa.workers.dev";
 const VIDEO_WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
 
-/* ================= SESSION TRACKING ================= */
+/* ================= SESSION TRACKING (FOLDER VIEWS) ================= */
 if (!window.__trackingInitialized) {
   window.__trackingInitialized = true;
 
@@ -141,7 +141,7 @@ if (!window.__trackingInitialized) {
     sessionStorage.setItem("sessionId", sessionId);
   }
 
-  function trackPageOnce(key, pageName) {
+  function trackFolderOnce(key, folderName) {
     const uniqueKey = key + "_" + sessionId;
 
     if (sessionStorage.getItem(uniqueKey)) return;
@@ -151,7 +151,7 @@ if (!window.__trackingInitialized) {
     fetch(`${PAGE_WORKER_URL}/increment`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ page: pageName })
+      body: JSON.stringify({ folder: folderName })
     }).catch(()=>{});
   }
 
@@ -159,20 +159,19 @@ if (!window.__trackingInitialized) {
   const params = new URLSearchParams(window.location.search);
   const folder = params.get("folder");
 
-  let pageName;
+  let folderName;
 
-  // ✅ folder.html detection
   if (path.includes("folder.html")) {
     if (folder) {
-      pageName = "folder_" + decodeURIComponent(folder).toLowerCase();
+      folderName = decodeURIComponent(folder).toLowerCase();
     } else {
-      pageName = "folder_unknown";
+      folderName = "unknown";
     }
   } else {
-    pageName = path.split("/").filter(Boolean).pop().replace(".html", "");
+    folderName = path.split("/").filter(Boolean).pop().replace(".html", "");
   }
 
-  trackPageOnce("page_" + pageName, pageName);
+  trackFolderOnce("folder_" + folderName, folderName);
 }
 
 /* ================= VIDEO TRACKING ================= */
