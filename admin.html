@@ -66,6 +66,19 @@ async function fetchData(path) {
   return await res.json();
 }
 
+function extractFolder(key) {
+  // Example key: "folder?folder=Missionary"
+  try {
+    if (key.includes("folder?")) {
+      const query = key.split("?")[1];
+      const params = new URLSearchParams(query);
+      return params.get("folder") || "Unknown";
+    }
+  } catch (e) {}
+
+  return "Other";
+}
+
 async function loadData() {
   const data = await fetchData("pageViews");
 
@@ -87,18 +100,13 @@ async function loadData() {
     const value = typeof data[page] === "number" ? data[page] : 0;
     total += value;
 
-    // نمایش صفحات
+    // Page list
     const liPage = document.createElement("li");
     liPage.innerHTML = `<span>${page}</span><span class="value">${value}</span>`;
     pageList.appendChild(liPage);
 
-    // استخراج folder از page key
-    // Expected format: folder/page
-    let folder = "Unknown";
-
-    if (page.includes("/")) {
-      folder = page.split("/")[0];
-    }
+    // Folder extraction
+    const folder = extractFolder(page);
 
     if (!folderTotals[folder]) {
       folderTotals[folder] = 0;
@@ -107,7 +115,7 @@ async function loadData() {
     folderTotals[folder] += value;
   });
 
-  // نمایش folder ها
+  // Folder list
   Object.keys(folderTotals).forEach(folder => {
     const liFolder = document.createElement("li");
     liFolder.innerHTML = `<span>${folder}</span><span class="value">${folderTotals[folder]}</span>`;
