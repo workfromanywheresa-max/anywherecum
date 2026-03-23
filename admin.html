@@ -67,7 +67,6 @@ li {
 <script>
 const ADMIN_PASSWORD = "Anywherecum1099";
 
-// Check login state
 const isLoggedIn = localStorage.getItem("adminLoggedIn");
 
 if (!isLoggedIn) {
@@ -96,13 +95,18 @@ if (!isLoggedIn) {
     throw new Error("Unauthorized");
   }
 
-  // Save login
   localStorage.setItem("adminLoggedIn", "true");
 }
 </script>
 
-<h1>
+<h1 style="position:relative;">
 📊 Admin Dashboard
+
+<a href="admin.html" id="adminViews"
+   style="position:absolute; right:10px; top:0; color:#00ffcc; font-weight:bold; text-decoration:none;">
+👁 0 Admin
+</a>
+
 <button class="logout-btn" onclick="logout()">Logout</button>
 </h1>
 
@@ -171,8 +175,13 @@ async function init() {
   const pageTotal = await loadPages();
   const folderTotal = await loadFolders();
 
-  document.getElementById("totalViews").innerText =
-    pageTotal + folderTotal;
+  const total = pageTotal + folderTotal;
+
+  // Update dashboard total
+  document.getElementById("totalViews").innerText = total;
+
+  // Update top admin link
+  document.getElementById("adminViews").innerText = `👁 ${total} Admin`;
 }
 
 init();
