@@ -58,6 +58,7 @@ h2 {
   top: -210px;
   left: 0;
   border: 0;
+  pointer-events: none;
 }
 
 /* Title */
@@ -88,6 +89,34 @@ h2 {
   text-decoration: none;
   border-radius: 5px;
 }
+
+/* Inline player container */
+#playerContainer {
+  display: none;
+  width: 100%;
+  height: 100vh;
+}
+
+#inlinePlayer {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Back button */
+#closePlayer {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 999;
+  padding: 8px 12px;
+  background: #ff4444;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: none;
+}
 </style>
 </head>
 
@@ -110,6 +139,13 @@ h2 {
 <h2 id="folderTitle">Folder</h2>
 <p class="description">Enjoy our videos, updated regularly for your viewing pleasure.</p>
 
+<!-- Inline Player -->
+<div id="playerContainer">
+  <iframe id="inlinePlayer"></iframe>
+</div>
+
+<button id="closePlayer">← Back</button>
+
 <div id="videoList"></div>
 
 <script type="module">
@@ -131,6 +167,9 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 const container = document.getElementById("videoList");
+const playerContainer = document.getElementById("playerContainer");
+const iframe = document.getElementById("inlinePlayer");
+const closeBtn = document.getElementById("closePlayer");
 
 const urlParams = new URLSearchParams(window.location.search);
 const folderName = (urlParams.get("folder") || "").toLowerCase();
@@ -171,6 +210,13 @@ async function increaseViews(videoId){
   }).catch(()=>{});
 }
 
+closeBtn.onclick = () => {
+  playerContainer.style.display = "none";
+  container.style.display = "block";
+  closeBtn.style.display = "none";
+  iframe.src = "";
+};
+
 fetch('videos.json')
 .then(res => res.json())
 .then(videos => {
@@ -205,33 +251,10 @@ fetch('videos.json')
     thumb.onclick = () => {
       increaseViews(v.id);
 
-      const iframe = document.createElement("iframe");
-      iframe.src = v.url;
-      iframe.setAttribute("allowfullscreen", "");
-      iframe.setAttribute("allow", "autoplay");
-
-      // IMPORTANT: disable iframe clicks
-      iframe.style.pointerEvents = "none";
-
-      const overlay = document.createElement("div");
-      overlay.style.position = "absolute";
-      overlay.style.top = "0";
-      overlay.style.left = "0";
-      overlay.style.width = "100%";
-      overlay.style.height = "100%";
-      overlay.style.cursor = "pointer";
-      overlay.style.zIndex = "3";
-      overlay.style.pointerEvents = "auto";
-
-      overlay.onclick = () => {
-        window.open("player.html?id=" + v.id, "_blank");
-      };
-
-      wrapper.innerHTML = "";
-      wrapper.style.position = "relative";
-
-      wrapper.appendChild(iframe);
-      wrapper.appendChild(overlay);
+      iframe.src = `player.html?id=${v.id}&url=${encodeURIComponent(v.url)}&folder=${v.folder}`;
+      playerContainer.style.display = "block";
+      container.style.display = "none";
+      closeBtn.style.display = "block";
     };
 
     wrapper.appendChild(thumb);
@@ -241,7 +264,10 @@ fetch('videos.json')
     title.textContent = v.title;
     title.onclick = () => {
       increaseViews(v.id);
-      window.open(v.url, "_blank");
+      iframe.src = v.url;
+      playerContainer.style.display = "block";
+      container.style.display = "none";
+      closeBtn.style.display = "block";
     };
 
     const viewsEl = document.createElement("div");
@@ -300,7 +326,10 @@ fetch('videos.json')
     btn.onclick = (e)=>{
       e.preventDefault();
       increaseViews(v.id);
-      window.open(v.url, "_blank");
+      iframe.src = v.url;
+      playerContainer.style.display = "block";
+      container.style.display = "none";
+      closeBtn.style.display = "block";
     };
 
     box.appendChild(wrapper);
