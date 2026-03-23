@@ -73,7 +73,7 @@ async function updateAdminCount() {
   // Update UI
   const el = document.getElementById("adminViews");
   if (el) {
-    el.innerText = `👁${total} Admin`;
+    el.innerText = `👁${total} | Admin`;
   }
 }
 
