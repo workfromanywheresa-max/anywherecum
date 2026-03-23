@@ -547,21 +547,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Latest Video
-    if(videos.length){
-      const latestVideo=videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
-      const latestDiv=document.getElementById('latestVideo');
-      latestDiv.innerHTML=`
-        <h2>🎥Latest Video🎥</h2>
-        <ul class="folder-grid">
-          <li>
-            <img src="${BASE_URL+latestVideo.thumbnail}" style="width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;">
-            <a href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" class="folder-link" target="">Watch Now: New Video Available!!!</a>
-          </li>
-        </ul>`;
-      latestDiv.querySelector("img").onclick=()=>window.open("folder.html?folder="+encodeURIComponent(latestVideo.folder), "");
-    }
-  });
-});
+if(videos.length){
+  const latestVideo = videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+  const latestDiv = document.getElementById('latestVideo');
+
+  latestDiv.innerHTML = `
+    <h2>🎥Latest Video🎥</h2>
+    <ul class="folder-grid">
+      <li>
+        <img src="${BASE_URL+latestVideo.thumbnail}" style="width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;">
+        <a href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" class="folder-link">
+          Watch Now: New Video Available!!!
+        </a>
+      </li>
+    </ul>`;
+
+  latestDiv.querySelector("img").onclick = () => {
+    window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.folder);
+  };
+}
                                                                  
 </script>
 
