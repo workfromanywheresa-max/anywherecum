@@ -81,7 +81,7 @@ async function fetchData(path) {
 
 async function loadHome() {
   const data = await fetchData("pageViews/home");
-  document.getElementById("homeViews").innerText = data || 0;
+  document.getElementById("homeViews").innerText = data ?? 0;
 }
 
 async function loadPages() {
@@ -94,8 +94,10 @@ async function loadPages() {
   Object.keys(data).forEach(page => {
     if (page === "home") return;
 
+    const value = typeof data[page] === "number" ? data[page] : 0;
+
     const li = document.createElement("li");
-    li.innerHTML = `<span>${page}</span><span class="value">${data[page]}</span>`;
+    li.innerHTML = `<span>${page}</span><span class="value">${value}</span>`;
     list.appendChild(li);
   });
 }
@@ -108,8 +110,10 @@ async function loadFolders() {
   if (!data) return;
 
   Object.keys(data).forEach(folder => {
+    const value = typeof data[folder] === "number" ? data[folder] : 0;
+
     const li = document.createElement("li");
-    li.innerHTML = `<span>${folder}</span><span class="value">${data[folder]}</span>`;
+    li.innerHTML = `<span>${folder}</span><span class="value">${value}</span>`;
     list.appendChild(li);
   });
 }
