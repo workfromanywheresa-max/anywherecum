@@ -19,11 +19,6 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 /* --------------------------
-   WORKER URL (optional)
---------------------------- */
-const WORKER_URL = "https://admin.workfromanywhere-sa.workers.dev";
-
-/* --------------------------
    SESSION ID
 --------------------------- */
 let sessionId = sessionStorage.getItem("sessionId");
@@ -34,63 +29,49 @@ if (!sessionId) {
 }
 
 /* --------------------------
-   GET PAGE NAME
+   TRACK ONCE FUNCTION
 --------------------------- */
-let path = window.location.pathname;
-
-if (path === "/" || path.includes("index")) {
-  path = "home";
-} else {
-  path = path.replace("/", "").replace(".html", "");
-}
-
-/* --------------------------
-   TRACK FUNCTION
---------------------------- */
-function trackOnce(key, firebasePath, workerPath, body = null) {
+function trackOnce(key, firebasePath) {
   if (sessionStorage.getItem(key)) return;
 
   sessionStorage.setItem(key, "1");
 
-  // Firebase increment
   runTransaction(ref(db, firebasePath), (v) => (v || 0) + 1);
-
-  // Worker call (optional)
-  fetch(`${WORKER_URL}/${workerPath}`, {
-    method: "POST",
-    headers: body ? { "Content-Type": "application/json" } : {},
-    body: body ? JSON.stringify(body) : undefined
-  }).catch(() => {});
 }
 
 /* --------------------------
-   HOME TRACKING
+   GET PAGE NAME (DYNAMIC)
+--------------------------- */
+let path = window.location.pathname.toLowerCase();
+
+// Extract filename
+path = path.split("/").pop();
+
+// Normalize homepage
+if (!path || path === "" || path === "index.html") {
+  path = "home";
+} else {
+  path = path.replace(".html", "");
+}
+
+/* --------------------------
+   TRACK PAGE VIEW
+--------------------------- */
+trackOnce("page_" + path, "pageViews/" + path);
+
+/* --------------------------
+   OPTIONAL: HOME TRACK
 --------------------------- */
 if (path === "home") {
-  trackOnce("home_view", "pageViews/home", "home");
+  trackOnce("home_view", "pageViews/home");
 }
 
 /* --------------------------
-   PAGE TRACKING
---------------------------- */
-trackOnce(
-  "page_" + path,
-  "pageViews/" + path,
-  "page",
-  { page: path }
-);
-
-/* --------------------------
-   FOLDER TRACKING
+   FOLDER TRACKING (?folder=)
 --------------------------- */
 const params = new URLSearchParams(window.location.search);
 const folder = params.get("folder");
 
 if (folder) {
-  trackOnce(
-    "folder_" + folder,
-    "folderViews/" + folder,
-    "folder",
-    { folder }
-  );
+  trackOnce("folder_" + folder, "folderViews/" + folder);
 }
