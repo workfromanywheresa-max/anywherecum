@@ -1,41 +1,99 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, runTransaction } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getDatabase, ref, runTransaction } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
+// Firebase config
 const firebaseConfig = {
-  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWHoNqPpppR4kx0",
+  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
   authDomain: "anywherecum-1c8d0.firebaseapp.com",
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
   projectId: "anywherecum-1c8d0",
-  storageBucket: "anywherecum-1c8d0.appspot.com",
+  storageBucket: "anywherecum-1c8d0.firebasestorage.app",
   messagingSenderId: "686718460803",
-  appId: "1:686718460803:web:5d0ec20634dfe2a7d98cb6",
-  measurementId: "G-6XXPPV4727"
+  appId: "1:686718460803:web:78827198d1be2904d98cb6",
+  measurementId: "G-VXTZJ2NLQW"
 };
 
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const db = getDatabase(app);
 
-// 📅 Today
-const today = new Date().toISOString().split("T")[0];
+// Worker
+const WORKER_URL = "https://admin.workfromanywhere-sa.workers.dev";
 
-// 📄 Detect page
+/* --------------------------
+   SESSION CONTROL
+--------------------------- */
+
+let sessionId = sessionStorage.getItem("sessionId");
+
+if (!sessionId) {
+  sessionId = Date.now() + "_" + Math.random();
+  sessionStorage.setItem("sessionId", sessionId);
+}
+
+/* --------------------------
+   SAFE COUNT FUNCTION
+--------------------------- */
+
+function countOnce(key, callback) {
+  if (sessionStorage.getItem(key)) return;
+  sessionStorage.setItem(key, "1");
+  callback();
+}
+
+/* --------------------------
+   PAGE TRACKING
+--------------------------- */
+
 const path = window.location.pathname;
-let page = path.split("/").pop();
-if (!page || page === "") page = "index.html";
 
-// 🔥 References
-const totalRef = ref(db, "views/total");
-const pageRef = ref(db, `views/pages/${page}`);
-const dailyRef = ref(db, `views/daily/${today}/${page}`);
+// Homepage
+if (path === "/" || path.includes("index")) {
+  countOnce("home_view", () => {
 
-// 🚀 Prevent double count per session
-if (!sessionStorage.getItem("viewed")) {
+    runTransaction(ref(db, "pageViews/home"), v => (v || 0) + 1);
 
-  runTransaction(totalRef, (val) => (val || 0) + 1);
-  runTransaction(pageRef, (val) => (val || 0) + 1);
-  runTransaction(dailyRef, (val) => (val || 0) + 1);
+    fetch(`${WORKER_URL}/increment-page`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ page: "home" })
+    }).catch(()=>{});
 
-  sessionStorage.setItem("viewed", "true");
+  });
+}
+
+// All pages
+countOnce("page_" + path, () => {
+
+  runTransaction(ref(db, "pageViews" + path), v => (v || 0) + 1);
+
+  fetch(`${WORKER_URL}/increment-page`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ page: path })
+  }).catch(()=>{});
+
+});
+
+/* --------------------------
+   FOLDER TRACKING (AUTO)
+--------------------------- */
+
+// Detect folder from URL
+const params = new URLSearchParams(window.location.search);
+const folder = params.get("folder");
+
+// Only once per session
+if (folder) {
+  countOnce("folder_" + folder, () => {
+
+    runTransaction(ref(db, "folderViews/" + folder), v => (v || 0) + 1);
+
+    fetch(`${WORKER_URL}/increment-folder`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ folder })
+    }).catch(()=>{});
+
+  });
 }
