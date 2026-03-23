@@ -116,10 +116,17 @@ const db = getDatabase(app);
 const container = document.getElementById("videoList");
 
 const urlParams = new URLSearchParams(window.location.search);
-const folderName = (urlParams.get("folder") || "").toLowerCase();
+const rawFolder = urlParams.get("folder") || "";
+
+// Normalize folder (Capital first letter)
+function normalizeFolder(name) {
+  return name.trim().charAt(0).toUpperCase() + name.trim().slice(1).toLowerCase();
+}
+
+const folderName = normalizeFolder(rawFolder);
 
 document.getElementById("folderTitle").textContent =
-  folderName ? folderName.charAt(0).toUpperCase() + folderName.slice(1) : "All Videos";
+  folderName || "All Videos";
 
 const TREND_THRESHOLD = 10;
 const OWNER_IP = "102.214.117.74";
@@ -144,13 +151,12 @@ async function increaseViews(videoId, folder){
   const userIP = await getUserIP();
   if (userIP && userIP === OWNER_IP) return;
 
-  // Video views
   runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
   runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
 
-  // ✅ Folder views
   if(folder){
-    runTransaction(ref(db, "folderViews/" + folder), v => (v || 0) + 1);
+    const normalizedFolder = normalizeFolder(folder);
+    runTransaction(ref(db, "folderViews/" + normalizedFolder), v => (v || 0) + 1);
   }
 }
 
@@ -163,7 +169,7 @@ fetch('videos.json')
   const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
   const folderVideos = folderName
-    ? videos.filter(v => v.folder.toLowerCase() === folderName)
+    ? videos.filter(v => normalizeFolder(v.folder) === folderName)
     : videos;
 
   if(folderVideos.length === 0){
