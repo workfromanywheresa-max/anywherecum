@@ -113,7 +113,7 @@ import { getDatabase, ref, runTransaction, onValue }
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 /* =========================
-   🔥 FIREBASE (VIDEOS)
+   🔥 FIREBASE
 ========================= */
 const firebaseConfig = {
   apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
@@ -129,7 +129,7 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 /* =========================
-   🚀 PAGE VIEWS (WORKER)
+   🚀 PAGE VIEWS WORKER
 ========================= */
 const PAGE_WORKER_URL = "https://dashboard.workfromanywhere-sa.workers.dev";
 
@@ -139,7 +139,7 @@ const PAGE_WORKER_URL = "https://dashboard.workfromanywhere-sa.workers.dev";
 const VIDEO_WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
 
 /* =========================
-   ✅ SESSION + TRACK ONCE
+   ✅ SESSION TRACKING
 ========================= */
 
 if (!window.__trackingInitialized) {
@@ -174,7 +174,8 @@ if (!window.__trackingInitialized) {
     const folder = params.get("folder");
 
     if (folder) {
-      pageName = "folder_" + folder;
+      // ✅ FIX: normalize to lowercase
+      pageName = "folder_" + decodeURIComponent(folder).toLowerCase();
     } else {
       pageName = "folder_unknown";
     }
@@ -192,7 +193,8 @@ if (!window.__trackingInitialized) {
 const container = document.getElementById("videoList");
 
 const urlParams = new URLSearchParams(window.location.search);
-const folderName = (urlParams.get("folder") || "").toLowerCase();
+const folderNameRaw = urlParams.get("folder") || "";
+const folderName = decodeURIComponent(folderNameRaw);
 
 document.getElementById("folderTitle").textContent =
   folderName ? folderName.charAt(0).toUpperCase() + folderName.slice(1) : "All Videos";
@@ -241,7 +243,7 @@ fetch('videos.json')
   const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
   const folderVideos = folderName
-    ? videos.filter(v => v.folder.toLowerCase() === folderName)
+    ? videos.filter(v => v.folder.toLowerCase() === folderName.toLowerCase())
     : videos;
 
   if(folderVideos.length === 0){
