@@ -98,15 +98,7 @@ if (!isLoggedIn) {
   localStorage.setItem("adminLoggedIn", "true");
 }
 </script>
-
-<h1 style="position:relative;">
-📊 Admin Dashboard
-
-<a href="admin.html" id="adminViews"
-   style="position:absolute; right:10px; top:0; color:#00ffcc; font-weight:bold; text-decoration:none;">
-👁 0 Admin
-</a>
-
+  
 <button class="logout-btn" onclick="logout()">Logout</button>
 </h1>
 
@@ -181,7 +173,7 @@ async function init() {
   document.getElementById("totalViews").innerText = total;
 
   // Update top admin link
-  document.getElementById("adminViews").innerText = `👁 ${total} Admin`;
+  document.getElementById("adminViews").innerText = `👁${total} Admin`;
 }
 
 init();
