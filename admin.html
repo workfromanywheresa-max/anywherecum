@@ -36,15 +36,6 @@ li {
   color: #00ffcc;
   font-weight: bold;
 }
-
-button {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  background: #ff4444;
-  color: #fff;
-}
 </style>
 </head>
 
@@ -53,8 +44,8 @@ button {
 <h1>📊 Admin Dashboard</h1>
 
 <div class="card">
-  <h2>🏠 Home Views</h2>
-  <div id="homeViews" class="value">Loading...</div>
+  <h2>🔥 Total Views</h2>
+  <div id="totalViews" class="value">Loading...</div>
 </div>
 
 <div class="card">
@@ -67,10 +58,6 @@ button {
   <ul id="folderViews"></ul>
 </div>
 
-<div class="card">
-  <button onclick="refreshData()">🔄 Refresh</button>
-</div>
-
 <script>
 const DB = "https://anywherecum-1c8d0-default-rtdb.firebaseio.com";
 
@@ -79,27 +66,29 @@ async function fetchData(path) {
   return await res.json();
 }
 
-async function loadHome() {
-  const data = await fetchData("pageViews/home");
-  document.getElementById("homeViews").innerText = data ?? 0;
-}
-
 async function loadPages() {
   const data = await fetchData("pageViews");
   const list = document.getElementById("pageViews");
   list.innerHTML = "";
 
-  if (!data) return;
+  let total = 0;
+
+  if (!data) {
+    document.getElementById("totalViews").innerText = 0;
+    return;
+  }
 
   Object.keys(data).forEach(page => {
-    if (page === "home") return;
-
     const value = typeof data[page] === "number" ? data[page] : 0;
+
+    total += value;
 
     const li = document.createElement("li");
     li.innerHTML = `<span>${page}</span><span class="value">${value}</span>`;
     list.appendChild(li);
   });
+
+  document.getElementById("totalViews").innerText = total;
 }
 
 async function loadFolders() {
@@ -118,13 +107,12 @@ async function loadFolders() {
   });
 }
 
-async function refreshData() {
-  await loadHome();
+async function init() {
   await loadPages();
   await loadFolders();
 }
 
-refreshData();
+init();
 </script>
 
 </body>
