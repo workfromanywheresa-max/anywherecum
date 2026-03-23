@@ -53,6 +53,22 @@ li {
 
 <body>
 
+<script>
+const ADMIN_PASSWORD = "AnywhereCum1099"; // 🔒 change this to your password
+
+function checkPassword() {
+  let entered = prompt("Enter Admin Password:");
+
+  if (entered !== ADMIN_PASSWORD) {
+    alert("Access Denied ❌");
+    document.body.innerHTML = "<h1 style='color:red;text-align:center;margin-top:50px;'>Access Denied</h1>";
+    throw new Error("Unauthorized");
+  }
+}
+
+checkPassword();
+</script>
+
 <h1>📊 Admin Dashboard</h1>
 
 <div class="total-card">
