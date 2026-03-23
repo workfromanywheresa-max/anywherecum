@@ -44,13 +44,18 @@ li {
 <h1>📊 Admin Dashboard</h1>
 
 <div class="card">
-  <h2>🔥 Total Views</h2>
+  <h2>🔥 Total Views (Pages + Folders)</h2>
   <div id="totalViews" class="value">Loading...</div>
 </div>
 
 <div class="card">
   <h2>📄 Page Views</h2>
   <ul id="pageViews"></ul>
+</div>
+
+<div class="card">
+  <h2>📁 Folder Views</h2>
+  <ul id="folderViews"></ul>
 </div>
 
 <script>
@@ -61,6 +66,7 @@ async function fetchData(path) {
   return await res.json();
 }
 
+/* ================= LOAD PAGE VIEWS ================= */
 async function loadPages() {
   const data = await fetchData("pageViews");
   const list = document.getElementById("pageViews");
@@ -68,25 +74,50 @@ async function loadPages() {
 
   let total = 0;
 
-  if (!data) {
-    document.getElementById("totalViews").innerText = 0;
-    return;
+  if (data) {
+    Object.keys(data).forEach(page => {
+      const value = typeof data[page] === "number" ? data[page] : 0;
+      total += value;
+
+      const li = document.createElement("li");
+      li.innerHTML = `<span>${page}</span><span class="value">${value}</span>`;
+      list.appendChild(li);
+    });
   }
 
-  Object.keys(data).forEach(page => {
-    const value = typeof data[page] === "number" ? data[page] : 0;
-    total += value;
-
-    const li = document.createElement("li");
-    li.innerHTML = `<span>${page}</span><span class="value">${value}</span>`;
-    list.appendChild(li);
-  });
-
-  document.getElementById("totalViews").innerText = total;
+  return total;
 }
 
+/* ================= LOAD FOLDER VIEWS ================= */
+async function loadFolders() {
+  const data = await fetchData("folderViews");
+  const list = document.getElementById("folderViews");
+  list.innerHTML = "";
+
+  let total = 0;
+
+  if (data) {
+    Object.keys(data).forEach(folder => {
+      const value = typeof data[folder] === "number" ? data[folder] : 0;
+      total += value;
+
+      const li = document.createElement("li");
+      li.innerHTML = `<span>${folder}</span><span class="value">${value}</span>`;
+      list.appendChild(li);
+    });
+  }
+
+  return total;
+}
+
+/* ================= INIT ================= */
 async function init() {
-  await loadPages();
+  const pageTotal = await loadPages();
+  const folderTotal = await loadFolders();
+
+  const total = pageTotal + folderTotal;
+
+  document.getElementById("totalViews").innerText = total;
 }
 
 init();
