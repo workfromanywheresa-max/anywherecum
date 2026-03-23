@@ -1,61 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Admin Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard - Folder Views</title>
 
 <style>
 body {
   font-family: Arial, sans-serif;
-  background: #111;
+  background: #121212;
   color: #fff;
+  margin: 0;
   padding: 20px;
 }
 
-h2 {
+h1 {
   text-align: center;
   color: #ff4444;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+}
+
+.card {
+  background: #1e1e1e;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border-left: 4px solid #ff4444;
+}
+
+.folderName {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.views {
+  margin-top: 5px;
+  color: #aaa;
+}
+
+.topBar {
+  text-align: center;
   margin-bottom: 20px;
 }
 
-.section {
-  margin-bottom: 30px;
-}
-
-.box {
-  background: #1e1e1e;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #333;
-}
-
-.folderTitle {
-  color: #ff4444;
-  margin-bottom: 10px;
-}
-
-.videoItem {
-  padding: 5px 0;
-  border-bottom: 1px solid #333;
-  font-size: 14px;
-}
-
-.videoItem:last-child {
-  border-bottom: none;
+.refresh {
+  background: #ff4444;
+  border: none;
+  padding: 8px 12px;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
 }
 </style>
 </head>
 
 <body>
 
-<h2>📊 Admin Dashboard</h2>
+<h1>📊 Folder Views Dashboard</h1>
 
-<div class="section">
-  <h3>🎬 Player Views (By Folder)</h3>
-  <div id="playerViewsContainer"></div>
+<div class="topBar">
+  <button class="refresh" onclick="loadData()">🔄 Refresh</button>
 </div>
+
+<div class="container" id="folderStats"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
@@ -75,46 +86,39 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const playerContainer = document.getElementById("playerViewsContainer");
+const container = document.getElementById("folderStats");
 
-const playerRef = ref(db, "playerViews");
+function loadData() {
+  const folderRef = ref(db, "folderViews");
 
-onValue(playerRef, (snapshot) => {
-  const data = snapshot.val();
-  playerContainer.innerHTML = "";
+  onValue(folderRef, (snapshot) => {
+    const data = snapshot.val() || {};
 
-  if (!data) {
-    playerContainer.innerHTML = "<p>No player views yet.</p>";
-    return;
-  }
+    const sorted = Object.entries(data)
+      .sort((a, b) => b[1] - a[1]);
 
-  Object.keys(data).forEach(folder => {
+    container.innerHTML = "";
 
-    const folderBox = document.createElement("div");
-    folderBox.className = "box";
+    if (sorted.length === 0) {
+      container.innerHTML = "<p style='text-align:center;color:#aaa;'>No data found</p>";
+      return;
+    }
 
-    const title = document.createElement("div");
-    title.className = "folderTitle";
-    title.textContent = "📁 " + folder;
+    sorted.forEach(([folder, views]) => {
+      const div = document.createElement("div");
+      div.className = "card";
 
-    folderBox.appendChild(title);
+      div.innerHTML = `
+        <div class="folderName">📁 ${folder}</div>
+        <div class="views">👁 Views: ${views}</div>
+      `;
 
-    const videos = data[folder];
-
-    Object.keys(videos).forEach(videoId => {
-
-      const count = videos[videoId];
-
-      const item = document.createElement("div");
-      item.className = "videoItem";
-      item.textContent = `▶ ${videoId} — ${count} views`;
-
-      folderBox.appendChild(item);
+      container.appendChild(div);
     });
-
-    playerContainer.appendChild(folderBox);
   });
-});
+}
+
+loadData();
 </script>
 
 </body>
