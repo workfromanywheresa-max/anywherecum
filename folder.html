@@ -344,6 +344,8 @@ window.onload = function () {
 };
 </script>  
 
+<!-- KEEP YOUR EXISTING CODE EXACTLY THE SAME ABOVE -->
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, runTransaction, onValue } 
@@ -390,7 +392,6 @@ function formatViews(num) {
 }
 
 async function increaseViews(videoId){
-
   const userIP = await getUserIP();
   if (userIP && userIP === OWNER_IP) return;
 
@@ -402,6 +403,15 @@ async function increaseViews(videoId){
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ videoId })
   }).catch(()=>{});
+}
+
+/* ✅ NEW: PLAYER VIEW TRACKING (iframe click/play) */
+async function increasePlayerViews(videoId){
+  const userIP = await getUserIP();
+  if (userIP && userIP === OWNER_IP) return;
+
+  const path = "playerViews/" + folderName + "/" + videoId;
+  runTransaction(ref(db, path), v => (v || 0) + 1);
 }
 
 fetch('videos.json')
@@ -438,13 +448,40 @@ fetch('videos.json')
     thumb.onclick = () => {
       increaseViews(v.id);
 
+      /* ✅ CREATE FRAME + OVERLAY */
+      wrapper.innerHTML = "";
+
+      const frameContainer = document.createElement("div");
+      frameContainer.style.position = "relative";
+      frameContainer.style.width = "100%";
+      frameContainer.style.height = "100%";
+
       const iframe = document.createElement("iframe");
       iframe.src = v.url;
       iframe.setAttribute("allowfullscreen", "");
       iframe.setAttribute("allow", "autoplay");
+      iframe.style.width = "100%";
+      iframe.style.height = "100%";
+      iframe.style.border = "0";
 
-      wrapper.innerHTML = "";
-      wrapper.appendChild(iframe);
+      const overlay = document.createElement("div");
+      overlay.style.position = "absolute";
+      overlay.style.top = "0";
+      overlay.style.left = "0";
+      overlay.style.width = "100%";
+      overlay.style.height = "100%";
+      overlay.style.cursor = "pointer";
+      overlay.style.zIndex = "2";
+      overlay.style.background = "rgba(0,0,0,0.01)";
+
+      overlay.onclick = () => {
+        increasePlayerViews(v.id); // ✅ SECOND VIEW COUNT
+        overlay.style.display = "none"; // allow interaction
+      };
+
+      frameContainer.appendChild(iframe);
+      frameContainer.appendChild(overlay);
+      wrapper.appendChild(frameContainer);
     };
 
     wrapper.appendChild(thumb);
@@ -508,7 +545,7 @@ fetch('videos.json')
 
     const btn = document.createElement("a");
     btn.className = "download";
-    btn.textContent = `Download (${v.size})`; // ✅ SIZE ADDED HERE
+    btn.textContent = `Download (${v.size})`;
     btn.href = "#";
     btn.onclick = (e)=>{
       e.preventDefault();
@@ -527,7 +564,8 @@ fetch('videos.json')
 });
 </script>
 
-  <script type="module" src="views.js"></script>
+<!-- KEEP EVERYTHING ELSE UNCHANGED -->
 
+  
 </body>
 </html>
