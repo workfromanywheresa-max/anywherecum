@@ -54,7 +54,7 @@ li {
 </div>
 
 <div class="card">
-  <h2>📁 Folder Views</h2>
+  <h2>📁 Folder Views (Derived)</h2>
   <ul id="folderViews"></ul>
 </div>
 
@@ -66,12 +66,17 @@ async function fetchData(path) {
   return await res.json();
 }
 
-async function loadPages() {
+async function loadData() {
   const data = await fetchData("pageViews");
-  const list = document.getElementById("pageViews");
-  list.innerHTML = "";
+
+  const pageList = document.getElementById("pageViews");
+  const folderList = document.getElementById("folderViews");
+
+  pageList.innerHTML = "";
+  folderList.innerHTML = "";
 
   let total = 0;
+  const folderTotals = {};
 
   if (!data) {
     document.getElementById("totalViews").innerText = 0;
@@ -82,36 +87,37 @@ async function loadPages() {
     const value = typeof data[page] === "number" ? data[page] : 0;
     total += value;
 
-    const li = document.createElement("li");
-    li.innerHTML = `<span>${page}</span><span class="value">${value}</span>`;
-    list.appendChild(li);
+    // نمایش صفحات
+    const liPage = document.createElement("li");
+    liPage.innerHTML = `<span>${page}</span><span class="value">${value}</span>`;
+    pageList.appendChild(liPage);
+
+    // استخراج folder از page key
+    // Expected format: folder/page
+    let folder = "Unknown";
+
+    if (page.includes("/")) {
+      folder = page.split("/")[0];
+    }
+
+    if (!folderTotals[folder]) {
+      folderTotals[folder] = 0;
+    }
+
+    folderTotals[folder] += value;
+  });
+
+  // نمایش folder ها
+  Object.keys(folderTotals).forEach(folder => {
+    const liFolder = document.createElement("li");
+    liFolder.innerHTML = `<span>${folder}</span><span class="value">${folderTotals[folder]}</span>`;
+    folderList.appendChild(liFolder);
   });
 
   document.getElementById("totalViews").innerText = total;
 }
 
-async function loadFolders() {
-  const data = await fetchData("folderViews");
-  const list = document.getElementById("folderViews");
-  list.innerHTML = "";
-
-  if (!data) return;
-
-  Object.keys(data).forEach(folder => {
-    const value = typeof data[folder] === "number" ? data[folder] : 0;
-
-    const li = document.createElement("li");
-    li.innerHTML = `<span>${folder}</span><span class="value">${value}</span>`;
-    list.appendChild(li);
-  });
-}
-
-async function init() {
-  await loadPages();
-  await loadFolders();
-}
-
-init();
+loadData();
 </script>
 
 </body>
