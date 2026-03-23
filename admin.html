@@ -54,19 +54,32 @@ li {
 <body>
 
 <script>
-const ADMIN_PASSWORD = "AnywhereCum1099"; // 🔒 change this to your password
+const ADMIN_PASSWORD = "AnywhereCum1099";
 
 function checkPassword() {
-  let entered = prompt("Enter Admin Password:");
+  const entered = prompt("Enter Admin Password:");
 
-  if (entered !== ADMIN_PASSWORD) {
+  // handle cancel or empty
+  if (!entered || entered.trim() !== ADMIN_PASSWORD) {
     alert("Access Denied ❌");
-    document.body.innerHTML = "<h1 style='color:red;text-align:center;margin-top:50px;'>Access Denied</h1>";
-    throw new Error("Unauthorized");
+
+    // Completely replace page and STOP everything
+    document.body.innerHTML = `
+      <h1 style="color:red;text-align:center;margin-top:50px;">
+        Access Denied
+      </h1>
+    `;
+
+    return false;
   }
+
+  return true;
 }
 
-checkPassword();
+// STOP PAGE if wrong password
+if (!checkPassword()) {
+  throw new Error("Unauthorized");
+}
 </script>
 
 <h1>📊 Admin Dashboard</h1>
@@ -115,7 +128,7 @@ async function loadPages() {
   return total;
 }
 
-/* ================= FOLDER VIEWS (LOGIC KEPT, UI REMOVED) ================= */
+/* ================= FOLDER VIEWS ================= */
 async function loadFolders() {
   const data = await fetchData("folderViews");
 
