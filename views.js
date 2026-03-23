@@ -40,22 +40,27 @@ function trackOnce(key, firebasePath) {
   runTransaction(ref(db, firebasePath), (v) => (v || 0) + 1);
 }
 
-/* ---------------- Get Page Name ---------------- */
+/* ---------------- Detect Page ---------------- */
 let path = window.location.pathname.toLowerCase();
 
+/* Normalize page name */
+let pageName;
+
 if (path === "/" || path === "/index.html") {
-  path = "home";
+  pageName = "home";
+} else if (path.includes("folder")) {
+  // Folder page → use query param
+  const params = new URLSearchParams(window.location.search);
+  const folder = params.get("folder");
+
+  if (folder) {
+    pageName = "folder_" + folder;
+  } else {
+    pageName = "folder_unknown";
+  }
 } else {
-  path = path.split("/").filter(Boolean).pop().replace(".html", "");
+  pageName = path.split("/").filter(Boolean).pop().replace(".html", "");
 }
 
-/* ---------------- Track Page ---------------- */
-trackOnce("page_" + path, "pageViews/" + path);
-
-/* ---------------- Folder Tracking ---------------- */
-const params = new URLSearchParams(window.location.search);
-const folder = params.get("folder");
-
-if (folder) {
-  trackOnce("folder_" + folder, "folderViews/" + folder);
-}
+/* ---------------- Track Page View ---------------- */
+trackOnce("page_" + pageName, "pageViews/" + pageName);
