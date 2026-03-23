@@ -53,11 +53,6 @@ li {
   <ul id="pageViews"></ul>
 </div>
 
-<div class="card">
-  <h2>📁 Folder Views (Derived)</h2>
-  <ul id="folderViews"></ul>
-</div>
-
 <script>
 const DB = "https://anywherecum-1c8d0-default-rtdb.firebaseio.com";
 
@@ -66,30 +61,12 @@ async function fetchData(path) {
   return await res.json();
 }
 
-function extractFolder(key) {
-  // Example key: "folder?folder=Missionary"
-  try {
-    if (key.includes("folder?")) {
-      const query = key.split("?")[1];
-      const params = new URLSearchParams(query);
-      return params.get("folder") || "Unknown";
-    }
-  } catch (e) {}
-
-  return "Other";
-}
-
-async function loadData() {
+async function loadPages() {
   const data = await fetchData("pageViews");
-
-  const pageList = document.getElementById("pageViews");
-  const folderList = document.getElementById("folderViews");
-
-  pageList.innerHTML = "";
-  folderList.innerHTML = "";
+  const list = document.getElementById("pageViews");
+  list.innerHTML = "";
 
   let total = 0;
-  const folderTotals = {};
 
   if (!data) {
     document.getElementById("totalViews").innerText = 0;
@@ -100,32 +77,19 @@ async function loadData() {
     const value = typeof data[page] === "number" ? data[page] : 0;
     total += value;
 
-    // Page list
-    const liPage = document.createElement("li");
-    liPage.innerHTML = `<span>${page}</span><span class="value">${value}</span>`;
-    pageList.appendChild(liPage);
-
-    // Folder extraction
-    const folder = extractFolder(page);
-
-    if (!folderTotals[folder]) {
-      folderTotals[folder] = 0;
-    }
-
-    folderTotals[folder] += value;
-  });
-
-  // Folder list
-  Object.keys(folderTotals).forEach(folder => {
-    const liFolder = document.createElement("li");
-    liFolder.innerHTML = `<span>${folder}</span><span class="value">${folderTotals[folder]}</span>`;
-    folderList.appendChild(liFolder);
+    const li = document.createElement("li");
+    li.innerHTML = `<span>${page}</span><span class="value">${value}</span>`;
+    list.appendChild(li);
   });
 
   document.getElementById("totalViews").innerText = total;
 }
 
-loadData();
+async function init() {
+  await loadPages();
+}
+
+init();
 </script>
 
 </body>
