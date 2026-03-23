@@ -48,43 +48,63 @@ li {
   margin-bottom: 20px;
   border-radius: 10px;
 }
+
+.logout-btn {
+  float: right;
+  background: #ff4444;
+  border: none;
+  padding: 8px 12px;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
 </style>
 </head>
 
 <body>
 
-<!-- 🔐 PASSWORD PROTECTION (HARD BLOCK) -->
+<!-- 🔐 PASSWORD PROTECTION WITH STAY LOGGED IN -->
 <script>
-const ADMIN_PASSWORD = "Anywherecum1099";
+const ADMIN_PASSWORD = "AnywhereCum1099";
 
-const entered = prompt("Enter Admin Password:");
+// Check login state
+const isLoggedIn = localStorage.getItem("adminLoggedIn");
 
-if (!entered || entered.trim() !== ADMIN_PASSWORD) {
-  document.documentElement.innerHTML = `
-    <head>
-      <title>Access Denied</title>
-      <style>
-        body {
-          background:#121212;
-          color:red;
-          display:flex;
-          justify-content:center;
-          align-items:center;
-          height:100vh;
-          font-family:Arial;
-        }
-      </style>
-    </head>
-    <body>
-      <h1>❌ Access Denied</h1>
-    </body>
-  `;
+if (!isLoggedIn) {
+  const entered = prompt("Enter Admin Password:");
 
-  throw new Error("Unauthorized");
+  if (!entered || entered.trim() !== ADMIN_PASSWORD) {
+    document.documentElement.innerHTML = `
+      <head>
+        <title>Access Denied</title>
+        <style>
+          body {
+            background:#121212;
+            color:red;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+            font-family:Arial;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>❌ Access Denied</h1>
+      </body>
+    `;
+    throw new Error("Unauthorized");
+  }
+
+  // Save login
+  localStorage.setItem("adminLoggedIn", "true");
 }
 </script>
 
-<h1>📊 Admin Dashboard</h1>
+<h1>
+📊 Admin Dashboard
+<button class="logout-btn" onclick="logout()">Logout</button>
+</h1>
 
 <div class="total-card">
   <h2>🔥 Total Views (Pages + Folders)</h2>
@@ -161,6 +181,12 @@ init();
 setInterval(() => {
   init();
 }, 10000);
+
+/* ================= LOGOUT ================= */
+function logout() {
+  localStorage.removeItem("adminLoggedIn");
+  location.reload();
+}
 </script>
 
 </body>
