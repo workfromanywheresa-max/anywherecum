@@ -205,6 +205,9 @@ fetch('videos.json')
     thumb.onclick = () => {
       increaseViews(v.id);
 
+      // ✅ ADDED: open player.html (new tab)
+      window.open("player.html?id=" + v.id, "_blank");
+
       const iframe = document.createElement("iframe");
       iframe.src = v.url;
       iframe.setAttribute("allowfullscreen", "");
