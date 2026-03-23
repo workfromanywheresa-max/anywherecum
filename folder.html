@@ -112,9 +112,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/fireba
 import { getDatabase, ref, runTransaction, onValue } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-/* =========================
-   🔥 FIREBASE (VIDEOS)
-========================= */
+/* ================= FIREBASE ================= */
 const firebaseConfig = {
   apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
   authDomain: "anywherecum-1c8d0.firebaseapp.com",
@@ -122,26 +120,17 @@ const firebaseConfig = {
   projectId: "anywherecum-1c8d0",
   storageBucket: "anywherecum-1c8d0.firebasestorage.app",
   messagingSenderId: "686718460803",
-  appId: "1:686718460803:web:5d0ec20634dfe2a7d98cb6"
+  appId: "1:686718460803:web:78827198d1be2904d98cb6"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* =========================
-   🚀 PAGE VIEWS (WORKER)
-========================= */
+/* ================= WORKERS ================= */
 const PAGE_WORKER_URL = "https://dashboard.workfromanywhere-sa.workers.dev";
-
-/* =========================
-   🎬 VIDEO WORKER
-========================= */
 const VIDEO_WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
 
-/* =========================
-   ✅ SESSION + TRACK ONCE
-========================= */
-
+/* ================= FOLDER TRACKING (FIXED) ================= */
 if (!window.__trackingInitialized) {
   window.__trackingInitialized = true;
 
@@ -152,7 +141,7 @@ if (!window.__trackingInitialized) {
     sessionStorage.setItem("sessionId", sessionId);
   }
 
-  function trackPageOnce(key, pageName) {
+  function trackFolderOnce(key, folderName) {
     const uniqueKey = key + "_" + sessionId;
 
     if (sessionStorage.getItem(uniqueKey)) return;
@@ -162,44 +151,21 @@ if (!window.__trackingInitialized) {
     fetch(`${PAGE_WORKER_URL}/increment`, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ page: pageName })
+      body: JSON.stringify({ folder: folderName.toLowerCase() })
     }).catch(()=>{});
   }
 
-  let path = window.location.pathname.toLowerCase();
-  let pageName;
+  const params = new URLSearchParams(window.location.search);
+  let folder = params.get("folder");
 
-  if (path.includes("folder")) {
-    const params = new URLSearchParams(window.location.search);
-    const folder = params.get("folder");
+  let folderName = folder
+    ? decodeURIComponent(folder).toLowerCase()
+    : "unknown";
 
-    if (folder) {
-      pageName = "folder_" + folder;
-    } else {
-      pageName = "folder_unknown";
-    }
-  } else {
-    pageName = path.split("/").filter(Boolean).pop().replace(".html", "");
-  }
-
-  trackPageOnce("page_" + pageName, pageName);
+  trackFolderOnce("folder_" + folderName, folderName);
 }
 
-/* =========================
-   🎬 VIDEO SYSTEM
-========================= */
-
-const container = document.getElementById("videoList");
-
-const urlParams = new URLSearchParams(window.location.search);
-const folderName = (urlParams.get("folder") || "").toLowerCase();
-
-document.getElementById("folderTitle").textContent =
-  folderName ? folderName.charAt(0).toUpperCase() + folderName.slice(1) : "All Videos";
-
-const TREND_THRESHOLD = 10;
-const OWNER_IP = "102.214.117.74";
-
+/* ================= VIDEO TRACKING ================= */
 async function getUserIP() {
   try {
     const res = await fetch("https://api.ipify.org?format=json");
@@ -210,10 +176,7 @@ async function getUserIP() {
   }
 }
 
-function formatViews(num) {
-  if (num >= 1000) return (num / 1000).toFixed(1) + "K+";
-  return num;
-}
+const OWNER_IP = "102.214.117.74";
 
 async function increaseViews(videoId){
   const userIP = await getUserIP();
@@ -229,10 +192,19 @@ async function increaseViews(videoId){
   }).catch(()=>{});
 }
 
-/* =========================
-   📦 LOAD VIDEOS
-========================= */
+/* ================= UI ================= */
+const container = document.getElementById("videoList");
 
+const urlParams = new URLSearchParams(window.location.search);
+const folderNameRaw = urlParams.get("folder") || "";
+const folderName = decodeURIComponent(folderNameRaw).toLowerCase();
+
+document.getElementById("folderTitle").textContent =
+  folderName
+    ? folderName.charAt(0).toUpperCase() + folderName.slice(1)
+    : "All Videos";
+
+/* ================= LOAD VIDEOS ================= */
 fetch('videos.json')
 .then(res => res.json())
 .then(videos => {
@@ -249,6 +221,7 @@ fetch('videos.json')
     return;
   }
 
+  const TREND_THRESHOLD = 10;
   const videoStates = {};
 
   folderVideos.forEach((v, index) => {
@@ -268,8 +241,7 @@ fetch('videos.json')
 
       const iframe = document.createElement("iframe");
       iframe.src = v.url;
-      iframe.setAttribute("allowfullscreen", "");
-      iframe.setAttribute("allow", "autoplay");
+      iframe.allowFullscreen = true;
 
       wrapper.innerHTML = "";
       wrapper.appendChild(iframe);
@@ -296,10 +268,10 @@ fetch('videos.json')
 
     function updateUI(){
       if(cycleViews >= TREND_THRESHOLD){
-        viewsEl.textContent = "🔥 Trending | 👁 " + formatViews(totalViews);
+        viewsEl.textContent = "🔥 Trending | 👁 " + totalViews;
         viewsEl.style.color = "#ffcc00";
       } else {
-        viewsEl.textContent = "👁 " + formatViews(totalViews);
+        viewsEl.textContent = "👁 " + totalViews;
         viewsEl.style.color = "#aaa";
       }
     }
