@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard - Folder Views</title>
+<title>Admin - Visits</title>
 
 <style>
 body {
@@ -19,54 +19,45 @@ h1 {
   color: #ff4444;
 }
 
-.container {
-  max-width: 600px;
-  margin: auto;
-}
-
 .card {
   background: #1e1e1e;
   padding: 15px;
-  margin: 10px 0;
-  border-radius: 8px;
-  border-left: 4px solid #ff4444;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #333;
 }
 
-.folderName {
+.folder {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #333;
+}
+
+.folder:last-child {
+  border-bottom: none;
+}
+
+.total {
   font-size: 18px;
   font-weight: bold;
-}
-
-.views {
-  margin-top: 5px;
-  color: #aaa;
-}
-
-.topBar {
   text-align: center;
-  margin-bottom: 20px;
-}
-
-.refresh {
-  background: #ff4444;
-  border: none;
-  padding: 8px 12px;
-  color: #fff;
-  border-radius: 5px;
-  cursor: pointer;
 }
 </style>
 </head>
 
 <body>
 
-<h1>📊 Folder Views Dashboard</h1>
+<h1>📊 Visits Dashboard</h1>
 
-<div class="topBar">
-  <button class="refresh" onclick="loadData()">🔄 Refresh</button>
+<div class="card">
+  <div class="total" id="totalVisits">Total Visits: 0</div>
 </div>
 
-<div class="container" id="folderStats"></div>
+<div class="card">
+  <h3>Visits Per Folder</h3>
+  <div id="folderStats"></div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
@@ -86,39 +77,36 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const container = document.getElementById("folderStats");
+const totalVisitsEl = document.getElementById("totalVisits");
+const folderStatsEl = document.getElementById("folderStats");
 
-function loadData() {
-  const folderRef = ref(db, "folderViews");
+const visitsRef = ref(db, "visits");
 
-  onValue(folderRef, (snapshot) => {
-    const data = snapshot.val() || {};
+onValue(visitsRef, (snapshot) => {
+  const data = snapshot.val() || {};
 
-    const sorted = Object.entries(data)
-      .sort((a, b) => b[1] - a[1]);
+  let totalVisits = 0;
+  folderStatsEl.innerHTML = "";
 
-    container.innerHTML = "";
+  Object.keys(data).forEach(folder => {
+    const users = Object.keys(data[folder]);
+    const count = users.length;
 
-    if (sorted.length === 0) {
-      container.innerHTML = "<p style='text-align:center;color:#aaa;'>No data found</p>";
-      return;
-    }
+    totalVisits += count;
 
-    sorted.forEach(([folder, views]) => {
-      const div = document.createElement("div");
-      div.className = "card";
+    const div = document.createElement("div");
+    div.className = "folder";
 
-      div.innerHTML = `
-        <div class="folderName">📁 ${folder}</div>
-        <div class="views">👁 Views: ${views}</div>
-      `;
+    div.innerHTML = `
+      <span>${folder}</span>
+      <span>${count}</span>
+    `;
 
-      container.appendChild(div);
-    });
+    folderStatsEl.appendChild(div);
   });
-}
 
-loadData();
+  totalVisitsEl.textContent = "Total Visits: " + totalVisits;
+});
 </script>
 
 </body>
