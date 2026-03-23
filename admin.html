@@ -1,113 +1,117 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin - Visits</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard - Site Views</title>  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+    }
 
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background: #121212;
-  color: #fff;
-  margin: 0;
-  padding: 20px;
-}
+    h1, h2 {
+      color: #ff4444;
+    }
 
-h1 {
-  text-align: center;
-  color: #ff4444;
-}
+    .card {
+      background: #1e1e1e;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
 
-.card {
-  background: #1e1e1e;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 15px;
-  border: 1px solid #333;
-}
+    ul {
+      list-style: none;
+      padding: 0;
+    }
 
-.folder {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid #333;
-}
+    li {
+      padding: 8px;
+      border-bottom: 1px solid #333;
+      display: flex;
+      justify-content: space-between;
+    }
 
-.folder:last-child {
-  border-bottom: none;
-}
+    .value {
+      color: #00ffcc;
+      font-weight: bold;
+    }
 
-.total {
-  font-size: 18px;
-  font-weight: bold;
-  text-align: center;
-}
-</style>
-</head>
+    button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #ff4444;
+      color: #fff;
+    }
 
-<body>
+    button:hover {
+      opacity: 0.8;
+    }
+  </style></head>
+<body>  <h1>📊 Admin Dashboard</h1>  <div class="card">
+    <h2>🏠 Home Views</h2>
+    <div id="homeViews" class="value">Loading...</div>
+  </div>  <div class="card">
+    <h2>📄 Page Views</h2>
+    <ul id="pageViews"></ul>
+  </div>  <div class="card">
+    <h2>📁 Folder Views</h2>
+    <ul id="folderViews"></ul>
+  </div>  <div class="card">
+    <button onclick="refreshData()">🔄 Refresh</button>
+  </div>  <script>
+    const DB = "https://anywherecum-1c8d0-default-rtdb.firebaseio.com";
 
-<h1>📊 Visits Dashboard</h1>
+    async function fetchData(path) {
+      const res = await fetch(`${DB}/${path}.json`);
+      return await res.json();
+    }
 
-<div class="card">
-  <div class="total" id="totalVisits">Total Visits: 0</div>
-</div>
+    async function loadHome() {
+      const data = await fetchData("siteViews/home");
+      document.getElementById("homeViews").innerText = data || 0;
+    }
 
-<div class="card">
-  <h3>Visits Per Folder</h3>
-  <div id="folderStats"></div>
-</div>
+    async function loadPages() {
+      const data = await fetchData("siteViews/pages");
+      const list = document.getElementById("pageViews");
+      list.innerHTML = "";
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, onValue } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+      if (!data) return;
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
-  authDomain: "anywherecum-1c8d0.firebaseapp.com",
-  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
-  projectId: "anywherecum-1c8d0",
-  storageBucket: "anywherecum-1c8d0.firebasestorage.app",
-  messagingSenderId: "686718460803",
-  appId: "1:686718460803:web:5d0ec20634dfe2a7d98cb6"
-};
+      Object.keys(data).forEach(page => {
+        const li = document.createElement("li");
+        li.innerHTML = `<span>${page}</span><span class="value">${data[page]}</span>`;
+        list.appendChild(li);
+      });
+    }
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+    async function loadFolders() {
+      const data = await fetchData("siteViews/folders");
+      const list = document.getElementById("folderViews");
+      list.innerHTML = "";
 
-const totalVisitsEl = document.getElementById("totalVisits");
-const folderStatsEl = document.getElementById("folderStats");
+      if (!data) return;
 
-const visitsRef = ref(db, "visits");
+      Object.keys(data).forEach(folder => {
+        const li = document.createElement("li");
+        li.innerHTML = `<span>${folder}</span><span class="value">${data[folder]}</span>`;
+        list.appendChild(li);
+      });
+    }
 
-onValue(visitsRef, (snapshot) => {
-  const data = snapshot.val() || {};
+    async function refreshData() {
+      await loadHome();
+      await loadPages();
+      await loadFolders();
+    }
 
-  let totalVisits = 0;
-  folderStatsEl.innerHTML = "";
-
-  Object.keys(data).forEach(folder => {
-    const users = Object.keys(data[folder]);
-    const count = users.length;
-
-    totalVisits += count;
-
-    const div = document.createElement("div");
-    div.className = "folder";
-
-    div.innerHTML = `
-      <span>${folder}</span>
-      <span>${count}</span>
-    `;
-
-    folderStatsEl.appendChild(div);
-  });
-
-  totalVisitsEl.textContent = "Total Visits: " + totalVisits;
-});
-</script>
-
-</body>
+    // Auto load on start
+    refreshData();
+  </script></body>
 </html>
