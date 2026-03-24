@@ -188,6 +188,7 @@ async function increaseViews(videoId) {
 const trendingContainer = document.getElementById("trendingVideos");
 const normalContainer = document.getElementById("normalVideos");
 
+// Keep track of DOM elements for live updates
 const videoElements = {};
 
 fetch("videos.json")
@@ -198,6 +199,7 @@ fetch("videos.json")
     ? videos.filter(v => v.folder.toLowerCase() === folderName)
     : videos;
 
+  // Render each video and listen to cycleViews
   filtered.forEach(v => {
     const box = document.createElement("div");
     box.className = "videoBox";
@@ -233,7 +235,7 @@ fetch("videos.json")
 
     const views = document.createElement("div");
     views.className = "views";
-    views.textContent = "👁 0";
+    views.textContent = "👁 loading...";
 
     const btn = document.createElement("a");
     btn.className = "download";
@@ -251,58 +253,52 @@ fetch("videos.json")
     box.appendChild(views);
     box.appendChild(btn);
 
+    // Initially put in normal container
     normalContainer.appendChild(box);
 
+    // Save for live updates
     videoElements[v.id] = { box, views, currentSection: "normal" };
 
-    /* -------- Total Views (UI) -------- */
-    const viewsRef = ref(db, "views/" + v.id);
-    onValue(viewsRef, snap => {
-      const totalViews = snap.val() || 0;
-
-      videoElements[v.id].views.textContent = totalViews >= 10
-        ? `🔥 Trending | 👁 ${totalViews}`
-        : `👁 ${totalViews}`;
-
-      videoElements[v.id].views.style.color =
-        totalViews >= 10 ? "#ffcc00" : "#aaa";
-    });
-
-    /* -------- Cycle Views (Trending Logic) -------- */
+    // Listen for live cycleViews changes
     const cycleRef = ref(db, "cycleViews/" + v.id);
     onValue(cycleRef, snap => {
       const cycleViews = snap.val() || 0;
-      const videoObj = videoElements[v.id];
 
+      // Update views text
       if (cycleViews >= 10) {
-        if (videoObj.currentSection !== "trending") {
-          trendingContainer.appendChild(videoObj.box);
-          videoObj.currentSection = "trending";
+        videoElements[v.id].views.textContent = `🔥 Trending | 👁 ${snap.val()}`;
+        videoElements[v.id].views.style.color = "#ffcc00";
+
+        // Move to trending if not already there
+        if (videoElements[v.id].currentSection !== "trending") {
+          trendingContainer.appendChild(videoElements[v.id].box);
+          videoElements[v.id].currentSection = "trending";
         }
       } else {
-        if (videoObj.currentSection !== "normal") {
+        videoElements[v.id].views.textContent = `👁 ${snap.val()}`;
+        videoElements[v.id].views.style.color = "#aaa";
+
+        // Move back to normal if trending drops below 10
+        if (videoElements[v.id].currentSection !== "normal") {
+          // Find original index
           const originalIndex = filtered.findIndex(vi => vi.id === v.id);
-
-          if (videoObj.box.parentElement !== normalContainer) {
-            normalContainer.appendChild(videoObj.box);
-          }
-
-          let inserted = false;
-          for (let i = 0; i < normalContainer.children.length; i++) {
-            const siblingTitle = normalContainer.children[i].querySelector(".videoTitle")?.textContent;
-            const siblingData = filtered.find(vi => vi.title === siblingTitle);
-            if (!siblingData) continue;
-
-            const siblingIndex = filtered.findIndex(f => f.id === siblingData.id);
-            if (siblingIndex > originalIndex) {
-              normalContainer.insertBefore(videoObj.box, normalContainer.children[i]);
-              inserted = true;
-              break;
+          // Insert in correct position
+          if (originalIndex === 0 || normalContainer.children.length === 0) {
+            normalContainer.prepend(videoElements[v.id].box);
+          } else {
+            // Insert after previous normal videos
+            let inserted = false;
+            for (let i = 0; i < normalContainer.children.length; i++) {
+              const siblingId = filtered.find(vi => vi.id === normalContainer.children[i].querySelector(".videoTitle").textContent).id;
+              if (filtered.findIndex(f => f.id === siblingId) > originalIndex) {
+                normalContainer.insertBefore(videoElements[v.id].box, normalContainer.children[i]);
+                inserted = true;
+                break;
+              }
             }
+            if (!inserted) normalContainer.appendChild(videoElements[v.id].box);
           }
-          if (!inserted) normalContainer.appendChild(videoObj.box);
-
-          videoObj.currentSection = "normal";
+          videoElements[v.id].currentSection = "normal";
         }
       }
     });
