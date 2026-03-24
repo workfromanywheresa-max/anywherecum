@@ -8,12 +8,20 @@ const app = initializeApp({
 });
 const db = getDatabase(app);
 
-/* Folder */
-const params = new URLSearchParams(window.location.search);
-const folderName = (params.get("folder") || "").toLowerCase();
+/* ✅ CONFIG FROM HTML */
+const config = window.VIDEO_CONFIG || {};
 
-document.getElementById("folderTitle").textContent =
-  folderName ? folderName.toUpperCase() : "ALL VIDEOS";
+const folderName = (config.folder || "").toLowerCase();
+const dataSource = config.dataSource || "videos.json";
+
+/* Title */
+if (folderName) {
+  document.getElementById("folderTitle").textContent = folderName.toUpperCase();
+} else if (dataSource.includes("vip")) {
+  document.getElementById("folderTitle").textContent = "VIP VIDEOS";
+} else {
+  document.getElementById("folderTitle").textContent = "ALL VIDEOS";
+}
 
 /* Worker */
 async function sendToWorker(videoId) {
@@ -40,7 +48,7 @@ const normalContainer = document.getElementById("normalVideos");
 
 const videoElements = {};
 
-/* UI Controller */
+/* UI */
 function updateUI(id) {
   const v = videoElements[id];
   if (!v) return;
@@ -63,12 +71,13 @@ function updateUI(id) {
 }
 
 /* Load Videos */
-fetch("videos.json")
+fetch(dataSource)
 .then(res => res.json())
 .then(videos => {
 
+  /* Apply folder filter only if provided */
   const filtered = folderName
-    ? videos.filter(v => v.folder.toLowerCase() === folderName)
+    ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
     : videos;
 
   filtered.forEach(v => {
@@ -109,7 +118,6 @@ fetch("videos.json")
     views.className = "views";
     views.textContent = "👁 0";
 
-    /* Button */
     const btn = document.createElement("a");
     btn.className = "download";
     btn.href = "#";
@@ -135,13 +143,12 @@ fetch("videos.json")
       cycleViews: 0
     };
 
-    /* Total Views */
+    /* Firebase listeners */
     onValue(ref(db, "views/" + v.id), snap => {
       videoElements[v.id].totalViews = snap.val() || 0;
       updateUI(v.id);
     });
 
-    /* Cycle Views */
     onValue(ref(db, "cycleViews/" + v.id), snap => {
       videoElements[v.id].cycleViews = Number(snap.val()) || 0;
       updateUI(v.id);
