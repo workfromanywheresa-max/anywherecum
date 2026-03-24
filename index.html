@@ -234,14 +234,6 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 
   </div>
   </div>
-
-<!-- Latest Video Skeleton -->
-<div id="latestVideo">
-  <h2>🎥Latest Video🎥</h2>
-  <ul class="folder-grid" data-folder="${latestVideo.folder}">
-    <li class="skeleton" style="height:180px;"></li>
-  </ul>
-</div>
   
 <h2>📂Content Folders📂</h2>
 
@@ -652,24 +644,24 @@ document.addEventListener("click", function (e) {
     );
   }
 
-  /* ---------------- Latest Video (SIMPLE - SAME AS OTHERS) ---------------- */
+  /* ---------------- Latest Video ---------------- */
   const latestClick = e.target.closest("#latestVideo a.folder-link, #latestVideo img");
 
   if (latestClick) {
     e.preventDefault();
 
-    const folderName = latestClick.closest("[data-folder]")?.dataset.folder;
+    const li = latestClick.closest("li");
+    const folderName = li?.dataset?.folder;
 
     console.log("Latest clicked:", folderName);
 
-    if (window.trackPreviewClick && folderName) {
+    if (!folderName) return;
+
+    if (window.trackPreviewClick) {
       window.trackPreviewClick(folderName);
     }
 
-    setTimeout(() => {
-      window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
-    }, 150);
-
+    window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
     return;
   }
 
@@ -731,7 +723,5 @@ document.addEventListener("click", function (e) {
 });
   </script>
   
-<script type="module" src="views.js"></script>
-
 </body>
 </html>
