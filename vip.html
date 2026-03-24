@@ -2,116 +2,193 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Admin Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VIP Videos</title>
 
 <style>
 body {
   font-family: Arial, sans-serif;
-  background: #111;
+  background: #1a1a1a;
   color: #fff;
-  padding: 20px;
-}
-
-h2, h3 {
-  color: #ff4444;
-}
-
-.card {
-  background: #1c1c1c;
+  margin: 0;
   padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 10px;
 }
 
-p {
+h2 {
+  color: #ff4444;
+  border-bottom: 2px solid #ff4444;
+  padding-bottom: 5px;
+  text-align: center;
+}
+
+.videoBox {
+  background: #222;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.thumbnail {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.videoTitle {
+  text-align: center;
+  margin: 8px 0 5px 0;
+  color: #ddd;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.views {
+  text-align: center;
+  color: #aaa;
   margin: 5px 0;
 }
-</style>
 
+.download {
+  display: block;
+  width: fit-content;
+  margin: 10px auto 0 auto;
+  padding: 8px 15px;
+  color: #fff;
+  background: #ff4444;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 5px;
+}
+</style>
 </head>
+
 <body>
 
-<script>
-// 🔐 PASSWORD PROTECTION
-const correctPassword = "anywherecum1099"; // change this
+<h2>🔒 VIP Content</h2>
 
-(function () {
-  const entered = prompt("Enter admin password:");
-
-  if (entered !== correctPassword) {
-    document.write("<h2 style='color:red;text-align:center;margin-top:50px;'>⛔ Access Denied</h2>");
-    document.close();
-    throw new Error("Unauthorized");
-  }
-})();
-</script>
-
-<h2>📊 Admin Dashboard</h2>
-
-<div class="card">
-  <h3>Total Views</h3>
-  <p id="totalViews">Loading...</p>
-</div>
-
-<div class="card">
-  <h3>Per Page Views</h3>
-  <div id="pageViews">Loading...</div>
-</div>
-
-<div class="card">
-  <h3>Today's Views</h3>
-  <div id="dailyViews">Loading...</div>
-</div>
+<div id="vipList"></div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getDatabase, ref, runTransaction, onValue } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
+/* ================= FIREBASE ================= */
 const firebaseConfig = {
-  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWHoNqPpppR4kx0",
+  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
   authDomain: "anywherecum-1c8d0.firebaseapp.com",
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
   projectId: "anywherecum-1c8d0",
+  storageBucket: "anywherecum-1c8d0.firebasestorage.app",
+  messagingSenderId: "686718460803",
+  appId: "1:686718460803:web:78827198d1be2904d98cb6"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// 📅 Today
-const today = new Date().toISOString().split("T")[0];
+/* ================= VIEW TRACK ================= */
+async function getUserIP() {
+  try {
+    const res = await fetch("https://api.ipify.org?format=json");
+    const data = await res.json();
+    return data.ip;
+  } catch {
+    return null;
+  }
+}
 
-// 🔢 TOTAL VIEWS
-onValue(ref(db, "views/total"), (snap) => {
-  document.getElementById("totalViews").innerText = snap.val() || 0;
-});
+const OWNER_IP = "102.214.117.74";
 
-// 📄 PER PAGE VIEWS
-onValue(ref(db, "views/pages"), (snap) => {
-  const data = snap.val() || {};
-  const container = document.getElementById("pageViews");
+async function increaseViews(videoId){
+  const userIP = await getUserIP();
+  if (userIP && userIP === OWNER_IP) return;
+
+  runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
+  runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
+}
+
+/* ================= LOAD VIP ================= */
+const container = document.getElementById("vipList");
+const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
+
+fetch('vip.json')
+.then(res => res.json())
+.then(videos => {
 
   container.innerHTML = "";
 
-  for (let page in data) {
-    container.innerHTML += `<p>${page}: ${data[page]}</p>`;
-  }
-});
+  videos.forEach(v => {
 
-// 📅 DAILY VIEWS
-onValue(ref(db, "views/daily/" + today), (snap) => {
-  const data = snap.val() || {};
-  const container = document.getElementById("dailyViews");
+    const box = document.createElement("div");
+    box.className = "videoBox";
 
-  container.innerHTML = "";
+    const img = document.createElement("img");
+    img.className = "thumbnail";
+    img.src = IMAGE_BASE + v.thumbnail;
 
-  for (let page in data) {
-    container.innerHTML += `<p>${page}: ${data[page]}</p>`;
-  }
+    const title = document.createElement("h3");
+    title.className = "videoTitle";
+    title.textContent = v.title;
+
+    const viewsEl = document.createElement("div");
+    viewsEl.className = "views";
+
+    const viewRef = ref(db, "views/" + v.id);
+    const cycleRef = ref(db, "cycleViews/" + v.id);
+
+    let totalViews = 0;
+    let cycleViews = 0;
+
+    function updateUI(){
+      if(cycleViews >= 10){
+        viewsEl.textContent = "🔥 Trending | 👁 " + totalViews;
+        viewsEl.style.color = "#ffcc00";
+      } else {
+        viewsEl.textContent = "👁 " + totalViews;
+        viewsEl.style.color = "#aaa";
+      }
+    }
+
+    onValue(viewRef, snap=>{
+      totalViews = snap.val() || 0;
+      updateUI();
+    });
+
+    onValue(cycleRef, snap=>{
+      cycleViews = snap.val() || 0;
+      updateUI();
+    });
+
+    function openVideo(){
+      increaseViews(v.id);
+      window.open(v.url, "_blank");
+    }
+
+    img.onclick = openVideo;
+    title.onclick = openVideo;
+
+    const btn = document.createElement("a");
+    btn.className = "download";
+    btn.textContent = "Watch VIP";
+    btn.href = "#";
+    btn.onclick = (e) => {
+      e.preventDefault();
+      openVideo();
+    };
+
+    box.appendChild(img);
+    box.appendChild(title);
+    box.appendChild(viewsEl);
+    box.appendChild(btn);
+
+    container.appendChild(box);
+  });
+
 });
 </script>
-
-  <script type="module" src="views.js"></script>
 
 </body>
 </html>
