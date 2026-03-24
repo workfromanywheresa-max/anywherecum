@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, runTransaction, get } 
+import { getDatabase, ref, runTransaction, get, onValue } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 /* ---------------- Firebase Config ---------------- */
@@ -16,15 +16,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ---------------- Worker Config ---------------- */
-const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/";
+/* ---------------- Workers ---------------- */
+const PAGE_WORKER_URL = "https://dashboard.workfromanywhere-sa.workers.dev";
+const VIDEO_WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
 
-/* ---------------- Prevent Double Init ---------------- */
-if (!window.__trackingInitialized) {
-  window.__trackingInitialized = true;
-}
-
-/* ---------------- Session ID ---------------- */
+/* ---------------- Session ---------------- */
 let sessionId = sessionStorage.getItem("sessionId");
 
 if (!sessionId) {
@@ -32,73 +28,94 @@ if (!sessionId) {
   sessionStorage.setItem("sessionId", sessionId);
 }
 
-/* ---------------- Send to Worker ---------------- */
-async function sendToWorker(pageName) {
-  try {
-    await fetch(WORKER_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        page: pageName,
-        sessionId: sessionId,
-        timestamp: Date.now()
-      })
-    });
-  } catch (err) {
-    console.error("Worker tracking failed:", err);
-  }
+/* ---------------- Utilities ---------------- */
+function getFolderFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return (params.get("folder") || "").toLowerCase();
 }
 
-/* ---------------- Track Once (Firebase) ---------------- */
-function trackOnce(key, firebasePath) {
+const folderName = getFolderFromURL();
+
+/* ---------------- Track Folder (once per session) ---------------- */
+function trackFolderOnce(folderName) {
+  if (!folderName) return;
+
+  const key = "folder_" + folderName + "_" + sessionId;
   if (sessionStorage.getItem(key)) return;
 
   sessionStorage.setItem(key, "1");
-  runTransaction(ref(db, firebasePath), (v) => (v || 0) + 1);
+
+  fetch(`${PAGE_WORKER_URL}/increment`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ folder: folderName })
+  }).catch(() => {});
 }
 
-/* ---------------- Detect Page ---------------- */
-let path = window.location.pathname.toLowerCase();
+/* ---------------- Track Folder Click ---------------- */
+function trackFolderClickOnce(folderName) {
+  if (!folderName) return;
 
-let pageName;
+  const key = "folder_click_" + folderName + "_" + sessionId;
+  if (sessionStorage.getItem(key)) return;
 
-if (path === "/" || path === "/index.html") {
-  pageName = "home";
-} else {
-  pageName = path.split("/").filter(Boolean).pop().replace(".html", "");
+  sessionStorage.setItem(key, "1");
+
+  fetch(`${PAGE_WORKER_URL}/increment`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ folder: folderName })
+  }).catch(() => {});
 }
 
-/* ---------------- Track Page View ---------------- */
-trackOnce("page_" + pageName, "pageViews/" + pageName);
-
-/* ---------------- Send to Worker (once per page/session) ---------------- */
-if (!sessionStorage.getItem("worker_" + pageName)) {
-  sessionStorage.setItem("worker_" + pageName, "1");
-  sendToWorker(pageName);
-}
-
-/* ---------------- Update Admin Total ---------------- */
-async function updateAdminCount() {
-  let total = 0;
-
-  // Page views only
-  const pageSnap = await get(ref(db, "pageViews"));
-  if (pageSnap.exists()) {
-    const data = pageSnap.val();
-    Object.values(data).forEach(v => total += v || 0);
-  }
-
-  // Update UI
-  const el = document.getElementById("adminViews");
-  if (el) {
-    el.innerText = `👁${total} | Admin`;
+/* ---------------- Get User IP ---------------- */
+async function getUserIP() {
+  try {
+    const res = await fetch("https://api.ipify.org?format=json");
+    const data = await res.json();
+    return data.ip;
+  } catch {
+    return null;
   }
 }
 
-/* ---------------- Init ---------------- */
-updateAdminCount();
+const OWNER_IP = "102.214.117.74";
 
-/* ---------------- Auto Refresh ---------------- */
-setInterval(updateAdminCount, 10000);
+/* ---------------- Increase Views ---------------- */
+async function increaseViews(videoId) {
+  const userIP = await getUserIP();
+  if (userIP && userIP === OWNER_IP) return;
+
+  runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
+  runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
+
+  fetch(`${VIDEO_WORKER_URL}/increment`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ videoId })
+  }).catch(() => {});
+}
+
+/* ---------------- Expose to HTML ---------------- */
+window.trackFolderOnce = trackFolderOnce;
+window.trackFolderClickOnce = trackFolderClickOnce;
+window.increaseViews = increaseViews;
+
+/* ---------------- Trending Data Helper ---------------- */
+window.getVideoStats = function(videoId, callback) {
+  const viewRef = ref(db, "views/" + videoId);
+  const cycleRef = ref(db, "cycleViews/" + videoId);
+
+  let totalViews = 0;
+  let cycleViews = 0;
+
+  onValue(viewRef, snap => {
+    totalViews = snap.val() || 0;
+    callback({ totalViews, cycleViews });
+  });
+
+  onValue(cycleRef, snap => {
+    cycleViews = snap.val() || 0;
+    callback({ totalViews, cycleViews });
+  });
+};
