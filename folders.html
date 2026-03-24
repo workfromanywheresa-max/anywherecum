@@ -50,28 +50,17 @@ h2 {
   margin: 0;
 }
 
-/* VIP container */
-#vipContainer {
-  margin-bottom: 0;
-}
-
-/* Remove spacing from last VIP item */
-#vipContainer .folderBox:last-child {
-  margin-bottom: 0;
-}
-
 /* CTA CARD */
 .ctaCard {
   background: #2a2a2a;
   border: 1px solid #ff4444;
   border-radius: 8px;
   padding: 10px;
-  margin-top: 0; /* IMPORTANT */
+  margin-top: 0;
   margin-bottom: 20px;
   text-align: center;
 }
 
-/* CTA content layout */
 .ctaContent {
   display: flex;
   align-items: center;
@@ -143,7 +132,7 @@ function extractFolders(videos) {
 }
 
 // Render folders
-function renderFolders(container, folders) {
+function renderFolders(container, folders, isVip = false) {
   Object.keys(folders).forEach(folderName => {
 
     const video = folders[folderName];
@@ -152,7 +141,11 @@ function renderFolders(container, folders) {
     box.className = "folderBox";
 
     box.onclick = () => {
-      window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
+      if (isVip) {
+        window.location.href = "https://fc-lc.xyz/al0L8qyP";
+      } else {
+        window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
+      }
     };
 
     const img = document.createElement("img");
@@ -170,7 +163,7 @@ function renderFolders(container, folders) {
   });
 }
 
-// Load JSON
+// Load JSON files
 Promise.all([
   fetch("vip.json").then(res => res.json()).catch(() => []),
   fetch("videos.json").then(res => res.json()).catch(() => [])
@@ -180,10 +173,10 @@ Promise.all([
   const vipFolders = extractFolders(vipVideos);
   const normalFolders = extractFolders(normalVideos);
 
-  // Render VIP folders
-  renderFolders(vipContainer, vipFolders);
+  // VIP folders (click opens external link)
+  renderFolders(vipContainer, vipFolders, true);
 
-  // CTA directly under VIP (now truly touching)
+  // CTA under VIP
   if (Object.keys(vipFolders).length > 0) {
     const cta = document.createElement("div");
     cta.className = "ctaCard";
@@ -201,8 +194,8 @@ Promise.all([
     vipContainer.appendChild(cta);
   }
 
-  // Render normal folders
-  renderFolders(normalContainer, normalFolders);
+  // Normal folders
+  renderFolders(normalContainer, normalFolders, false);
 
   if (
     Object.keys(vipFolders).length === 0 &&
