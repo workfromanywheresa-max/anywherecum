@@ -628,10 +628,20 @@ if(videos.length){
   <script>
 document.addEventListener("click", function (e) {
 
-  /* ---------------- Folder Links (ALL SECTIONS) ---------------- */
+  function getFolderName(el) {
+    return (
+      el.dataset?.folder ||     // ✅ invisible real folder name
+      el.getAttribute("data-folder") ||
+      el.alt || 
+      el.textContent?.trim() || 
+      "Unknown"
+    );
+  }
+
+  /* Folder Links */
   const folderLink = e.target.closest("a.folder-link");
   if (folderLink) {
-    const folderName = folderLink.textContent.trim();
+    const folderName = getFolderName(folderLink);
 
     console.log("Folder link clicked:", folderName);
 
@@ -640,43 +650,15 @@ document.addEventListener("click", function (e) {
     }
   }
 
-  /* ---------------- Folder Images (ALL SECTIONS) ---------------- */
+  /* Images */
   const folderImage = e.target.closest("#folderList img, #vipList img, #latestVideo img");
   if (folderImage) {
-    const folderName = folderImage.alt || "Unknown";
+    const folderName = getFolderName(folderImage);
 
     console.log("Folder image clicked:", folderName);
 
     if (window.trackPreviewClick) {
       window.trackPreviewClick(folderName);
-    }
-  }
-
-  /* ---------------- Folder Items (ALL SECTIONS) ---------------- */
-  const folderItem = e.target.closest("#folderList li, #vipList li, #latestVideo li");
-  if (folderItem) {
-    console.log("Folder item clicked (generic)");
-  }
-
-  /* ---------------- Latest Video Link Specific ---------------- */
-  const latestLink = e.target.closest("#latestVideo a.folder-link");
-  if (latestLink) {
-    const name = latestLink.textContent.trim();
-    console.log("Latest video clicked:", name);
-
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(name);
-    }
-  }
-
-  /* ---------------- VIP Section Link Specific ---------------- */
-  const vipLink = e.target.closest("#vipList a.folder-link");
-  if (vipLink) {
-    const name = vipLink.textContent.trim();
-    console.log("VIP clicked:", name);
-
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(name);
     }
   }
 
