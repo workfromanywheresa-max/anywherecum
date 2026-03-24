@@ -1,100 +1,152 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-/* ---------------- Firebase Config ---------------- */
-const firebaseConfig = {
-  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
-  authDomain: "anywherecum-1c8d0.firebaseapp.com",
-  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
-  projectId: "anywherecum-1c8d0",
-  storageBucket: "anywherecum-1c8d0.firebasestorage.app",
-  messagingSenderId: "686718460803",
-  appId: "1:686718460803:web:78827198d1be2904d98cb6"
-};
-
-const app = initializeApp(firebaseConfig);
+/* Firebase */
+const app = initializeApp({
+  apiKey: "AIzaSyCEX...",
+  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
+});
 const db = getDatabase(app);
 
-/* ---------------- Owner IP (excluded from counting) ---------------- */
-const OWNER_IP = "102.214.117.74";
+/* Folder */
+const params = new URLSearchParams(window.location.search);
+const folderName = (params.get("folder") || "").toLowerCase();
 
-/* ---------------- Get User IP ---------------- */
-async function getUserIP() {
+document.getElementById("folderTitle").textContent =
+  folderName ? folderName.toUpperCase() : "ALL VIDEOS";
+
+/* Worker */
+async function sendToWorker(videoId) {
   try {
-    const res = await fetch("https://api.ipify.org?format=json");
-    const data = await res.json();
-    return data.ip;
-  } catch {
-    return null;
-  }
-}
-
-/* ---------------- Increase Views ---------------- */
-export async function increaseViews(videoId) {
-  const userIP = await getUserIP();
-
-  // Prevent owner views from counting
-  if (userIP && userIP === OWNER_IP) return;
-
-  // Total views
-  runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
-
-  // Cycle views (used for trending logic)
-  runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
-}
-
-/* ---------------- Send to Worker ---------------- */
-export async function sendToWorker(videoId) {
-  try {
-    await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/", {
+    await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify({ videoId })
     });
   } catch (err) {
-    console.error("Worker send failed:", err);
+    console.error("Worker failed:", err);
   }
 }
 
-/* ---------------- Bind Video to UI ---------------- */
-export function bindVideo(video, elements, containers) {
-  const { box, wrapper, thumb, views } = elements;
-  const { trendingContainer, normalContainer } = containers;
-
-  /* -------- Total Views Listener -------- */
-  onValue(ref(db, "views/" + video.id), snap => {
-    const totalViews = snap.val() || 0;
-
-    views.textContent =
-      totalViews >= 10
-        ? `🔥 Trending | 👁 ${totalViews}`
-        : `👁 ${totalViews}`;
-
-    views.style.color = totalViews >= 10 ? "#ffcc00" : "#aaa";
-  });
-
-  /* -------- Cycle Views Listener (Trending Logic) -------- */
-  onValue(ref(db, "cycleViews/" + video.id), snap => {
-    const cycleViews = snap.val() || 0;
-
-    if (cycleViews >= 10) {
-      trendingContainer.appendChild(box);
-    } else {
-      normalContainer.appendChild(box);
-    }
-  });
-
-  /* -------- Thumbnail Click → Replace with Iframe -------- */
-  thumb.onclick = () => {
-    increaseViews(video.id);
-
-    const iframe = document.createElement("iframe");
-    iframe.src = video.url;
-    iframe.allowFullscreen = true;
-
-    // Replace thumbnail with iframe (no layout jump due to fixed wrapper height)
-    wrapper.innerHTML = "";
-    wrapper.appendChild(iframe);
-  };
+function increaseViews(videoId) {
+  sendToWorker(videoId);
 }
+
+/* Containers */
+const trendingContainer = document.getElementById("trendingVideos");
+const normalContainer = document.getElementById("normalVideos");
+
+const videoElements = {};
+
+/* UI Controller */
+function updateUI(id) {
+  const v = videoElements[id];
+  if (!v) return;
+
+  const total = v.totalViews || 0;
+  const cycle = v.cycleViews || 0;
+
+  const isTrending = cycle >= 10;
+
+  const target = isTrending ? trendingContainer : normalContainer;
+  if (v.box.parentElement !== target) {
+    target.appendChild(v.box);
+  }
+
+  v.views.textContent = isTrending
+    ? `🔥 Trending | 👁 ${total}`
+    : `👁 ${total}`;
+
+  v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
+}
+
+/* Load Videos */
+fetch("videos.json")
+.then(res => res.json())
+.then(videos => {
+
+  const filtered = folderName
+    ? videos.filter(v => v.folder.toLowerCase() === folderName)
+    : videos;
+
+  filtered.forEach(v => {
+
+    const box = document.createElement("div");
+    box.className = "videoBox";
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "videoFrameWrapper";
+
+    const thumb = document.createElement("img");
+    thumb.className = "thumbnail";
+    thumb.src = "https://anywherecum.pages.dev/images/" + v.thumbnail;
+
+    thumb.onclick = () => {
+      increaseViews(v.id);
+
+      const iframe = document.createElement("iframe");
+      iframe.src = v.url;
+      iframe.allowFullscreen = true;
+
+      wrapper.innerHTML = "";
+      wrapper.appendChild(iframe);
+    };
+
+    wrapper.appendChild(thumb);
+
+    const title = document.createElement("h3");
+    title.className = "videoTitle";
+    title.textContent = v.title;
+
+    title.onclick = () => {
+      increaseViews(v.id);
+      window.open(v.url, "_blank");
+    };
+
+    const views = document.createElement("div");
+    views.className = "views";
+    views.textContent = "👁 0";
+
+    /* Button */
+    const btn = document.createElement("a");
+    btn.className = "download";
+    btn.href = "#";
+    btn.textContent = `Download (${v.size || "?"})`;
+
+    btn.onclick = (e) => {
+      e.preventDefault();
+      increaseViews(v.id);
+      window.open(v.url, "_blank");
+    };
+
+    box.appendChild(wrapper);
+    box.appendChild(title);
+    box.appendChild(views);
+    box.appendChild(btn);
+
+    normalContainer.appendChild(box);
+
+    videoElements[v.id] = {
+      box,
+      views,
+      totalViews: 0,
+      cycleViews: 0
+    };
+
+    /* Total Views */
+    onValue(ref(db, "views/" + v.id), snap => {
+      videoElements[v.id].totalViews = snap.val() || 0;
+      updateUI(v.id);
+    });
+
+    /* Cycle Views */
+    onValue(ref(db, "cycleViews/" + v.id), snap => {
+      videoElements[v.id].cycleViews = Number(snap.val()) || 0;
+      updateUI(v.id);
+    });
+
+  });
+
+});
