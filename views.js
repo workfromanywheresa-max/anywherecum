@@ -109,6 +109,58 @@ updateAdminCount();
 /* ---------------- Auto Refresh ---------------- */
 setInterval(updateAdminCount, 10000);
 
+/* ---------------- Global Click Tracking ---------------- */
+document.addEventListener("click", function (e) {
+
+  function getFolderName(el) {
+    return (
+      el?.dataset?.folder ||
+      el?.closest?.("[data-folder]")?.dataset?.folder ||
+      el?.getAttribute?.("data-folder") ||
+      el?.alt ||
+      el?.textContent?.trim() ||
+      "Unknown"
+    );
+  }
+
+  /* Folder Links */
+  const folderLink = e.target.closest("a.folder-link");
+  if (folderLink) {
+    const name = getFolderName(folderLink);
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(name);
+    }
+  }
+
+  /* Folder Images */
+  const folderImage = e.target.closest("#folderList img, #vipList img, #latestVideo img");
+  if (folderImage) {
+    const name = getFolderName(folderImage);
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(name);
+    }
+  }
+
+  /* Latest Video Links */
+  const latestLink = e.target.closest("#latestVideo a.folder-link");
+  if (latestLink) {
+    const name = getFolderName(latestLink);
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(name);
+    }
+  }
+
+  /* VIP Links */
+  const vipLink = e.target.closest("#vipList a.folder-link");
+  if (vipLink) {
+    const name = getFolderName(vipLink);
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(name);
+    }
+  }
+
+});
+
 /* =========================================================
    GLOBAL HELPER (used by HTML)
 ========================================================= */
