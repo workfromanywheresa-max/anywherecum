@@ -108,7 +108,17 @@ h2 {
 <div id="trendingVideos"></div>
 <div id="normalVideos"></div>
 
-<!-- ✅ Load JS -->
+<!-- ✅ CONFIG (controls views2.js) -->
+<script>
+const params = new URLSearchParams(window.location.search);
+
+window.VIDEO_CONFIG = {
+  dataSource: "videos.json",
+  folder: params.get("folder") || ""
+};
+</script>
+
+<!-- ✅ Shared JS -->
 <script type="module" src="views2.js"></script>
 
 </body>
