@@ -107,7 +107,6 @@ const db = getDatabase(app);
 
 /* ---------------- Session ---------------- */
 let sessionId = sessionStorage.getItem("sessionId");
-
 if (!sessionId) {
   sessionId = Date.now() + "_" + Math.random();
   sessionStorage.setItem("sessionId", sessionId);
@@ -123,20 +122,15 @@ document.getElementById("folderTitle").textContent =
 /* ---------------- Track Folder ---------------- */
 function trackFolderOnce(folderName) {
   if (!folderName) return;
-
   const key = "folder_" + folderName + "_" + sessionId;
   if (sessionStorage.getItem(key)) return;
-
   sessionStorage.setItem(key, "1");
 }
 
-/* ---------------- Track Click ---------------- */
 function trackFolderClickOnce(folderName) {
   if (!folderName) return;
-
   const key = "folder_click_" + folderName + "_" + sessionId;
   if (sessionStorage.getItem(key)) return;
-
   sessionStorage.setItem(key, "1");
 }
 
@@ -153,6 +147,19 @@ async function getUserIP() {
 
 const OWNER_IP = "102.214.117.74";
 
+/* ---------------- Send to Worker (videoId only) ---------------- */
+async function sendToWorker(videoId) {
+  try {
+    await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ videoId })
+    });
+  } catch (err) {
+    console.error("Worker send failed:", err);
+  }
+}
+
 /* ---------------- Increase Views ---------------- */
 async function increaseViews(videoId) {
   const userIP = await getUserIP();
@@ -160,6 +167,9 @@ async function increaseViews(videoId) {
 
   runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
   runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
+
+  // Send videoId only to Worker
+  sendToWorker(videoId);
 }
 
 /* ---------------- Get Stats ---------------- */
