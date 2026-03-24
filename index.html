@@ -657,67 +657,43 @@ document.addEventListener("click", function (e) {
 
   function getFolderName(el) {
     return (
-      el.dataset?.folder ||                          // ✅ hidden real name (MAIN FIX)
-      el.closest("[data-folder]")?.dataset.folder || // ✅ fallback from parent
+      el.dataset?.folder ||
+      el.closest("[data-folder]")?.dataset.folder ||
       el.getAttribute("data-folder") ||
-      el.alt || 
-      el.textContent?.trim() || 
+      el.alt ||
+      el.textContent?.trim() ||
       "Unknown"
     );
   }
 
-  /* ---------------- Folder Links (ALL SECTIONS) ---------------- */
-  const folderLink = e.target.closest("a.folder-link");
-  if (folderLink) {
-    const folderName = getFolderName(folderLink);
+  /* ---------------- Latest Video Image ---------------- */
+  const latestImage = e.target.closest("#latestVideo img");
+  if (latestImage) {
+    const folderName = getFolderName(latestImage);
 
-    console.log("Folder link clicked:", folderName);
-
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(folderName);
-    }
-  }
-
-  /* ---------------- Folder Images (ALL SECTIONS) ---------------- */
-  const folderImage = e.target.closest("#folderList img, #vipList img, #latestVideo img");
-  if (folderImage) {
-    const folderName = getFolderName(folderImage);
-
-    console.log("Folder image clicked:", folderName);
+    console.log("Latest image clicked:", folderName);
 
     if (window.trackPreviewClick) {
       window.trackPreviewClick(folderName);
     }
   }
 
-  /* ---------------- Folder Items (ALL SECTIONS) ---------------- */
-  const folderItem = e.target.closest("#folderList li, #vipList li, #latestVideo li");
-  if (folderItem) {
-    console.log("Folder item clicked (generic)");
-  }
-
-  /* ---------------- Latest Video Link Specific ---------------- */
+  /* ---------------- Latest Video Link ---------------- */
   const latestLink = e.target.closest("#latestVideo a.folder-link");
   if (latestLink) {
-    const name = getFolderName(latestLink);
+    const folderName = getFolderName(latestLink);
 
-    console.log("Latest video clicked:", name);
+    console.log("Latest link clicked:", folderName);
 
     if (window.trackPreviewClick) {
-      window.trackPreviewClick(name);
+      window.trackPreviewClick(folderName);
     }
   }
 
-  /* ---------------- VIP Section Link Specific ---------------- */
-  const vipLink = e.target.closest("#vipList a.folder-link");
-  if (vipLink) {
-    const name = getFolderName(vipLink);
-
-    console.log("VIP clicked:", name);
-
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(name);
-    }
+  /* ---------------- Latest Item (optional generic) ---------------- */
+  const latestItem = e.target.closest("#latestVideo li");
+  if (latestItem) {
+    console.log("Latest item clicked (generic)");
   }
 
 });
