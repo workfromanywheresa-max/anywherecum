@@ -652,24 +652,24 @@ document.addEventListener("click", function (e) {
     );
   }
 
-  /* ---------------- Latest Video (SIMPLE - SAME AS OTHERS) ---------------- */
+  /* ---------------- Latest Video ---------------- */
   const latestClick = e.target.closest("#latestVideo a.folder-link, #latestVideo img");
 
   if (latestClick) {
     e.preventDefault();
 
-    const folderName = latestClick.closest("[data-folder]")?.dataset.folder;
+    const li = latestClick.closest("li");
+    const folderName = li?.dataset?.folder;
 
     console.log("Latest clicked:", folderName);
 
-    if (window.trackPreviewClick && folderName) {
+    if (!folderName) return;
+
+    if (window.trackPreviewClick) {
       window.trackPreviewClick(folderName);
     }
 
-    setTimeout(() => {
-      window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
-    }, 150);
-
+    window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
     return;
   }
 
