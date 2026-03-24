@@ -50,25 +50,63 @@ h2 {
   margin: 0;
 }
 
-/* ✅ CTA CARD (half height + overlap effect) */
+/* ✅ CTA CARD */
 .ctaCard {
   background: #2a2a2a;
   border: 1px solid #ff4444;
   border-radius: 8px;
-  padding: 6px 10px; /* smaller = half height */
-  margin-top: -5px; /* 👈 makes it "touch" VIP cards */
+  padding: 10px;
+  margin-top: 5px;
   margin-bottom: 20px;
   text-align: center;
 }
 
-.ctaCard a {
+/* CTA content layout */
+.ctaContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* CTA link */
+.ctaContent a {
   color: #00ffcc;
   text-decoration: none;
   font-size: 14px;
+  font-weight: bold;
 }
 
-.ctaCard a:hover {
+.ctaContent a:hover {
   text-decoration: underline;
+}
+
+/* Arrows */
+.arrow {
+  font-size: 18px;
+  color: #ff4444;
+  animation: bounce 1s infinite;
+}
+
+/* Slight delay difference */
+.arrow.left {
+  animation-delay: 0s;
+}
+
+.arrow.right {
+  animation-delay: 0.3s;
+}
+
+/* Bounce animation */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateX(0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateX(6px);
+    opacity: 1;
+  }
 }
 </style>
 </head>
@@ -83,7 +121,7 @@ h2 {
 const container = document.getElementById("folderList");
 const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
-// 🔥 helper to extract folders
+// Extract folders
 function extractFolders(videos) {
   const folders = {};
 
@@ -98,7 +136,7 @@ function extractFolders(videos) {
   return folders;
 }
 
-// 🔥 helper to render folders
+// Render folders
 function renderFolders(folders) {
   Object.keys(folders).forEach(folderName => {
 
@@ -126,7 +164,7 @@ function renderFolders(folders) {
   });
 }
 
-// 🔥 load BOTH json files
+// Load JSON files
 Promise.all([
   fetch("vip.json").then(res => res.json()).catch(() => []),
   fetch("videos.json").then(res => res.json()).catch(() => [])
@@ -136,22 +174,30 @@ Promise.all([
   const vipFolders = extractFolders(vipVideos);
   const normalFolders = extractFolders(normalVideos);
 
-  // 🔥 VIP FIRST
+  // VIP folders first
   renderFolders(vipFolders);
 
-  // ✅ ADD CTA CARD UNDER VIP
+  // CTA card under VIP
   if (Object.keys(vipFolders).length > 0) {
     const cta = document.createElement("div");
     cta.className = "ctaCard";
+
     cta.innerHTML = `
-      <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4" target="_blank">
-        Click & Watch how to unlock Free VIP Access
-      </a>
+      <div class="ctaContent">
+        <span class="arrow left">⬅</span>
+
+        <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4" target="_blank">
+          Click & Watch how to unlock Free VIP Access
+        </a>
+
+        <span class="arrow right">➡</span>
+      </div>
     `;
+
     container.appendChild(cta);
   }
 
-  // 🔥 then normal folders
+  // Normal folders
   renderFolders(normalFolders);
 
   if (
