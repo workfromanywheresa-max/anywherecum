@@ -672,13 +672,19 @@ document.addEventListener("click", function (e) {
     e.preventDefault();
 
     const li = latestClick.closest("li");
-    const folderName = li?.dataset?.folder;
+    let folderName = li?.dataset?.folder;
 
     console.log("Latest clicked:", folderName);
 
-    // ✅ Prevent null tracking
+    // ✅ If null → treat as HOME
     if (!folderName) {
-      window.location.href = "folder.html";
+      folderName = "home";
+
+      if (window.trackPreviewClick) {
+        window.trackPreviewClick(folderName);
+      }
+
+      window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
       return;
     }
 
