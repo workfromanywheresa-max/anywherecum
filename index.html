@@ -635,10 +635,10 @@ if (videos.length) {
   link.textContent = "Watch Now: New Video Available!!!";
   link.dataset.folder = latestVideo.folder;
 
-  // Click behavior
   img.onclick = () => {
-    window.location.href = link.href;
-  };
+  window.trackPreviewClick(latestVideo.folder);
+  window.location.href = link.href;
+};
 
   li.appendChild(img);
   li.appendChild(link);
@@ -651,56 +651,6 @@ if (videos.length) {
 });
                                                                  
 </script>
-
-  <script>
-document.addEventListener("click", function (e) {
-
-  /* ---------------- Get Folder Name (SAFE) ---------------- */
-  function getFolderName(el) {
-    const folder =
-      el?.dataset?.folder ||
-      el?.closest("[data-folder]")?.dataset?.folder ||
-      null;
-
-    return folder;
-  }
-
-  /* ---------------- Track Handler (ONE ENTRY POINT) ---------------- */
-  function handleTrack(el) {
-    const folderName = getFolderName(el);
-
-    if (!folderName) return;
-
-    console.log("Tracked click:", folderName);
-
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(folderName);
-    }
-
-    // Prevent duplicate triggers from nested elements
-    e.stopPropagation();
-  }
-
-  /* ---------------- Folder Image Click ---------------- */
-  const folderImage = e.target.closest(
-    "#folderList img, #vipList img, #latestVideo img"
-  );
-
-  if (folderImage) {
-    handleTrack(folderImage);
-    return;
-  }
-
-  /* ---------------- Folder Link Click ---------------- */
-  const folderLink = e.target.closest("a.folder-link");
-
-  if (folderLink) {
-    handleTrack(folderLink);
-    return;
-  }
-
-});
-  </script>
   
   <script type="module" src="views.js"></script>
   
