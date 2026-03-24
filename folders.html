@@ -58,28 +58,46 @@ h2 {
 <script>
 const container = document.getElementById("folderList");
 
-fetch("folders.json")
-.then(res => res.json())
-.then(folders => {
+fetch("videos.json")
+.then(res => {
+  if (!res.ok) throw new Error("Failed to fetch");
+  return res.json();
+})
+.then(videos => {
 
   const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
-  folders.forEach(folder => {
+  // Group videos into folders
+  const folders = {};
+
+  videos.forEach(video => {
+    if (!video.folder) return;
+
+    // Only keep first video as thumbnail
+    if (!folders[video.folder]) {
+      folders[video.folder] = video;
+    }
+  });
+
+  // Render folders
+  Object.keys(folders).forEach(folderName => {
+
+    const video = folders[folderName];
 
     const box = document.createElement("div");
     box.className = "folderBox";
 
     box.onclick = () => {
-      window.location.href = "folder.html?folder=" + encodeURIComponent(folder.name);
+      window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
     };
 
     const img = document.createElement("img");
     img.className = "thumbnail";
-    img.src = IMAGE_BASE + folder.thumbnail;
+    img.src = IMAGE_BASE + (video.thumbnail || "");
 
     const title = document.createElement("h3");
     title.className = "folderTitle";
-    title.textContent = folder.name;
+    title.textContent = folderName;
 
     box.appendChild(img);
     box.appendChild(title);
@@ -87,8 +105,14 @@ fetch("folders.json")
     container.appendChild(box);
   });
 
+  // If no folders found
+  if (Object.keys(folders).length === 0) {
+    container.innerHTML = "<p style='text-align:center;color:#aaa;'>No folders found.</p>";
+  }
+
 })
-.catch(() => {
+.catch(err => {
+  console.error(err);
   container.innerHTML = "<p style='text-align:center;color:#aaa;'>Failed to load folders.</p>";
 });
 </script>
