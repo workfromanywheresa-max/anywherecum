@@ -45,7 +45,7 @@ h2 {
   cursor: pointer;
 }
 
-/* Iframe keeps YOUR original sizing */
+/* Iframe keeps original sizing */
 .videoFrameWrapper iframe {
   width: 100%;
   height: 560px;
@@ -60,18 +60,37 @@ h2 {
   color: #aaa;
   margin-top: 5px;
 }
+
+.sectionTitle {
+  text-align: center;
+  color: #ffcc00;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
 </style>
 </head>
 
 <body>
 
+<button onclick="history.back()">← Back</button>
+
 <h2 id="folderTitle">Folder</h2>
 
+<div class="sectionTitle">Trending</div>
 <div id="trendingVideos"></div>
+
+<div class="sectionTitle">All Videos</div>
 <div id="normalVideos"></div>
 
 <script type="module">
 import { increaseViews, bindVideo } from "./views2.js";
+
+/* ---------------- Get Folder ---------------- */
+const params = new URLSearchParams(window.location.search);
+const folderName = (params.get("folder") || "").toLowerCase();
+
+document.getElementById("folderTitle").textContent =
+  folderName ? folderName.toUpperCase() : "ALL VIDEOS";
 
 /* ---------------- Containers ---------------- */
 const trendingContainer = document.getElementById("trendingVideos");
@@ -82,7 +101,12 @@ fetch("videos.json")
 .then(res => res.json())
 .then(videos => {
 
-  videos.forEach(v => {
+  // ✅ FILTER BY FOLDER
+  const filtered = folderName
+    ? videos.filter(v => v.folder.toLowerCase() === folderName)
+    : videos;
+
+  filtered.forEach(v => {
 
     const box = document.createElement("div");
     box.className = "videoBox";
@@ -109,6 +133,7 @@ fetch("videos.json")
 
     normalContainer.appendChild(box);
 
+    // Bind Firebase + behavior
     bindVideo(
       v,
       { box, wrapper, thumb, views },
