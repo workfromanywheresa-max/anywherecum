@@ -96,7 +96,7 @@ function renderFolders(folders, isVIP = false) {
 
     const title = document.createElement("h3");
     title.className = "folderTitle";
-    title.textContent = isVIP ? "" + folderName : folderName;
+    title.textContent = folderName;
 
     box.appendChild(img);
     box.appendChild(title);
@@ -117,6 +117,13 @@ Promise.all([
 
   // 🔥 VIP FIRST
   renderFolders(vipFolders, true);
+
+  // ✅ ADD SPACE AFTER VIP
+  if (Object.keys(vipFolders).length > 0) {
+    const spacer = document.createElement("div");
+    spacer.style.height = "25px"; // 👈 adjust space here
+    container.appendChild(spacer);
+  }
 
   // 🔥 then normal
   renderFolders(normalFolders, false);
