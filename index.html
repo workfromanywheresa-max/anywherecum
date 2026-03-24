@@ -445,7 +445,7 @@ function scheduleNextAd() {
 
   cycleTimeout = setTimeout(() => {
     showAd();
-  }, 60000);
+  }, 120000);
 }
 
 // Initial load
@@ -453,7 +453,7 @@ window.onload = function () {
   setTimeout(() => {
     showAd();
     scheduleNextAd();
-  }, 2000);
+  }, 5000);
 };
 </script>
 
