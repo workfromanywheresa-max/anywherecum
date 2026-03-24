@@ -657,43 +657,38 @@ document.addEventListener("click", function (e) {
 
   function getFolderName(el) {
     return (
-      el.dataset?.folder ||
-      el.closest("[data-folder]")?.dataset.folder ||
-      el.getAttribute("data-folder") ||
-      el.alt ||
-      el.textContent?.trim() ||
-      "Unknown"
+      el?.closest("[data-folder]")?.dataset.folder ||
+      el?.getAttribute("data-folder") ||
+      el?.alt ||
+      el?.textContent?.trim() ||
+      null
     );
   }
 
-  /* ---------------- Latest Video Image ---------------- */
-  const latestImage = e.target.closest("#latestVideo img");
-  if (latestImage) {
-    const folderName = getFolderName(latestImage);
+  /* ---------------- LATEST VIDEO TRACKING (FIXED) ---------------- */
+  const latestTarget = e.target.closest("#latestVideo a.folder-link, #latestVideo img");
 
-    console.log("Latest image clicked:", folderName);
+  if (latestTarget) {
+    e.preventDefault(); // stop immediate navigation
 
+    const li = latestTarget.closest("li");
+    const folderName = li?.dataset?.folder || getFolderName(latestTarget);
+
+    console.log("Latest clicked:", folderName);
+
+    if (!folderName) return;
+
+    // Track click
     if (window.trackPreviewClick) {
       window.trackPreviewClick(folderName);
     }
-  }
 
-  /* ---------------- Latest Video Link ---------------- */
-  const latestLink = e.target.closest("#latestVideo a.folder-link");
-  if (latestLink) {
-    const folderName = getFolderName(latestLink);
+    // Delay navigation to allow tracking to complete
+    setTimeout(() => {
+      window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
+    }, 400);
 
-    console.log("Latest link clicked:", folderName);
-
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(folderName);
-    }
-  }
-
-  /* ---------------- Latest Item (optional generic) ---------------- */
-  const latestItem = e.target.closest("#latestVideo li");
-  if (latestItem) {
-    console.log("Latest item clicked (generic)");
+    return;
   }
 
 });
