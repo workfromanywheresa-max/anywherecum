@@ -31,13 +31,6 @@ h2 {
   padding-bottom: 5px;
 }
 
-#folderDescription {
-  text-align: center;
-  color: #aaa;
-  font-size: 14px;
-  margin-top: 5px;
-}
-
 .videoBox {
   background: #222;
   padding: 10px;
@@ -81,17 +74,6 @@ h2 {
   text-align: center;
   color: #aaa;
 }
-
-.download {
-  display: block;
-  width: fit-content;
-  margin: 10px auto;
-  padding: 8px 15px;
-  background: #ff4444;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
-}
 </style>
 </head>
 
@@ -100,9 +82,6 @@ h2 {
 <button onclick="history.back()">← Back</button>
 
 <h2 id="folderTitle">Folder</h2>
-<p id="folderDescription">
-  Enjoy our videos, updated regularly for your viewing pleasure.
-</p>
 
 <div id="trendingVideos"></div>
 <div id="normalVideos"></div>
@@ -111,83 +90,70 @@ h2 {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-/* ---------------- Firebase Config ---------------- */
-const firebaseConfig = {
-  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
-  authDomain: "anywherecum-1c8d0.firebaseapp.com",
-  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
-  projectId: "anywherecum-1c8d0",
-  storageBucket: "anywherecum-1c8d0.firebasestorage.app",
-  messagingSenderId: "686718460803",
-  appId: "1:686718460803:web:78827198d1be2904d98cb6"
-};
-
-const app = initializeApp(firebaseConfig);
+/* Firebase */
+const app = initializeApp({
+  apiKey: "AIzaSyCEX...",
+  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
+});
 const db = getDatabase(app);
 
-/* ---------------- Session ---------------- */
+/* Session */
 let sessionId = sessionStorage.getItem("sessionId");
 if (!sessionId) {
   sessionId = Date.now() + "_" + Math.random();
   sessionStorage.setItem("sessionId", sessionId);
 }
 
-/* ---------------- Folder ---------------- */
-const params = new URLSearchParams(window.location.search);
-const folderName = (params.get("folder") || "").toLowerCase();
-
-document.getElementById("folderTitle").textContent =
-  folderName ? folderName.charAt(0).toUpperCase() + folderName.slice(1) : "ALL VIDEOS";
-
-/* ---------------- IP Check ---------------- */
-async function getUserIP() {
-  try {
-    const res = await fetch("https://api.ipify.org?format=json");
-    const data = await res.json();
-    return data.ip;
-  } catch {
-    return null;
-  }
-}
-
-const OWNER_IP = "102.214.117.74";
-
-/* ---------------- Worker ---------------- */
+/* Worker */
 async function sendToWorker(videoId) {
-  try {
-    await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ videoId })
-    });
-  } catch (err) {
-    console.error("Worker send failed:", err);
-  }
+  await fetch("https://anywherecum.workers.dev/increment", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ videoId })
+  });
 }
 
-/* ---------------- Views ---------------- */
-async function increaseViews(videoId) {
-  const userIP = await getUserIP();
-  if (userIP && userIP === OWNER_IP) return;
+/* Increase views */
+function increaseViews(videoId) {
   sendToWorker(videoId);
 }
 
-/* ---------------- Containers ---------------- */
+/* Containers */
 const trendingContainer = document.getElementById("trendingVideos");
 const normalContainer = document.getElementById("normalVideos");
 
 const videoElements = {};
 
-/* ---------------- Load Videos ---------------- */
+/* UI Controller (ONLY place that updates UI) */
+function updateUI(id) {
+  const v = videoElements[id];
+  if (!v) return;
+
+  const total = v.totalViews || 0;
+  const cycle = v.cycleViews || 0;
+
+  const isTrending = cycle >= 10;
+
+  // Move video
+  const target = isTrending ? trendingContainer : normalContainer;
+  if (v.box.parentElement !== target) {
+    target.appendChild(v.box);
+  }
+
+  // Show TOTAL views only (as you requested)
+  v.views.textContent = isTrending
+    ? `🔥 Trending | 👁 ${total}`
+    : `👁 ${total}`;
+
+  v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
+}
+
+/* Load videos */
 fetch("videos.json")
 .then(res => res.json())
 .then(videos => {
 
-  const filtered = folderName
-    ? videos.filter(v => v.folder.toLowerCase() === folderName)
-    : videos;
-
-  filtered.forEach(v => {
+  videos.forEach(v => {
 
     const box = document.createElement("div");
     box.className = "videoBox";
@@ -225,70 +191,29 @@ fetch("videos.json")
     views.className = "views";
     views.textContent = "👁 0";
 
-    const btn = document.createElement("a");
-    btn.className = "download";
-    btn.textContent = "Download";
-    btn.href = "#";
-
-    btn.onclick = (e) => {
-      e.preventDefault();
-      increaseViews(v.id);
-      window.open(v.url, "_blank");
-    };
-
     box.appendChild(wrapper);
     box.appendChild(title);
     box.appendChild(views);
-    box.appendChild(btn);
 
     normalContainer.appendChild(box);
 
-    videoElements[v.id] = { box, views };
+    videoElements[v.id] = {
+      box,
+      views,
+      totalViews: 0,
+      cycleViews: 0
+    };
 
-    /* ---------------- Views Listener ---------------- */
-    const viewsRef = ref(db, "views/" + v.id);
-    onValue(viewsRef, snap => {
-      const totalViews = snap.val() || 0;
-
-      videoElements[v.id].views.textContent =
-        totalViews >= 10
-          ? `🔥 Trending | 👁 ${totalViews}`
-          : `👁 ${totalViews}`;
-
-      videoElements[v.id].views.style.color =
-        totalViews >= 10 ? "#ffcc00" : "#aaa";
+    /* TOTAL VIEWS (display only) */
+    onValue(ref(db, "views/" + v.id), snap => {
+      videoElements[v.id].totalViews = snap.val() || 0;
+      updateUI(v.id);
     });
 
-    /* ---------------- Cycle Views Listener (FIXED) ---------------- */
-    const cycleRef = ref(db, "cycleViews/" + v.id);
-
-    onValue(cycleRef, snap => {
-      const value = snap.val();
-      const cycleViews = Number(value) || 0;
-
-      const videoObj = videoElements[v.id];
-      if (!videoObj) return;
-
-      const box = videoObj.box;
-
-      const shouldBeTrending = cycleViews >= 10;
-      const targetContainer = shouldBeTrending
-        ? trendingContainer
-        : normalContainer;
-
-      // Only move if needed
-      if (box.parentElement !== targetContainer) {
-        targetContainer.appendChild(box);
-      }
-
-      // Update UI label
-      videoObj.views.textContent =
-        shouldBeTrending
-          ? `🔥 Trending | 👁 ${cycleViews}`
-          : `👁 ${cycleViews}`;
-
-      videoObj.views.style.color =
-        shouldBeTrending ? "#ffcc00" : "#aaa";
+    /* CYCLE VIEWS (controls trending ONLY) */
+    onValue(ref(db, "cycleViews/" + v.id), snap => {
+      videoElements[v.id].cycleViews = Number(snap.val()) || 0;
+      updateUI(v.id);
     });
 
   });
