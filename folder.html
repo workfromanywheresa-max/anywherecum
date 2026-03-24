@@ -126,6 +126,7 @@ h2 {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
+/* ---------------- Firebase Config ---------------- */
 const firebaseConfig = {
   apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
   authDomain: "anywherecum-1c8d0.firebaseapp.com",
@@ -166,10 +167,10 @@ async function getUserIP() {
 
 const OWNER_IP = "102.214.117.74";
 
-/* ---------------- Send to Worker ---------------- */
+/* ---------------- Send to Worker (FIXED URL) ---------------- */
 async function sendToWorker(videoId) {
   try {
-    await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/", {
+    await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ videoId })
