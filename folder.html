@@ -259,27 +259,28 @@ fetch("videos.json")
         totalViews >= 10 ? "#ffcc00" : "#aaa";
     });
 
-    /* ---------------- Cycle Views Listener (FIXED) ---------------- */
+    /* ---------------- Cycle Views Listener (FINAL FIX) ---------------- */
     const cycleRef = ref(db, "cycleViews/" + v.id);
 
     onValue(cycleRef, snap => {
-      const cycleViews = snap.val() || 0;
-      const videoObj = videoElements[v.id];
+      const value = snap.val();
+      const cycleViews = Number(value) || 0;
 
+      const videoObj = videoElements[v.id];
       if (!videoObj) return;
 
-      const isTrending = cycleViews >= 10;
+      const box = videoObj.box;
 
-      // Remove from current parent first
-      if (videoObj.box.parentElement) {
-        videoObj.box.parentElement.removeChild(videoObj.box);
+      // Always remove before re-adding
+      if (box.parentElement) {
+        box.parentElement.removeChild(box);
       }
 
-      // Append to correct container
-      if (isTrending) {
-        trendingContainer.appendChild(videoObj.box);
+      // Re-append to correct container
+      if (cycleViews >= 10) {
+        trendingContainer.appendChild(box);
       } else {
-        normalContainer.appendChild(videoObj.box);
+        normalContainer.appendChild(box);
       }
     });
 
