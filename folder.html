@@ -104,10 +104,7 @@ h2 {
   Enjoy our videos, updated regularly for your viewing pleasure.
 </p>
 
-<!-- Trending container (no heading) -->
 <div id="trendingVideos"></div>
-
-<!-- Normal videos container (no heading) -->
 <div id="normalVideos"></div>
 
 <script type="module">
@@ -142,7 +139,7 @@ const folderName = (params.get("folder") || "").toLowerCase();
 document.getElementById("folderTitle").textContent =
   folderName ? folderName.charAt(0).toUpperCase() + folderName.slice(1) : "ALL VIDEOS";
 
-/* ---------------- Get IP ---------------- */
+/* ---------------- IP Check ---------------- */
 async function getUserIP() {
   try {
     const res = await fetch("https://api.ipify.org?format=json");
@@ -155,7 +152,7 @@ async function getUserIP() {
 
 const OWNER_IP = "102.214.117.74";
 
-/* ---------------- Send to Worker ---------------- */
+/* ---------------- Worker ---------------- */
 async function sendToWorker(videoId) {
   try {
     await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
@@ -168,7 +165,7 @@ async function sendToWorker(videoId) {
   }
 }
 
-/* ---------------- Increase Views ---------------- */
+/* ---------------- Views ---------------- */
 async function increaseViews(videoId) {
   const userIP = await getUserIP();
   if (userIP && userIP === OWNER_IP) return;
@@ -204,9 +201,11 @@ fetch("videos.json")
 
     thumb.onclick = () => {
       increaseViews(v.id);
+
       const iframe = document.createElement("iframe");
       iframe.src = v.url;
       iframe.allowFullscreen = true;
+
       wrapper.innerHTML = "";
       wrapper.appendChild(iframe);
     };
@@ -244,9 +243,9 @@ fetch("videos.json")
 
     normalContainer.appendChild(box);
 
-    videoElements[v.id] = { box, views, currentSection: "normal" };
+    videoElements[v.id] = { box, views };
 
-    /* -------- Views Listener -------- */
+    /* ---------------- Views Listener ---------------- */
     const viewsRef = ref(db, "views/" + v.id);
     onValue(viewsRef, snap => {
       const totalViews = snap.val() || 0;
@@ -260,18 +259,17 @@ fetch("videos.json")
         totalViews >= 10 ? "#ffcc00" : "#aaa";
     });
 
-    /* -------- Trending Listener -------- */
+    /* ---------------- Cycle Views Listener (FIXED) ---------------- */
     const cycleRef = ref(db, "cycleViews/" + v.id);
+
     onValue(cycleRef, snap => {
       const cycleViews = snap.val() || 0;
       const videoObj = videoElements[v.id];
 
-      if (cycleViews >= 10 && videoObj.currentSection !== "trending") {
+      if (cycleViews >= 10) {
         trendingContainer.appendChild(videoObj.box);
-        videoObj.currentSection = "trending";
-      } else if (cycleViews < 10 && videoObj.currentSection !== "normal") {
+      } else {
         normalContainer.appendChild(videoObj.box);
-        videoObj.currentSection = "normal";
       }
     });
 
