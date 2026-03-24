@@ -81,23 +81,17 @@ h2 {
   color: #aaa;
 }
 
-/* Download button with size */
+/* ✅ FIXED BUTTON (small + compact) */
 .download {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 220px;
+  display: inline-block;
   margin: 10px auto;
-  padding: 8px 12px;
+  padding: 6px 12px;
   background: #ff4444;
   color: #fff;
   text-decoration: none;
   border-radius: 5px;
-  font-size: 14px;
-}
-
-.download span:last-child {
-  font-weight: bold;
+  font-size: 13px;
+  text-align: center;
 }
 </style>
 </head>
@@ -132,7 +126,7 @@ const folderName = (params.get("folder") || "").toLowerCase();
 document.getElementById("folderTitle").textContent =
   folderName ? folderName.toUpperCase() : "ALL VIDEOS";
 
-/* ✅ CORRECT WORKER */
+/* Worker */
 async function sendToWorker(videoId) {
   try {
     await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
@@ -226,15 +220,11 @@ fetch("videos.json")
     views.className = "views";
     views.textContent = "👁 0";
 
-    /* Download button with size */
+    /* ✅ ONLY CHANGE HERE */
     const btn = document.createElement("a");
     btn.className = "download";
     btn.href = "#";
-
-    btn.innerHTML = `
-      <span>Download</span>
-      <span>${v.size || "?"}</span>
-    `;
+    btn.textContent = `Download (${v.size || "?"})`;
 
     btn.onclick = (e) => {
       e.preventDefault();
@@ -256,13 +246,11 @@ fetch("videos.json")
       cycleViews: 0
     };
 
-    /* Total Views */
     onValue(ref(db, "views/" + v.id), snap => {
       videoElements[v.id].totalViews = snap.val() || 0;
       updateUI(v.id);
     });
 
-    /* Cycle Views (Trending logic) */
     onValue(ref(db, "cycleViews/" + v.id), snap => {
       videoElements[v.id].cycleViews = Number(snap.val()) || 0;
       updateUI(v.id);
