@@ -612,25 +612,24 @@ if(videos.length){
   const latestDiv = document.getElementById('latestVideo');
 
   latestDiv.innerHTML = `
-    <h2>🎥Latest Video🎥</h2>
-    <ul class="folder-grid">
-      <li data-folder="${latestVideo.folder}"> <!-- 🔥 IMPORTANT -->
+  <h2>🎥Latest Video🎥</h2>
+  <ul class="folder-grid">
+    <li data-folder="${latestVideo.folder}">
+      
+      <img 
+        src="${BASE_URL + latestVideo.thumbnail}" 
+        alt="${latestVideo.folder}"
+        style="width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;">
         
-        <img 
-          src="${BASE_URL + latestVideo.thumbnail}" 
-          data-folder="${latestVideo.folder}" 
-          alt="${latestVideo.folder}"
-          style="width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;">
-        
-        <a 
-  href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" 
-  class="folder-link latest-link"
-  data-folder="${latestVideo.folder}">
-  Watch Now: New Video Available!!!
-</a>
+      <a 
+        href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" 
+        class="folder-link latest-link"
+        data-folder="${latestVideo.folder}">
+        Watch Now: New Video Available!!!
+      </a>
 
-      </li>
-    </ul>`;
+    </li>
+  </ul>`;
 
   latestDiv.querySelector("img").onclick = () => 
     window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.folder);
@@ -641,29 +640,52 @@ if(videos.length){
 </script>
   
 <script>
+
+  <script>
 document.addEventListener("click", function (e) {
 
-  function getFolderName(el) {
+  /* -------- Get folder name safely -------- */
+  function getFolderNameFromElement(el) {
     return (
-      el.dataset?.folder ||
-      el.closest("[data-folder]")?.dataset.folder ||
-      el.getAttribute("data-folder") ||
-      el.alt ||
-      el.textContent?.trim() ||
-      "Unknown"
+      el?.dataset?.folder ||
+      el?.closest("[data-folder]")?.dataset.folder ||
+      el?.getAttribute("data-folder") ||
+      null
     );
   }
 
-  /* ---------------- Folder Links (ALL SECTIONS) ---------------- */
+  /* ---------------- Latest Video (PRIORITY FIX) ---------------- */
+  const latestLinkOrImage = e.target.closest("#latestVideo a.folder-link, #latestVideo img");
+
+  if (latestLinkOrImage) {
+    e.preventDefault();
+
+    // FORCE correct folder from the latestVideo object in scope
+    const folderName = window.latestVideoFolder;
+
+    console.log("Latest clicked:", folderName);
+
+    if (window.trackPreviewClick && folderName) {
+      window.trackPreviewClick(folderName);
+    }
+
+    setTimeout(() => {
+      window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
+    }, 150);
+
+    return;
+  }
+
+  /* ---------------- Folder Links ---------------- */
   const folderLink = e.target.closest("a.folder-link");
   if (folderLink) {
     e.preventDefault();
 
-    const folderName = getFolderName(folderLink);
+    const folderName = getFolderNameFromElement(folderLink);
 
     console.log("Folder link clicked:", folderName);
 
-    if (window.trackPreviewClick) {
+    if (window.trackPreviewClick && folderName) {
       window.trackPreviewClick(folderName);
     }
 
@@ -674,51 +696,32 @@ document.addEventListener("click", function (e) {
     return;
   }
 
-  /* ---------------- Folder Images (ALL SECTIONS) ---------------- */
-  const folderImage = e.target.closest("#folderList img, #vipList img, #latestVideo img");
+  /* ---------------- Folder Images ---------------- */
+  const folderImage = e.target.closest("#folderList img, #vipList img");
   if (folderImage) {
-    const folderName = getFolderName(folderImage);
+
+    const folderName = getFolderNameFromElement(folderImage);
 
     console.log("Folder image clicked:", folderName);
 
-    if (window.trackPreviewClick) {
+    if (window.trackPreviewClick && folderName) {
       window.trackPreviewClick(folderName);
     }
 
     return;
   }
 
-  /* ---------------- Latest Video Link (FIXED) ---------------- */
-  const latestLink = e.target.closest("#latestVideo a.folder-link");
-  if (latestLink) {
-    e.preventDefault();
-
-    const name = getFolderName(latestLink);
-
-    console.log("Latest video clicked:", name);
-
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(name);
-    }
-
-    setTimeout(() => {
-      window.location.href = latestLink.href;
-    }, 150);
-
-    return;
-  }
-
-  /* ---------------- VIP Section Link ---------------- */
+  /* ---------------- VIP Links ---------------- */
   const vipLink = e.target.closest("#vipList a.folder-link");
   if (vipLink) {
     e.preventDefault();
 
-    const name = getFolderName(vipLink);
+    const folderName = getFolderNameFromElement(vipLink);
 
-    console.log("VIP clicked:", name);
+    console.log("VIP clicked:", folderName);
 
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(name);
+    if (window.trackPreviewClick && folderName) {
+      window.trackPreviewClick(folderName);
     }
 
     setTimeout(() => {
@@ -726,12 +729,6 @@ document.addEventListener("click", function (e) {
     }, 150);
 
     return;
-  }
-
-  /* ---------------- Generic Folder Item ---------------- */
-  const folderItem = e.target.closest("#folderList li, #vipList li, #latestVideo li");
-  if (folderItem) {
-    console.log("Folder item clicked (generic)");
   }
 
 });
