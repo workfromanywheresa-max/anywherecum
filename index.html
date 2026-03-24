@@ -635,9 +635,11 @@ if (videos.length) {
   link.textContent = "Watch Now: New Video Available!!!";
   link.dataset.folder = latestVideo.folder;
 
-  img.onclick = () => {
+  img.onclick = (e) => {
+  e.stopPropagation(); // ✅ stop global listener
+
   if (window.trackPreviewClick) {
-    window.trackPreviewClick("Watch Now: New Video Available");
+    window.trackPreviewClick(latestVideo.folder);
   }
 
   setTimeout(() => {
@@ -645,11 +647,12 @@ if (videos.length) {
   }, 200);
 };
 
-  link.onclick = (e) => {
+link.onclick = (e) => {
   e.preventDefault();
+  e.stopPropagation(); // ✅ stop global listener
 
   if (window.trackPreviewClick) {
-    window.trackPreviewClick("Watch Now: New Video Available");
+    window.trackPreviewClick(latestVideo.folder);
   }
 
   setTimeout(() => {
