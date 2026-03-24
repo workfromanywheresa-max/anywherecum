@@ -1,5 +1,3 @@
-// views2.js
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, runTransaction, onValue } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
@@ -40,25 +38,12 @@ export async function increaseViews(videoId) {
   runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
 }
 
-/* ---------------- Worker ---------------- */
-export async function sendToWorker(videoId) {
-  try {
-    await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ videoId })
-    });
-  } catch (err) {
-    console.error("Worker send failed:", err);
-  }
-}
-
-/* ---------------- Bind Video to UI ---------------- */
+/* ---------------- Bind Video ---------------- */
 export function bindVideo(video, elements, containers) {
-  const { box, views } = elements;
+  const { box, wrapper, thumb, views } = elements;
   const { trendingContainer, normalContainer } = containers;
 
-  // Total views → UI
+  /* -------- Views Listener -------- */
   onValue(ref(db, "views/" + video.id), snap => {
     const totalViews = snap.val() || 0;
 
@@ -70,7 +55,7 @@ export function bindVideo(video, elements, containers) {
     views.style.color = totalViews >= 10 ? "#ffcc00" : "#aaa";
   });
 
-  // Cycle views → trending logic
+  /* -------- Trending Listener -------- */
   onValue(ref(db, "cycleViews/" + video.id), snap => {
     const cycleViews = snap.val() || 0;
 
@@ -80,4 +65,16 @@ export function bindVideo(video, elements, containers) {
       normalContainer.appendChild(box);
     }
   });
+
+  /* -------- Thumbnail Click → Iframe -------- */
+  thumb.onclick = () => {
+    increaseViews(video.id);
+
+    const iframe = document.createElement("iframe");
+    iframe.src = video.url;
+    iframe.allowFullscreen = true;
+
+    wrapper.innerHTML = "";
+    wrapper.appendChild(iframe);
+  };
 }
