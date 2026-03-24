@@ -259,7 +259,7 @@ fetch("videos.json")
         totalViews >= 10 ? "#ffcc00" : "#aaa";
     });
 
-    /* ---------------- Cycle Views Listener (FINAL FIX) ---------------- */
+    /* ---------------- Cycle Views Listener (FIXED) ---------------- */
     const cycleRef = ref(db, "cycleViews/" + v.id);
 
     onValue(cycleRef, snap => {
@@ -271,17 +271,24 @@ fetch("videos.json")
 
       const box = videoObj.box;
 
-      // Always remove before re-adding
-      if (box.parentElement) {
-        box.parentElement.removeChild(box);
+      const shouldBeTrending = cycleViews >= 10;
+      const targetContainer = shouldBeTrending
+        ? trendingContainer
+        : normalContainer;
+
+      // Only move if needed
+      if (box.parentElement !== targetContainer) {
+        targetContainer.appendChild(box);
       }
 
-      // Re-append to correct container
-      if (cycleViews >= 10) {
-        trendingContainer.appendChild(box);
-      } else {
-        normalContainer.appendChild(box);
-      }
+      // Update UI label
+      videoObj.views.textContent =
+        shouldBeTrending
+          ? `🔥 Trending | 👁 ${cycleViews}`
+          : `👁 ${cycleViews}`;
+
+      videoObj.views.style.color =
+        shouldBeTrending ? "#ffcc00" : "#aaa";
     });
 
   });
