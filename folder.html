@@ -28,6 +28,14 @@ h2 {
   margin-top: 5px;
 }
 
+.sectionTitle {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  text-align: center;
+  font-weight: bold;
+  color: #ffcc00;
+}
+
 .videoBox {
   background: #222;
   padding: 10px;
@@ -90,12 +98,19 @@ h2 {
 <button onclick="history.back()">← Back</button>
 
 <h2 id="folderTitle">Folder</h2>
-
 <p id="folderDescription">
   Enjoy our videos, updated regularly for your viewing pleasure.
 </p>
 
-<div id="videoList"></div>
+<div id="trendingContainer">
+  <div class="sectionTitle">🔥 Trending</div>
+  <div id="trendingVideos"></div>
+</div>
+
+<div id="normalContainer">
+  <div class="sectionTitle">📺 All Videos</div>
+  <div id="normalVideos"></div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
@@ -127,7 +142,6 @@ if (!sessionId) {
 const params = new URLSearchParams(window.location.search);
 const folderName = (params.get("folder") || "").toLowerCase();
 
-/* Format folder name (e.g. Anal) */
 document.getElementById("folderTitle").textContent =
   folderName
     ? folderName.charAt(0).toUpperCase() + folderName.slice(1)
@@ -170,27 +184,12 @@ async function increaseViews(videoId) {
   sendToWorker(videoId);
 }
 
-/* ---------------- Get Stats ---------------- */
-function getVideoStats(videoId, callback) {
-  const viewRef = ref(db, "views/" + videoId);
-  const cycleRef = ref(db, "cycleViews/" + videoId);
-
-  let totalViews = 0;
-  let cycleViews = 0;
-
-  onValue(viewRef, snap => {
-    totalViews = snap.val() || 0;
-    callback({ totalViews, cycleViews });
-  });
-
-  onValue(cycleRef, snap => {
-    cycleViews = snap.val() || 0;
-    callback({ totalViews, cycleViews });
-  });
-}
-
 /* ---------------- Load Videos ---------------- */
-const container = document.getElementById("videoList");
+const trendingContainer = document.getElementById("trendingVideos");
+const normalContainer = document.getElementById("normalVideos");
+
+// Keep track of DOM elements for live updates
+const videoElements = {};
 
 fetch("videos.json")
 .then(res => res.json())
@@ -200,8 +199,8 @@ fetch("videos.json")
     ? videos.filter(v => v.folder.toLowerCase() === folderName)
     : videos;
 
+  // Render each video and listen to cycleViews
   filtered.forEach(v => {
-
     const box = document.createElement("div");
     box.className = "videoBox";
 
@@ -238,15 +237,6 @@ fetch("videos.json")
     views.className = "views";
     views.textContent = "👁 loading...";
 
-    getVideoStats(v.id, ({ totalViews, cycleViews }) => {
-      if (cycleViews >= 10) {
-        views.textContent = "🔥 Trending | 👁 " + totalViews;
-        views.style.color = "#ffcc00";
-      } else {
-        views.textContent = "👁 " + totalViews;
-      }
-    });
-
     const btn = document.createElement("a");
     btn.className = "download";
     btn.textContent = "Download";
@@ -263,7 +253,55 @@ fetch("videos.json")
     box.appendChild(views);
     box.appendChild(btn);
 
-    container.appendChild(box);
+    // Initially put in normal container
+    normalContainer.appendChild(box);
+
+    // Save for live updates
+    videoElements[v.id] = { box, views, currentSection: "normal" };
+
+    // Listen for live cycleViews changes
+    const cycleRef = ref(db, "cycleViews/" + v.id);
+    onValue(cycleRef, snap => {
+      const cycleViews = snap.val() || 0;
+
+      // Update views text
+      if (cycleViews >= 10) {
+        videoElements[v.id].views.textContent = `🔥 Trending | 👁 ${snap.val()}`;
+        videoElements[v.id].views.style.color = "#ffcc00";
+
+        // Move to trending if not already there
+        if (videoElements[v.id].currentSection !== "trending") {
+          trendingContainer.appendChild(videoElements[v.id].box);
+          videoElements[v.id].currentSection = "trending";
+        }
+      } else {
+        videoElements[v.id].views.textContent = `👁 ${snap.val()}`;
+        videoElements[v.id].views.style.color = "#aaa";
+
+        // Move back to normal if trending drops below 10
+        if (videoElements[v.id].currentSection !== "normal") {
+          // Find original index
+          const originalIndex = filtered.findIndex(vi => vi.id === v.id);
+          // Insert in correct position
+          if (originalIndex === 0 || normalContainer.children.length === 0) {
+            normalContainer.prepend(videoElements[v.id].box);
+          } else {
+            // Insert after previous normal videos
+            let inserted = false;
+            for (let i = 0; i < normalContainer.children.length; i++) {
+              const siblingId = filtered.find(vi => vi.id === normalContainer.children[i].querySelector(".videoTitle").textContent).id;
+              if (filtered.findIndex(f => f.id === siblingId) > originalIndex) {
+                normalContainer.insertBefore(videoElements[v.id].box, normalContainer.children[i]);
+                inserted = true;
+                break;
+              }
+            }
+            if (!inserted) normalContainer.appendChild(videoElements[v.id].box);
+          }
+          videoElements[v.id].currentSection = "normal";
+        }
+      }
+    });
   });
 });
 </script>
