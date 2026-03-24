@@ -50,13 +50,13 @@ h2 {
   margin: 0;
 }
 
-/* ✅ CTA CARD */
+/* CTA CARD */
 .ctaCard {
   background: #2a2a2a;
   border: 1px solid #ff4444;
   border-radius: 8px;
   padding: 10px;
-  margin-top: 5px;
+  margin-top: 0;      /* ✅ no gap above */
   margin-bottom: 20px;
   text-align: center;
 }
@@ -177,7 +177,7 @@ Promise.all([
   // VIP folders first
   renderFolders(vipFolders);
 
-  // CTA card under VIP
+  // CTA card directly under VIP (no gap)
   if (Object.keys(vipFolders).length > 0) {
     const cta = document.createElement("div");
     cta.className = "ctaCard";
