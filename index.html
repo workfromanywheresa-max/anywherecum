@@ -606,7 +606,8 @@ document.addEventListener('DOMContentLoaded', () => {
       folderList.appendChild(li);
     });
 
-    if (videos.length) {
+    // Latest Video (FIXED)
+if (videos.length) {
   const latestVideo = videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
   const latestDiv = document.getElementById('latestVideo');
 
@@ -623,12 +624,11 @@ document.addEventListener('DOMContentLoaded', () => {
       <a 
         href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" 
         class="folder-link">
-        Watch Now
+        Watch Now: New Video Available!!!
       </a>
 
     </li>
   </ul>`;
-    }
 
   // Click behavior
   img.onclick = () => {
