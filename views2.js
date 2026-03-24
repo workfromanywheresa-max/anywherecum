@@ -8,7 +8,10 @@ const app = initializeApp({
 });
 const db = getDatabase(app);
 
-/* ✅ CONFIG FROM HTML */
+/* ✅ TEST MODE (set true to stop counting your clicks) */
+const TEST_MODE = localStorage.getItem("testMode") === "true";
+
+/* CONFIG FROM HTML */
 const config = window.VIDEO_CONFIG || {};
 
 const folderName = (config.folder || "").toLowerCase();
@@ -39,6 +42,7 @@ async function sendToWorker(videoId) {
 }
 
 function increaseViews(videoId) {
+  if (TEST_MODE) return; // ✅ block your own clicks
   sendToWorker(videoId);
 }
 
@@ -75,7 +79,6 @@ fetch(dataSource)
 .then(res => res.json())
 .then(videos => {
 
-  /* Apply folder filter only if provided */
   const filtered = folderName
     ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
     : videos;
