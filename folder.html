@@ -114,10 +114,9 @@ h2 {
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, onValue } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-/* ---------------- Firebase Config (READ ONLY) ---------------- */
+/* ---------------- Firebase Config ---------------- */
 const firebaseConfig = {
   apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
   authDomain: "anywherecum-1c8d0.firebaseapp.com",
@@ -160,7 +159,7 @@ async function getUserIP() {
 
 const OWNER_IP = "102.214.117.74";
 
-/* ---------------- Send to Worker ONLY ---------------- */
+/* ---------------- Send to Worker ---------------- */
 async function increaseViews(videoId) {
   const userIP = await getUserIP();
   if (userIP && userIP === OWNER_IP) return;
@@ -251,7 +250,7 @@ fetch("videos.json")
     // Save for live updates
     videoElements[v.id] = { box, views, currentSection: "normal" };
 
-    // Listen for live cycleViews changes (READ ONLY)
+    // Listen for live cycleViews changes
     const cycleRef = ref(db, "cycleViews/" + v.id);
     onValue(cycleRef, snap => {
       const cycleViews = snap.val() || 0;
