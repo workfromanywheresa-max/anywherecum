@@ -16,14 +16,9 @@ body {
 
 h2 {
   color: #ff4444;
+  text-align: center;
   border-bottom: 2px solid #ff4444;
   padding-bottom: 5px;
-  text-align: center;
-}
-
-.description {
-  text-align: center;
-  margin-bottom: 20px;
 }
 
 .videoBox {
@@ -44,9 +39,9 @@ h2 {
 .videoFrameWrapper {
   width: 100%;
   height: 350px;
-  overflow: hidden;
   position: relative;
   border-radius: 8px;
+  overflow: hidden;
 }
 
 .videoFrameWrapper iframe {
@@ -60,8 +55,7 @@ h2 {
 
 .videoTitle {
   text-align: center;
-  margin: 8px 0 5px 0;
-  color: #ddd;
+  margin: 8px 0;
   cursor: pointer;
   text-decoration: underline;
 }
@@ -69,17 +63,15 @@ h2 {
 .views {
   text-align: center;
   color: #aaa;
-  margin: 5px 0;
 }
 
 .download {
   display: block;
   width: fit-content;
-  margin: 10px auto 0 auto;
+  margin: 10px auto;
   padding: 8px 15px;
-  color: #fff;
   background: #ff4444;
-  font-weight: bold;
+  color: #fff;
   text-decoration: none;
   border-radius: 5px;
 }
@@ -88,435 +80,32 @@ h2 {
 
 <body>
 
-<button onclick="history.back()" style="
-  display:inline-block;
-  margin-bottom:15px;
-  padding:8px 14px;
-  background:#222;
-  color:#fff;
-  border:1px solid #ff4444;
-  border-radius:6px;
-  font-size:14px;
-  cursor:pointer;
-">
-← Back
-</button>
+<button onclick="history.back()">← Back</button>
 
 <h2 id="folderTitle">Folder</h2>
-<p class="description">Enjoy our videos, updated regularly for your viewing pleasure.</p>
 
-  <div style="
-  text-align: center;
-  position: relative;
-  width: 320px;
-  height: 50px;
-  margin: auto;
-  border: 2px solid red;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #fff;
-">
-
-  <!-- Ad Container -->
-  <div id="adContainer" style="width:100%; height:100%;">
-    
-    <script>
-      atOptions = {
-        'key' : '58e0d60dc3ec78d2ff8981481d093080',
-        'format' : 'iframe',
-        'height' : 50,
-        'width' : 320,
-        'params' : {}
-      };
-    </script>
-    <script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
-
-  </div>
-  </div>
-  
 <div id="videoList"></div>
 
-  <style>
-body {
-  background: #1a1a1a;
-  color: #fff;
-  font-family: Arial, sans-serif;
-  padding: 20px;
-}
-
-/* Skeleton loader */
-.skeleton {
-  width: 100%;
-  height: 250px;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-/* Ad hidden initially */
-#ad-container {
-  display: none;
-}
-</style>
-</head>
-
-<body>
-
-<!-- Skeleton -->
-<div id="skeleton" class="skeleton"></div>
-
-<!-- Ad -->
-<div id="ad-container">
-  <script async="async" data-cfasync="false"
-    src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js">
-  </script>
-  <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
-</div>
+<script type="module" src="views.js"></script>
 
 <script>
-const skeleton = document.getElementById("skeleton");
-const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
-const adWrapper = document.getElementById("ad-container");
-
-// Observe changes inside the ad container
-const observer = new MutationObserver((mutations, obs) => {
-  if (adContainer.children.length > 0) {
-    skeleton.style.display = "none";
-    adWrapper.style.display = "block";
-    obs.disconnect();
-  }
-});
-
-observer.observe(adContainer, { childList: true, subtree: true });
-</script>
-
-  <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
-  © 2026 AnywhereCum – Legal content only. 18+<br>
-
-  <div style="margin-top:8px; font-size:8px;">
-
-    <!-- Facebook -->
-    <a href="https://www.facebook.com/profile.php?id=100069048046082" 
-       target="_blank" 
-       rel="noopener noreferrer" 
-       style="margin:0 5px; display:inline-block;">
-      <img src="https://www.facebook.com/images/fb_icon_325x325.png" 
-           alt="Facebook" 
-           style="width:14px; height:14px; vertical-align:middle;">
-    </a><span>|</span>
-
-    <!-- Contact -->
-    <a href="contact.html" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block;">
-      📨Contact
-    </a><span>|</span>
-
-    <!-- Terms & Privacy -->
-    <a href="terms-privacy.html" 
-       style="color:#ff4444; text-decoration:underline; margin:0 5px; display:inline-block;">
-      ⚖️Terms & Privacy
-    </a><span>|</span>
-
-    <!-- Home -->
-    <a href="/" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block;">
-      🏠Home
-    </a><span>|</span>
-
-    <!-- Back to Top -->
-    <a href="#" 
-       onclick="window.scrollTo({top:0, behavior:'smooth'});" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block; white-space:nowrap;">
-      ⬆️Back to Top
-    </a>
-
-  </div>
-  </footer>
-
-  <!-- BOTTOM AD (Flush + Auto Show + Countdown + Delayed Close Button + Reset Cycle) -->
-<div id="bottomAd" style="
-position: fixed;
-bottom: -200px;
-left: 50%;
-transform: translateX(-50%);
-width: 300px;
-height: 62px;
-border: 2px solid red;
-border-radius: 8px;
-overflow: hidden;
-text-align: center;
-z-index: 9999;
-background: #fff;
-opacity: 0;
-display: none;
-">
-
-  <!-- Countdown Timer -->
-  <div id="countdown"
-       style="position:absolute; top:2px; right:30px;
-       background:black; color:#fff; font-size:12px; font-weight:bold;
-       padding:2px 6px; border-radius:4px; z-index:10000;">
-    15s
-  </div>
-
-  <!-- Close Button -->
-  <div id="closeBtn"
-       onclick="hideAd()"
-       style="position:absolute; top:2px; right:4px;
-       width:20px; height:20px; line-height:20px;
-       text-align:center; background:#000; color:#fff;
-       font-size:14px; font-weight:bold; border-radius:4px;
-       cursor:pointer; z-index:10001; display:none;">
-    ✕
-  </div>
-
-  <!-- Live Badge -->
-  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);
-  background:red;color:#fff;font-weight:bold;font-size:12px;padding:2px 6px;
-  border-bottom-left-radius:4px;border-bottom-right-radius:4px;
-  z-index:9999;pointer-events:none;animation:glow 1s infinite alternate;">
-    🔴 Live
-  </div>
-
-  <!-- JuicyAds -->
-  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-  <ins id="1113670" data-width="300" data-height="62"></ins>
-  <script type="text/javascript" data-cfasync="false" async>
-    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});
-  </script>
-
-</div>
-
-<style>
-.slide-up {
-  animation: slideUp 0.6s ease-out forwards;
-}
-
-.slide-down {
-  animation: slideDown 0.4s ease-in forwards;
-}
-
-@keyframes slideUp {
-  from {
-    bottom: -200px;
-    opacity: 0;
-  }
-  to {
-    bottom: 0;
-    opacity: 1;
-  }
-}
-
-@keyframes slideDown {
-  from {
-    bottom: 0;
-    opacity: 1;
-  }
-  to {
-    bottom: -200px;
-    opacity: 0;
-  }
-}
-
-@keyframes glow {
-  0% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
-  50% { box-shadow:0 0 6px #fff,0 0 12px red; opacity:1; }
-  100% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
-}
-</style>
-
-<script>
-const ad = document.getElementById("bottomAd");
-const countdownEl = document.getElementById("countdown");
-const closeBtn = document.getElementById("closeBtn");
-
-let countdownInterval;
-let cycleTimeout;
-
-// Show ad
-function showAd() {
-  ad.style.display = "block";
-  ad.classList.remove("slide-down");
-  ad.classList.add("slide-up");
-
-  closeBtn.style.display = "none";
-
-  let timeLeft = 15;
-  countdownEl.textContent = timeLeft + "s";
-
-  clearInterval(countdownInterval);
-
-  // Delay countdown start to avoid rendering conflicts with ads
-  setTimeout(() => {
-    countdownInterval = setInterval(() => {
-      timeLeft--;
-      countdownEl.textContent = timeLeft + "s";
-
-      if (timeLeft <= 0) {
-        clearInterval(countdownInterval);
-        closeBtn.style.display = "block";
-      }
-    }, 1000);
-  }, 300);
-}
-
-// Hide ad
-function hideAd() {
-  ad.classList.remove("slide-up");
-  ad.classList.add("slide-down");
-
-  setTimeout(() => {
-    ad.style.display = "none";
-    scheduleNextAd();
-  }, 400);
-}
-
-// Schedule next ad in 1 minute
-function scheduleNextAd() {
-  clearTimeout(cycleTimeout);
-
-  cycleTimeout = setTimeout(() => {
-    showAd();
-  }, 120000);
-}
-
-// Initial load
-window.onload = function () {
-  setTimeout(() => {
-    showAd();
-    scheduleNextAd();
-  }, 10000);
-};
-</script>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
-
-/* ================= FIREBASE ================= */
-const firebaseConfig = {
-  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
-  authDomain: "anywherecum-1c8d0.firebaseapp.com",
-  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
-  projectId: "anywherecum-1c8d0",
-  storageBucket: "anywherecum-1c8d0.firebasestorage.app",
-  messagingSenderId: "686718460803",
-  appId: "1:686718460803:web:78827198d1be2904d98cb6"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-/* ================= WORKERS ================= */
-const PAGE_WORKER_URL = "https://dashboard.workfromanywhere-sa.workers.dev";
-const VIDEO_WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev";
-
-/* ================= SESSION ================= */
-let sessionId = sessionStorage.getItem("sessionId");
-
-if (!sessionId) {
-  sessionId = Date.now() + "_" + Math.random();
-  sessionStorage.setItem("sessionId", sessionId);
-}
-
-/* ================= ORIGINAL FOLDER TRACK ================= */
-function trackFolderOnce(folderName) {
-  const key = "folder_" + folderName.toLowerCase();
-  const uniqueKey = key + "_" + sessionId;
-
-  if (sessionStorage.getItem(uniqueKey)) return;
-
-  sessionStorage.setItem(uniqueKey, "1");
-
-  fetch(`${PAGE_WORKER_URL}/increment`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ folder: folderName.toLowerCase() })
-  }).catch(()=>{});
-}
-
-/* ================= NEW CLICK-BASED FOLDER TRACK ================= */
-function trackFolderClickOnce(folderName){
-  const key = "folder_click_" + folderName.toLowerCase() + "_" + sessionId;
-
-  if (sessionStorage.getItem(key)) return;
-
-  sessionStorage.setItem(key, "1");
-
-  fetch(`${PAGE_WORKER_URL}/increment`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ folder: folderName.toLowerCase() })
-  }).catch(()=>{});
-}
-
-/* ================= VIDEO TRACKING ================= */
-async function getUserIP() {
-  try {
-    const res = await fetch("https://api.ipify.org?format=json");
-    const data = await res.json();
-    return data.ip;
-  } catch {
-    return null;
-  }
-}
-
-const OWNER_IP = "102.214.117.74";
-
-async function increaseViews(videoId){
-  const userIP = await getUserIP();
-  if (userIP && userIP === OWNER_IP) return;
-
-  runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
-  runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
-
-  fetch(`${VIDEO_WORKER_URL}/increment`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ videoId })
-  }).catch(()=>{});
-}
-
-/* ================= UI ================= */
 const container = document.getElementById("videoList");
 
-const urlParams = new URLSearchParams(window.location.search);
-const folderNameRaw = urlParams.get("folder") || "";
-const folderName = decodeURIComponent(folderNameRaw).toLowerCase();
+const params = new URLSearchParams(window.location.search);
+const folderName = (params.get("folder") || "").toLowerCase();
 
 document.getElementById("folderTitle").textContent =
-  folderName
-    ? folderName.charAt(0).toUpperCase() + folderName.slice(1)
-    : "All Videos";
+  folderName ? folderName.toUpperCase() : "ALL VIDEOS";
 
-/* ================= LOAD VIDEOS ================= */
-fetch('videos.json')
+fetch("videos.json")
 .then(res => res.json())
 .then(videos => {
 
-  container.innerHTML = "";
-  const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
-
-  const folderVideos = folderName
+  const filtered = folderName
     ? videos.filter(v => v.folder.toLowerCase() === folderName)
     : videos;
 
-  if(folderVideos.length === 0){
-    container.innerHTML = `<p style="text-align:center;color:#aaa;">No videos found.</p>`;
-    return;
-  }
-
-  const TREND_THRESHOLD = 10;
-  const videoStates = {};
-
-  folderVideos.forEach((v, index) => {
+  filtered.forEach(v => {
 
     const box = document.createElement("div");
     box.className = "videoBox";
@@ -526,15 +115,11 @@ fetch('videos.json')
 
     const thumb = document.createElement("img");
     thumb.className = "thumbnail";
-    thumb.src = IMAGE_BASE + v.thumbnail;
+    thumb.src = "https://anywherecum.pages.dev/images/" + v.thumbnail;
 
     thumb.onclick = () => {
-      // ORIGINAL LOGIC (UNCHANGED)
-      trackFolderOnce(folderName);
-
-      // ✅ NEW: click-based folder tracking (once per session per folder)
+      trackFolderOnce(v.folder);
       trackFolderClickOnce(v.folder);
-
       increaseViews(v.id);
 
       const iframe = document.createElement("iframe");
@@ -551,83 +136,42 @@ fetch('videos.json')
     title.className = "videoTitle";
     title.textContent = v.title;
     title.onclick = () => {
-      const folder = v.folder;
-      trackFolderClickOnce(folder);
+      trackFolderClickOnce(v.folder);
       increaseViews(v.id);
       window.open(v.url, "_blank");
     };
 
-    const viewsEl = document.createElement("div");
-    viewsEl.className = "views";
+    const views = document.createElement("div");
+    views.className = "views";
+    views.textContent = "👁 loading...";
 
-    const viewRef = ref(db, "views/" + v.id);
-    const cycleRef = ref(db, "cycleViews/" + v.id);
-
-    let totalViews = 0;
-    let cycleViews = 0;
-
-    function updateUI(){
-      if(cycleViews >= TREND_THRESHOLD){
-        viewsEl.textContent = "🔥 Trending | 👁 " + totalViews;
-        viewsEl.style.color = "#ffcc00";
+    window.getVideoStats(v.id, ({ totalViews, cycleViews }) => {
+      if (cycleViews >= 10) {
+        views.textContent = "🔥 Trending | 👁 " + totalViews;
+        views.style.color = "#ffcc00";
       } else {
-        viewsEl.textContent = "👁 " + totalViews;
-        viewsEl.style.color = "#aaa";
+        views.textContent = "👁 " + totalViews;
       }
-    }
-
-    videoStates[v.id] = {
-      element: box,
-      getScore: () => cycleViews,
-      originalIndex: index
-    };
-
-    function sortVideos(){
-      const sorted = Object.values(videoStates)
-        .sort((a,b)=>{
-          const aEff = a.getScore() >= TREND_THRESHOLD ? a.getScore() : 0;
-          const bEff = b.getScore() >= TREND_THRESHOLD ? b.getScore() : 0;
-
-          if (bEff !== aEff) return bEff - aEff;
-          return a.originalIndex - b.originalIndex;
-        });
-
-      sorted.forEach(v => container.appendChild(v.element));
-    }
-
-    onValue(viewRef, snap=>{
-      totalViews = snap.val() || 0;
-      updateUI();
-    });
-
-    onValue(cycleRef, snap=>{
-      cycleViews = snap.val() || 0;
-      updateUI();
-      sortVideos();
     });
 
     const btn = document.createElement("a");
     btn.className = "download";
-    btn.textContent = `Download (${v.size})`;
+    btn.textContent = "Download";
     btn.href = "#";
-    btn.onclick = (e)=>{
+    btn.onclick = (e) => {
       e.preventDefault();
-
-      const folder = v.folder;
-      trackFolderClickOnce(folder);
-
+      trackFolderClickOnce(v.folder);
       increaseViews(v.id);
       window.open(v.url, "_blank");
     };
 
     box.appendChild(wrapper);
     box.appendChild(title);
-    box.appendChild(viewsEl);
+    box.appendChild(views);
     box.appendChild(btn);
 
     container.appendChild(box);
   });
-
 });
 </script>
 
