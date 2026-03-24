@@ -623,12 +623,11 @@ if(videos.length){
           style="width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;">
         
         <a 
-          href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" 
-          class="folder-link"
-          data-folder="${latestVideo.folder}" 
-          target="">
-          Watch Now: New Video Available!!!
-        </a>
+  href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" 
+  class="folder-link latest-link"
+  data-folder="${latestVideo.folder}">
+  Watch Now: New Video Available!!!
+</a>
 
       </li>
     </ul>`;
@@ -640,17 +639,17 @@ if(videos.length){
 });
                                                                  
 </script>
-
-  <script>
+  
+<script>
 document.addEventListener("click", function (e) {
 
   function getFolderName(el) {
     return (
-      el.dataset?.folder ||                          // ✅ hidden real name (MAIN FIX)
-      el.closest("[data-folder]")?.dataset.folder || // ✅ fallback from parent
+      el.dataset?.folder ||
+      el.closest("[data-folder]")?.dataset.folder ||
       el.getAttribute("data-folder") ||
-      el.alt || 
-      el.textContent?.trim() || 
+      el.alt ||
+      el.textContent?.trim() ||
       "Unknown"
     );
   }
@@ -658,6 +657,8 @@ document.addEventListener("click", function (e) {
   /* ---------------- Folder Links (ALL SECTIONS) ---------------- */
   const folderLink = e.target.closest("a.folder-link");
   if (folderLink) {
+    e.preventDefault();
+
     const folderName = getFolderName(folderLink);
 
     console.log("Folder link clicked:", folderName);
@@ -665,6 +666,12 @@ document.addEventListener("click", function (e) {
     if (window.trackPreviewClick) {
       window.trackPreviewClick(folderName);
     }
+
+    setTimeout(() => {
+      window.location.href = folderLink.href;
+    }, 150);
+
+    return;
   }
 
   /* ---------------- Folder Images (ALL SECTIONS) ---------------- */
@@ -677,17 +684,15 @@ document.addEventListener("click", function (e) {
     if (window.trackPreviewClick) {
       window.trackPreviewClick(folderName);
     }
+
+    return;
   }
 
-  /* ---------------- Folder Items (ALL SECTIONS) ---------------- */
-  const folderItem = e.target.closest("#folderList li, #vipList li, #latestVideo li");
-  if (folderItem) {
-    console.log("Folder item clicked (generic)");
-  }
-
-  /* ---------------- Latest Video Link Specific ---------------- */
+  /* ---------------- Latest Video Link (FIXED) ---------------- */
   const latestLink = e.target.closest("#latestVideo a.folder-link");
   if (latestLink) {
+    e.preventDefault();
+
     const name = getFolderName(latestLink);
 
     console.log("Latest video clicked:", name);
@@ -695,11 +700,19 @@ document.addEventListener("click", function (e) {
     if (window.trackPreviewClick) {
       window.trackPreviewClick(name);
     }
+
+    setTimeout(() => {
+      window.location.href = latestLink.href;
+    }, 150);
+
+    return;
   }
 
-  /* ---------------- VIP Section Link Specific ---------------- */
+  /* ---------------- VIP Section Link ---------------- */
   const vipLink = e.target.closest("#vipList a.folder-link");
   if (vipLink) {
+    e.preventDefault();
+
     const name = getFolderName(vipLink);
 
     console.log("VIP clicked:", name);
@@ -707,11 +720,23 @@ document.addEventListener("click", function (e) {
     if (window.trackPreviewClick) {
       window.trackPreviewClick(name);
     }
+
+    setTimeout(() => {
+      window.location.href = vipLink.href;
+    }, 150);
+
+    return;
+  }
+
+  /* ---------------- Generic Folder Item ---------------- */
+  const folderItem = e.target.closest("#folderList li, #vipList li, #latestVideo li");
+  if (folderItem) {
+    console.log("Folder item clicked (generic)");
   }
 
 });
 </script>
-
+  
 <script type="module" src="views.js"></script>
 
 </body>
