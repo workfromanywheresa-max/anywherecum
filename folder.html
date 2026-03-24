@@ -17,6 +17,23 @@ body {
 h2 {
   color: #ff4444;
   text-align: center;
+  border-bottom: 2px solid #ff4444;
+  padding-bottom: 5px;
+}
+
+#folderDescription {
+  text-align: center;
+  color: #aaa;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.sectionTitle {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  text-align: center;
+  font-weight: bold;
+  color: #ffcc00;
 }
 
 .videoBox {
@@ -24,6 +41,14 @@ h2 {
   padding: 10px;
   border-radius: 8px;
   margin-bottom: 20px;
+}
+
+.thumbnail {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 .videoFrameWrapper {
@@ -34,18 +59,6 @@ h2 {
   overflow: hidden;
 }
 
-/* Thumbnail */
-.thumbnail {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  position: absolute;
-  top: 0;
-  left: 0;
-  cursor: pointer;
-}
-
-/* Iframe keeps original sizing */
 .videoFrameWrapper iframe {
   width: 100%;
   height: 560px;
@@ -55,17 +68,27 @@ h2 {
   border: 0;
 }
 
+.videoTitle {
+  text-align: center;
+  margin: 8px 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .views {
   text-align: center;
   color: #aaa;
-  margin-top: 5px;
 }
 
-.sectionTitle {
-  text-align: center;
-  color: #ffcc00;
-  margin-top: 20px;
-  margin-bottom: 10px;
+.download {
+  display: block;
+  width: fit-content;
+  margin: 10px auto;
+  padding: 8px 15px;
+  background: #ff4444;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
 }
 </style>
 </head>
@@ -75,39 +98,107 @@ h2 {
 <button onclick="history.back()">← Back</button>
 
 <h2 id="folderTitle">Folder</h2>
+<p id="folderDescription">
+  Enjoy our videos, updated regularly for your viewing pleasure.
+</p>
 
-<div class="sectionTitle">Trending</div>
-<div id="trendingVideos"></div>
+<div id="trendingContainer">
+  <div class="sectionTitle"></div>
+  <div id="trendingVideos"></div>
+</div>
 
-<div class="sectionTitle">All Videos</div>
-<div id="normalVideos"></div>
+<div id="normalContainer">
+  <div class="sectionTitle"></div>
+  <div id="normalVideos"></div>
+</div>
 
 <script type="module">
-import { increaseViews, bindVideo } from "./views2.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getDatabase, ref, runTransaction, onValue } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-/* ---------------- Get Folder ---------------- */
+/* ---------------- Firebase Config ---------------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
+  authDomain: "anywherecum-1c8d0.firebaseapp.com",
+  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
+  projectId: "anywherecum-1c8d0",
+  storageBucket: "anywherecum-1c8d0.firebasestorage.app",
+  messagingSenderId: "686718460803",
+  appId: "1:686718460803:web:78827198d1be2904d98cb6"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/* ---------------- Session ---------------- */
+let sessionId = sessionStorage.getItem("sessionId");
+if (!sessionId) {
+  sessionId = Date.now() + "_" + Math.random();
+  sessionStorage.setItem("sessionId", sessionId);
+}
+
+/* ---------------- Folder ---------------- */
 const params = new URLSearchParams(window.location.search);
 const folderName = (params.get("folder") || "").toLowerCase();
 
 document.getElementById("folderTitle").textContent =
-  folderName ? folderName.toUpperCase() : "ALL VIDEOS";
+  folderName
+    ? folderName.charAt(0).toUpperCase() + folderName.slice(1)
+    : "ALL VIDEOS";
 
-/* ---------------- Containers ---------------- */
+/* ---------------- Get IP ---------------- */
+async function getUserIP() {
+  try {
+    const res = await fetch("https://api.ipify.org?format=json");
+    const data = await res.json();
+    return data.ip;
+  } catch {
+    return null;
+  }
+}
+
+const OWNER_IP = "102.214.117.74";
+
+/* ---------------- Send to Worker ---------------- */
+async function sendToWorker(videoId) {
+  try {
+    await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ videoId })
+    });
+  } catch (err) {
+    console.error("Worker send failed:", err);
+  }
+}
+
+/* ---------------- Increase Views ---------------- */
+async function increaseViews(videoId) {
+  const userIP = await getUserIP();
+  if (userIP && userIP === OWNER_IP) return;
+
+  runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
+  runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
+
+  sendToWorker(videoId);
+}
+
+/* ---------------- Load Videos ---------------- */
 const trendingContainer = document.getElementById("trendingVideos");
 const normalContainer = document.getElementById("normalVideos");
 
-/* ---------------- Load Videos ---------------- */
+const videoElements = {};
+
 fetch("videos.json")
 .then(res => res.json())
 .then(videos => {
 
-  // ✅ FILTER BY FOLDER
   const filtered = folderName
     ? videos.filter(v => v.folder.toLowerCase() === folderName)
     : videos;
 
   filtered.forEach(v => {
-
     const box = document.createElement("div");
     box.className = "videoBox";
 
@@ -118,30 +209,98 @@ fetch("videos.json")
     thumb.className = "thumbnail";
     thumb.src = "https://anywherecum.pages.dev/images/" + v.thumbnail;
 
+    thumb.onclick = () => {
+      increaseViews(v.id);
+
+      const iframe = document.createElement("iframe");
+      iframe.src = v.url;
+      iframe.allowFullscreen = true;
+
+      wrapper.innerHTML = "";
+      wrapper.appendChild(iframe);
+    };
+
     wrapper.appendChild(thumb);
 
     const title = document.createElement("h3");
+    title.className = "videoTitle";
     title.textContent = v.title;
+
+    title.onclick = () => {
+      increaseViews(v.id);
+      window.open(v.url, "_blank");
+    };
 
     const views = document.createElement("div");
     views.className = "views";
     views.textContent = "👁 0";
 
+    const btn = document.createElement("a");
+    btn.className = "download";
+    btn.textContent = "Download";
+    btn.href = "#";
+
+    btn.onclick = (e) => {
+      e.preventDefault();
+      increaseViews(v.id);
+      window.open(v.url, "_blank");
+    };
+
     box.appendChild(wrapper);
     box.appendChild(title);
     box.appendChild(views);
+    box.appendChild(btn);
 
     normalContainer.appendChild(box);
 
-    // Bind Firebase + behavior
-    bindVideo(
-      v,
-      { box, wrapper, thumb, views },
-      { trendingContainer, normalContainer }
-    );
+    videoElements[v.id] = { box, views, currentSection: "normal" };
 
+    /* -------- Total Views (UI) -------- */
+    const viewsRef = ref(db, "views/" + v.id);
+    onValue(viewsRef, snap => {
+      const totalViews = snap.val() || 0;
+
+      videoElements[v.id].views.textContent = totalViews >= 10
+        ? `🔥 Trending | 👁 ${totalViews}`
+        : `👁 ${totalViews}`;
+
+      videoElements[v.id].views.style.color =
+        totalViews >= 10 ? "#ffcc00" : "#aaa";
+    });
+
+    /* -------- Cycle Views (Trending Logic Only) -------- */
+    const cycleRef = ref(db, "cycleViews/" + v.id);
+    onValue(cycleRef, snap => {
+      const cycleViews = snap.val() || 0;
+
+      if (cycleViews >= 10 && videoElements[v.id].currentSection !== "trending") {
+        trendingContainer.appendChild(videoElements[v.id].box);
+        videoElements[v.id].currentSection = "trending";
+      } 
+      else if (cycleViews < 10 && videoElements[v.id].currentSection !== "normal") {
+        const originalIndex = filtered.findIndex(vi => vi.id === v.id);
+
+        if (originalIndex === 0 || normalContainer.children.length === 0) {
+          normalContainer.prepend(videoElements[v.id].box);
+        } else {
+          let inserted = false;
+          for (let i = 0; i < normalContainer.children.length; i++) {
+            const siblingTitle = normalContainer.children[i].querySelector(".videoTitle").textContent;
+            const siblingId = filtered.find(vi => vi.title === siblingTitle).id;
+
+            if (filtered.findIndex(f => f.id === siblingId) > originalIndex) {
+              normalContainer.insertBefore(videoElements[v.id].box, normalContainer.children[i]);
+              inserted = true;
+              break;
+            }
+          }
+          if (!inserted) normalContainer.appendChild(videoElements[v.id].box);
+        }
+
+        videoElements[v.id].currentSection = "normal";
+      }
+    });
   });
-
 });
 </script>
 
