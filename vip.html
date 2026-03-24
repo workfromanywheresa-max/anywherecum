@@ -89,7 +89,48 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+/* ================= PAGE VIEWS → WORKER ================= */
+
+let sessionId = sessionStorage.getItem("sessionId");
+
+if (!sessionId) {
+  sessionId = Date.now() + "_" + Math.random();
+  sessionStorage.setItem("sessionId", sessionId);
+}
+
+function trackOnce(key) {
+  if (sessionStorage.getItem(key)) return;
+  sessionStorage.setItem(key, "1");
+}
+
+async function sendPageToWorker(pageName) {
+  try {
+    await fetch("https://dashboard.workfromanywhere-sa.workers.dev/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        page: pageName,
+        sessionId: sessionId,
+        timestamp: Date.now()
+      })
+    });
+  } catch (err) {
+    console.log("Page worker failed:", err);
+  }
+}
+
+let path = window.location.pathname.toLowerCase();
+let pageName = path.split("/").filter(Boolean).pop()?.replace(".html", "");
+
+if (pageName) {
+  trackOnce("page_" + pageName);
+  sendPageToWorker(pageName);
+}
+
 /* ================= VIEW TRACK ================= */
+
 async function getUserIP() {
   try {
     const res = await fetch("https://api.ipify.org?format=json");
@@ -106,11 +147,30 @@ async function increaseViews(videoId){
   const userIP = await getUserIP();
   if (userIP && userIP === OWNER_IP) return;
 
+  // Firebase updates
   runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
   runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
+
+  // Send to Worker
+  try {
+    await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        videoId: videoId,
+        type: "view",
+        timestamp: Date.now()
+      })
+    });
+  } catch (err) {
+    console.log("Worker view failed:", err);
+  }
 }
 
 /* ================= LOAD VIP ================= */
+
 const container = document.getElementById("vipList");
 const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
