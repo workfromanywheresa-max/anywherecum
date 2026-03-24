@@ -608,27 +608,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Latest Video (FIXED)
 if (videos.length) {
-  const latestVideo = videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+  const latestVideo = videos.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+
   const latestDiv = document.getElementById('latestVideo');
 
-  latestDiv.innerHTML = `
-  <h2>🎥Latest Video🎥</h2>
-  <ul class="folder-grid">
-    <li data-folder="${latestVideo.folder}">
-      
-      <img 
-        src="${BASE_URL + latestVideo.thumbnail}" 
-        alt="${latestVideo.folder}"
-        style="width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;">
-        
-      <a 
-        href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" 
-        class="folder-link">
-        Watch Now: New Video Available!!!
-      </a>
+  // Clear existing content safely
+  latestDiv.innerHTML = "";
 
-    </li>
-  </ul>;
+  const title = document.createElement("h2");
+  title.textContent = "🎥Latest Video🎥";
+
+  const ul = document.createElement("ul");
+  ul.className = "folder-grid";
+
+  const li = document.createElement("li");
+  li.dataset.folder = latestVideo.folder;
+
+  const img = document.createElement("img");
+  img.src = BASE_URL + latestVideo.thumbnail;
+  img.alt = latestVideo.folder;
+  img.style.cssText = "width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;";
+
+  const link = document.createElement("a");
+  link.className = "folder-link latest-link";
+  link.href = "folder.html?folder=" + encodeURIComponent(latestVideo.folder);
+  link.textContent = "Watch Now: New Video Available!!!";
+  link.dataset.folder = latestVideo.folder;
 
   // Click behavior
   img.onclick = () => {
