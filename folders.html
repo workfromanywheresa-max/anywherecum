@@ -31,6 +31,15 @@ h2 {
   margin-bottom: 10px;
   cursor: pointer;
   transition: 0.2s;
+
+  /* ✅ FIX: prevent tap-to-search / text selection */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.folderBox * {
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .folderBox:hover {
@@ -140,13 +149,15 @@ function renderFolders(container, folders, isVip = false) {
     const box = document.createElement("div");
     box.className = "folderBox";
 
-    box.onclick = () => {
+    // ✅ Reliable click handling
+    box.addEventListener("click", (e) => {
+      e.preventDefault();
       if (isVip) {
         window.location.href = "https://fc-lc.xyz/al0L8qyP";
       } else {
         window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
       }
-    };
+    });
 
     const img = document.createElement("img");
     img.className = "thumbnail";
@@ -173,7 +184,7 @@ Promise.all([
   const vipFolders = extractFolders(vipVideos);
   const normalFolders = extractFolders(normalVideos);
 
-  // VIP folders (click opens external link)
+  // VIP folders
   renderFolders(vipContainer, vipFolders, true);
 
   // CTA under VIP
