@@ -50,13 +50,23 @@ h2 {
   margin: 0;
 }
 
+/* VIP container */
+#vipContainer {
+  margin-bottom: 0;
+}
+
+/* Remove spacing from last VIP item */
+#vipContainer .folderBox:last-child {
+  margin-bottom: 0;
+}
+
 /* CTA CARD */
 .ctaCard {
   background: #2a2a2a;
   border: 1px solid #ff4444;
   border-radius: 8px;
   padding: 10px;
-  margin-top: 0;      /* ✅ no gap above */
+  margin-top: 0; /* IMPORTANT */
   margin-bottom: 20px;
   text-align: center;
 }
@@ -69,7 +79,6 @@ h2 {
   gap: 8px;
 }
 
-/* CTA link */
 .ctaContent a {
   color: #00ffcc;
   text-decoration: none;
@@ -81,14 +90,12 @@ h2 {
   text-decoration: underline;
 }
 
-/* Arrows */
 .arrow {
   font-size: 18px;
   color: #ff4444;
   animation: bounce 1s infinite;
 }
 
-/* Slight delay difference */
 .arrow.left {
   animation-delay: 0s;
 }
@@ -97,7 +104,6 @@ h2 {
   animation-delay: 0.3s;
 }
 
-/* Bounce animation */
 @keyframes bounce {
   0%, 100% {
     transform: translateX(0);
@@ -115,29 +121,29 @@ h2 {
 
 <h2>Folders</h2>
 
-<div id="folderList"></div>
+<div id="vipContainer"></div>
+<div id="normalContainer"></div>
 
 <script>
-const container = document.getElementById("folderList");
+const vipContainer = document.getElementById("vipContainer");
+const normalContainer = document.getElementById("normalContainer");
+
 const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
 // Extract folders
 function extractFolders(videos) {
   const folders = {};
-
   videos.forEach(video => {
     if (!video.folder) return;
-
     if (!folders[video.folder]) {
       folders[video.folder] = video;
     }
   });
-
   return folders;
 }
 
 // Render folders
-function renderFolders(folders) {
+function renderFolders(container, folders) {
   Object.keys(folders).forEach(folderName => {
 
     const video = folders[folderName];
@@ -164,7 +170,7 @@ function renderFolders(folders) {
   });
 }
 
-// Load JSON files
+// Load JSON
 Promise.all([
   fetch("vip.json").then(res => res.json()).catch(() => []),
   fetch("videos.json").then(res => res.json()).catch(() => [])
@@ -174,10 +180,10 @@ Promise.all([
   const vipFolders = extractFolders(vipVideos);
   const normalFolders = extractFolders(normalVideos);
 
-  // VIP folders first
-  renderFolders(vipFolders);
+  // Render VIP folders
+  renderFolders(vipContainer, vipFolders);
 
-  // CTA card directly under VIP (no gap)
+  // CTA directly under VIP (now truly touching)
   if (Object.keys(vipFolders).length > 0) {
     const cta = document.createElement("div");
     cta.className = "ctaCard";
@@ -185,32 +191,30 @@ Promise.all([
     cta.innerHTML = `
       <div class="ctaContent">
         <span class="arrow left">➡</span>
-
         <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4" target="_blank">
           Click & Watch how to unlock VIP Exclusive for Free
         </a>
-
         <span class="arrow right">⬅</span>
       </div>
     `;
 
-    container.appendChild(cta);
+    vipContainer.appendChild(cta);
   }
 
-  // Normal folders
-  renderFolders(normalFolders);
+  // Render normal folders
+  renderFolders(normalContainer, normalFolders);
 
   if (
     Object.keys(vipFolders).length === 0 &&
     Object.keys(normalFolders).length === 0
   ) {
-    container.innerHTML = "<p style='text-align:center;color:#aaa;'>No folders found.</p>";
+    document.body.innerHTML += "<p style='text-align:center;color:#aaa;'>No folders found.</p>";
   }
 
 })
 .catch(err => {
   console.error(err);
-  container.innerHTML = "<p style='text-align:center;color:#aaa;'>Failed to load folders.</p>";
+  document.body.innerHTML += "<p style='text-align:center;color:#aaa;'>Failed to load folders.</p>";
 });
 </script>
 
