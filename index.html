@@ -651,6 +651,101 @@ if (videos.length) {
 });
                                                                  
 </script>
+
+  <script>
+    // ================= CLICK TRACKING =================
+
+// Ensure sessionId exists
+let sessionId = sessionStorage.getItem("sessionId");
+
+if (!sessionId) {
+  sessionId = Date.now() + "_" + Math.random();
+  sessionStorage.setItem("sessionId", sessionId);
+}
+
+/**
+ * Track click once per session per folder/type
+ */
+function trackOncePerSession(type, folderName) {
+  if (!folderName) return;
+
+  const key = "clicked_" + type + "_" + folderName;
+
+  if (sessionStorage.getItem(key)) return;
+
+  sessionStorage.setItem(key, "1");
+
+  // Firebase (increment count)
+  if (window.firebaseDB) {
+    import("https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js")
+      .then(({ ref, runTransaction }) => {
+        runTransaction(ref(window.firebaseDB, "pageViews/" + folderName), (v) => (v || 0) + 1);
+      })
+      .catch(console.error);
+  }
+
+  // Worker (optional)
+  fetch("https://anywherecum.workfromanywhere-sa.workers.dev/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      page: folderName,
+      type: type,
+      sessionId: sessionId,
+      timestamp: Date.now()
+    })
+  }).catch(console.error);
+}
+
+/**
+ * Detect folder name from clicked element
+ */
+function getFolderName(el) {
+  return (
+    el?.dataset?.folder ||
+    el?.closest("[data-folder]")?.dataset?.folder ||
+    el?.textContent?.trim() ||
+    null
+  );
+}
+
+/**
+ * Global click listener (event delegation)
+ */
+document.addEventListener("click", function (e) {
+  const latest = e.target.closest("#latestVideo");
+  const vip = e.target.closest("#vipList");
+  const folder = e.target.closest("#folderList");
+
+  if (latest) {
+    const folderName =
+      latest.querySelector("[data-folder]")?.dataset.folder ||
+      latest.querySelector("a")?.textContent?.replace("Watch Now:", "").trim();
+
+    trackOncePerSession("latest", folderName);
+  }
+
+  if (vip) {
+    const folderName =
+      vip.querySelector("[data-folder]")?.dataset.folder ||
+      vip.querySelector("a")?.textContent?.trim();
+
+    trackOncePerSession("vip", folderName);
+  }
+
+  if (folder) {
+    const li = e.target.closest("li");
+    const folderName = li?.querySelector("a")?.textContent?.trim();
+
+    trackOncePerSession("folder", folderName);
+  }
+});
+
+// ================= OPTIONAL: expose globally =================
+window.trackOncePerSession = trackOncePerSession;
+  </script>
   
   <script type="module" src="views.js"></script>
   
