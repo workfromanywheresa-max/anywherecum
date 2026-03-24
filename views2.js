@@ -16,9 +16,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+/* ---------------- Owner IP (excluded from counting) ---------------- */
 const OWNER_IP = "102.214.117.74";
 
-/* ---------------- Get IP ---------------- */
+/* ---------------- Get User IP ---------------- */
 async function getUserIP() {
   try {
     const res = await fetch("https://api.ipify.org?format=json");
@@ -32,18 +33,36 @@ async function getUserIP() {
 /* ---------------- Increase Views ---------------- */
 export async function increaseViews(videoId) {
   const userIP = await getUserIP();
+
+  // Prevent owner views from counting
   if (userIP && userIP === OWNER_IP) return;
 
+  // Total views
   runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
+
+  // Cycle views (used for trending logic)
   runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
 }
 
-/* ---------------- Bind Video ---------------- */
+/* ---------------- Send to Worker ---------------- */
+export async function sendToWorker(videoId) {
+  try {
+    await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ videoId })
+    });
+  } catch (err) {
+    console.error("Worker send failed:", err);
+  }
+}
+
+/* ---------------- Bind Video to UI ---------------- */
 export function bindVideo(video, elements, containers) {
   const { box, wrapper, thumb, views } = elements;
   const { trendingContainer, normalContainer } = containers;
 
-  /* -------- Views Listener -------- */
+  /* -------- Total Views Listener -------- */
   onValue(ref(db, "views/" + video.id), snap => {
     const totalViews = snap.val() || 0;
 
@@ -55,7 +74,7 @@ export function bindVideo(video, elements, containers) {
     views.style.color = totalViews >= 10 ? "#ffcc00" : "#aaa";
   });
 
-  /* -------- Trending Listener -------- */
+  /* -------- Cycle Views Listener (Trending Logic) -------- */
   onValue(ref(db, "cycleViews/" + video.id), snap => {
     const cycleViews = snap.val() || 0;
 
@@ -66,7 +85,7 @@ export function bindVideo(video, elements, containers) {
     }
   });
 
-  /* -------- Thumbnail Click → Iframe -------- */
+  /* -------- Thumbnail Click → Replace with Iframe -------- */
   thumb.onclick = () => {
     increaseViews(video.id);
 
@@ -74,6 +93,7 @@ export function bindVideo(video, elements, containers) {
     iframe.src = video.url;
     iframe.allowFullscreen = true;
 
+    // Replace thumbnail with iframe (no layout jump due to fixed wrapper height)
     wrapper.innerHTML = "";
     wrapper.appendChild(iframe);
   };
