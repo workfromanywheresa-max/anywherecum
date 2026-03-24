@@ -81,7 +81,7 @@ h2 {
   color: #aaa;
 }
 
-/* 🔥 Download button with size on right */
+/* Download button with size */
 .download {
   display: flex;
   justify-content: space-between;
@@ -132,13 +132,23 @@ const folderName = (params.get("folder") || "").toLowerCase();
 document.getElementById("folderTitle").textContent =
   folderName ? folderName.toUpperCase() : "ALL VIDEOS";
 
-/* Worker */
+/* ✅ CORRECT WORKER */
+async function sendToWorker(videoId) {
+  try {
+    await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ videoId })
+    });
+  } catch (err) {
+    console.error("Worker failed:", err);
+  }
+}
+
 function increaseViews(videoId) {
-  fetch("https://anywherecum.workers.dev/increment", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ videoId })
-  });
+  sendToWorker(videoId);
 }
 
 /* Containers */
@@ -216,7 +226,7 @@ fetch("videos.json")
     views.className = "views";
     views.textContent = "👁 0";
 
-    /* 🔥 Download button with size */
+    /* Download button with size */
     const btn = document.createElement("a");
     btn.className = "download";
     btn.href = "#";
