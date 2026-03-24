@@ -63,7 +63,7 @@ li {
 
 <body>
 
-<!-- 🔐 PASSWORD PROTECTION WITH STAY LOGGED IN -->
+<!-- 🔐 PASSWORD PROTECTION -->
 <script>
 const ADMIN_PASSWORD = "Anywherecum1099";
 
@@ -100,7 +100,6 @@ if (!isLoggedIn) {
 </script>
   
 <button class="logout-btn" onclick="logout()">Logout</button>
-</h1>
 
 <div class="total-card">
   <h2>🔥 Total Views</h2>
@@ -108,72 +107,82 @@ if (!isLoggedIn) {
 </div>
 
 <div class="container">
-
   <div class="card">
-    <h2>📄 Page Views</h2>
+    <h2>📊 All Views (Pages + Folders)</h2>
     <ul id="pageViews"></ul>
   </div>
-
 </div>
 
 <script>
 const DB = "https://anywherecum-1c8d0-default-rtdb.firebaseio.com";
+
+/* 🔥 FORMAT FUNCTION */
+function formatViews(num) {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1).replace(/\.0$/, '') + "K";
+  }
+  return num;
+}
 
 async function fetchData(path) {
   const res = await fetch(`${DB}/${path}.json`);
   return await res.json();
 }
 
-/* ================= PAGE VIEWS ================= */
-async function loadPages() {
-  const data = await fetchData("pageViews");
+/* 🔥 LOAD COMBINED + SORTED */
+async function loadAllViews() {
+  const pageData = await fetchData("pageViews");
+  const folderData = await fetchData("folderViews");
+
   const list = document.getElementById("pageViews");
   list.innerHTML = "";
 
   let total = 0;
+  let combined = [];
 
-  if (data) {
-    Object.keys(data).forEach(page => {
-      const value = typeof data[page] === "number" ? data[page] : 0;
+  if (pageData) {
+    Object.entries(pageData).forEach(([key, value]) => {
+      value = typeof value === "number" ? value : 0;
       total += value;
-
-      const li = document.createElement("li");
-      li.innerHTML = `<span>${page}</span><span class="value">${value}</span>`;
-      list.appendChild(li);
+      combined.push({ name: key, value });
     });
   }
 
-  return total;
-}
-
-/* ================= FOLDER VIEWS ================= */
-async function loadFolders() {
-  const data = await fetchData("folderViews");
-
-  let total = 0;
-
-  if (data) {
-    Object.keys(data).forEach(folderKey => {
-      const value = typeof data[folderKey] === "number" ? data[folderKey] : 0;
+  if (folderData) {
+    Object.entries(folderData).forEach(([key, value]) => {
+      value = typeof value === "number" ? value : 0;
       total += value;
+      combined.push({ name: key, value });
     });
   }
+
+  // 🔥 Sort highest → lowest
+  combined.sort((a, b) => b.value - a.value);
+
+  combined.forEach(item => {
+    const li = document.createElement("li");
+    li.innerHTML = `<span>${item.name}</span><span class="value">${formatViews(item.value)}</span>`;
+    list.appendChild(li);
+  });
 
   return total;
 }
 
 /* ================= INIT ================= */
 async function init() {
-  const pageTotal = await loadPages();
-  const folderTotal = await loadFolders();
+  const total = await loadAllViews();
+  const formatted = formatViews(total);
 
-  const total = pageTotal + folderTotal;
+  document.getElementById("totalViews").innerText = formatted;
 
-  // Update dashboard total
-  document.getElementById("totalViews").innerText = total;
-
-  // Update top admin link
-  document.getElementById("adminViews").innerText = `👁${total} Admin`;
+  // 🔥 Safe admin update (won't crash if missing)
+  const adminEl = document.getElementById("adminViews");
+  if (adminEl) {
+    adminEl.innerText = `👁 ${formatted} Admin`;
+  }
 }
 
 init();
