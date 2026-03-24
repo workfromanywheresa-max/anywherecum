@@ -21,6 +21,12 @@ h2 {
   padding-bottom: 5px;
 }
 
+/* VIP title */
+.vipTitle {
+  color: gold;
+  border-bottom: 2px solid gold;
+}
+
 /* 🔥 Compact horizontal card */
 .folderBox {
   display: flex;
@@ -57,21 +63,69 @@ h2 {
 
 <body>
 
-<h2>Folders</h2>
+<!-- 🔥 VIP SECTION -->
+<h2 class="vipTitle">VIP Exclusive</h2>
+<div id="vipList"></div>
 
+<!-- 🔥 NORMAL FOLDERS -->
+<h2>Folders</h2>
 <div id="folderList"></div>
 
 <script>
-const container = document.getElementById("folderList");
+const folderContainer = document.getElementById("folderList");
+const vipContainer = document.getElementById("vipList");
 
+const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
+
+/* 🔥 LOAD VIP */
+fetch("vip.json")
+.then(res => {
+  if (!res.ok) throw new Error("VIP fetch failed");
+  return res.json();
+})
+.then(videos => {
+
+  videos.forEach(video => {
+
+    const box = document.createElement("div");
+    box.className = "folderBox";
+
+    box.onclick = () => {
+      window.location.href = "video.html?id=" + encodeURIComponent(video.id || "");
+    };
+
+    const img = document.createElement("img");
+    img.className = "thumbnail";
+    img.src = IMAGE_BASE + (video.thumbnail || "");
+
+    const title = document.createElement("h3");
+    title.className = "folderTitle";
+    title.textContent = video.title || "VIP Video";
+
+    box.appendChild(img);
+    box.appendChild(title);
+
+    vipContainer.appendChild(box);
+  });
+
+  if (videos.length === 0) {
+    vipContainer.innerHTML = "<p style='text-align:center;color:#aaa;'>No VIP content.</p>";
+  }
+
+})
+.catch(err => {
+  console.error(err);
+  vipContainer.innerHTML = "<p style='text-align:center;color:#aaa;'>Failed to load VIP.</p>";
+});
+
+
+/* 🔥 LOAD NORMAL FOLDERS */
 fetch("videos.json")
 .then(res => {
   if (!res.ok) throw new Error("Failed to fetch");
   return res.json();
 })
 .then(videos => {
-
-  const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
   const folders = {};
 
@@ -105,17 +159,17 @@ fetch("videos.json")
     box.appendChild(img);
     box.appendChild(title);
 
-    container.appendChild(box);
+    folderContainer.appendChild(box);
   });
 
   if (Object.keys(folders).length === 0) {
-    container.innerHTML = "<p style='text-align:center;color:#aaa;'>No folders found.</p>";
+    folderContainer.innerHTML = "<p style='text-align:center;color:#aaa;'>No folders found.</p>";
   }
 
 })
 .catch(err => {
   console.error(err);
-  container.innerHTML = "<p style='text-align:center;color:#aaa;'>Failed to load folders.</p>";
+  folderContainer.innerHTML = "<p style='text-align:center;color:#aaa;'>Failed to load folders.</p>";
 });
 </script>
 
