@@ -636,8 +636,25 @@ if (videos.length) {
   link.dataset.folder = latestVideo.folder;
 
   img.onclick = () => {
-  window.trackPreviewClick(latestVideo.folder);
-  window.location.href = link.href;
+  if (window.trackPreviewClick) {
+    window.trackPreviewClick("Watch Now: New Video Available");
+  }
+
+  setTimeout(() => {
+    window.location.href = link.href;
+  }, 200);
+};
+
+  link.onclick = (e) => {
+  e.preventDefault();
+
+  if (window.trackPreviewClick) {
+    window.trackPreviewClick("Watch Now: New Video Available");
+  }
+
+  setTimeout(() => {
+    window.location.href = link.href;
+  }, 200);
 };
 
   li.appendChild(img);
