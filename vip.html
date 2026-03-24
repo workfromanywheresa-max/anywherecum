@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>VIP Videos</title>
+<title>VIP Exclusive</title>
 
 <style>
 body {
@@ -25,10 +25,18 @@ button {
 }
 
 h2 {
-  color: gold;
+  color: #ff4444;
   text-align: center;
-  border-bottom: 2px solid gold;
+  border-bottom: 2px solid #ff4444;
   padding-bottom: 5px;
+}
+
+#folderDescription {
+  text-align: center;
+  color: #aaa;
+  font-size: 14px;
+  margin-top: 5px;
+  margin-bottom: 15px;
 }
 
 .videoBox {
@@ -80,8 +88,8 @@ h2 {
   width: fit-content;
   margin: 10px auto;
   padding: 6px 12px;
-  background: gold;
-  color: #000;
+  background: #ff4444;
+  color: #fff;
   text-decoration: none;
   border-radius: 5px;
   font-size: 13px;
@@ -95,6 +103,10 @@ h2 {
 <button onclick="history.back()">← Back</button>
 
 <h2 id="folderTitle">VIP VIDEOS</h2>
+
+<p id="folderDescription">
+  Enjoy our VIP Exclusive videos, updated regularly for your viewing pleasure.
+</p>
 
 <div id="trendingVideos"></div>
 <div id="normalVideos"></div>
