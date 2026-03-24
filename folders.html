@@ -21,11 +21,15 @@ h2 {
   padding-bottom: 5px;
 }
 
+/* 🔥 Compact horizontal card */
 .folderBox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   background: #222;
-  padding: 10px;
+  padding: 8px;
   border-radius: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   cursor: pointer;
   transition: 0.2s;
 }
@@ -34,17 +38,19 @@ h2 {
   transform: scale(1.02);
 }
 
+/* 🔥 Small thumbnail */
 .thumbnail {
-  width: 100%;
-  height: 200px;
+  width: 100px;
+  height: 70px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
+/* 🔥 Text next to image */
 .folderTitle {
-  text-align: center;
-  margin-top: 10px;
+  font-size: 16px;
   color: #ddd;
+  margin: 0;
 }
 </style>
 </head>
@@ -67,19 +73,16 @@ fetch("videos.json")
 
   const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
-  // Group videos into folders
   const folders = {};
 
   videos.forEach(video => {
     if (!video.folder) return;
 
-    // Only keep first video as thumbnail
     if (!folders[video.folder]) {
       folders[video.folder] = video;
     }
   });
 
-  // Render folders
   Object.keys(folders).forEach(folderName => {
 
     const video = folders[folderName];
@@ -105,7 +108,6 @@ fetch("videos.json")
     container.appendChild(box);
   });
 
-  // If no folders found
   if (Object.keys(folders).length === 0) {
     container.innerHTML = "<p style='text-align:center;color:#aaa;'>No folders found.</p>";
   }
