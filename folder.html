@@ -266,7 +266,17 @@ fetch("videos.json")
       const cycleViews = snap.val() || 0;
       const videoObj = videoElements[v.id];
 
-      if (cycleViews >= 10) {
+      if (!videoObj) return;
+
+      const isTrending = cycleViews >= 10;
+
+      // Remove from current parent first
+      if (videoObj.box.parentElement) {
+        videoObj.box.parentElement.removeChild(videoObj.box);
+      }
+
+      // Append to correct container
+      if (isTrending) {
         trendingContainer.appendChild(videoObj.box);
       } else {
         normalContainer.appendChild(videoObj.box);
