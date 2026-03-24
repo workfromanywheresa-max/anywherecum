@@ -625,6 +625,40 @@ if(videos.length){
                                                                  
 </script>
 
+  <script>
+document.addEventListener("click", function (e) {
+
+  const folderLink = e.target.closest("a.folder-link");
+  if (folderLink) {
+    const folderName = folderLink.textContent.trim();
+
+    console.log("Folder link clicked:", folderName);
+
+    // send to your tracking system
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(folderName);
+    }
+  }
+
+  const folderImage = e.target.closest("#folderList img");
+  if (folderImage) {
+    const folderName = folderImage.alt;
+
+    console.log("Folder image clicked:", folderName);
+
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(folderName);
+    }
+  }
+
+  const folderItem = e.target.closest("#folderList li");
+  if (folderItem) {
+    console.log("Folder item clicked");
+  }
+
+});
+  </script>
+
 <script type="module" src="views.js"></script>
 
 </body>
