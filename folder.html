@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Folder Videos</title>
 
 <style>
@@ -29,6 +29,12 @@ h2 {
   text-align: center;
   border-bottom: 2px solid #ff4444;
   padding-bottom: 5px;
+}
+
+#folderDescription {
+  text-align: center;
+  color: #aaa;
+  font-size: 14px;
 }
 
 .videoBox {
@@ -74,6 +80,25 @@ h2 {
   text-align: center;
   color: #aaa;
 }
+
+/* 🔥 Download button with size on right */
+.download {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 220px;
+  margin: 10px auto;
+  padding: 8px 12px;
+  background: #ff4444;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.download span:last-child {
+  font-weight: bold;
+}
 </style>
 </head>
 
@@ -82,6 +107,9 @@ h2 {
 <button onclick="history.back()">← Back</button>
 
 <h2 id="folderTitle">Folder</h2>
+<p id="folderDescription">
+  Enjoy our videos, updated regularly for your viewing pleasure.
+</p>
 
 <div id="trendingVideos"></div>
 <div id="normalVideos"></div>
@@ -97,25 +125,20 @@ const app = initializeApp({
 });
 const db = getDatabase(app);
 
-/* Session */
-let sessionId = sessionStorage.getItem("sessionId");
-if (!sessionId) {
-  sessionId = Date.now() + "_" + Math.random();
-  sessionStorage.setItem("sessionId", sessionId);
-}
+/* Folder */
+const params = new URLSearchParams(window.location.search);
+const folderName = (params.get("folder") || "").toLowerCase();
+
+document.getElementById("folderTitle").textContent =
+  folderName ? folderName.toUpperCase() : "ALL VIDEOS";
 
 /* Worker */
-async function sendToWorker(videoId) {
-  await fetch("https://anywherecum.workers.dev/increment", {
+function increaseViews(videoId) {
+  fetch("https://anywherecum.workers.dev/increment", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ videoId })
   });
-}
-
-/* Increase views */
-function increaseViews(videoId) {
-  sendToWorker(videoId);
 }
 
 /* Containers */
@@ -124,7 +147,7 @@ const normalContainer = document.getElementById("normalVideos");
 
 const videoElements = {};
 
-/* UI Controller (ONLY place that updates UI) */
+/* UI Controller */
 function updateUI(id) {
   const v = videoElements[id];
   if (!v) return;
@@ -134,13 +157,11 @@ function updateUI(id) {
 
   const isTrending = cycle >= 10;
 
-  // Move video
   const target = isTrending ? trendingContainer : normalContainer;
   if (v.box.parentElement !== target) {
     target.appendChild(v.box);
   }
 
-  // Show TOTAL views only (as you requested)
   v.views.textContent = isTrending
     ? `🔥 Trending | 👁 ${total}`
     : `👁 ${total}`;
@@ -148,12 +169,16 @@ function updateUI(id) {
   v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
 }
 
-/* Load videos */
+/* Load Videos */
 fetch("videos.json")
 .then(res => res.json())
 .then(videos => {
 
-  videos.forEach(v => {
+  const filtered = folderName
+    ? videos.filter(v => v.folder.toLowerCase() === folderName)
+    : videos;
+
+  filtered.forEach(v => {
 
     const box = document.createElement("div");
     box.className = "videoBox";
@@ -191,9 +216,26 @@ fetch("videos.json")
     views.className = "views";
     views.textContent = "👁 0";
 
+    /* 🔥 Download button with size */
+    const btn = document.createElement("a");
+    btn.className = "download";
+    btn.href = "#";
+
+    btn.innerHTML = `
+      <span>Download</span>
+      <span>${v.size || "?"}</span>
+    `;
+
+    btn.onclick = (e) => {
+      e.preventDefault();
+      increaseViews(v.id);
+      window.open(v.url, "_blank");
+    };
+
     box.appendChild(wrapper);
     box.appendChild(title);
     box.appendChild(views);
+    box.appendChild(btn);
 
     normalContainer.appendChild(box);
 
@@ -204,13 +246,13 @@ fetch("videos.json")
       cycleViews: 0
     };
 
-    /* TOTAL VIEWS (display only) */
+    /* Total Views */
     onValue(ref(db, "views/" + v.id), snap => {
       videoElements[v.id].totalViews = snap.val() || 0;
       updateUI(v.id);
     });
 
-    /* CYCLE VIEWS (controls trending ONLY) */
+    /* Cycle Views (Trending logic) */
     onValue(ref(db, "cycleViews/" + v.id), snap => {
       videoElements[v.id].cycleViews = Number(snap.val()) || 0;
       updateUI(v.id);
