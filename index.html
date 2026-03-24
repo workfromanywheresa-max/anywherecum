@@ -655,69 +655,97 @@ if (videos.length) {
 <script>
 document.addEventListener("click", function (e) {
 
-  function getFolderName(el) {
+  /* -------- Get folder name safely -------- */
+  function getFolderNameFromElement(el) {
     return (
-      el.dataset?.folder ||                          // ✅ hidden real name (MAIN FIX)
-      el.closest("[data-folder]")?.dataset.folder || // ✅ fallback from parent
-      el.getAttribute("data-folder") ||
-      el.alt || 
-      el.textContent?.trim() || 
-      "Unknown"
+      el?.dataset?.folder ||
+      el?.closest("[data-folder]")?.dataset.folder ||
+      el?.getAttribute("data-folder") ||
+      null
     );
   }
 
-  /* ---------------- Folder Links (ALL SECTIONS) ---------------- */
+  /* ---------------- Latest Video ---------------- */
+  const latestClick = e.target.closest("#latestVideo a.folder-link, #latestVideo img");
+
+  if (latestClick) {
+    e.preventDefault();
+
+    const li = latestClick.closest("li");
+    const folderName = li?.dataset?.folder;
+
+    console.log("Latest clicked:", folderName);
+
+    // ✅ Prevent null tracking
+    if (!folderName) {
+      window.location.href = "folder.html";
+      return;
+    }
+
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(folderName);
+    }
+
+    window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
+    return;
+  }
+
+  /* ---------------- Folder Links ---------------- */
   const folderLink = e.target.closest("a.folder-link");
   if (folderLink) {
-    const folderName = getFolderName(folderLink);
+    e.preventDefault();
+
+    const folderName = getFolderNameFromElement(folderLink);
 
     console.log("Folder link clicked:", folderName);
 
-    if (window.trackPreviewClick) {
+    // ✅ Only track if valid
+    if (window.trackPreviewClick && folderName) {
       window.trackPreviewClick(folderName);
     }
+
+    setTimeout(() => {
+      window.location.href = folderLink.href;
+    }, 150);
+
+    return;
   }
 
-  /* ---------------- Folder Images (ALL SECTIONS) ---------------- */
-  const folderImage = e.target.closest("#folderList img, #vipList img, #latestVideo img");
+  /* ---------------- Folder Images ---------------- */
+  const folderImage = e.target.closest("#folderList img, #vipList img");
   if (folderImage) {
-    const folderName = getFolderName(folderImage);
+
+    const folderName = getFolderNameFromElement(folderImage);
 
     console.log("Folder image clicked:", folderName);
 
-    if (window.trackPreviewClick) {
+    // ✅ Only track if valid
+    if (window.trackPreviewClick && folderName) {
       window.trackPreviewClick(folderName);
     }
+
+    return;
   }
 
-  /* ---------------- Folder Items (ALL SECTIONS) ---------------- */
-  const folderItem = e.target.closest("#folderList li, #vipList li, #latestVideo li");
-  if (folderItem) {
-    console.log("Folder item clicked (generic)");
-  }
-
-  /* ---------------- Latest Video Link Specific ---------------- */
-  const latestLink = e.target.closest("#latestVideo a.folder-link");
-  if (latestLink) {
-    const name = getFolderName(latestLink);
-
-    console.log("Latest video clicked:", name);
-
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(name);
-    }
-  }
-
-  /* ---------------- VIP Section Link Specific ---------------- */
+  /* ---------------- VIP Links ---------------- */
   const vipLink = e.target.closest("#vipList a.folder-link");
   if (vipLink) {
-    const name = getFolderName(vipLink);
+    e.preventDefault();
 
-    console.log("VIP clicked:", name);
+    const folderName = getFolderNameFromElement(vipLink);
 
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(name);
+    console.log("VIP clicked:", folderName);
+
+    // ✅ Only track if valid
+    if (window.trackPreviewClick && folderName) {
+      window.trackPreviewClick(folderName);
     }
+
+    setTimeout(() => {
+      window.location.href = vipLink.href;
+    }, 150);
+
+    return;
   }
 
 });
