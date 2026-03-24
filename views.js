@@ -16,6 +16,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+/* ---------------- Worker Config ---------------- */
+const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/";
+
 /* ---------------- Prevent Double Init ---------------- */
 if (!window.__trackingInitialized) {
   window.__trackingInitialized = true;
@@ -29,12 +32,30 @@ if (!sessionId) {
   sessionStorage.setItem("sessionId", sessionId);
 }
 
-/* ---------------- Track Once ---------------- */
+/* ---------------- Send to Worker ---------------- */
+async function sendToWorker(pageName) {
+  try {
+    await fetch(WORKER_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        page: pageName,
+        sessionId: sessionId,
+        timestamp: Date.now()
+      })
+    });
+  } catch (err) {
+    console.error("Worker tracking failed:", err);
+  }
+}
+
+/* ---------------- Track Once (Firebase) ---------------- */
 function trackOnce(key, firebasePath) {
   if (sessionStorage.getItem(key)) return;
 
   sessionStorage.setItem(key, "1");
-
   runTransaction(ref(db, firebasePath), (v) => (v || 0) + 1);
 }
 
@@ -52,21 +73,20 @@ if (path === "/" || path === "/index.html") {
 /* ---------------- Track Page View ---------------- */
 trackOnce("page_" + pageName, "pageViews/" + pageName);
 
+/* ---------------- Send to Worker (once per page/session) ---------------- */
+if (!sessionStorage.getItem("worker_" + pageName)) {
+  sessionStorage.setItem("worker_" + pageName, "1");
+  sendToWorker(pageName);
+}
+
 /* ---------------- Update Admin Total ---------------- */
 async function updateAdminCount() {
   let total = 0;
 
-  // Page views
+  // Page views only
   const pageSnap = await get(ref(db, "pageViews"));
   if (pageSnap.exists()) {
     const data = pageSnap.val();
-    Object.values(data).forEach(v => total += v || 0);
-  }
-
-  // Folder views
-  const folderSnap = await get(ref(db, "folderViews"));
-  if (folderSnap.exists()) {
-    const data = folderSnap.val();
     Object.values(data).forEach(v => total += v || 0);
   }
 
