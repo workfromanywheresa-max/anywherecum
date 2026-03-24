@@ -17,23 +17,6 @@ body {
 h2 {
   color: #ff4444;
   text-align: center;
-  border-bottom: 2px solid #ff4444;
-  padding-bottom: 5px;
-}
-
-#folderDescription {
-  text-align: center;
-  color: #aaa;
-  font-size: 14px;
-  margin-top: 5px;
-}
-
-.sectionTitle {
-  margin-top: 20px;
-  margin-bottom: 10px;
-  text-align: center;
-  font-weight: bold;
-  color: #ffcc00;
 }
 
 .videoBox {
@@ -41,14 +24,6 @@ h2 {
   padding: 10px;
   border-radius: 8px;
   margin-bottom: 20px;
-}
-
-.thumbnail {
-  width: 100%;
-  height: 350px;
-  object-fit: cover;
-  border-radius: 8px;
-  cursor: pointer;
 }
 
 .videoFrameWrapper {
@@ -59,6 +34,18 @@ h2 {
   overflow: hidden;
 }
 
+/* Thumbnail */
+.thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  cursor: pointer;
+}
+
+/* Iframe keeps YOUR original sizing */
 .videoFrameWrapper iframe {
   width: 100%;
   height: 560px;
@@ -68,61 +55,23 @@ h2 {
   border: 0;
 }
 
-.videoTitle {
-  text-align: center;
-  margin: 8px 0;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
 .views {
   text-align: center;
   color: #aaa;
-}
-
-.download {
-  display: block;
-  width: fit-content;
-  margin: 10px auto;
-  padding: 8px 15px;
-  background: #ff4444;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
+  margin-top: 5px;
 }
 </style>
 </head>
 
 <body>
 
-<button onclick="history.back()">← Back</button>
-
 <h2 id="folderTitle">Folder</h2>
-<p id="folderDescription">
-  Enjoy our videos, updated regularly for your viewing pleasure.
-</p>
 
-<div id="trendingContainer">
-  <div class="sectionTitle"></div>
-  <div id="trendingVideos"></div>
-</div>
-
-<div id="normalContainer">
-  <div class="sectionTitle"></div>
-  <div id="normalVideos"></div>
-</div>
+<div id="trendingVideos"></div>
+<div id="normalVideos"></div>
 
 <script type="module">
-import { increaseViews, sendToWorker, bindVideo } from "./views2.js";
-
-/* ---------------- Folder ---------------- */
-const params = new URLSearchParams(window.location.search);
-const folderName = (params.get("folder") || "").toLowerCase();
-
-document.getElementById("folderTitle").textContent =
-  folderName
-    ? folderName.charAt(0).toUpperCase() + folderName.slice(1)
-    : "ALL VIDEOS";
+import { increaseViews, bindVideo } from "./views2.js";
 
 /* ---------------- Containers ---------------- */
 const trendingContainer = document.getElementById("trendingVideos");
@@ -133,11 +82,7 @@ fetch("videos.json")
 .then(res => res.json())
 .then(videos => {
 
-  const filtered = folderName
-    ? videos.filter(v => v.folder.toLowerCase() === folderName)
-    : videos;
-
-  filtered.forEach(v => {
+  videos.forEach(v => {
 
     const box = document.createElement("div");
     box.className = "videoBox";
@@ -149,54 +94,24 @@ fetch("videos.json")
     thumb.className = "thumbnail";
     thumb.src = "https://anywherecum.pages.dev/images/" + v.thumbnail;
 
-    thumb.onclick = () => {
-      increaseViews(v.id);
-
-      const iframe = document.createElement("iframe");
-      iframe.src = v.url;
-      iframe.allowFullscreen = true;
-
-      wrapper.innerHTML = "";
-      wrapper.appendChild(iframe);
-    };
-
     wrapper.appendChild(thumb);
 
     const title = document.createElement("h3");
-    title.className = "videoTitle";
     title.textContent = v.title;
-
-    title.onclick = () => {
-      increaseViews(v.id);
-      window.open(v.url, "_blank");
-    };
 
     const views = document.createElement("div");
     views.className = "views";
     views.textContent = "👁 0";
 
-    const btn = document.createElement("a");
-    btn.className = "download";
-    btn.textContent = "Download";
-    btn.href = "#";
-
-    btn.onclick = (e) => {
-      e.preventDefault();
-      increaseViews(v.id);
-      window.open(v.url, "_blank");
-    };
-
     box.appendChild(wrapper);
     box.appendChild(title);
     box.appendChild(views);
-    box.appendChild(btn);
 
     normalContainer.appendChild(box);
 
-    // Bind Firebase logic from views2.js
     bindVideo(
       v,
-      { box, views },
+      { box, wrapper, thumb, views },
       { trendingContainer, normalContainer }
     );
 
