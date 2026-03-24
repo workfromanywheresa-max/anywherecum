@@ -46,7 +46,7 @@ async function sendToWorker(pageName) {
   }
 }
 
-/* ---------------- Track Once (Page Views) ---------------- */
+/* ---------------- Track Once (Firebase Page Views) ---------------- */
 function trackOnce(key, firebasePath) {
   if (sessionStorage.getItem(key)) return;
 
@@ -81,7 +81,7 @@ if (path === "/" || path === "/index.html") {
 /* ---------------- Track Page View ---------------- */
 trackOnce("page_" + pageName, "pageViews/" + pageName);
 
-/* ---------------- Worker Page Tracking ---------------- */
+/* ---------------- Send to Worker (once per page/session) ---------------- */
 if (!sessionStorage.getItem("worker_" + pageName)) {
   sessionStorage.setItem("worker_" + pageName, "1");
   sendToWorker(pageName);
@@ -105,103 +105,12 @@ async function updateAdminCount() {
 
 /* ---------------- Init ---------------- */
 updateAdminCount();
+
+/* ---------------- Auto Refresh ---------------- */
 setInterval(updateAdminCount, 10000);
 
 /* =========================================================
-   GLOBAL HELPER (used by HTML click tracking)
+   GLOBAL HELPER (used by HTML)
 ========================================================= */
 window.trackPreviewClick = trackPreviewClick;
-
-/* =========================================================
-   CLICK TRACKING (ALL FOLDERS + LATEST + VIP)
-========================================================= */
-
-document.addEventListener("click", function (e) {
-
-  function getFolderNameFromElement(el) {
-    return (
-      el?.dataset?.folder ||
-      el?.closest("[data-folder]")?.dataset.folder ||
-      el?.getAttribute("data-folder") ||
-      null
-    );
-  }
-
-  /* ---------------- Latest Video ---------------- */
-  const latestClick = e.target.closest("#latestVideo a.folder-link, #latestVideo img");
-
-  if (latestClick) {
-    e.preventDefault();
-
-    const li = latestClick.closest("li");
-    let folderName = li?.dataset?.folder;
-
-    if (!folderName) {
-      folderName = "home";
-
-      if (window.trackPreviewClick) {
-        window.trackPreviewClick(folderName);
-      }
-
-      window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
-      return;
-    }
-
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(folderName);
-    }
-
-    window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
-    return;
-  }
-
-  /* ---------------- Folder Links ---------------- */
-  const folderLink = e.target.closest("a.folder-link");
-  if (folderLink) {
-    e.preventDefault();
-
-    const folderName = getFolderNameFromElement(folderLink);
-
-    if (window.trackPreviewClick && folderName) {
-      window.trackPreviewClick(folderName);
-    }
-
-    setTimeout(() => {
-      window.location.href = folderLink.href;
-    }, 150);
-
-    return;
-  }
-
-  /* ---------------- Folder Images ---------------- */
-  const folderImage = e.target.closest("#folderList img, #vipList img");
-  if (folderImage) {
-
-    const folderName = getFolderNameFromElement(folderImage);
-
-    if (window.trackPreviewClick && folderName) {
-      window.trackPreviewClick(folderName);
-    }
-
-    return;
-  }
-
-  /* ---------------- VIP Links ---------------- */
-  const vipLink = e.target.closest("#vipList a.folder-link");
-  if (vipLink) {
-    e.preventDefault();
-
-    const folderName = getFolderNameFromElement(vipLink);
-
-    if (window.trackPreviewClick && folderName) {
-      window.trackPreviewClick(folderName);
-    }
-
-    setTimeout(() => {
-      window.location.href = vipLink.href;
-    }, 150);
-
-    return;
-  }
-
-});
+window.sessionStorage = sessionStorage;
