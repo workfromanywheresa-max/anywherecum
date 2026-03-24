@@ -652,14 +652,13 @@ document.addEventListener("click", function (e) {
     );
   }
 
-  /* ---------------- Latest Video (PRIORITY FIX) ---------------- */
-  const latestLinkOrImage = e.target.closest("#latestVideo a.folder-link, #latestVideo img");
+  /* ---------------- Latest Video (SIMPLE - SAME AS OTHERS) ---------------- */
+  const latestClick = e.target.closest("#latestVideo a.folder-link, #latestVideo img");
 
-  if (latestLinkOrImage) {
+  if (latestClick) {
     e.preventDefault();
 
-    // FORCE correct folder from the latestVideo object in scope
-    const folderName = window.latestVideoFolder;
+    const folderName = latestClick.closest("[data-folder]")?.dataset.folder;
 
     console.log("Latest clicked:", folderName);
 
