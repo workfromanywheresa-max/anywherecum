@@ -21,6 +21,13 @@ h2 {
   padding-bottom: 5px;
 }
 
+#folderDescription {
+  text-align: center;
+  color: #aaa;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
 .videoBox {
   background: #222;
   padding: 10px;
@@ -84,6 +91,10 @@ h2 {
 
 <h2 id="folderTitle">Folder</h2>
 
+<p id="folderDescription">
+  Enjoy our videos, updated regularly for your viewing pleasure.
+</p>
+
 <div id="videoList"></div>
 
 <script type="module">
@@ -116,23 +127,11 @@ if (!sessionId) {
 const params = new URLSearchParams(window.location.search);
 const folderName = (params.get("folder") || "").toLowerCase();
 
+/* Format folder name (e.g. Anal) */
 document.getElementById("folderTitle").textContent =
-  folderName ? folderName.toUpperCase() : "ALL VIDEOS";
-
-/* ---------------- Track Folder ---------------- */
-function trackFolderOnce(folderName) {
-  if (!folderName) return;
-  const key = "folder_" + folderName + "_" + sessionId;
-  if (sessionStorage.getItem(key)) return;
-  sessionStorage.setItem(key, "1");
-}
-
-function trackFolderClickOnce(folderName) {
-  if (!folderName) return;
-  const key = "folder_click_" + folderName + "_" + sessionId;
-  if (sessionStorage.getItem(key)) return;
-  sessionStorage.setItem(key, "1");
-}
+  folderName
+    ? folderName.charAt(0).toUpperCase() + folderName.slice(1)
+    : "ALL VIDEOS";
 
 /* ---------------- Get IP ---------------- */
 async function getUserIP() {
@@ -147,7 +146,7 @@ async function getUserIP() {
 
 const OWNER_IP = "102.214.117.74";
 
-/* ---------------- Send to Worker (videoId only) ---------------- */
+/* ---------------- Send to Worker ---------------- */
 async function sendToWorker(videoId) {
   try {
     await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/", {
@@ -168,7 +167,6 @@ async function increaseViews(videoId) {
   runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
   runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
 
-  // Send videoId only to Worker
   sendToWorker(videoId);
 }
 
@@ -215,8 +213,6 @@ fetch("videos.json")
     thumb.src = "https://anywherecum.pages.dev/images/" + v.thumbnail;
 
     thumb.onclick = () => {
-      trackFolderOnce(v.folder);
-      trackFolderClickOnce(v.folder);
       increaseViews(v.id);
 
       const iframe = document.createElement("iframe");
@@ -234,7 +230,6 @@ fetch("videos.json")
     title.textContent = v.title;
 
     title.onclick = () => {
-      trackFolderClickOnce(v.folder);
       increaseViews(v.id);
       window.open(v.url, "_blank");
     };
@@ -259,7 +254,6 @@ fetch("videos.json")
 
     btn.onclick = (e) => {
       e.preventDefault();
-      trackFolderClickOnce(v.folder);
       increaseViews(v.id);
       window.open(v.url, "_blank");
     };
