@@ -19,11 +19,6 @@ const db = getDatabase(app);
 /* ---------------- Worker Config ---------------- */
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/";
 
-/* ---------------- Prevent Double Init ---------------- */
-if (!window.__trackingInitialized) {
-  window.__trackingInitialized = true;
-}
-
 /* ---------------- Session ID ---------------- */
 let sessionId = sessionStorage.getItem("sessionId");
 
@@ -51,12 +46,25 @@ async function sendToWorker(pageName) {
   }
 }
 
-/* ---------------- Track Once (Firebase) ---------------- */
+/* ---------------- Track Once (Firebase Page Views) ---------------- */
 function trackOnce(key, firebasePath) {
   if (sessionStorage.getItem(key)) return;
 
   sessionStorage.setItem(key, "1");
   runTransaction(ref(db, firebasePath), (v) => (v || 0) + 1);
+}
+
+/* ---------------- Preview Click Tracking ---------------- */
+function trackPreviewClick(type) {
+  const key = "clicked_" + type;
+
+  if (sessionStorage.getItem(key)) return;
+
+  sessionStorage.setItem(key, "1");
+
+  runTransaction(ref(db, "pageViews/" + type), (v) => (v || 0) + 1);
+
+  sendToWorker(type);
 }
 
 /* ---------------- Detect Page ---------------- */
@@ -83,14 +91,12 @@ if (!sessionStorage.getItem("worker_" + pageName)) {
 async function updateAdminCount() {
   let total = 0;
 
-  // Page views only
   const pageSnap = await get(ref(db, "pageViews"));
   if (pageSnap.exists()) {
     const data = pageSnap.val();
     Object.values(data).forEach(v => total += v || 0);
   }
 
-  // Update UI
   const el = document.getElementById("adminViews");
   if (el) {
     el.innerText = `👁${total} | Admin`;
@@ -102,3 +108,9 @@ updateAdminCount();
 
 /* ---------------- Auto Refresh ---------------- */
 setInterval(updateAdminCount, 10000);
+
+/* =========================================================
+   GLOBAL HELPER (used by HTML)
+========================================================= */
+window.trackPreviewClick = trackPreviewClick;
+window.sessionStorage = sessionStorage;
