@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>VIP Videos</title>
 
 <style>
@@ -14,11 +14,21 @@ body {
   padding: 15px;
 }
 
+button {
+  background: #444;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
 h2 {
-  color: #ff4444;
-  border-bottom: 2px solid #ff4444;
-  padding-bottom: 5px;
+  color: gold;
   text-align: center;
+  border-bottom: 2px solid gold;
+  padding-bottom: 5px;
 }
 
 .videoBox {
@@ -36,10 +46,26 @@ h2 {
   cursor: pointer;
 }
 
+.videoFrameWrapper {
+  width: 100%;
+  height: 350px;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.videoFrameWrapper iframe {
+  width: 100%;
+  height: 560px;
+  position: absolute;
+  top: -210px;
+  left: 0;
+  border: 0;
+}
+
 .videoTitle {
   text-align: center;
-  margin: 8px 0 5px 0;
-  color: #ddd;
+  margin: 8px 0;
   cursor: pointer;
   text-decoration: underline;
 }
@@ -47,208 +73,42 @@ h2 {
 .views {
   text-align: center;
   color: #aaa;
-  margin: 5px 0;
 }
 
 .download {
   display: block;
   width: fit-content;
-  margin: 10px auto 0 auto;
-  padding: 8px 15px;
-  color: #fff;
-  background: #ff4444;
-  font-weight: bold;
+  margin: 10px auto;
+  padding: 6px 12px;
+  background: gold;
+  color: #000;
   text-decoration: none;
   border-radius: 5px;
+  font-size: 13px;
+  text-align: center;
 }
 </style>
 </head>
 
 <body>
 
-<h2>🔒 VIP Content</h2>
+<button onclick="history.back()">← Back</button>
 
-<div id="vipList"></div>
+<h2 id="folderTitle">VIP VIDEOS</h2>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+<div id="trendingVideos"></div>
+<div id="normalVideos"></div>
 
-/* ================= FIREBASE ================= */
-const firebaseConfig = {
-  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
-  authDomain: "anywherecum-1c8d0.firebaseapp.com",
-  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
-  projectId: "anywherecum-1c8d0",
-  storageBucket: "anywherecum-1c8d0.firebasestorage.app",
-  messagingSenderId: "686718460803",
-  appId: "1:686718460803:web:78827198d1be2904d98cb6"
+<!-- ✅ CONFIG for VIP -->
+<script>
+window.VIDEO_CONFIG = {
+  dataSource: "vip.json",
+  folder: "" // no filtering
 };
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-/* ================= PAGE VIEWS → WORKER ================= */
-
-let sessionId = sessionStorage.getItem("sessionId");
-
-if (!sessionId) {
-  sessionId = Date.now() + "_" + Math.random();
-  sessionStorage.setItem("sessionId", sessionId);
-}
-
-function trackOnce(key) {
-  if (sessionStorage.getItem(key)) return;
-  sessionStorage.setItem(key, "1");
-}
-
-async function sendPageToWorker(pageName) {
-  try {
-    await fetch("https://dashboard.workfromanywhere-sa.workers.dev/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        page: pageName,
-        sessionId: sessionId,
-        timestamp: Date.now()
-      })
-    });
-  } catch (err) {
-    console.log("Page worker failed:", err);
-  }
-}
-
-let path = window.location.pathname.toLowerCase();
-let pageName = path.split("/").filter(Boolean).pop()?.replace(".html", "");
-
-if (pageName) {
-  trackOnce("page_" + pageName);
-  sendPageToWorker(pageName);
-}
-
-/* ================= VIEW TRACK ================= */
-
-async function getUserIP() {
-  try {
-    const res = await fetch("https://api.ipify.org?format=json");
-    const data = await res.json();
-    return data.ip;
-  } catch {
-    return null;
-  }
-}
-
-const OWNER_IP = "102.214.117.74";
-
-async function increaseViews(videoId){
-  const userIP = await getUserIP();
-  if (userIP && userIP === OWNER_IP) return;
-
-  // Firebase updates
-  runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
-  runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
-
-  // Send to Worker
-  try {
-    await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        videoId: videoId,
-        type: "view",
-        timestamp: Date.now()
-      })
-    });
-  } catch (err) {
-    console.log("Worker view failed:", err);
-  }
-}
-
-/* ================= LOAD VIP ================= */
-
-const container = document.getElementById("vipList");
-const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
-
-fetch('vip.json')
-.then(res => res.json())
-.then(videos => {
-
-  container.innerHTML = "";
-
-  videos.forEach(v => {
-
-    const box = document.createElement("div");
-    box.className = "videoBox";
-
-    const img = document.createElement("img");
-    img.className = "thumbnail";
-    img.src = IMAGE_BASE + v.thumbnail;
-
-    const title = document.createElement("h3");
-    title.className = "videoTitle";
-    title.textContent = v.title;
-
-    const viewsEl = document.createElement("div");
-    viewsEl.className = "views";
-
-    const viewRef = ref(db, "views/" + v.id);
-    const cycleRef = ref(db, "cycleViews/" + v.id);
-
-    let totalViews = 0;
-    let cycleViews = 0;
-
-    function updateUI(){
-      if(cycleViews >= 10){
-        viewsEl.textContent = "🔥 Trending | 👁 " + totalViews;
-        viewsEl.style.color = "#ffcc00";
-      } else {
-        viewsEl.textContent = "👁 " + totalViews;
-        viewsEl.style.color = "#aaa";
-      }
-    }
-
-    onValue(viewRef, snap=>{
-      totalViews = snap.val() || 0;
-      updateUI();
-    });
-
-    onValue(cycleRef, snap=>{
-      cycleViews = snap.val() || 0;
-      updateUI();
-    });
-
-    function openVideo(){
-      increaseViews(v.id);
-      window.open(v.url, "_blank");
-    }
-
-    img.onclick = openVideo;
-    title.onclick = openVideo;
-
-    const btn = document.createElement("a");
-    btn.className = "download";
-    btn.textContent = "Watch VIP";
-    btn.href = "#";
-    btn.onclick = (e) => {
-      e.preventDefault();
-      openVideo();
-    };
-
-    box.appendChild(img);
-    box.appendChild(title);
-    box.appendChild(viewsEl);
-    box.appendChild(btn);
-
-    container.appendChild(box);
-  });
-
-});
 </script>
+
+<!-- ✅ Shared JS -->
+<script type="module" src="views2.js"></script>
 
 </body>
 </html>
