@@ -14,6 +14,16 @@ body {
   padding: 15px;
 }
 
+button {
+  background: #444;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
 h2 {
   color: #ff4444;
   text-align: center;
@@ -103,19 +113,18 @@ h2 {
 </p>
 
 <div id="trendingContainer">
-  <div class="sectionTitle"></div>
+  <div class="sectionTitle">Trending</div>
   <div id="trendingVideos"></div>
 </div>
 
 <div id="normalContainer">
-  <div class="sectionTitle"></div>
+  <div class="sectionTitle">All Videos</div>
   <div id="normalVideos"></div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, onValue } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 /* ---------------- Firebase Config ---------------- */
 const firebaseConfig = {
@@ -143,9 +152,7 @@ const params = new URLSearchParams(window.location.search);
 const folderName = (params.get("folder") || "").toLowerCase();
 
 document.getElementById("folderTitle").textContent =
-  folderName
-    ? folderName.charAt(0).toUpperCase() + folderName.slice(1)
-    : "ALL VIDEOS";
+  folderName ? folderName.charAt(0).toUpperCase() + folderName.slice(1) : "ALL VIDEOS";
 
 /* ---------------- Get IP ---------------- */
 async function getUserIP() {
@@ -177,7 +184,6 @@ async function sendToWorker(videoId) {
 async function increaseViews(videoId) {
   const userIP = await getUserIP();
   if (userIP && userIP === OWNER_IP) return;
-
   sendToWorker(videoId);
 }
 
@@ -191,9 +197,7 @@ fetch("videos.json")
 .then(res => res.json())
 .then(videos => {
 
-  const filtered = folderName
-    ? videos.filter(v => v.folder.toLowerCase() === folderName)
-    : videos;
+  const filtered = folderName ? videos.filter(v => v.folder.toLowerCase() === folderName) : videos;
 
   filtered.forEach(v => {
     const box = document.createElement("div");
@@ -208,7 +212,6 @@ fetch("videos.json")
 
     thumb.onclick = () => {
       increaseViews(v.id);
-
       const iframe = document.createElement("iframe");
       iframe.src = v.url;
       iframe.allowFullscreen = true;
@@ -256,13 +259,10 @@ fetch("videos.json")
     const viewsRef = ref(db, "views/" + v.id);
     onValue(viewsRef, snap => {
       const totalViews = snap.val() || 0;
-
       videoElements[v.id].views.textContent = totalViews >= 10
         ? `🔥 Trending | 👁 ${totalViews}`
         : `👁 ${totalViews}`;
-
-      videoElements[v.id].views.style.color =
-        totalViews >= 10 ? "#ffcc00" : "#aaa";
+      videoElements[v.id].views.style.color = totalViews >= 10 ? "#ffcc00" : "#aaa";
     });
 
     /* -------- Cycle Views (Trending Logic) -------- */
@@ -271,20 +271,12 @@ fetch("videos.json")
       const cycleViews = snap.val() || 0;
       const videoObj = videoElements[v.id];
 
-      if (cycleViews >= 10) {
-        if (videoObj.currentSection !== "trending") {
-          trendingContainer.appendChild(videoObj.box);
-          videoObj.currentSection = "trending";
-        }
-      } else {
-        if (videoObj.currentSection !== "normal") {
-
-          if (videoObj.box.parentElement !== normalContainer) {
-            normalContainer.appendChild(videoObj.box);
-          }
-
-          videoObj.currentSection = "normal";
-        }
+      if (cycleViews >= 10 && videoObj.currentSection !== "trending") {
+        trendingContainer.appendChild(videoObj.box);
+        videoObj.currentSection = "trending";
+      } else if (cycleViews < 10 && videoObj.currentSection !== "normal") {
+        normalContainer.appendChild(videoObj.box);
+        videoObj.currentSection = "normal";
       }
     });
   });
