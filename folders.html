@@ -21,13 +21,6 @@ h2 {
   padding-bottom: 5px;
 }
 
-/* VIP title */
-.vipTitle {
-  color: gold;
-  border-bottom: 2px solid gold;
-}
-
-/* 🔥 Compact horizontal card */
 .folderBox {
   display: flex;
   align-items: center;
@@ -44,7 +37,6 @@ h2 {
   transform: scale(1.02);
 }
 
-/* 🔥 Small thumbnail */
 .thumbnail {
   width: 100px;
   height: 70px;
@@ -52,7 +44,6 @@ h2 {
   border-radius: 6px;
 }
 
-/* 🔥 Text next to image */
 .folderTitle {
   font-size: 16px;
   color: #ddd;
@@ -63,70 +54,16 @@ h2 {
 
 <body>
 
-<!-- 🔥 VIP SECTION -->
-<h2 class="vipTitle">VIP Exclusive</h2>
-<div id="vipList"></div>
-
-<!-- 🔥 NORMAL FOLDERS -->
 <h2>Folders</h2>
+
 <div id="folderList"></div>
 
 <script>
-const folderContainer = document.getElementById("folderList");
-const vipContainer = document.getElementById("vipList");
-
+const container = document.getElementById("folderList");
 const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
-/* 🔥 LOAD VIP */
-fetch("vip.json")
-.then(res => {
-  if (!res.ok) throw new Error("VIP fetch failed");
-  return res.json();
-})
-.then(videos => {
-
-  videos.forEach(video => {
-
-    const box = document.createElement("div");
-    box.className = "folderBox";
-
-    box.onclick = () => {
-      window.location.href = "video.html?id=" + encodeURIComponent(video.id || "");
-    };
-
-    const img = document.createElement("img");
-    img.className = "thumbnail";
-    img.src = IMAGE_BASE + (video.thumbnail || "");
-
-    const title = document.createElement("h3");
-    title.className = "folderTitle";
-    title.textContent = video.title || "VIP Video";
-
-    box.appendChild(img);
-    box.appendChild(title);
-
-    vipContainer.appendChild(box);
-  });
-
-  if (videos.length === 0) {
-    vipContainer.innerHTML = "<p style='text-align:center;color:#aaa;'>No VIP content.</p>";
-  }
-
-})
-.catch(err => {
-  console.error(err);
-  vipContainer.innerHTML = "<p style='text-align:center;color:#aaa;'>Failed to load VIP.</p>";
-});
-
-
-/* 🔥 LOAD NORMAL FOLDERS */
-fetch("videos.json")
-.then(res => {
-  if (!res.ok) throw new Error("Failed to fetch");
-  return res.json();
-})
-.then(videos => {
-
+// 🔥 helper to extract folders
+function extractFolders(videos) {
   const folders = {};
 
   videos.forEach(video => {
@@ -137,6 +74,11 @@ fetch("videos.json")
     }
   });
 
+  return folders;
+}
+
+// 🔥 helper to render folders
+function renderFolders(folders, isVIP = false) {
   Object.keys(folders).forEach(folderName => {
 
     const video = folders[folderName];
@@ -154,22 +96,42 @@ fetch("videos.json")
 
     const title = document.createElement("h3");
     title.className = "folderTitle";
-    title.textContent = folderName;
+    title.textContent = isVIP ? "⭐ " + folderName : folderName;
 
     box.appendChild(img);
     box.appendChild(title);
 
-    folderContainer.appendChild(box);
+    container.appendChild(box);
   });
+}
 
-  if (Object.keys(folders).length === 0) {
-    folderContainer.innerHTML = "<p style='text-align:center;color:#aaa;'>No folders found.</p>";
+// 🔥 load BOTH json files
+Promise.all([
+  fetch("vip.json").then(res => res.json()).catch(() => []),
+  fetch("videos.json").then(res => res.json()).catch(() => [])
+])
+.then(([vipVideos, normalVideos]) => {
+
+  const vipFolders = extractFolders(vipVideos);
+  const normalFolders = extractFolders(normalVideos);
+
+  // 🔥 VIP FIRST
+  renderFolders(vipFolders, true);
+
+  // 🔥 then normal
+  renderFolders(normalFolders, false);
+
+  if (
+    Object.keys(vipFolders).length === 0 &&
+    Object.keys(normalFolders).length === 0
+  ) {
+    container.innerHTML = "<p style='text-align:center;color:#aaa;'>No folders found.</p>";
   }
 
 })
 .catch(err => {
   console.error(err);
-  folderContainer.innerHTML = "<p style='text-align:center;color:#aaa;'>Failed to load folders.</p>";
+  container.innerHTML = "<p style='text-align:center;color:#aaa;'>Failed to load folders.</p>";
 });
 </script>
 
