@@ -38,14 +38,6 @@ h2 {
   margin-top: 5px;
 }
 
-.sectionTitle {
-  margin-top: 20px;
-  margin-bottom: 10px;
-  text-align: center;
-  font-weight: bold;
-  color: #ffcc00;
-}
-
 .videoBox {
   background: #222;
   padding: 10px;
@@ -112,15 +104,11 @@ h2 {
   Enjoy our videos, updated regularly for your viewing pleasure.
 </p>
 
-<div id="trendingContainer">
-  <div class="sectionTitle">Trending</div>
-  <div id="trendingVideos"></div>
-</div>
+<!-- Trending container (no heading) -->
+<div id="trendingVideos"></div>
 
-<div id="normalContainer">
-  <div class="sectionTitle">All Videos</div>
-  <div id="normalVideos"></div>
-</div>
+<!-- Normal videos container (no heading) -->
+<div id="normalVideos"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
@@ -167,7 +155,7 @@ async function getUserIP() {
 
 const OWNER_IP = "102.214.117.74";
 
-/* ---------------- Send to Worker (FIXED URL) ---------------- */
+/* ---------------- Send to Worker ---------------- */
 async function sendToWorker(videoId) {
   try {
     await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
