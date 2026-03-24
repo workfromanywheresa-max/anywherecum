@@ -651,48 +651,6 @@ if (videos.length) {
 });
                                                                  
 </script>
-
-  <script>
-document.addEventListener("click", function (e) {
-
-  function getFolderName(el) {
-    return (
-      el?.closest("[data-folder]")?.dataset.folder ||
-      el?.getAttribute("data-folder") ||
-      el?.alt ||
-      el?.textContent?.trim() ||
-      null
-    );
-  }
-
-  /* ---------------- LATEST VIDEO TRACKING (FIXED) ---------------- */
-  const latestTarget = e.target.closest("#latestVideo a.folder-link, #latestVideo img");
-
-  if (latestTarget) {
-    e.preventDefault(); // stop immediate navigation
-
-    const li = latestTarget.closest("li");
-    const folderName = li?.dataset?.folder || getFolderName(latestTarget);
-
-    console.log("Latest clicked:", folderName);
-
-    if (!folderName) return;
-
-    // Track click
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(folderName);
-    }
-
-    // Delay navigation to allow tracking to complete
-    setTimeout(() => {
-      window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
-    }, 400);
-
-    return;
-  }
-
-});
-  </script>
   
   <script type="module" src="views.js"></script>
   
