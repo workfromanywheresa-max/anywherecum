@@ -86,16 +86,103 @@ h2 {
 
 <div id="videoList"></div>
 
-<script type="module" src="views.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getDatabase, ref, runTransaction, onValue } 
+from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-<script>
-const container = document.getElementById("videoList");
+/* ---------------- Firebase Config ---------------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
+  authDomain: "anywherecum-1c8d0.firebaseapp.com",
+  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
+  projectId: "anywherecum-1c8d0",
+  storageBucket: "anywherecum-1c8d0.firebasestorage.app",
+  messagingSenderId: "686718460803",
+  appId: "1:686718460803:web:78827198d1be2904d98cb6"
+};
 
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/* ---------------- Session ---------------- */
+let sessionId = sessionStorage.getItem("sessionId");
+
+if (!sessionId) {
+  sessionId = Date.now() + "_" + Math.random();
+  sessionStorage.setItem("sessionId", sessionId);
+}
+
+/* ---------------- Folder ---------------- */
 const params = new URLSearchParams(window.location.search);
 const folderName = (params.get("folder") || "").toLowerCase();
 
 document.getElementById("folderTitle").textContent =
   folderName ? folderName.toUpperCase() : "ALL VIDEOS";
+
+/* ---------------- Track Folder ---------------- */
+function trackFolderOnce(folderName) {
+  if (!folderName) return;
+
+  const key = "folder_" + folderName + "_" + sessionId;
+  if (sessionStorage.getItem(key)) return;
+
+  sessionStorage.setItem(key, "1");
+}
+
+/* ---------------- Track Click ---------------- */
+function trackFolderClickOnce(folderName) {
+  if (!folderName) return;
+
+  const key = "folder_click_" + folderName + "_" + sessionId;
+  if (sessionStorage.getItem(key)) return;
+
+  sessionStorage.setItem(key, "1");
+}
+
+/* ---------------- Get IP ---------------- */
+async function getUserIP() {
+  try {
+    const res = await fetch("https://api.ipify.org?format=json");
+    const data = await res.json();
+    return data.ip;
+  } catch {
+    return null;
+  }
+}
+
+const OWNER_IP = "102.214.117.74";
+
+/* ---------------- Increase Views ---------------- */
+async function increaseViews(videoId) {
+  const userIP = await getUserIP();
+  if (userIP && userIP === OWNER_IP) return;
+
+  runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
+  runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
+}
+
+/* ---------------- Get Stats ---------------- */
+function getVideoStats(videoId, callback) {
+  const viewRef = ref(db, "views/" + videoId);
+  const cycleRef = ref(db, "cycleViews/" + videoId);
+
+  let totalViews = 0;
+  let cycleViews = 0;
+
+  onValue(viewRef, snap => {
+    totalViews = snap.val() || 0;
+    callback({ totalViews, cycleViews });
+  });
+
+  onValue(cycleRef, snap => {
+    cycleViews = snap.val() || 0;
+    callback({ totalViews, cycleViews });
+  });
+}
+
+/* ---------------- Load Videos ---------------- */
+const container = document.getElementById("videoList");
 
 fetch("videos.json")
 .then(res => res.json())
@@ -135,6 +222,7 @@ fetch("videos.json")
     const title = document.createElement("h3");
     title.className = "videoTitle";
     title.textContent = v.title;
+
     title.onclick = () => {
       trackFolderClickOnce(v.folder);
       increaseViews(v.id);
@@ -145,7 +233,7 @@ fetch("videos.json")
     views.className = "views";
     views.textContent = "👁 loading...";
 
-    window.getVideoStats(v.id, ({ totalViews, cycleViews }) => {
+    getVideoStats(v.id, ({ totalViews, cycleViews }) => {
       if (cycleViews >= 10) {
         views.textContent = "🔥 Trending | 👁 " + totalViews;
         views.style.color = "#ffcc00";
@@ -158,6 +246,7 @@ fetch("videos.json")
     btn.className = "download";
     btn.textContent = "Download";
     btn.href = "#";
+
     btn.onclick = (e) => {
       e.preventDefault();
       trackFolderClickOnce(v.folder);
