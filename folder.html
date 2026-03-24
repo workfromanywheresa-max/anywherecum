@@ -103,21 +103,21 @@ h2 {
 </p>
 
 <div id="trendingContainer">
-  <div class="sectionTitle"></div>
+  <div class="sectionTitle">🔥 Trending</div>
   <div id="trendingVideos"></div>
 </div>
 
 <div id="normalContainer">
-  <div class="sectionTitle"></div>
+  <div class="sectionTitle">📺 All Videos</div>
   <div id="normalVideos"></div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, runTransaction, onValue } 
+import { getDatabase, ref, onValue } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-/* ---------------- Firebase Config ---------------- */
+/* ---------------- Firebase Config (READ ONLY) ---------------- */
 const firebaseConfig = {
   apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
   authDomain: "anywherecum-1c8d0.firebaseapp.com",
@@ -160,8 +160,11 @@ async function getUserIP() {
 
 const OWNER_IP = "102.214.117.74";
 
-/* ---------------- Send to Worker ---------------- */
-async function sendToWorker(videoId) {
+/* ---------------- Send to Worker ONLY ---------------- */
+async function increaseViews(videoId) {
+  const userIP = await getUserIP();
+  if (userIP && userIP === OWNER_IP) return;
+
   try {
     await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/", {
       method: "POST",
@@ -171,17 +174,6 @@ async function sendToWorker(videoId) {
   } catch (err) {
     console.error("Worker send failed:", err);
   }
-}
-
-/* ---------------- Increase Views ---------------- */
-async function increaseViews(videoId) {
-  const userIP = await getUserIP();
-  if (userIP && userIP === OWNER_IP) return;
-
-  runTransaction(ref(db, "views/" + videoId), v => (v || 0) + 1);
-  runTransaction(ref(db, "cycleViews/" + videoId), v => (v || 0) + 1);
-
-  sendToWorker(videoId);
 }
 
 /* ---------------- Load Videos ---------------- */
@@ -259,37 +251,32 @@ fetch("videos.json")
     // Save for live updates
     videoElements[v.id] = { box, views, currentSection: "normal" };
 
-    // Listen for live cycleViews changes
+    // Listen for live cycleViews changes (READ ONLY)
     const cycleRef = ref(db, "cycleViews/" + v.id);
     onValue(cycleRef, snap => {
       const cycleViews = snap.val() || 0;
 
-      // Update views text
       if (cycleViews >= 10) {
-        videoElements[v.id].views.textContent = `🔥 Trending | 👁 ${snap.val()}`;
+        videoElements[v.id].views.textContent = `🔥 Trending | 👁 ${cycleViews}`;
         videoElements[v.id].views.style.color = "#ffcc00";
 
-        // Move to trending if not already there
         if (videoElements[v.id].currentSection !== "trending") {
           trendingContainer.appendChild(videoElements[v.id].box);
           videoElements[v.id].currentSection = "trending";
         }
       } else {
-        videoElements[v.id].views.textContent = `👁 ${snap.val()}`;
+        videoElements[v.id].views.textContent = `👁 ${cycleViews}`;
         videoElements[v.id].views.style.color = "#aaa";
 
-        // Move back to normal if trending drops below 10
         if (videoElements[v.id].currentSection !== "normal") {
-          // Find original index
           const originalIndex = filtered.findIndex(vi => vi.id === v.id);
-          // Insert in correct position
+
           if (originalIndex === 0 || normalContainer.children.length === 0) {
             normalContainer.prepend(videoElements[v.id].box);
           } else {
-            // Insert after previous normal videos
             let inserted = false;
             for (let i = 0; i < normalContainer.children.length; i++) {
-              const siblingId = filtered.find(vi => vi.id === normalContainer.children[i].querySelector(".videoTitle").textContent).id;
+              const siblingId = filtered.find(f => f.title === normalContainer.children[i].querySelector(".videoTitle").textContent).id;
               if (filtered.findIndex(f => f.id === siblingId) > originalIndex) {
                 normalContainer.insertBefore(videoElements[v.id].box, normalContainer.children[i]);
                 inserted = true;
@@ -298,6 +285,7 @@ fetch("videos.json")
             }
             if (!inserted) normalContainer.appendChild(videoElements[v.id].box);
           }
+
           videoElements[v.id].currentSection = "normal";
         }
       }
