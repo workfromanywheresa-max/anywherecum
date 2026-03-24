@@ -96,7 +96,7 @@ function renderFolders(folders, isVIP = false) {
 
     const title = document.createElement("h3");
     title.className = "folderTitle";
-    title.textContent = isVIP ? "⭐ " + folderName : folderName;
+    title.textContent = isVIP ? "" + folderName : folderName;
 
     box.appendChild(img);
     box.appendChild(title);
