@@ -608,17 +608,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Latest Video
 if(videos.length){
-  const latestVideo=videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
-  const latestDiv=document.getElementById('latestVideo');
-  latestDiv.innerHTML=`
+  const latestVideo = videos.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+  const latestDiv = document.getElementById('latestVideo');
+
+  latestDiv.innerHTML = `
     <h2>🎥Latest Video🎥</h2>
     <ul class="folder-grid">
-      <li>
-        <img src="${BASE_URL+latestVideo.thumbnail}" style="width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;">
-        <a href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" class="folder-link" target="">Watch Now: New Video Available!!!</a>
+      <li data-folder="${latestVideo.folder}"> <!-- 🔥 IMPORTANT -->
+        
+        <img 
+          src="${BASE_URL + latestVideo.thumbnail}" 
+          data-folder="${latestVideo.folder}" 
+          alt="${latestVideo.folder}"
+          style="width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;">
+        
+        <a 
+          href="folder.html?folder=${encodeURIComponent(latestVideo.folder)}" 
+          class="folder-link"
+          data-folder="${latestVideo.folder}" 
+          target="">
+          Watch Now: New Video Available!!!
+        </a>
+
       </li>
     </ul>`;
-  latestDiv.querySelector("img").onclick=()=>window.location.href="folder.html?folder="+encodeURIComponent(latestVideo.folder);
+
+  latestDiv.querySelector("img").onclick = () => 
+    window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.folder);
 }
   });
 });
@@ -630,7 +646,8 @@ document.addEventListener("click", function (e) {
 
   function getFolderName(el) {
     return (
-      el.dataset?.folder ||     // ✅ invisible real folder name
+      el.dataset?.folder ||                          // ✅ hidden real name (MAIN FIX)
+      el.closest("[data-folder]")?.dataset.folder || // ✅ fallback from parent
       el.getAttribute("data-folder") ||
       el.alt || 
       el.textContent?.trim() || 
@@ -638,7 +655,7 @@ document.addEventListener("click", function (e) {
     );
   }
 
-  /* Folder Links */
+  /* ---------------- Folder Links (ALL SECTIONS) ---------------- */
   const folderLink = e.target.closest("a.folder-link");
   if (folderLink) {
     const folderName = getFolderName(folderLink);
@@ -650,7 +667,7 @@ document.addEventListener("click", function (e) {
     }
   }
 
-  /* Images */
+  /* ---------------- Folder Images (ALL SECTIONS) ---------------- */
   const folderImage = e.target.closest("#folderList img, #vipList img, #latestVideo img");
   if (folderImage) {
     const folderName = getFolderName(folderImage);
@@ -662,8 +679,38 @@ document.addEventListener("click", function (e) {
     }
   }
 
+  /* ---------------- Folder Items (ALL SECTIONS) ---------------- */
+  const folderItem = e.target.closest("#folderList li, #vipList li, #latestVideo li");
+  if (folderItem) {
+    console.log("Folder item clicked (generic)");
+  }
+
+  /* ---------------- Latest Video Link Specific ---------------- */
+  const latestLink = e.target.closest("#latestVideo a.folder-link");
+  if (latestLink) {
+    const name = getFolderName(latestLink);
+
+    console.log("Latest video clicked:", name);
+
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(name);
+    }
+  }
+
+  /* ---------------- VIP Section Link Specific ---------------- */
+  const vipLink = e.target.closest("#vipList a.folder-link");
+  if (vipLink) {
+    const name = getFolderName(vipLink);
+
+    console.log("VIP clicked:", name);
+
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(name);
+    }
+  }
+
 });
-  </script>
+</script>
 
 <script type="module" src="views.js"></script>
 
