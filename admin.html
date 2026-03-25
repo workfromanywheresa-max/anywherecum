@@ -132,10 +132,9 @@ async function fetchData(path) {
   return await res.json();
 }
 
-/* 🔥 LOAD COMBINED + SORTED */
-async function loadAllViews() {
+/* 🔥 LOAD PAGE VIEWS ONLY */
+async function loadPageViews() {
   const pageData = await fetchData("pageViews");
-  const folderData = await fetchData("folderViews");
 
   const list = document.getElementById("pageViews");
   list.innerHTML = "";
@@ -145,14 +144,6 @@ async function loadAllViews() {
 
   if (pageData) {
     Object.entries(pageData).forEach(([key, value]) => {
-      value = typeof value === "number" ? value : 0;
-      total += value;
-      combined.push({ name: key, value });
-    });
-  }
-
-  if (folderData) {
-    Object.entries(folderData).forEach(([key, value]) => {
       value = typeof value === "number" ? value : 0;
       total += value;
       combined.push({ name: key, value });
@@ -173,24 +164,15 @@ async function loadAllViews() {
 
 /* ================= INIT ================= */
 async function init() {
-  const total = await loadAllViews();
+  const total = await loadPageViews();
   const formatted = formatViews(total);
 
   document.getElementById("totalViews").innerText = formatted;
-
-  // 🔥 Safe admin update (won't crash if missing)
-  const adminEl = document.getElementById("adminViews");
-  if (adminEl) {
-    adminEl.innerText = `👁 ${formatted} Admin`;
-  }
 }
 
-init();
-
 /* ================= AUTO REFRESH ================= */
-setInterval(() => {
-  init();
-}, 10000);
+init();
+setInterval(init, 10000);
 
 /* ================= LOGOUT ================= */
 function logout() {
