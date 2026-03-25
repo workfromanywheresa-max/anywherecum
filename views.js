@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 /* ---------------- Firebase ---------------- */
 const firebaseConfig = {
@@ -7,8 +7,8 @@ const firebaseConfig = {
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
 };
 
-initializeApp(firebaseConfig);
-getDatabase();
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
 /* ---------------- Worker ---------------- */
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
@@ -79,3 +79,29 @@ document.addEventListener("click", function (e) {
 
 /* ---------------- Run page tracking ---------------- */
 trackPage(pageName);
+
+/* ================= FIREBASE LIVE COUNTER (pageViews only) ================= */
+
+const pageRef = ref(db, "pageViews");
+
+function getTotal(pageData) {
+  let total = 0;
+
+  if (pageData) {
+    Object.values(pageData).forEach(v => {
+      if (typeof v === "number") total += v;
+    });
+  }
+
+  return total;
+}
+
+onValue(pageRef, (snapshot) => {
+  const data = snapshot.val() || {};
+  const total = getTotal(data);
+
+  const el = document.getElementById("adminViews");
+  if (el) {
+    el.innerText = `👁${total} | Admin`;
+  }
+});
