@@ -27,20 +27,14 @@ function toTitleCase(str) {
 
 if (folderName) {
   document.getElementById("folderTitle").textContent = toTitleCase(folderName);
-} else if (dataSource.includes("vip")) {
-  document.getElementById("folderTitle").textContent = "🔐VIP Exclusive";
 } else {
   document.getElementById("folderTitle").textContent = "ALL VIDEOS";
 }
 
 /* Format Views */
 function formatViews(num) {
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1).replace(".0", "") + "M";
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1).replace(".0", "") + "K";
-  }
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0", "") + "M";
+  if (num >= 1000) return (num / 1000).toFixed(1).replace(".0", "") + "K";
   return num;
 }
 
@@ -88,11 +82,9 @@ function updateUI(id) {
     }
   }
 
-  const formatted = formatViews(total);
-
   v.views.textContent = isTrending
-    ? `🔥 Trending | 👁 ${formatted}`
-    : `👁 ${formatted}`;
+    ? `🔥 Trending | 👁 ${formatViews(total)}`
+    : `👁 ${formatViews(total)}`;
 
   v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
 }
@@ -114,19 +106,15 @@ fetch(dataSource)
     const wrapper = document.createElement("div");
     wrapper.className = "videoFrameWrapper";
 
-    /* THUMBNAIL */
+    /* ✅ Folder-based thumbnail */
     const thumb = document.createElement("img");
-    thumb.className = "thumbnail";
-    thumb.src = "https://anywherecum.pages.dev/images/" + v.thumbnail;
+    thumb.src = `https://anywherecum.pages.dev/images/${v.folder}/${v.thumbnail}`;
 
     thumb.onclick = () => {
       increaseViews(v.id);
 
       const iframe = document.createElement("iframe");
-      iframe.src = v.embed; // ✅ USE EMBED HERE
-      iframe.width = "100%";
-      iframe.height = "100%";
-      iframe.frameBorder = "0";
+      iframe.src = v.embed;
       iframe.allowFullscreen = true;
 
       wrapper.innerHTML = "";
@@ -142,7 +130,7 @@ fetch(dataSource)
 
     title.onclick = () => {
       increaseViews(v.id);
-      window.open(v.url, "_blank"); // ✅ DOWNLOAD LINK
+      window.open(v.url, "_blank");
     };
 
     /* VIEWS */
@@ -150,7 +138,7 @@ fetch(dataSource)
     views.className = "views";
     views.textContent = "👁 0";
 
-    /* DOWNLOAD BUTTON */
+    /* DOWNLOAD */
     const btn = document.createElement("a");
     btn.className = "download";
     btn.href = "#";
@@ -159,7 +147,7 @@ fetch(dataSource)
     btn.onclick = (e) => {
       e.preventDefault();
       increaseViews(v.id);
-      window.open(v.url, "_blank"); // ✅ DOWNLOAD LINK
+      window.open(v.url, "_blank");
     };
 
     box.appendChild(wrapper);
@@ -176,6 +164,7 @@ fetch(dataSource)
       cycleViews: 0
     };
 
+    /* Firebase listeners */
     onValue(ref(db, "views/" + v.id), snap => {
       videoElements[v.id].totalViews = snap.val() || 0;
       updateUI(v.id);
