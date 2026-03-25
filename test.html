@@ -4,10 +4,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Video Player</title>
+
+  <style>
+    body {
+      margin: 0;
+      text-align: center;
+      background: #000; /* optional */
+    }
+
+    .video-container {
+      width: 100%;
+      max-width: 560px;
+      margin: 0 auto;
+      position: relative;
+      aspect-ratio: 16 / 9;
+    }
+
+    .video-container iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+  </style>
 </head>
 <body>
 
-<iframe width="400" height="315" src="https://mixdrop.top/e/1n4en16zcr0xxl" frameborder="0" allowfullscreen></iframe>
+<div class="video-container">
+  <iframe src="https://mixdrop.top/e/1n4en16zcr0xxl" allowfullscreen></iframe>
+</div>
 
 </body>
 </html>
