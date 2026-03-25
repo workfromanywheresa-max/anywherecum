@@ -8,12 +8,11 @@ const app = initializeApp({
 });
 const db = getDatabase(app);
 
-/* ✅ TEST MODE (set true to stop counting your clicks) */
+/* TEST MODE */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
-/* CONFIG FROM HTML */
+/* CONFIG */
 const config = window.VIDEO_CONFIG || {};
-
 const folderName = (config.folder || "").toLowerCase();
 const dataSource = config.dataSource || "videos.json";
 
@@ -31,9 +30,7 @@ async function sendToWorker(videoId) {
   try {
     await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ videoId })
     });
   } catch (err) {
@@ -42,7 +39,7 @@ async function sendToWorker(videoId) {
 }
 
 function increaseViews(videoId) {
-  if (TEST_MODE) return; // ✅ block your own clicks
+  if (TEST_MODE) return;
   sendToWorker(videoId);
 }
 
@@ -52,21 +49,27 @@ const normalContainer = document.getElementById("normalVideos");
 
 const videoElements = {};
 
-/* UI */
+/* UI update */
 function updateUI(id) {
   const v = videoElements[id];
   if (!v) return;
 
   const total = v.totalViews || 0;
   const cycle = v.cycleViews || 0;
-
   const isTrending = cycle >= 10;
 
   const target = isTrending ? trendingContainer : normalContainer;
+
+  /* ✅ Move element only if needed */
   if (v.box.parentElement !== target) {
-    target.appendChild(v.box);
+    if (isTrending) {
+      target.insertBefore(v.box, target.firstChild); // trending goes top
+    } else {
+      target.appendChild(v.box);
+    }
   }
 
+  /* UI text */
   v.views.textContent = isTrending
     ? `🔥 Trending | 👁 ${total}`
     : `👁 ${total}`;
