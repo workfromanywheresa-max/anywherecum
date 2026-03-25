@@ -38,9 +38,10 @@ async function sendToWorker(videoId) {
   }
 }
 
+/* ✅ FIXED: prefix clicked_ */
 function increaseViews(videoId) {
   if (TEST_MODE) return;
-  sendToWorker(videoId);
+  sendToWorker("clicked_" + videoId);
 }
 
 /* Containers */
@@ -60,16 +61,14 @@ function updateUI(id) {
 
   const target = isTrending ? trendingContainer : normalContainer;
 
-  /* ✅ Move element only if needed */
   if (v.box.parentElement !== target) {
     if (isTrending) {
-      target.insertBefore(v.box, target.firstChild); // trending goes top
+      target.insertBefore(v.box, target.firstChild);
     } else {
       target.appendChild(v.box);
     }
   }
 
-  /* UI text */
   v.views.textContent = isTrending
     ? `🔥 Trending | 👁 ${total}`
     : `👁 ${total}`;
@@ -149,7 +148,6 @@ fetch(dataSource)
       cycleViews: 0
     };
 
-    /* Firebase listeners */
     onValue(ref(db, "views/" + v.id), snap => {
       videoElements[v.id].totalViews = snap.val() || 0;
       updateUI(v.id);
