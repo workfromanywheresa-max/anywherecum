@@ -20,7 +20,7 @@ const dataSource = config.dataSource || "videos.json";
 if (folderName) {
   document.getElementById("folderTitle").textContent = folderName.toUpperCase();
 } else if (dataSource.includes("vip")) {
-  document.getElementById("folderTitle").textContent = "VIP VIDEOS";
+  document.getElementById("folderTitle").textContent = "VIP Exclusive";
 } else {
   document.getElementById("folderTitle").textContent = "ALL VIDEOS";
 }
