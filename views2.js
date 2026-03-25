@@ -17,8 +17,6 @@ const folderName = (config.folder || "").toLowerCase();
 const dataSource = config.dataSource || "videos.json";
 
 /* Title */
-
-// Helper function: Title Case
 function toTitleCase(str) {
   return str
     .toLowerCase()
@@ -35,7 +33,7 @@ if (folderName) {
   document.getElementById("folderTitle").textContent = "ALL VIDEOS";
 }
 
-/* ✅ Format Views (K / M ONLY for totalViews) */
+/* Format Views */
 function formatViews(num) {
   if (num >= 1000000) {
     return (num / 1000000).toFixed(1).replace(".0", "") + "M";
@@ -59,7 +57,7 @@ async function sendToWorker(videoId) {
   }
 }
 
-/* ✅ prefix clicked_ */
+/* Increase Views */
 function increaseViews(videoId) {
   if (TEST_MODE) return;
   sendToWorker("clicked_" + videoId);
@@ -116,6 +114,7 @@ fetch(dataSource)
     const wrapper = document.createElement("div");
     wrapper.className = "videoFrameWrapper";
 
+    /* THUMBNAIL */
     const thumb = document.createElement("img");
     thumb.className = "thumbnail";
     thumb.src = "https://anywherecum.pages.dev/images/" + v.thumbnail;
@@ -124,7 +123,10 @@ fetch(dataSource)
       increaseViews(v.id);
 
       const iframe = document.createElement("iframe");
-      iframe.src = v.url;
+      iframe.src = v.embed; // ✅ USE EMBED HERE
+      iframe.width = "100%";
+      iframe.height = "100%";
+      iframe.frameBorder = "0";
       iframe.allowFullscreen = true;
 
       wrapper.innerHTML = "";
@@ -133,19 +135,22 @@ fetch(dataSource)
 
     wrapper.appendChild(thumb);
 
+    /* TITLE */
     const title = document.createElement("h3");
     title.className = "videoTitle";
     title.textContent = v.title;
 
     title.onclick = () => {
       increaseViews(v.id);
-      window.open(v.url, "_blank");
+      window.open(v.url, "_blank"); // ✅ DOWNLOAD LINK
     };
 
+    /* VIEWS */
     const views = document.createElement("div");
     views.className = "views";
     views.textContent = "👁 0";
 
+    /* DOWNLOAD BUTTON */
     const btn = document.createElement("a");
     btn.className = "download";
     btn.href = "#";
@@ -154,7 +159,7 @@ fetch(dataSource)
     btn.onclick = (e) => {
       e.preventDefault();
       increaseViews(v.id);
-      window.open(v.url, "_blank");
+      window.open(v.url, "_blank"); // ✅ DOWNLOAD LINK
     };
 
     box.appendChild(wrapper);
