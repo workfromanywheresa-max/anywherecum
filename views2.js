@@ -35,6 +35,17 @@ if (folderName) {
   document.getElementById("folderTitle").textContent = "ALL VIDEOS";
 }
 
+/* ✅ Format Views (K / M ONLY for totalViews) */
+function formatViews(num) {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1).replace(".0", "") + "M";
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1).replace(".0", "") + "K";
+  }
+  return num;
+}
+
 /* Worker */
 async function sendToWorker(videoId) {
   try {
@@ -48,7 +59,7 @@ async function sendToWorker(videoId) {
   }
 }
 
-/* ✅ FIXED: prefix clicked_ */
+/* ✅ prefix clicked_ */
 function increaseViews(videoId) {
   if (TEST_MODE) return;
   sendToWorker("clicked_" + videoId);
@@ -79,9 +90,11 @@ function updateUI(id) {
     }
   }
 
+  const formatted = formatViews(total);
+
   v.views.textContent = isTrending
-    ? `🔥 Trending | 👁 ${total}`
-    : `👁 ${total}`;
+    ? `🔥 Trending | 👁 ${formatted}`
+    : `👁 ${formatted}`;
 
   v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
 }
