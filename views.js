@@ -62,7 +62,7 @@ function trackPreviewClick(folderName) {
 /* expose globally */
 window.trackPreviewClick = trackPreviewClick;
 
-/* ---------------- Auto-detect preview clicks (optional) ---------------- */
+/* ---------------- Auto-detect preview clicks ---------------- */
 document.addEventListener("click", function (e) {
 
   const preview = e.target.closest(".folder-preview");
@@ -80,7 +80,18 @@ document.addEventListener("click", function (e) {
 /* ---------------- Run page tracking ---------------- */
 trackPage(pageName);
 
-/* ================= FIREBASE LIVE COUNTER (pageViews only) ================= */
+/* ================= FORMAT FUNCTION (K / M) ================= */
+function formatViews(num) {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1).replace(".0", "") + "M";
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1).replace(".0", "") + "K";
+  }
+  return num;
+}
+
+/* ================= FIREBASE LIVE COUNTER ================= */
 
 const pageRef = ref(db, "pageViews");
 
@@ -102,6 +113,6 @@ onValue(pageRef, (snapshot) => {
 
   const el = document.getElementById("adminViews");
   if (el) {
-    el.innerText = `👁${total} | Admin`;
+    el.innerText = `👁${formatViews(total)} | Admin`;
   }
 });
