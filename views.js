@@ -31,7 +31,7 @@ async function sendToWorker(type) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        type: type,              // 👈 IMPORTANT (folder/video/page)
+        type: type,              // 👈 IMPORTANT
         sessionId: sessionId,
         timestamp: Date.now()
       })
@@ -49,7 +49,8 @@ function trackPage(pageName) {
 
   sessionStorage.setItem(key, "1");
 
-  sendToWorker(pageName); // 👈 ONLY WORKER
+  // ✅ FIX: send page_ prefix
+  sendToWorker(key);
 }
 
 /* ---------------- Preview Click Tracking ---------------- */
@@ -60,7 +61,7 @@ function trackPreviewClick(type) {
 
   sessionStorage.setItem(key, "1");
 
-  sendToWorker(type); // 👈 ONLY WORKER
+  sendToWorker(type); // videos/folders stay normal
 }
 
 /* ---------------- Detect Page ---------------- */
@@ -77,15 +78,21 @@ if (path === "/" || path === "/index.html") {
 /* ---------------- Track Page ---------------- */
 trackPage(pageName);
 
-/* ---------------- Admin Counter (READ ONLY) ---------------- */
+/* ---------------- Admin Counter (FILTERED) ---------------- */
 async function updateAdminCount() {
   let total = 0;
 
-  const snap = await get(ref(db, "views")); // 👈 use worker-written data
+  const snap = await get(ref(db, "views"));
 
   if (snap.exists()) {
     const data = snap.val();
-    Object.values(data).forEach(v => total += v || 0);
+
+    Object.entries(data).forEach(([key, v]) => {
+      // ✅ ONLY count pages
+      if (key === "page_home" || key.startsWith("page_")) {
+        total += v || 0;
+      }
+    });
   }
 
   const el = document.getElementById("adminViews");
