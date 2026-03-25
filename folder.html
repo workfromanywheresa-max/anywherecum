@@ -12,7 +12,6 @@ body {
   color: #fff;
   margin: 0;
   padding: 15px;
-  text-align: center;
 }
 
 button {
@@ -27,46 +26,74 @@ button {
 
 h2 {
   color: #ff4444;
+  text-align: center;
   border-bottom: 2px solid #ff4444;
   padding-bottom: 5px;
 }
 
 #folderDescription {
+  text-align: center;
   color: #aaa;
   font-size: 14px;
 }
 
-/* ✅ CLEAN VIDEO STYLE */
-.video-container {
-  width: 100%;
-  max-width: 560px;
-  margin: 20px auto;
-  position: relative;
-  aspect-ratio: 16 / 9;
+/* VIDEO BOX */
+.videoBox {
+  background: #222;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
 }
 
-.video-container iframe {
+/* ✅ CLEAN 16:9 PLAYER */
+.videoFrameWrapper {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+}
+
+.videoFrameWrapper iframe,
+.videoFrameWrapper img {
   width: 100%;
   height: 100%;
   border: 0;
+  object-fit: cover;
 }
 
-/* OPTIONAL TEXT */
+/* TEXT */
 .videoTitle {
-  margin: 5px 0;
+  text-align: center;
+  margin: 6px 0;
   font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 .views {
+  text-align: center;
   color: #aaa;
+  margin: 2px 0;
+  font-size: 12px;
+}
+
+.download {
+  display: block;
+  width: fit-content;
+  margin: 6px auto;
+  padding: 5px 10px;
+  background: #ff4444;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
   font-size: 12px;
 }
 </style>
-
-<!-- ADS SCRIPT (UNCHANGED) -->
-<script type="text/javascript" data-cfasync="false">
-(function(){var w=window,g="df943b45b977a586b18d9719f0624516",f=[["siteId",789+848+320+5284519],["minBid",0],["popundersPerIP","0"],["delayBetween",0],["default",false],["defaultPerDay",0],["topmostLayer","auto"]],e=["d3d3LmRpc3BsYXl2ZXJ0aXNpbmcuY29tL0RDZXFwYy9UcGUvYmFuY2hvci5taW4uanM=","ZDNtem9rdHk5NTFjNXcuY2xvdWRmcm9udC5uZXQvempxdWVyeS1sYW5nLm1pbi5qcw==","d3d3LmNncWN1c2tidGN1c3hsLmNvbS9uSFRzY2QvbXN0L2JhbmNob3IubWluLmpz","d3d3LmZveHRseXR2cy5jb20vdGpxdWVyeS1sYW5nLm1pbi5qcw=="],j=-1,t,r,l=function(){clearTimeout(r);j++;if(e[j]){t=w.document.createElement("script");t.type="text/javascript";t.async=!0;var s=w.document.getElementsByTagName("script")[0];t.src="https://"+atob(e[j]);t.crossOrigin="anonymous";t.onerror=l;t.onload=function(){clearTimeout(r)};r=setTimeout(l,5E3);s.parentNode.insertBefore(t,s)}};if(!w[g]){try{Object.freeze(w[g]=f)}catch(e){}l()}})();
-</script>
 
 </head>
 
@@ -75,72 +102,122 @@ h2 {
 <button onclick="history.back()">← Back</button>
 
 <h2 id="folderTitle">Folder</h2>
+
 <p id="folderDescription">
   Enjoy our videos, updated regularly for your viewing pleasure.
 </p>
 
-<!-- TOP AD -->
-<div style="width:320px; margin:10px auto;">
-<script>
-atOptions = {
-  'key' : '58e0d60dc3ec78d2ff8981481d093080',
-  'format' : 'iframe',
-  'height' : 50,
-  'width' : 320
-};
-</script>
-<script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
+<!-- AD 1 -->
+<div style="
+text-align: center;
+position: relative;
+width: 320px;
+height: 50px;
+margin: auto;
+border: 2px solid red;
+border-radius: 12px;
+overflow: hidden;
+background: #fff;
+">
+
+  <div id="adContainer" style="width:100%; height:100%;">
+    <script>
+      atOptions = {
+        'key' : '58e0d60dc3ec78d2ff8981481d093080',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
+    </script>
+    <script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
+  </div>
 </div>
 
-<!-- VIDEOS -->
-<div id="videos"></div>
+<div id="trendingVideos"></div>
+<div id="normalVideos"></div>
 
-<!-- SKELETON -->
-<div id="skeleton" style="
-width:100%;
-height:250px;
-border-radius:10px;
-background:linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
-background-size:200% 100%;
-animation:shimmer 1.5s infinite;">
+<!-- Skeleton Ad Loader -->
+<div id="skeleton" class="skeleton"></div>
+
+<div id="ad-container">
+  <script async="async" data-cfasync="false"
+    src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js">
+  </script>
+  <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
 </div>
 
 <style>
+.skeleton {
+  width: 100%;
+  height: 250px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
 @keyframes shimmer {
-  0% { background-position:-200% 0; }
-  100% { background-position:200% 0; }
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+#ad-container {
+  display: none;
 }
 </style>
 
-<!-- LOAD VIDEOS -->
 <script>
-fetch("videos.json")
-  .then(res => res.json())
-  .then(data => {
-    const container = document.getElementById("videos");
-    const skeleton = document.getElementById("skeleton");
+const skeleton = document.getElementById("skeleton");
+const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
+const adWrapper = document.getElementById("ad-container");
 
-    container.innerHTML = "";
-
-    data.forEach(video => {
-      container.innerHTML += `
-        <div class="video-container">
-          <iframe src="${video.url}" allowfullscreen></iframe>
-        </div>
-
-        <div class="videoTitle">${video.title}</div>
-        <div class="views">${video.views || 0} views</div>
-      `;
-    });
-
+const observer = new MutationObserver((mutations, obs) => {
+  if (adContainer.children.length > 0) {
     skeleton.style.display = "none";
-  });
+    adWrapper.style.display = "block";
+    obs.disconnect();
+  }
+});
+
+observer.observe(adContainer, { childList: true, subtree: true });
 </script>
 
 <!-- FOOTER -->
 <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
-© 2026 AnywhereCum – Legal content only. 18+
+© 2026 AnywhereCum – Legal content only. 18+<br>
+
+<div style="margin-top:8px; font-size:8px;">
+
+  <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank" style="margin:0 5px;">
+    <img src="https://www.facebook.com/images/fb_icon_325x325.png" style="width:14px;height:14px;">
+  </a><span>|</span>
+
+  <a href="contact.html" style="color:#ff4444; margin:0 5px;">📨Contact</a><span>|</span>
+
+  <a href="terms-privacy.html" style="color:#ff4444; margin:0 5px;">⚖️Terms & Privacy</a><span>|</span>
+
+  <a href="/" style="color:#ff4444; margin:0 5px;">🏠Home</a><span>|</span>
+
+  <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" style="color:#ff4444;">
+    ⬆️Back to Top
+  </a>
+
+</div>
 </footer>
+
+<!-- CONFIG FOR JS -->
+<script>
+const params = new URLSearchParams(window.location.search);
+
+window.VIDEO_CONFIG = {
+  dataSource: "videos.json",
+  folder: params.get("folder") || ""
+};
+</script>
+
+<!-- LOAD LOGIC -->
+<script type="module" src="views2.js"></script>
 
 </body>
 </html>
