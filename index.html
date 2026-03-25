@@ -593,12 +593,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const thumb=document.createElement('img'); 
       thumb.src=BASE_URL + latest.thumbnail; 
       thumb.alt=folderName; 
-      thumb.onclick=()=>window.open("folder.html?folder="+encodeURIComponent(folderName), "");
+      thumb.onclick=()=>window.open("folder.html?folder="+encodeURIComponent(folderName), "_self");
 
       const link=document.createElement('a'); 
       link.className="folder-link"; 
       link.href="folder.html?folder="+encodeURIComponent(folderName); 
-      link.target=""; // <-- NEW TAB
+      link.target="_self"; // <-- NEW TAB
       link.textContent=folderName;
 
       li.appendChild(thumb); 
