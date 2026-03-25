@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/fireba
 import { getDatabase, ref, get } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-/* ---------------- Firebase (READ ONLY) ---------------- */
+/* ---------------- Firebase ---------------- */
 const firebaseConfig = {
   apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
@@ -27,12 +27,10 @@ async function sendToWorker(type) {
   try {
     await fetch(WORKER_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        type: type,              // 👈 IMPORTANT
-        sessionId: sessionId,
+        type,
+        sessionId,
         timestamp: Date.now()
       })
     });
@@ -41,19 +39,18 @@ async function sendToWorker(type) {
   }
 }
 
-/* ---------------- Track Page (ONCE) ---------------- */
+/* ---------------- Track Page ---------------- */
 function trackPage(pageName) {
-  const key = "page_" + pageName;
+  const key = pageName; // ✅ NO prefix
 
-  if (sessionStorage.getItem(key)) return;
+  if (sessionStorage.getItem("page_" + key)) return;
 
-  sessionStorage.setItem(key, "1");
+  sessionStorage.setItem("page_" + key, "1");
 
-  // ✅ FIX: send page_ prefix
   sendToWorker(key);
 }
 
-/* ---------------- Preview Click Tracking ---------------- */
+/* ---------------- Track Clicks ---------------- */
 function trackPreviewClick(type) {
   const key = "clicked_" + type;
 
@@ -61,7 +58,7 @@ function trackPreviewClick(type) {
 
   sessionStorage.setItem(key, "1");
 
-  sendToWorker(type); // videos/folders stay normal
+  sendToWorker(type);
 }
 
 /* ---------------- Detect Page ---------------- */
@@ -78,20 +75,17 @@ if (path === "/" || path === "/index.html") {
 /* ---------------- Track Page ---------------- */
 trackPage(pageName);
 
-/* ---------------- Admin Counter (FILTERED) ---------------- */
+/* ---------------- Admin Counter ---------------- */
 async function updateAdminCount() {
   let total = 0;
 
-  const snap = await get(ref(db, "views"));
+  const snap = await get(ref(db, "pageViews")); // still pageViews
 
   if (snap.exists()) {
     const data = snap.val();
 
-    Object.entries(data).forEach(([key, v]) => {
-      // ✅ ONLY count pages
-      if (key === "page_home" || key.startsWith("page_")) {
-        total += v || 0;
-      }
+    Object.values(data).forEach(v => {
+      total += v || 0;
     });
   }
 
@@ -101,7 +95,6 @@ async function updateAdminCount() {
   }
 }
 
-/* ---------------- Init ---------------- */
 updateAdminCount();
 setInterval(updateAdminCount, 10000);
 
