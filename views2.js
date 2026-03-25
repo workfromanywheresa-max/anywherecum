@@ -17,8 +17,18 @@ const folderName = (config.folder || "").toLowerCase();
 const dataSource = config.dataSource || "videos.json";
 
 /* Title */
+
+// Helper function: Title Case
+function toTitleCase(str) {
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 if (folderName) {
-  document.getElementById("folderTitle").textContent = folderName.toUpperCase();
+  document.getElementById("folderTitle").textContent = toTitleCase(folderName);
 } else if (dataSource.includes("vip")) {
   document.getElementById("folderTitle").textContent = "🔐VIP Exclusive";
 } else {
