@@ -1,23 +1,18 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, runTransaction, get } 
+import { getDatabase, ref, get } 
 from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-/* ---------------- Firebase Config ---------------- */
+/* ---------------- Firebase (READ ONLY) ---------------- */
 const firebaseConfig = {
   apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
-  authDomain: "anywherecum-1c8d0.firebaseapp.com",
-  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com",
-  projectId: "anywherecum-1c8d0",
-  storageBucket: "anywherecum-1c8d0.firebasestorage.app",
-  messagingSenderId: "686718460803",
-  appId: "1:686718460803:web:78827198d1be2904d98cb6"
+  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ---------------- Worker Config ---------------- */
-const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/";
+/* ---------------- Worker ---------------- */
+const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
 
 /* ---------------- Session ID ---------------- */
 let sessionId = sessionStorage.getItem("sessionId");
@@ -28,7 +23,7 @@ if (!sessionId) {
 }
 
 /* ---------------- Send to Worker ---------------- */
-async function sendToWorker(pageName) {
+async function sendToWorker(type) {
   try {
     await fetch(WORKER_URL, {
       method: "POST",
@@ -36,7 +31,7 @@ async function sendToWorker(pageName) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        page: pageName,
+        type: type,              // 👈 IMPORTANT (folder/video/page)
         sessionId: sessionId,
         timestamp: Date.now()
       })
@@ -46,12 +41,15 @@ async function sendToWorker(pageName) {
   }
 }
 
-/* ---------------- Track Once (Firebase Page Views) ---------------- */
-function trackOnce(key, firebasePath) {
+/* ---------------- Track Page (ONCE) ---------------- */
+function trackPage(pageName) {
+  const key = "page_" + pageName;
+
   if (sessionStorage.getItem(key)) return;
 
   sessionStorage.setItem(key, "1");
-  runTransaction(ref(db, firebasePath), (v) => (v || 0) + 1);
+
+  sendToWorker(pageName); // 👈 ONLY WORKER
 }
 
 /* ---------------- Preview Click Tracking ---------------- */
@@ -62,9 +60,7 @@ function trackPreviewClick(type) {
 
   sessionStorage.setItem(key, "1");
 
-  runTransaction(ref(db, "pageViews/" + type), (v) => (v || 0) + 1);
-
-  sendToWorker(type);
+  sendToWorker(type); // 👈 ONLY WORKER
 }
 
 /* ---------------- Detect Page ---------------- */
@@ -78,22 +74,17 @@ if (path === "/" || path === "/index.html") {
   pageName = path.split("/").filter(Boolean).pop().replace(".html", "");
 }
 
-/* ---------------- Track Page View ---------------- */
-trackOnce("page_" + pageName, "pageViews/" + pageName);
+/* ---------------- Track Page ---------------- */
+trackPage(pageName);
 
-/* ---------------- Send to Worker (once per page/session) ---------------- */
-if (!sessionStorage.getItem("worker_" + pageName)) {
-  sessionStorage.setItem("worker_" + pageName, "1");
-  sendToWorker(pageName);
-}
-
-/* ---------------- Update Admin Total ---------------- */
+/* ---------------- Admin Counter (READ ONLY) ---------------- */
 async function updateAdminCount() {
   let total = 0;
 
-  const pageSnap = await get(ref(db, "pageViews"));
-  if (pageSnap.exists()) {
-    const data = pageSnap.val();
+  const snap = await get(ref(db, "views")); // 👈 use worker-written data
+
+  if (snap.exists()) {
+    const data = snap.val();
     Object.values(data).forEach(v => total += v || 0);
   }
 
@@ -105,12 +96,7 @@ async function updateAdminCount() {
 
 /* ---------------- Init ---------------- */
 updateAdminCount();
-
-/* ---------------- Auto Refresh ---------------- */
 setInterval(updateAdminCount, 10000);
 
-/* =========================================================
-   GLOBAL HELPER (used by HTML)
-========================================================= */
+/* ---------------- GLOBAL ---------------- */
 window.trackPreviewClick = trackPreviewClick;
-window.sessionStorage = sessionStorage;
