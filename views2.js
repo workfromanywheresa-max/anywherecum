@@ -98,8 +98,6 @@ fetch(dataSource)
     ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
     : videos;
 
-  const baseURL = "https://anywherecum.pages.dev/images";
-
   filtered.forEach(v => {
 
     const box = document.createElement("div");
@@ -110,7 +108,9 @@ fetch(dataSource)
 
     /* Thumbnail */
     const thumb = document.createElement("img");
-    thumb.src = `${baseURL}/${encodeURIComponent(v.folder)}/${encodeURIComponent(v.thumbnail)}`;
+
+    // ✅ FIXED: load directly from images folder using filename
+    thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(v.thumbnail)}`;
 
     thumb.onclick = () => {
       increaseViews(v.id);
