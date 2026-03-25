@@ -98,6 +98,8 @@ fetch(dataSource)
     ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
     : videos;
 
+  const baseURL = "https://anywherecum.pages.dev/images";
+
   filtered.forEach(v => {
 
     const box = document.createElement("div");
@@ -106,9 +108,9 @@ fetch(dataSource)
     const wrapper = document.createElement("div");
     wrapper.className = "videoFrameWrapper";
 
-    /* ✅ Folder-based thumbnail */
+    /* Thumbnail */
     const thumb = document.createElement("img");
-    thumb.src = `https://anywherecum.pages.dev/images/${v.folder}/${v.thumbnail}`;
+    thumb.src = `${baseURL}/${encodeURIComponent(v.folder)}/${encodeURIComponent(v.thumbnail)}`;
 
     thumb.onclick = () => {
       increaseViews(v.id);
