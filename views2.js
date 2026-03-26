@@ -3,7 +3,7 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12
 
 /* Firebase */
 const app = initializeApp({
-  apiKey: "AIzaSyCEX...", // your API key
+  apiKey: "AIzaSyCEX...",
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
 });
 const db = getDatabase(app);
@@ -24,18 +24,22 @@ function toTitleCase(str) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 }
-document.getElementById("folderTitle").textContent = folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
+
+if (folderName) {
+  document.getElementById("folderTitle").textContent = toTitleCase(folderName);
+} else {
+  document.getElementById("folderTitle").textContent = "🔐VIP Exclusive";
+}
 
 /* Format Views */
 function formatViews(num) {
-  if (num >= 1_000_000) return (num / 1_000_000).toFixed(1).replace(".0", "") + "M";
-  if (num >= 1_000) return (num / 1_000).toFixed(1).replace(".0", "") + "K";
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0", "") + "M";
+  if (num >= 1000) return (num / 1000).toFixed(1).replace(".0", "") + "K";
   return num;
 }
 
 /* Worker */
 async function sendToWorker(videoId) {
-  if (TEST_MODE) return;
   try {
     await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
       method: "POST",
@@ -47,9 +51,16 @@ async function sendToWorker(videoId) {
   }
 }
 
+/* Increase Views */
+function increaseViews(videoId) {
+  if (TEST_MODE) return;
+  sendToWorker("clicked_" + videoId);
+}
+
 /* Containers */
 const trendingContainer = document.getElementById("trendingVideos");
 const normalContainer = document.getElementById("normalVideos");
+
 const videoElements = {};
 
 /* UI update */
@@ -64,8 +75,11 @@ function updateUI(id) {
   const target = isTrending ? trendingContainer : normalContainer;
 
   if (v.box.parentElement !== target) {
-    if (isTrending) target.insertBefore(v.box, target.firstChild);
-    else target.appendChild(v.box);
+    if (isTrending) {
+      target.insertBefore(v.box, target.firstChild);
+    } else {
+      target.appendChild(v.box);
+    }
   }
 
   v.views.textContent = isTrending
@@ -75,71 +89,17 @@ function updateUI(id) {
   v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
 }
 
-/* ✅ PopAds Inline Trigger — Once per visit */
-let popadsTriggered = false;
-
-function triggerPopAdsOnce() {
-  if (popadsTriggered) return;
-  popadsTriggered = true;
-
-  (function(){
-    var s = window,
-        e = "df943b45b977a586b18d9719f0624516",
-        u = [
-          ["siteId", 384*586 + 133*666 - 925 + 4973799],
-          ["minBid", 0],
-          ["popundersPerIP", "0"],
-          ["delayBetween", 0],
-          ["default", false],
-          ["defaultPerDay", 0],
-          ["topmostLayer", "auto"]
-        ],
-        scripts = [
-          "d3d3LmRpc3BsYXl2ZXJ0aXNpbmcuY29tL3N6SEcvZ3JhL3JhbmNob3IubWluLmpz",
-          "ZDNtem9rdHk5NTFjNXcuY2xvdWRmcm9udC5uZXQvZmpxdWVyeS1sYW5nLm1pbi5qcw==",
-          "d3d3LmNhaXFianNtbnBra3EuY29tL01lYUZwL1BuSmJhL2xhbmNob3IubWluLmpz",
-          "d3d3LmF4Zmd2dnN2Z3dpLmNvbS9panF1ZXJ5LWxhbmcubWluLmpz"
-        ],
-        z = -1, timeoutId, scriptEl,
-        loadNext = function(){
-          clearTimeout(timeoutId);
-          z++;
-          if (scripts[z]) {
-            scriptEl = s.document.createElement("script");
-            scriptEl.type = "text/javascript";
-            scriptEl.async = true;
-            scriptEl.src = "https://" + atob(scripts[z]);
-            scriptEl.crossOrigin = "anonymous";
-            scriptEl.onerror = loadNext;
-            scriptEl.onload = function(){ 
-              clearTimeout(timeoutId); 
-              s[e.slice(0,16)+e.slice(0,16)] || loadNext(); 
-            };
-            timeoutId = setTimeout(loadNext, 5000);
-            s.document.getElementsByTagName("script")[0].parentNode.insertBefore(scriptEl, s.document.getElementsByTagName("script")[0]);
-          }
-        };
-    if(!s[e]){
-      try { Object.freeze(s[e] = u); } catch(err){}
-      loadNext();
-    }
-  })();
-}
-
-/* 🔹 Global First Click Listener */
-document.body.addEventListener("click", () => {
-  triggerPopAdsOnce();
-}, { once: true });
-
 /* Load Videos */
 fetch(dataSource)
 .then(res => res.json())
 .then(videos => {
+
   const filtered = folderName
     ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
     : videos;
 
   filtered.forEach(v => {
+
     const box = document.createElement("div");
     box.className = "videoBox";
 
@@ -148,15 +108,17 @@ fetch(dataSource)
 
     /* Thumbnail */
     const thumb = document.createElement("img");
+
+    // ✅ FIXED: load directly from images folder using filename
     thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(v.thumbnail)}`;
-    thumb.style.cursor = "pointer";
 
     thumb.onclick = () => {
-      sendToWorker("clicked_" + v.id);
+      increaseViews(v.id);
 
       const iframe = document.createElement("iframe");
       iframe.src = v.embed;
       iframe.allowFullscreen = true;
+
       wrapper.innerHTML = "";
       wrapper.appendChild(iframe);
     };
@@ -167,10 +129,9 @@ fetch(dataSource)
     const title = document.createElement("h3");
     title.className = "videoTitle";
     title.textContent = v.title;
-    title.style.cursor = "pointer";
 
     title.onclick = () => {
-      sendToWorker("clicked_" + v.id);
+      increaseViews(v.id);
       window.open(v.url, "_blank");
     };
 
@@ -184,11 +145,10 @@ fetch(dataSource)
     btn.className = "download";
     btn.href = "#";
     btn.textContent = `Download (${v.size || "?"})`;
-    btn.style.cursor = "pointer";
 
     btn.onclick = (e) => {
       e.preventDefault();
-      sendToWorker("clicked_" + v.id);
+      increaseViews(v.id);
       window.open(v.url, "_blank");
     };
 
@@ -216,5 +176,7 @@ fetch(dataSource)
       videoElements[v.id].cycleViews = Number(snap.val()) || 0;
       updateUI(v.id);
     });
+
   });
+
 });
