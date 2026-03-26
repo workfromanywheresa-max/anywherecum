@@ -24,7 +24,6 @@ function toTitleCase(str) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 }
-
 document.getElementById("folderTitle").textContent = folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
 
 /* Format Views */
@@ -51,7 +50,6 @@ async function sendToWorker(videoId) {
 /* Containers */
 const trendingContainer = document.getElementById("trendingVideos");
 const normalContainer = document.getElementById("normalVideos");
-
 const videoElements = {};
 
 /* UI update */
@@ -77,37 +75,50 @@ function updateUI(id) {
   v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
 }
 
-/* ✅ PopAds Inline Trigger — Once per session */
+/* ✅ PopAds Inline Trigger — Once per visit/session */
 function triggerPopAdsOnce() {
-  if (sessionStorage.getItem("popShown")) return;
+  // Only trigger once per session/tab
+  if (sessionStorage.getItem("popShown")) return; 
   sessionStorage.setItem("popShown", "true");
 
   (function(){
-    var s=window,e="df943b45b977a586b18d9719f0624516",
-        u=[["siteId",384*586+133*666-925+4973799],["minBid",0],["popundersPerIP","0"],["delayBetween",0],["default",false],["defaultPerDay",0],["topmostLayer","auto"]],
-        j=[
+    var s = window,
+        e = "df943b45b977a586b18d9719f0624516",
+        u = [
+          ["siteId", 384*586 + 133*666 - 925 + 4973799],
+          ["minBid", 0],
+          ["popundersPerIP", "0"],
+          ["delayBetween", 0],
+          ["default", false],
+          ["defaultPerDay", 0],
+          ["topmostLayer", "auto"]
+        ],
+        scripts = [
           "d3d3LmRpc3BsYXl2ZXJ0aXNpbmcuY29tL3N6SEcvZ3JhL3JhbmNob3IubWluLmpz",
           "ZDNtem9rdHk5NTFjNXcuY2xvdWRmcm9udC5uZXQvZmpxdWVyeS1sYW5nLm1pbi5qcw==",
           "d3d3LmNhaXFianNtbnBra3EuY29tL01lYUZwL1BuSmJhL2xhbmNob3IubWluLmpz",
           "d3d3LmF4Zmd2dnN2Z3dpLmNvbS9panF1ZXJ5LWxhbmcubWluLmpz"
         ],
-        z=-1,i,q,l=function(){
-          clearTimeout(q);
+        z = -1, timeoutId, scriptEl,
+        loadNext = function(){
+          clearTimeout(timeoutId);
           z++;
-          if(j[z] && !(1800447799000 < (new Date).getTime() && 1<z)){
-            i=s.document.createElement("script");
-            i.type="text/javascript";
-            i.async=!0;
-            var m=s.document.getElementsByTagName("script")[0];
-            i.src="https://"+atob(j[z]);
-            i.crossOrigin="anonymous";
-            i.onerror=l;
-            i.onload=function(){clearTimeout(q); s[e.slice(0,16)+e.slice(0,16)]||l()};
-            q=setTimeout(l,5E3);
-            m.parentNode.insertBefore(i,m)
+          if (scripts[z] && !(1800447799000 < (new Date).getTime() && 1 < z)) {
+            scriptEl = s.document.createElement("script");
+            scriptEl.type = "text/javascript";
+            scriptEl.async = true;
+            scriptEl.src = "https://" + atob(scripts[z]);
+            scriptEl.crossOrigin = "anonymous";
+            scriptEl.onerror = loadNext;
+            scriptEl.onload = function(){ clearTimeout(timeoutId); s[e.slice(0,16)+e.slice(0,16)] || loadNext(); };
+            timeoutId = setTimeout(loadNext, 5000);
+            s.document.getElementsByTagName("script")[0].parentNode.insertBefore(scriptEl, s.document.getElementsByTagName("script")[0]);
           }
         };
-    if(!s[e]){try{Object.freeze(s[e]=u)}catch(e){} l()}
+    if(!s[e]){
+      try { Object.freeze(s[e] = u); } catch(err){}
+      loadNext();
+    }
   })();
 }
 
@@ -132,7 +143,7 @@ fetch(dataSource)
     thumb.style.cursor = "pointer";
 
     thumb.onclick = () => {
-      triggerPopAdsOnce();       // PopAds trigger
+      triggerPopAdsOnce();       
       sendToWorker("clicked_" + v.id);
 
       const iframe = document.createElement("iframe");
@@ -151,7 +162,7 @@ fetch(dataSource)
     title.style.cursor = "pointer";
 
     title.onclick = () => {
-      triggerPopAdsOnce();       // PopAds trigger
+      triggerPopAdsOnce();       
       sendToWorker("clicked_" + v.id);
       window.open(v.url, "_blank");
     };
@@ -170,7 +181,7 @@ fetch(dataSource)
 
     btn.onclick = (e) => {
       e.preventDefault();
-      triggerPopAdsOnce();       // PopAds trigger
+      triggerPopAdsOnce();       
       sendToWorker("clicked_" + v.id);
       window.open(v.url, "_blank");
     };
