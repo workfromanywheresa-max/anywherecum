@@ -162,36 +162,6 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 @media(max-width:500px){ #popupContent button { flex:1 1 100%; } }
 </style>
 
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "3ae99ed9-8057-4f8f-83ec-82b746e5cdca",
-      notifyButton: {
-        enable: false
-      },
-      promptOptions: {
-        slidedown: {
-          enabled: true,
-          position: 'top'
-        }
-      }
-    });
-
-    setTimeout(() => {
-      const slide = document.querySelector('.onesignal-slidedown');
-      if(slide){
-        slide.style.transform = 'translateY(-100%)';
-        slide.style.transition = 'transform 0.5s ease-out';
-        requestAnimationFrame(() => {
-          slide.style.transform = 'translateY(0)';
-        });
-      }
-    }, 500);
-  });
-</script>
-
 </head>
 <body>
 
