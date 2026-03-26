@@ -3,7 +3,7 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12
 
 /* Firebase */
 const app = initializeApp({
-  apiKey: "AIzaSyCEX...",
+  apiKey: "AIzaSyCEX...", // your API key
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
 });
 const db = getDatabase(app);
@@ -76,10 +76,10 @@ function updateUI(id) {
 }
 
 /* ✅ PopAds Inline Trigger — Once per visit */
-let popadsTriggered = false; // global flag
+let popadsTriggered = false;
 
 function triggerPopAdsOnce() {
-  if (popadsTriggered) return; // already triggered on this visit
+  if (popadsTriggered) return;
   popadsTriggered = true;
 
   (function(){
@@ -111,7 +111,10 @@ function triggerPopAdsOnce() {
             scriptEl.src = "https://" + atob(scripts[z]);
             scriptEl.crossOrigin = "anonymous";
             scriptEl.onerror = loadNext;
-            scriptEl.onload = function(){ clearTimeout(timeoutId); s[e.slice(0,16)+e.slice(0,16)] || loadNext(); };
+            scriptEl.onload = function(){ 
+              clearTimeout(timeoutId); 
+              s[e.slice(0,16)+e.slice(0,16)] || loadNext(); 
+            };
             timeoutId = setTimeout(loadNext, 5000);
             s.document.getElementsByTagName("script")[0].parentNode.insertBefore(scriptEl, s.document.getElementsByTagName("script")[0]);
           }
@@ -122,6 +125,11 @@ function triggerPopAdsOnce() {
     }
   })();
 }
+
+/* 🔹 Global First Click Listener */
+document.body.addEventListener("click", () => {
+  triggerPopAdsOnce();
+}, { once: true });
 
 /* Load Videos */
 fetch(dataSource)
@@ -144,7 +152,6 @@ fetch(dataSource)
     thumb.style.cursor = "pointer";
 
     thumb.onclick = () => {
-      triggerPopAdsOnce();       
       sendToWorker("clicked_" + v.id);
 
       const iframe = document.createElement("iframe");
@@ -163,7 +170,6 @@ fetch(dataSource)
     title.style.cursor = "pointer";
 
     title.onclick = () => {
-      triggerPopAdsOnce();       
       sendToWorker("clicked_" + v.id);
       window.open(v.url, "_blank");
     };
@@ -182,7 +188,6 @@ fetch(dataSource)
 
     btn.onclick = (e) => {
       e.preventDefault();
-      triggerPopAdsOnce();       
       sendToWorker("clicked_" + v.id);
       window.open(v.url, "_blank");
     };
