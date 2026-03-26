@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnywhereCum – Video Link</title>
+
+<style>
+body {
+  margin: 0;
+  background: #1a1a1a;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+}
+
+/* Button styles */
+button {
+  padding: 18px 32px;
+  background: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  animation: glowPulse 1.6s infinite;
+}
+@keyframes glowPulse {
+  0% { transform: scale(1); box-shadow: 0 0 5px rgba(0,123,255,0.7); }
+  50% { transform: scale(1.12); box-shadow: 0 0 25px rgba(0,123,255,0.9), 0 0 50px rgba(0,123,255,0.6); }
+  100% { transform: scale(1); box-shadow: 0 0 5px rgba(0,123,255,0.7); }
+}
+button:hover { background: #0056b3; animation-play-state: paused; }
+
+/* Back button smaller */
+.back-btn {
+  padding:8px 14px;
+  background:#222;
+  color:#fff;
+  border:1px solid #ff4444;
+  border-radius:6px;
+  font-size:14px;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+/* Skeleton loader */
+.skeleton {
+  width: 100%;
+  height: 250px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Bottom ad animations */
+.slide-up { animation: slideUp 0.6s ease-out forwards; }
+.slide-down { animation: slideDown 0.4s ease-in forwards; }
+@keyframes slideUp { from { bottom: -200px; opacity:0; } to { bottom:0; opacity:1; } }
+@keyframes slideDown { from { bottom:0; opacity:1; } to { bottom:-200px; opacity:0; } }
+
+@keyframes glow { 0%{box-shadow:0 0 2px #fff,0 0 5px red;opacity:.8;}50%{box-shadow:0 0 6px #fff,0 0 12px red;opacity:1;}100%{box-shadow:0 0 2px #fff,0 0 5px red;opacity:.8;} }
+</style>
+</head>
+
+<body>
+
+  <!-- Back Button -->
+  <button class="back-btn" onclick="history.back()">← Back</button>
+
+  <!-- AD 1: JuicyAds Top Banner -->
+  <div style="width:300px; height:62px;">
+    <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+    <ins id="1113670" data-width="300" data-height="62"></ins>
+    <script type="text/javascript" data-cfasync="false" async>
+      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});
+    </script>
+  </div>
+
+  <!-- AD 2: Smart Link Button -->
+  <div style="text-align:center; margin-top:20px;">
+    <a href="https://www.profitablecpmratenetwork.com/vbmggfvr?key=39d9f6d5acf164033032ce449d3d51b1" target="_blank">
+      <button style="
+        padding: 12px 20px;
+        font-size: 16px;
+        background-color: #ff0000;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      ">
+        Click To See Video
+      </button>
+    </a>
+  </div>
+
+  <!-- AD 3: JuicyAds Medium Rectangle -->
+  <div style="width:308px; height:298px; margin-top:20px;">
+    <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+    <ins id="1113664" data-width="308" data-height="298"></ins>
+    <script type="text/javascript" data-cfasync="false" async>
+      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113664});
+    </script>
+  </div>
+
+  <!-- AD 4: HighPerformanceFormat 320x50 -->
+  <div style="width:320px; height:50px; margin-top:20px;">
+    <script>
+      atOptions = {
+        'key' : '58e0d60dc3ec78d2ff8981481d093080',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
+    </script>
+    <script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
+  </div>
+
+  <!-- Skeleton loader + Ad container example -->
+  <div id="skeleton" class="skeleton"></div>
+  <div id="ad-container" style="display:none;">
+    <script async data-cfasync="false"
+      src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js"></script>
+    <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
+  </div>
+
+  <script>
+  const skeleton = document.getElementById("skeleton");
+  const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
+  const adWrapper = document.getElementById("ad-container");
+
+  const observer = new MutationObserver((mutations, obs) => {
+    if (adContainer.children.length > 0) {
+      skeleton.style.display = "none";
+      adWrapper.style.display = "block";
+      obs.disconnect();
+    }
+  });
+  observer.observe(adContainer, { childList: true, subtree: true });
+  </script>
+
+  <!-- Bottom Floating Ad -->
+  <div id="bottomAd" style="
+    position: fixed; bottom: -200px; left: 50%;
+    transform: translateX(-50%);
+    width: 300px; height: 62px;
+    border: 2px solid red; border-radius: 8px;
+    overflow: hidden; text-align: center;
+    z-index: 9999; background: #fff; opacity: 0;
+    display: none;">
+    
+    <div id="countdown" style="position:absolute; top:2px; right:30px; background:black; color:#fff; font-size:12px; font-weight:bold; padding:2px 6px; border-radius:4px; z-index:10000;">15s</div>
+
+    <div id="closeBtn" onclick="hideAd()" style="position:absolute; top:2px; right:4px; width:20px; height:20px; line-height:20px; text-align:center; background:#000; color:#fff; font-size:14px; font-weight:bold; border-radius:4px; cursor:pointer; z-index:10001; display:none;">✕</div>
+
+    <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);background:red;color:#fff;font-weight:bold;font-size:12px;padding:2px 6px;border-bottom-left-radius:4px;border-bottom-right-radius:4px;z-index:9999;pointer-events:none;animation:glow 1s infinite alternate;">🔴 Live</div>
+
+    <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+    <ins id="1113670" data-width="300" data-height="62"></ins>
+    <script type="text/javascript" data-cfasync="false" async>
+      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});
+    </script>
+  </div>
+
+  <script>
+  const ad = document.getElementById("bottomAd");
+  const countdownEl = document.getElementById("countdown");
+  const closeBtn = document.getElementById("closeBtn");
+
+  let countdownInterval, cycleTimeout;
+
+  function showAd() {
+    ad.style.display = "block";
+    ad.classList.remove("slide-down");
+    ad.classList.add("slide-up");
+    closeBtn.style.display = "none";
+    let timeLeft = 15;
+    countdownEl.textContent = timeLeft + "s";
+    clearInterval(countdownInterval);
+    setTimeout(() => {
+      countdownInterval = setInterval(() => {
+        timeLeft--;
+        countdownEl.textContent = timeLeft + "s";
+        if(timeLeft<=0){
+          clearInterval(countdownInterval);
+          closeBtn.style.display = "block";
+        }
+      },1000);
+    },300);
+  }
+
+  function hideAd(){
+    ad.classList.remove("slide-up");
+    ad.classList.add("slide-down");
+    setTimeout(()=>{ ad.style.display="none"; scheduleNextAd(); },400);
+  }
+
+  function scheduleNextAd(){
+    clearTimeout(cycleTimeout);
+    cycleTimeout = setTimeout(()=>{ showAd(); },120000);
+  }
+
+  window.onload = function(){
+    setTimeout(()=>{ showAd(); scheduleNextAd(); },10000);
+  };
+  </script>
+
+  <!-- Footer -->
+  <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
+    © 2026 AnywhereCum – Legal content only. 18+<br>
+    <div style="margin-top:8px; font-size:8px;">
+      <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank" rel="noopener noreferrer" style="margin:0 5px;"><img src="https://www.facebook.com/images/fb_icon_325x325.png" alt="Facebook" style="width:14px; height:14px; vertical-align:middle;"></a><span>|</span>
+      <a href="contact.html" style="color:#ff4444; text-decoration:none; margin:0 5px;">📨Contact</a><span>|</span>
+      <a href="terms-privacy.html" style="color:#ff4444; text-decoration:underline; margin:0 5px;">⚖️Terms & Privacy</a><span>|</span>
+      <a href="/" style="color:#ff4444; text-decoration:none; margin:0 5px;">🏠Home</a><span>|</span>
+      <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" style="color:#ff4444; text-decoration:none; margin:0 5px; white-space:nowrap;">⬆️Back to Top</a>
+    </div>
+  </footer>
+
+  <script type="module" src="views.js"></script>
+
+</body>
+    </html>
