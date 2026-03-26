@@ -206,6 +206,162 @@ observer.observe(adContainer, { childList: true, subtree: true });
 </div>
 </footer>
 
+  <!-- BOTTOM AD (Flush + Auto Show + Countdown + Delayed Close Button + Reset Cycle) -->
+<div id="bottomAd" style="
+position: fixed;
+bottom: -200px;
+left: 50%;
+transform: translateX(-50%);
+width: 300px;
+height: 62px;
+border: 2px solid red;
+border-radius: 8px;
+overflow: hidden;
+text-align: center;
+z-index: 9999;
+background: #fff;
+opacity: 0;
+display: none;
+">
+
+  <!-- Countdown Timer -->
+  <div id="countdown"
+       style="position:absolute; top:2px; right:30px;
+       background:black; color:#fff; font-size:12px; font-weight:bold;
+       padding:2px 6px; border-radius:4px; z-index:10000;">
+    15s
+  </div>
+
+  <!-- Close Button -->
+  <div id="closeBtn"
+       onclick="hideAd()"
+       style="position:absolute; top:2px; right:4px;
+       width:20px; height:20px; line-height:20px;
+       text-align:center; background:#000; color:#fff;
+       font-size:14px; font-weight:bold; border-radius:4px;
+       cursor:pointer; z-index:10001; display:none;">
+    ✕
+  </div>
+
+  <!-- Live Badge -->
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);
+  background:red;color:#fff;font-weight:bold;font-size:12px;padding:2px 6px;
+  border-bottom-left-radius:4px;border-bottom-right-radius:4px;
+  z-index:9999;pointer-events:none;animation:glow 1s infinite alternate;">
+    🔴 Live
+  </div>
+
+  <!-- JuicyAds -->
+  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+  <ins id="1113670" data-width="300" data-height="62"></ins>
+  <script type="text/javascript" data-cfasync="false" async>
+    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});
+  </script>
+
+</div>
+
+<style>
+.slide-up {
+  animation: slideUp 0.6s ease-out forwards;
+}
+
+.slide-down {
+  animation: slideDown 0.4s ease-in forwards;
+}
+
+@keyframes slideUp {
+  from {
+    bottom: -200px;
+    opacity: 0;
+  }
+  to {
+    bottom: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    bottom: 0;
+    opacity: 1;
+  }
+  to {
+    bottom: -200px;
+    opacity: 0;
+  }
+}
+
+@keyframes glow {
+  0% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
+  50% { box-shadow:0 0 6px #fff,0 0 12px red; opacity:1; }
+  100% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
+}
+</style>
+
+<script>
+const ad = document.getElementById("bottomAd");
+const countdownEl = document.getElementById("countdown");
+const closeBtn = document.getElementById("closeBtn");
+
+let countdownInterval;
+let cycleTimeout;
+
+// Show ad
+function showAd() {
+  ad.style.display = "block";
+  ad.classList.remove("slide-down");
+  ad.classList.add("slide-up");
+
+  closeBtn.style.display = "none";
+
+  let timeLeft = 15;
+  countdownEl.textContent = timeLeft + "s";
+
+  clearInterval(countdownInterval);
+
+  // Delay countdown start to avoid rendering conflicts with ads
+  setTimeout(() => {
+    countdownInterval = setInterval(() => {
+      timeLeft--;
+      countdownEl.textContent = timeLeft + "s";
+
+      if (timeLeft <= 0) {
+        clearInterval(countdownInterval);
+        closeBtn.style.display = "block";
+      }
+    }, 1000);
+  }, 300);
+}
+
+// Hide ad
+function hideAd() {
+  ad.classList.remove("slide-up");
+  ad.classList.add("slide-down");
+
+  setTimeout(() => {
+    ad.style.display = "none";
+    scheduleNextAd();
+  }, 400);
+}
+
+// Schedule next ad in 1 minute
+function scheduleNextAd() {
+  clearTimeout(cycleTimeout);
+
+  cycleTimeout = setTimeout(() => {
+    showAd();
+  }, 120000);
+}
+
+// Initial load
+window.onload = function () {
+  setTimeout(() => {
+    showAd();
+    scheduleNextAd();
+  }, 10000);
+};
+</script>
+
 <!-- CONFIG FOR JS -->
 <script>
 const params = new URLSearchParams(window.location.search);
