@@ -75,11 +75,12 @@ function updateUI(id) {
   v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
 }
 
-/* ✅ PopAds Inline Trigger — Once per visit/session */
+/* ✅ PopAds Inline Trigger — Once per visit */
+let popadsTriggered = false; // global flag
+
 function triggerPopAdsOnce() {
-  // Only trigger once per session/tab
-  if (sessionStorage.getItem("popShown")) return; 
-  sessionStorage.setItem("popShown", "true");
+  if (popadsTriggered) return; // already triggered on this visit
+  popadsTriggered = true;
 
   (function(){
     var s = window,
@@ -103,7 +104,7 @@ function triggerPopAdsOnce() {
         loadNext = function(){
           clearTimeout(timeoutId);
           z++;
-          if (scripts[z] && !(1800447799000 < (new Date).getTime() && 1 < z)) {
+          if (scripts[z]) {
             scriptEl = s.document.createElement("script");
             scriptEl.type = "text/javascript";
             scriptEl.async = true;
