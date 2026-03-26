@@ -37,45 +37,53 @@ h2 {
   font-size: 14px;
 }
 
-/* VIDEO CARD */
+/* VIDEO BOX */
 .videoBox {
   background: #222;
-  padding: 6px;
+  padding: 10px;
   border-radius: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.thumbnail {
-  width: 100%;
-  height: 350px;
-  object-fit: cover;
-  border-radius: 8px;
-  cursor: pointer;
+.videoBox:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(255, 68, 68, 0.5);
 }
 
+/* 16:9 VIDEO PLAYER */
 .videoFrameWrapper {
   width: 100%;
-  height: 350px;
+  max-width: 400px;
+  margin: 0 auto;
   position: relative;
+  aspect-ratio: 16 / 9;
   border-radius: 8px;
   overflow: hidden;
+  background: #000;
 }
 
-.videoFrameWrapper iframe {
+.videoFrameWrapper iframe,
+.videoFrameWrapper img {
   width: 100%;
-  height: 560px;
-  position: absolute;
-  top: -210px;
-  left: 0;
+  height: 100%;
   border: 0;
+  object-fit: cover;
 }
 
+/* TEXT */
 .videoTitle {
   text-align: center;
-  margin: 4px 0;
-  font-size: 12px;
+  margin: 6px 0;
+  font-size: 13px;
   cursor: pointer;
   text-decoration: underline;
+  color: #fff;
+}
+
+.videoTitle:hover {
+  color: #ff4444;
 }
 
 .views {
@@ -89,13 +97,17 @@ h2 {
   display: block;
   width: fit-content;
   margin: 6px auto;
-  padding: 4px 10px;
+  padding: 5px 10px;
   background: #ff4444;
   color: #fff;
   text-decoration: none;
   border-radius: 5px;
   font-size: 12px;
-  text-align: center;
+  transition: background 0.2s;
+}
+
+.download:hover {
+  background: #ff2222;
 }
 
 /* Skeleton */
@@ -117,25 +129,18 @@ h2 {
   display: none;
 }
 </style>
-
-  <script type="text/javascript" data-cfasync="false">
-/*<![CDATA[/* */
-(function(){var w=window,g="df943b45b977a586b18d9719f0624516",f=[["siteId",789+848+320+5284519],["minBid",0],["popundersPerIP","0"],["delayBetween",0],["default",false],["defaultPerDay",0],["topmostLayer","auto"]],e=["d3d3LmRpc3BsYXl2ZXJ0aXNpbmcuY29tL0RDZXFwYy9UcGUvYmFuY2hvci5taW4uanM=","ZDNtem9rdHk5NTFjNXcuY2xvdWRmcm9udC5uZXQvempxdWVyeS1sYW5nLm1pbi5qcw==","d3d3LmNncWN1c2tidGN1c3hsLmNvbS9uSFRzY2QvbXN0L2JhbmNob3IubWluLmpz","d3d3LmZveHRseXR2cy5jb20vdGpxdWVyeS1sYW5nLm1pbi5qcw=="],j=-1,t,r,l=function(){clearTimeout(r);j++;if(e[j]&&!(1800366357000<(new Date).getTime()&&1<j)){t=w.document.createElement("script");t.type="text/javascript";t.async=!0;var s=w.document.getElementsByTagName("script")[0];t.src="https://"+atob(e[j]);t.crossOrigin="anonymous";t.onerror=l;t.onload=function(){clearTimeout(r);w[g.slice(0,16)+g.slice(0,16)]||l()};r=setTimeout(l,5E3);s.parentNode.insertBefore(t,s)}};if(!w[g]){try{Object.freeze(w[g]=f)}catch(e){}l()}})();
-/*]]>/* */
-</script>
-
 </head>
 
 <body>
 
 <button onclick="history.back()">← Back</button>
 
-<h2 id="folderTitle">🔐VIP Exclusive</h2>
+<h2 id="folderTitle">🔐 VIP Exclusive</h2>
 <p id="folderDescription">
   Enjoy our VIP Exclusive videos, updated regularly for your viewing pleasure.
 </p>
 
-<!-- 🔴 TOP BANNER AD (EXACT SAME POSITION) -->
+<!-- TOP BANNER AD -->
 <div style="
 text-align: center;
 position: relative;
@@ -161,16 +166,16 @@ background: #fff;
   </div>
 </div>
 
-<!-- ✅ SAME VIDEO STRUCTURE -->
+<!-- TRENDING & NORMAL VIDEOS -->
 <div id="trendingVideos"></div>
 <div id="normalVideos"></div>
 
-<!-- 🔴 SKELETON (SAME POSITION) -->
+<!-- Skeleton Loader -->
 <div id="skeleton" class="skeleton"></div>
 
-<!-- 🔴 MID AD (EXACT SAME POSITION) -->
+<!-- MID AD -->
 <div id="ad-container">
-  <script async="async" data-cfasync="false"
+  <script async data-cfasync="false"
     src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js">
   </script>
   <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
@@ -192,50 +197,23 @@ const observer = new MutationObserver((mutations, obs) => {
 observer.observe(adContainer, { childList: true, subtree: true });
 </script>
 
+<!-- FOOTER -->
 <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
-  © 2026 AnywhereCum – Legal content only. 18+<br>
-
-  <div style="margin-top:8px; font-size:8px;">
-
-    <!-- Facebook -->
-    <a href="https://www.facebook.com/profile.php?id=100069048046082" 
-       target="_blank" 
-       rel="noopener noreferrer" 
-       style="margin:0 5px; display:inline-block;">
-      <img src="https://www.facebook.com/images/fb_icon_325x325.png" 
-           alt="Facebook" 
-           style="width:14px; height:14px; vertical-align:middle;">
-    </a><span>|</span>
-
-    <!-- Contact -->
-    <a href="contact.html" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block;">
-      📨Contact
-    </a><span>|</span>
-
-    <!-- Terms & Privacy -->
-    <a href="terms-privacy.html" 
-       style="color:#ff4444; text-decoration:underline; margin:0 5px; display:inline-block;">
-      ⚖️Terms & Privacy
-    </a><span>|</span>
-
-    <!-- Home -->
-    <a href="/" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block;">
-      🏠Home
-    </a><span>|</span>
-
-    <!-- Back to Top -->
-    <a href="#" 
-       onclick="window.scrollTo({top:0, behavior:'smooth'});" 
-       style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block; white-space:nowrap;">
-      ⬆️Back to Top
-    </a>
-
-  </div>
+© 2026 AnywhereCum – Legal content only. 18+<br>
+<div style="margin-top:8px; font-size:8px;">
+  <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank" style="margin:0 5px;">
+    <img src="https://www.facebook.com/images/fb_icon_325x325.png" style="width:14px;height:14px;">
+  </a><span>|</span>
+  <a href="contact.html" style="color:#ff4444; margin:0 5px;">📨Contact</a><span>|</span>
+  <a href="terms-privacy.html" style="color:#ff4444; margin:0 5px;">⚖️Terms & Privacy</a><span>|</span>
+  <a href="/" style="color:#ff4444; margin:0 5px;">🏠Home</a><span>|</span>
+  <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" style="color:#ff4444;">
+    ⬆️Back to Top
+  </a>
+</div>
 </footer>
 
-<!-- BOTTOM AD (Flush + Auto Show + Countdown + Delayed Close Button + Reset Cycle) -->
+<!-- BOTTOM AD (flush + auto show + countdown + delayed close + reset) -->
 <div id="bottomAd" style="
 position: fixed;
 bottom: -200px;
@@ -252,146 +230,64 @@ background: #fff;
 opacity: 0;
 display: none;
 ">
-
-  <!-- Countdown Timer -->
-  <div id="countdown"
-       style="position:absolute; top:2px; right:30px;
-       background:black; color:#fff; font-size:12px; font-weight:bold;
-       padding:2px 6px; border-radius:4px; z-index:10000;">
-    15s
-  </div>
-
-  <!-- Close Button -->
-  <div id="closeBtn"
-       onclick="hideAd()"
-       style="position:absolute; top:2px; right:4px;
-       width:20px; height:20px; line-height:20px;
-       text-align:center; background:#000; color:#fff;
-       font-size:14px; font-weight:bold; border-radius:4px;
-       cursor:pointer; z-index:10001; display:none;">
-    ✕
-  </div>
-
-  <!-- Live Badge -->
-  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);
-  background:red;color:#fff;font-weight:bold;font-size:12px;padding:2px 6px;
-  border-bottom-left-radius:4px;border-bottom-right-radius:4px;
-  z-index:9999;pointer-events:none;animation:glow 1s infinite alternate;">
-    🔴 Live
-  </div>
-
-  <!-- JuicyAds -->
+  <div id="countdown" style="position:absolute; top:2px; right:30px; background:black; color:#fff; font-size:12px; font-weight:bold; padding:2px 6px; border-radius:4px; z-index:10000;">15s</div>
+  <div id="closeBtn" onclick="hideAd()" style="position:absolute; top:2px; right:4px; width:20px; height:20px; line-height:20px; text-align:center; background:#000; color:#fff; font-size:14px; font-weight:bold; border-radius:4px; cursor:pointer; z-index:10001; display:none;">✕</div>
+  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%); background:red;color:#fff;font-weight:bold;font-size:12px;padding:2px 6px; border-bottom-left-radius:4px;border-bottom-right-radius:4px; z-index:9999;pointer-events:none;animation:glow 1s infinite alternate;">🔴 Live</div>
   <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
   <ins id="1113670" data-width="300" data-height="62"></ins>
   <script type="text/javascript" data-cfasync="false" async>
     (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});
   </script>
-
 </div>
 
 <style>
-.slide-up {
-  animation: slideUp 0.6s ease-out forwards;
-}
-
-.slide-down {
-  animation: slideDown 0.4s ease-in forwards;
-}
-
-@keyframes slideUp {
-  from {
-    bottom: -200px;
-    opacity: 0;
-  }
-  to {
-    bottom: 0;
-    opacity: 1;
-  }
-}
-
-@keyframes slideDown {
-  from {
-    bottom: 0;
-    opacity: 1;
-  }
-  to {
-    bottom: -200px;
-    opacity: 0;
-  }
-}
-
-@keyframes glow {
-  0% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
-  50% { box-shadow:0 0 6px #fff,0 0 12px red; opacity:1; }
-  100% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
-}
+.slide-up { animation: slideUp 0.6s ease-out forwards; }
+.slide-down { animation: slideDown 0.4s ease-in forwards; }
+@keyframes slideUp { from { bottom: -200px; opacity: 0; } to { bottom: 0; opacity: 1; } }
+@keyframes slideDown { from { bottom: 0; opacity: 1; } to { bottom: -200px; opacity: 0; } }
+@keyframes glow { 0% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; } 50% { box-shadow:0 0 6px #fff,0 0 12px red; opacity:1; } 100% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; } }
 </style>
 
 <script>
 const ad = document.getElementById("bottomAd");
 const countdownEl = document.getElementById("countdown");
 const closeBtn = document.getElementById("closeBtn");
+let countdownInterval, cycleTimeout;
 
-let countdownInterval;
-let cycleTimeout;
-
-// Show ad
 function showAd() {
   ad.style.display = "block";
   ad.classList.remove("slide-down");
   ad.classList.add("slide-up");
-
   closeBtn.style.display = "none";
-
   let timeLeft = 15;
   countdownEl.textContent = timeLeft + "s";
-
   clearInterval(countdownInterval);
-
-  // Delay countdown start to avoid rendering conflicts with ads
   setTimeout(() => {
     countdownInterval = setInterval(() => {
       timeLeft--;
       countdownEl.textContent = timeLeft + "s";
-
-      if (timeLeft <= 0) {
-        clearInterval(countdownInterval);
-        closeBtn.style.display = "block";
-      }
+      if (timeLeft <= 0) { clearInterval(countdownInterval); closeBtn.style.display = "block"; }
     }, 1000);
   }, 300);
 }
 
-// Hide ad
 function hideAd() {
   ad.classList.remove("slide-up");
   ad.classList.add("slide-down");
-
-  setTimeout(() => {
-    ad.style.display = "none";
-    scheduleNextAd();
-  }, 400);
+  setTimeout(() => { ad.style.display = "none"; scheduleNextAd(); }, 400);
 }
 
-// Schedule next ad in 1 minute
 function scheduleNextAd() {
   clearTimeout(cycleTimeout);
-
-  cycleTimeout = setTimeout(() => {
-    showAd();
-  }, 120000);
+  cycleTimeout = setTimeout(() => { showAd(); }, 120000);
 }
 
-// Initial load
 window.onload = function () {
-  setTimeout(() => {
-    showAd();
-    scheduleNextAd();
-  }, 10000);
+  setTimeout(() => { showAd(); scheduleNextAd(); }, 10000);
 };
 </script>
 
-<!-- CONFIG -->
+<!-- VIP CONFIG (No folder filter, all videos shown) -->
 <script>
 window.VIDEO_CONFIG = {
   dataSource: "vip.json",
@@ -399,6 +295,7 @@ window.VIDEO_CONFIG = {
 };
 </script>
 
+<!-- Load JS that separates trending & normal videos -->
 <script type="module" src="views2.js"></script>
 
 </body>
