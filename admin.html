@@ -104,7 +104,15 @@ if (!isLoggedIn) {
 <div class="total-card">
   <h2>🔥 Total Views</h2>
   <div id="totalViews" class="value">Loading...</div>
-  <div id="cycleViewsTotal" class="value" style="margin-top:5px; font-size:14px; color:#aaa;">Loading cycles...</div>
+
+  <!-- 🔹 Video Views -->
+  <div id="videoViewsTotal" class="value" style="margin-top:5px; font-size:14px; color:#00ffcc;">
+    Loading Video Views...
+  </div>
+
+  <div id="cycleViewsTotal" class="value" style="margin-top:5px; font-size:14px; color:#aaa;">
+    Loading cycles...
+  </div>
 </div>
 
 <div class="container">
@@ -119,12 +127,8 @@ const DB = "https://anywherecum-1c8d0-default-rtdb.firebaseio.com";
 
 /* 🔥 FORMAT FUNCTION */
 function formatViews(num) {
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1).replace(/\.0$/, '') + "K";
-  }
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
+  if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + "K";
   return num;
 }
 
@@ -151,7 +155,6 @@ async function loadPageViews() {
     });
   }
 
-  // 🔥 Sort highest → lowest
   combined.sort((a, b) => b.value - a.value);
 
   combined.forEach(item => {
@@ -159,6 +162,20 @@ async function loadPageViews() {
     li.innerHTML = `<span>${item.name}</span><span class="value">${formatViews(item.value)}</span>`;
     list.appendChild(li);
   });
+
+  return total;
+}
+
+/* 🔥 LOAD VIDEO VIEWS TOTAL (from 'views') */
+async function loadVideoViewsTotal() {
+  const videoData = await fetchData("views"); // 🔹 Firebase path 'views'
+
+  let total = 0;
+  if (videoData) {
+    Object.values(videoData).forEach(value => {
+      total += typeof value === "number" ? value : 0;
+    });
+  }
 
   return total;
 }
@@ -180,13 +197,13 @@ async function loadCycleViewsTotal() {
 
 /* ================= INIT ================= */
 async function init() {
-  const pageTotal = await loadPageViews();       // Only page views
-  const cycleTotal = await loadCycleViewsTotal(); // Cycle views separate
+  const pageTotal = await loadPageViews();          // Only page views
+  const videoTotal = await loadVideoViewsTotal();   // Video views from 'views'
+  const cycleTotal = await loadCycleViewsTotal();   // Cycle views separate
 
-  // 🔥 Only page views in total
   document.getElementById("totalViews").innerText = formatViews(pageTotal);
-  document.getElementById("cycleViewsTotal").innerText =
-    "Cycle Views: " + formatViews(cycleTotal);
+  document.getElementById("videoViewsTotal").innerText = "Video Views: " + formatViews(videoTotal);
+  document.getElementById("cycleViewsTotal").innerText = "Cycle Views: " + formatViews(cycleTotal);
 }
 
 /* ================= AUTO REFRESH ================= */
