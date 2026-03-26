@@ -168,6 +168,20 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
       appId: "3ae99ed9-8057-4f8f-83ec-82b746e5cdca",
+      notifyButton: {
+        enable: false // Disable default bell if you want only the slide
+      },
+      promptOptions: {
+        /* Slide prompt instead of modal */
+        slidedown: {
+          enabled: true,
+          /* Position from the top */
+          position: 'top',
+          actionMessage: "Subscribe to our notifications for the latest updates!",
+          acceptButtonText: "Subscribe",
+          cancelButtonText: "No Thanks"
+        }
+      }
     });
   });
 </script>
