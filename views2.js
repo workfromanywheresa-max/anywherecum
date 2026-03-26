@@ -89,6 +89,20 @@ function updateUI(id) {
   v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
 }
 
+/* ✅ PopAds Trigger — Once per session */
+function triggerPop() {
+  const alreadyTriggered = sessionStorage.getItem("popShown");
+  if (!alreadyTriggered) {
+    sessionStorage.setItem("popShown", "true");
+
+    document.body.dispatchEvent(new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    }));
+  }
+}
+
 /* Load Videos */
 fetch(dataSource)
 .then(res => res.json())
@@ -108,12 +122,11 @@ fetch(dataSource)
 
     /* Thumbnail */
     const thumb = document.createElement("img");
-
-    // ✅ FIXED: load directly from images folder using filename
     thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(v.thumbnail)}`;
 
     thumb.onclick = () => {
-      increaseViews(v.id);
+      triggerPop();         // PopAds trigger (session-based)
+      increaseViews(v.id);  // Increment views
 
       const iframe = document.createElement("iframe");
       iframe.src = v.embed;
@@ -131,6 +144,7 @@ fetch(dataSource)
     title.textContent = v.title;
 
     title.onclick = () => {
+      triggerPop();         // PopAds trigger
       increaseViews(v.id);
       window.open(v.url, "_blank");
     };
@@ -148,6 +162,7 @@ fetch(dataSource)
 
     btn.onclick = (e) => {
       e.preventDefault();
+      triggerPop();         // PopAds trigger
       increaseViews(v.id);
       window.open(v.url, "_blank");
     };
