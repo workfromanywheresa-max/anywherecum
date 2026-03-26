@@ -180,12 +180,11 @@ async function loadCycleViewsTotal() {
 
 /* ================= INIT ================= */
 async function init() {
-  const pageTotal = await loadPageViews();
-  const cycleTotal = await loadCycleViewsTotal();
+  const pageTotal = await loadPageViews();       // Only page views
+  const cycleTotal = await loadCycleViewsTotal(); // Cycle views separate
 
-  const combinedTotal = pageTotal + cycleTotal;
-
-  document.getElementById("totalViews").innerText = formatViews(combinedTotal);
+  // 🔥 Only page views in total
+  document.getElementById("totalViews").innerText = formatViews(pageTotal);
   document.getElementById("cycleViewsTotal").innerText =
     "Cycle Views: " + formatViews(cycleTotal);
 }
