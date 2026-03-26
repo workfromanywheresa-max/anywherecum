@@ -28,7 +28,7 @@ function toTitleCase(str) {
 if (folderName) {
   document.getElementById("folderTitle").textContent = toTitleCase(folderName);
 } else {
-  document.getElementById("folderTitle").textContent = "ALL VIDEOS";
+  document.getElementById("folderTitle").textContent = "VIP Exclusive";
 }
 
 /* Format Views */
