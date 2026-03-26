@@ -103,15 +103,20 @@ if (!isLoggedIn) {
 
 <div class="total-card">
   <h2>🔥 Total Views</h2>
-  <div id="totalViews" class="value">Loading...</div>
 
-  <!-- 🔹 Video Views -->
-  <div id="videoViewsTotal" class="value" style="margin-top:5px; font-size:14px; color:#aaa;">
-  Loading Video Views...
+  <!-- 🔹 Site Visits inline -->
+  <div id="totalViews" class="value" style="margin-top:5px; font-size:14px; color:#aaa;">
+    Site Visits: Loading...
   </div>
 
+  <!-- 🔹 Video Views inline -->
+  <div id="videoViewsTotal" class="value" style="margin-top:5px; font-size:14px; color:#aaa;">
+    Video Views: Loading...
+  </div>
+
+  <!-- 🔹 Cycle Views inline -->
   <div id="cycleViewsTotal" class="value" style="margin-top:5px; font-size:14px; color:#aaa;">
-    Loading cycles...
+    Cycle Views: Loading...
   </div>
 </div>
 
@@ -201,7 +206,7 @@ async function init() {
   const videoTotal = await loadVideoViewsTotal();   // Video views from 'views'
   const cycleTotal = await loadCycleViewsTotal();   // Cycle views separate
 
-  document.getElementById("totalViews").innerText = formatViews(pageTotal);
+  document.getElementById("totalViews").innerText = "Site Visits: " + formatViews(pageTotal);
   document.getElementById("videoViewsTotal").innerText = "Video Views: " + formatViews(videoTotal);
   document.getElementById("cycleViewsTotal").innerText = "Cycle Views: " + formatViews(cycleTotal);
 }
