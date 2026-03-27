@@ -83,6 +83,34 @@ if (!localStorage.getItem("adminLoggedIn")) {
 }
 </script>
 
+  <button id="triggerBtn">Trigger Notification</button>
+
+<script>
+const btn = document.getElementById("triggerBtn");
+
+btn.addEventListener("click", async () => {
+  btn.disabled = true;
+  btn.innerText = "Sending…";
+
+  try {
+    const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/", {
+      method: "POST"
+    });
+
+    const data = await res.text();
+    console.log("Worker response:", data);
+
+    alert("Worker triggered successfully!");
+  } catch (err) {
+    console.error(err);
+    alert("Error triggering worker");
+  }
+
+  btn.disabled = false;
+  btn.innerText = "Trigger Notification";
+});
+</script>
+
 <button class="logout-btn" onclick="logout()">Logout</button>
 
 <div class="total-card">
