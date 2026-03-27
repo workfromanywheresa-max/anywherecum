@@ -81,7 +81,7 @@ async function run() {
           // ✅ REAL BUTTON (accept-style)
           buttons: [
             {
-              id: "open-btn",
+              id: "accept-button",
               text: "Open",
               url: "https://anywherecum.pages.dev/"
             }
