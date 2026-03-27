@@ -30,6 +30,12 @@ async function run() {
 
     console.log("Latest video:", latest.title);
 
+    // 🚫 Simple content filter (adjust as needed)
+    if (latest.title?.toLowerCase().includes("butthole")) {
+      console.log("🚫 Skipping explicit content");
+      return;
+    }
+
     // Load last sent
     let lastSent = null;
 
@@ -51,7 +57,7 @@ async function run() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Basic ${process.env.ONESIGNAL_API_KEY}`,
+          Authorization: `Basic ${process.env.ONESIGNAL_API_KEY?.trim()}`,
         },
         body: JSON.stringify({
           app_id: process.env.ONESIGNAL_APP_ID,
