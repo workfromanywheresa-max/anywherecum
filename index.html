@@ -162,6 +162,16 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 @media(max-width:500px){ #popupContent button { flex:1 1 100%; } }
 </style>
 
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f",
+    });
+  });
+</script>
+
 </head>
 <body>
 
