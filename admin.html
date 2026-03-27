@@ -97,10 +97,17 @@ btn.addEventListener("click", async () => {
       method: "POST"
     });
 
-    const data = await res.json();
-    console.log("Worker response:", data);
+    const text = await res.text();
+    console.log("Raw response:", text);
 
-    if (data.success) {
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error("Invalid JSON response");
+    }
+
+    if (data.success && data.sent) {
       alert("✅ Notification sent!");
     } else {
       alert("⚠️ " + (data.message || data.error || "No new video"));
@@ -108,13 +115,13 @@ btn.addEventListener("click", async () => {
 
   } catch (err) {
     console.error(err);
-    alert("❌ Error triggering worker");
+    alert("❌ " + err.message);
   }
 
   btn.disabled = false;
   btn.innerText = "Trigger Notification";
 });
-</script>
+    </script>
 
 <button class="logout-btn" onclick="logout()">Logout</button>
 
