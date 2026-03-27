@@ -1,3 +1,3 @@
-[[kv_namespaces]]
-binding = "VIDEOS_KV"
-id = "74784b4a48d94203b03cbc5172154cd4"
+kv_namespaces = [
+  { binding = "VIDEOS_KV", id = "74784b4a48d94203b03cbc5172154cd4" }
+]
