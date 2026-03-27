@@ -8,7 +8,6 @@ async function run() {
     console.log("🚀 Script started");
 
     console.log("🔄 Fetching videos...");
-
     const res = await fetch("https://anywherecum.pages.dev/videos.json");
 
     if (!res.ok) {
@@ -73,11 +72,20 @@ async function run() {
 
           headings: { en: "🎥 Latest Video 🎥" },
 
-          // ✅ Open added next to title
-          contents: { en: `${latest.title} - Open` },
+          // ✅ Clean title (no fake button text)
+          contents: { en: latest.title },
 
-          // 🔥 Always open homepage
+          // 🔥 Clicking notification opens homepage
           url: "https://anywherecum.pages.dev/",
+
+          // ✅ REAL BUTTON (accept-style)
+          buttons: [
+            {
+              id: "open-btn",
+              text: "Open",
+              url: "https://anywherecum.pages.dev/"
+            }
+          ],
 
           // 🖼️ Images
           big_picture: imageUrl,
