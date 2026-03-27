@@ -71,17 +71,14 @@ async function run() {
           included_segments: ["All"],
 
           headings: { en: "🎥 Latest Video 🎥" },
-
-          // ✅ Clean title (no fake button text)
           contents: { en: latest.title },
 
-          // 🔥 Clicking notification opens homepage
           url: "https://anywherecum.pages.dev/",
 
-          // ✅ REAL BUTTON (accept-style)
+          // ✅ Chrome Action Button
           buttons: [
             {
-              id: "accept-button",
+              id: "accept-button",   // 🔥 THIS is the key
               text: "Open",
               url: "https://anywherecum.pages.dev/"
             }
@@ -106,7 +103,6 @@ async function run() {
 
     console.log("✅ Notification sent!");
 
-    // 💾 Save last sent
     fs.writeFileSync(
       LAST_FILE,
       JSON.stringify({ date: latest.date }, null, 2)
