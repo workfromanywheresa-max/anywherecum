@@ -233,7 +233,7 @@ async function sendNotification() {
 
   const imageUrl = "https://anywherecum.pages.dev/images/" + latestVideo.thumbnail;
 
-  await fetch("https://your-worker-url.workers.dev/", {
+  await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
