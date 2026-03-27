@@ -1,9 +1,12 @@
+const fetch = require("node-fetch");
 const fs = require("fs");
 
 const LAST_FILE = "last_sent.json";
 
 async function run() {
   try {
+    console.log("🚀 Script started");
+
     console.log("🔄 Fetching videos...");
 
     const res = await fetch("https://anywherecum.pages.dev/videos.json");
@@ -58,7 +61,7 @@ async function run() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Basic ${process.env.ONESIGNAL_API_KEY?.trim()}`,
+          Authorization: `Basic ${process.env.ONESIGNAL_API_KEY.trim()}`,
         },
         body: JSON.stringify({
           app_id: process.env.ONESIGNAL_APP_ID,
@@ -90,7 +93,7 @@ async function run() {
       JSON.stringify({ date: latest.date }, null, 2)
     );
 
-    console.log("💾 Saved last sent date");
+    console.log("💾 Saved last sent date:", latest.date);
 
   } catch (err) {
     console.error("❌ ERROR:", err.message);
