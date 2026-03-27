@@ -55,6 +55,10 @@ async function run() {
 
     console.log("📤 Sending notification...");
 
+    const imageUrl = latest.thumbnail
+      ? `https://anywherecum.pages.dev/images/${latest.thumbnail}`
+      : null;
+
     const response = await fetch(
       "https://onesignal.com/api/v1/notifications",
       {
@@ -66,12 +70,17 @@ async function run() {
         body: JSON.stringify({
           app_id: process.env.ONESIGNAL_APP_ID,
           included_segments: ["All"],
+
           headings: { en: "🎥 Latest Video 🎥" },
-          contents: { en: latest.title || "Watch now!" },
-          big_picture: latest.thumbnail
-            ? `https://anywherecum.pages.dev/images/${latest.thumbnail}`
-            : undefined,
-          url: latest.url,
+          contents: { en: latest.title || "" }, // ❌ removed "Watch now!"
+
+          // 🔥 Always open homepage
+          url: "https://anywherecum.pages.dev/",
+
+          // ✅ Force image support across devices
+          big_picture: imageUrl,
+          chrome_web_image: imageUrl,
+          large_icon: imageUrl,
         }),
       }
     );
