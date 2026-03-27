@@ -67,28 +67,12 @@ li {
 <script>
 const ADMIN_PASSWORD = "Anywherecum1099";
 
-const isLoggedIn = localStorage.getItem("adminLoggedIn");
-
-if (!isLoggedIn) {
+if (!localStorage.getItem("adminLoggedIn")) {
   const entered = prompt("Enter Admin Password:");
 
   if (!entered || entered.trim() !== ADMIN_PASSWORD) {
     document.documentElement.innerHTML = `
-      <head>
-        <title>Access Denied</title>
-        <style>
-          body {
-            background:#121212;
-            color:red;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            height:100vh;
-            font-family:Arial;
-          }
-        </style>
-      </head>
-      <body>
+      <body style="background:#121212;color:red;display:flex;justify-content:center;align-items:center;height:100vh;">
         <h1>❌ Access Denied</h1>
       </body>
     `;
@@ -99,27 +83,15 @@ if (!isLoggedIn) {
 }
 </script>
 
-  <button onclick="sendNotification()">Send Notification</button>
-  
+<button onclick="sendNotification()">Send Notification</button>
 <button class="logout-btn" onclick="logout()">Logout</button>
 
 <div class="total-card">
   <h2>🔥 Total Views</h2>
 
-  <!-- 🔹 Site Visits inline -->
-<div id="totalViews" class="value" style="margin-top:5px; font-size:14px; color:#00ffcc;">
-  Site Visits: Loading...
-</div>
-
-  <!-- 🔹 Video Views inline -->
-  <div id="videoViewsTotal" class="value" style="margin-top:5px; font-size:14px; color:#aaa;">
-    Video Views: Loading...
-  </div>
-
-  <!-- 🔹 Cycle Views inline -->
-  <div id="cycleViewsTotal" class="value" style="margin-top:5px; font-size:14px; color:#aaa;">
-    Cycle Views: Loading...
-  </div>
+  <div id="totalViews" class="value">Site Visits: Loading...</div>
+  <div id="videoViewsTotal" class="value">Video Views: Loading...</div>
+  <div id="cycleViewsTotal" class="value">Cycle Views: Loading...</div>
 </div>
 
 <div class="container">
@@ -132,7 +104,7 @@ if (!isLoggedIn) {
 <script>
 const DB = "https://anywherecum-1c8d0-default-rtdb.firebaseio.com";
 
-/* 🔥 FORMAT FUNCTION */
+/* FORMAT */
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + "K";
@@ -144,9 +116,9 @@ async function fetchData(path) {
   return await res.json();
 }
 
-/* 🔥 LOAD PAGE VIEWS ONLY */
+/* PAGE VIEWS */
 async function loadPageViews() {
-  const pageData = await fetchData("pageViews");
+  const data = await fetchData("pageViews");
 
   const list = document.getElementById("pageViews");
   list.innerHTML = "";
@@ -154,8 +126,8 @@ async function loadPageViews() {
   let total = 0;
   let combined = [];
 
-  if (pageData) {
-    Object.entries(pageData).forEach(([key, value]) => {
+  if (data) {
+    Object.entries(data).forEach(([key, value]) => {
       value = typeof value === "number" ? value : 0;
       total += value;
       combined.push({ name: key, value });
@@ -173,61 +145,54 @@ async function loadPageViews() {
   return total;
 }
 
-/* 🔥 LOAD VIDEO VIEWS TOTAL (from 'views') */
+/* VIDEO VIEWS */
 async function loadVideoViewsTotal() {
-  const videoData = await fetchData("views"); // 🔹 Firebase path 'views'
+  const data = await fetchData("views");
 
   let total = 0;
-  if (videoData) {
-    Object.values(videoData).forEach(value => {
-      total += typeof value === "number" ? value : 0;
-    });
+  if (data) {
+    Object.values(data).forEach(v => total += typeof v === "number" ? v : 0);
   }
 
   return total;
 }
 
-/* 🔥 LOAD CYCLE VIEWS TOTAL ONLY */
+/* CYCLE VIEWS */
 async function loadCycleViewsTotal() {
-  const cycleData = await fetchData("cycleViews");
+  const data = await fetchData("cycleViews");
 
   let total = 0;
-
-  if (cycleData) {
-    Object.values(cycleData).forEach(value => {
-      total += typeof value === "number" ? value : 0;
-    });
+  if (data) {
+    Object.values(data).forEach(v => total += typeof v === "number" ? v : 0);
   }
 
   return total;
 }
 
-/* ================= INIT ================= */
+/* INIT */
 async function init() {
-  const pageTotal = await loadPageViews();          // Only page views
-  const videoTotal = await loadVideoViewsTotal();   // Video views from 'views'
-  const cycleTotal = await loadCycleViewsTotal();   // Cycle views separate
+  const pageTotal = await loadPageViews();
+  const videoTotal = await loadVideoViewsTotal();
+  const cycleTotal = await loadCycleViewsTotal();
 
   document.getElementById("totalViews").innerText = "Site Visits: " + formatViews(pageTotal);
   document.getElementById("videoViewsTotal").innerText = "Video Views: " + formatViews(videoTotal);
   document.getElementById("cycleViewsTotal").innerText = "Cycle Views: " + formatViews(cycleTotal);
 }
 
-/* ================= AUTO REFRESH ================= */
 init();
 setInterval(init, 10000);
 
-/* ================= LOGOUT ================= */
+/* LOGOUT */
 function logout() {
   localStorage.removeItem("adminLoggedIn");
   location.reload();
 }
-</script>
 
-<script>
+/* SEND NOTIFICATION */
 async function sendNotification() {
   try {
-    const res = await fetch('videos.json');
+    const res = await fetch("https://anywherecum.pages.dev/videos.json");
 
     if (!res.ok) {
       throw new Error("videos.json not found");
@@ -245,13 +210,17 @@ async function sendNotification() {
 
     const imageUrl = "https://anywherecum.pages.dev/images/" + latestVideo.thumbnail;
 
-    await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/", {
+    const response = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({ image: imageUrl })
     });
+
+    if (!response.ok) {
+      throw new Error("Worker failed: " + response.status);
+    }
 
     alert("Notification sent ✅");
 
