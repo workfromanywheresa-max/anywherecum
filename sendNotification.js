@@ -72,19 +72,12 @@ async function run() {
           included_segments: ["All"],
 
           headings: { en: "🎥 Latest Video 🎥" },
-          contents: { en: latest.title || "" },
 
-          // 🔥 Tap notification opens site
+          // ✅ Open added next to title
+          contents: { en: `${latest.title} - Open` },
+
+          // 🔥 Always open homepage
           url: "https://anywherecum.pages.dev/",
-
-          // ✅ "Open" button (appears at bottom)
-          buttons: [
-            {
-              id: "open-btn",
-              text: "Open",
-              url: "https://anywherecum.pages.dev/"
-            }
-          ],
 
           // 🖼️ Images
           big_picture: imageUrl,
