@@ -98,6 +98,7 @@ if (!isLoggedIn) {
   localStorage.setItem("adminLoggedIn", "true");
 }
 </script>
+  <button onclick="sendNotification()">Send Notification</button>
   
 <button class="logout-btn" onclick="logout()">Logout</button>
 
@@ -219,6 +220,30 @@ setInterval(init, 10000);
 function logout() {
   localStorage.removeItem("adminLoggedIn");
   location.reload();
+}
+</script>
+
+<script>
+async function sendNotification() {
+
+  const res = await fetch('./videos.json');
+  const videos = await res.json();
+
+  const latestVideo = videos.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+
+  const imageUrl = "https://anywherecum.pages.dev/images/" + latestVideo.thumbnail;
+
+  await fetch("https://your-worker-url.workers.dev/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      image: imageUrl
+    })
+  });
+
+  alert("Notification sent ✅");
 }
 </script>
 
