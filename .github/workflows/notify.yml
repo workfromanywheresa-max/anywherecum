@@ -44,5 +44,5 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "Update last sent video"
-            git push
+            git push origin HEAD:${{ github.ref_name }}
           fi
