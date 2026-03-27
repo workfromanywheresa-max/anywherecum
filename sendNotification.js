@@ -1,5 +1,4 @@
 const fs = require("fs");
-const fetch = require("node-fetch");
 
 const LAST_FILE = "last_sent.json";
 
@@ -38,17 +37,15 @@ async function run() {
       return;
     }
 
-    // ✅ Ensure file exists
+    // 📄 Ensure file exists
     if (!fs.existsSync(LAST_FILE)) {
-      console.log("📄 Creating last_sent.json");
       fs.writeFileSync(LAST_FILE, JSON.stringify({ date: null }, null, 2));
     }
 
-    // Load last sent
     const lastSent = JSON.parse(fs.readFileSync(LAST_FILE, "utf8"));
 
     // 🚫 Duplicate prevention
-    if (lastSent && lastSent.date === latest.date) {
+    if (lastSent?.date === latest.date) {
       console.log("⛔ Already sent. Skipping...");
       return;
     }
@@ -68,7 +65,9 @@ async function run() {
           included_segments: ["All"],
           headings: { en: "🔥 New Video" },
           contents: { en: latest.title || "Watch now!" },
-          big_picture: `https://anywherecum.pages.dev/images/${latest.thumbnail}`,
+          big_picture: latest.thumbnail
+            ? `https://anywherecum.pages.dev/images/${latest.thumbnail}`
+            : undefined,
           url: latest.url,
         }),
       }
@@ -92,9 +91,9 @@ async function run() {
     );
 
     console.log("💾 Saved last sent date");
+
   } catch (err) {
     console.error("❌ ERROR:", err.message);
-    console.error(err.stack);
     process.exit(1);
   }
 }
