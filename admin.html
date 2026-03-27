@@ -98,18 +98,15 @@ btn.addEventListener("click", async () => {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ trigger: true }) // ✅ important
+      body: JSON.stringify({ trigger: true }),
+      mode: "cors" // ✅ force CORS
     });
 
-    const text = await res.text();
-    console.log("Raw:", text);
-
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      throw new Error("Invalid JSON response");
+    if (!res.ok) {
+      throw new Error("HTTP " + res.status);
     }
+
+    const data = await res.json();
 
     if (data.success && data.sent) {
       alert("✅ Notification sent!");
@@ -120,8 +117,8 @@ btn.addEventListener("click", async () => {
     }
 
   } catch (err) {
-    console.error(err);
-    alert("❌ " + err.message);
+    console.error("FETCH ERROR:", err);
+    alert("❌ Failed to reach Worker\n" + err.message);
   }
 
   btn.disabled = false;
