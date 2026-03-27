@@ -1,4 +1,4 @@
-name: Send OneSignal Notification
+name: Send OneSignal Notifications
 
 on:
   schedule:
@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Install dependencies
         run: npm install node-fetch
@@ -27,7 +27,6 @@ jobs:
           ONESIGNAL_API_KEY: ${{ secrets.ONESIGNAL_API_KEY }}
           ONESIGNAL_APP_ID: ${{ secrets.ONESIGNAL_APP_ID }}
 
-      # 🔥 Commit the updated last_sent.json
       - name: Commit changes
         run: |
           git config --global user.name "github-actions"
