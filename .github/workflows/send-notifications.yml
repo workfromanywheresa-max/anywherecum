@@ -2,7 +2,7 @@ name: Send OneSignal Notifications
 
 on:
   schedule:
-    - cron: "0 * * * *"   # every hour
+    - cron: "0 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: npm install node-fetch@2
 
-      - name: Run notification script
+      - name: Run script
         run: node sendNotification.js
         env:
           ONESIGNAL_API_KEY: ${{ secrets.ONESIGNAL_API_KEY }}
