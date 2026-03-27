@@ -74,7 +74,7 @@ async function run() {
           // 🔞 Badge ONLY in content
           contents: {
             en: isNSFW
-              ? `🔞 ${latest.title || ""}`
+              ? `🔞 ${latest.title || "🔞"}`
               : latest.title || "",
           },
 
