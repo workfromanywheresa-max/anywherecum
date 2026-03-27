@@ -19,6 +19,8 @@ async function run() {
       throw new Error("videos.json is not an array");
     }
 
+    console.log(`📦 Total videos fetched: ${videos.length}`);
+
     const latest = videos.sort(
       (a, b) => new Date(b.date) - new Date(a.date)
     )[0];
@@ -28,22 +30,24 @@ async function run() {
       return;
     }
 
-    console.log("Latest video:", latest.title);
+    console.log("🎬 Latest video:", latest.title);
 
-    // 🚫 Simple content filter (adjust as needed)
+    // 🚫 Content filter
     if (latest.title?.toLowerCase().includes("butthole")) {
       console.log("🚫 Skipping explicit content");
       return;
     }
 
-    // Load last sent
-    let lastSent = null;
-
-    if (fs.existsSync(LAST_FILE)) {
-      lastSent = JSON.parse(fs.readFileSync(LAST_FILE, "utf8"));
+    // ✅ Ensure file exists
+    if (!fs.existsSync(LAST_FILE)) {
+      console.log("📄 Creating last_sent.json");
+      fs.writeFileSync(LAST_FILE, JSON.stringify({ date: null }, null, 2));
     }
 
-    // Prevent duplicates
+    // Load last sent
+    const lastSent = JSON.parse(fs.readFileSync(LAST_FILE, "utf8"));
+
+    // 🚫 Duplicate prevention
     if (lastSent && lastSent.date === latest.date) {
       console.log("⛔ Already sent. Skipping...");
       return;
@@ -72,13 +76,16 @@ async function run() {
 
     const text = await response.text();
 
+    console.log("Status:", response.status);
+    console.log("OneSignal response:", text);
+
     if (!response.ok) {
       throw new Error(`OneSignal error: ${text}`);
     }
 
-    console.log("✅ Notification sent:", text);
+    console.log("✅ Notification sent!");
 
-    // Save last sent
+    // 💾 Save last sent
     fs.writeFileSync(
       LAST_FILE,
       JSON.stringify({ date: latest.date }, null, 2)
