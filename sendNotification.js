@@ -72,12 +72,21 @@ async function run() {
           included_segments: ["All"],
 
           headings: { en: "🎥 Latest Video 🎥" },
-          contents: { en: latest.title || "" }, // ❌ removed "Watch now!"
+          contents: { en: latest.title || "" },
 
-          // 🔥 Always open homepage
+          // 🔥 Tap notification opens site
           url: "https://anywherecum.pages.dev/",
 
-          // ✅ Force image support across devices
+          // ✅ "Open" button (appears at bottom)
+          buttons: [
+            {
+              id: "open-btn",
+              text: "Open",
+              url: "https://anywherecum.pages.dev/"
+            }
+          ],
+
+          // 🖼️ Images
           big_picture: imageUrl,
           chrome_web_image: imageUrl,
           large_icon: imageUrl,
