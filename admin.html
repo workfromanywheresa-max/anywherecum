@@ -94,7 +94,10 @@ btn.addEventListener("click", async () => {
 
   try {
     const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/", {
-      method: "POST"
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      }
     });
 
     const text = await res.text();
@@ -109,8 +112,10 @@ btn.addEventListener("click", async () => {
 
     if (data.success && data.sent) {
       alert("✅ Notification sent!");
+    } else if (data.success && !data.sent) {
+      alert("⚠️ No new video");
     } else {
-      alert("⚠️ " + (data.message || data.error || "No new video"));
+      alert("❌ " + (data.error || "Unknown error"));
     }
 
   } catch (err) {
@@ -121,8 +126,8 @@ btn.addEventListener("click", async () => {
   btn.disabled = false;
   btn.innerText = "Trigger Notification";
 });
-    </script>
-
+</script>
+  
 <button class="logout-btn" onclick="logout()">Logout</button>
 
 <div class="total-card">
