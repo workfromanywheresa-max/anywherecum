@@ -1,17 +1,24 @@
 const fs = require("fs");
-const fetch = require("node-fetch"); // IMPORTANT for Node 24 setup
+const fetch = require("node-fetch");
 
 const LAST_FILE = "last_sent.json";
 
 async function run() {
   try {
-    // 1. Fetch videos
+    console.log("🔄 Fetching videos...");
+
     const res = await fetch("https://anywherecum.pages.dev/videos.json");
-    if (!res.ok) throw new Error("Failed to fetch videos.json");
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch videos.json: ${res.status}`);
+    }
 
     const videos = await res.json();
 
-    // 2. Get latest video
+    if (!Array.isArray(videos)) {
+      throw new Error("videos.json is not an array");
+    }
+
     const latest = videos.sort(
       (a, b) => new Date(b.date) - new Date(a.date)
     )[0];
@@ -21,20 +28,23 @@ async function run() {
       return;
     }
 
-    // 3. Load last sent
+    console.log("Latest video:", latest.title);
+
+    // Load last sent
     let lastSent = null;
 
     if (fs.existsSync(LAST_FILE)) {
       lastSent = JSON.parse(fs.readFileSync(LAST_FILE, "utf8"));
     }
 
-    // 4. Prevent duplicates
+    // Prevent duplicates
     if (lastSent && lastSent.date === latest.date) {
-      console.log("⛔ Already sent this video. Skipping...");
+      console.log("⛔ Already sent. Skipping...");
       return;
     }
 
-    // 5. Send OneSignal notification
+    console.log("📤 Sending notification...");
+
     const response = await fetch(
       "https://onesignal.com/api/v1/notifications",
       {
@@ -54,21 +64,24 @@ async function run() {
       }
     );
 
+    const text = await response.text();
+
     if (!response.ok) {
-      const text = await response.text();
       throw new Error(`OneSignal error: ${text}`);
     }
 
-    const data = await response.json();
-    console.log("✅ Sent:", data);
+    console.log("✅ Notification sent:", text);
 
-    // 6. Save last sent
+    // Save last sent
     fs.writeFileSync(
       LAST_FILE,
       JSON.stringify({ date: latest.date }, null, 2)
     );
+
+    console.log("💾 Saved last sent date");
   } catch (err) {
-    console.error("❌ ERROR:", err);
+    console.error("❌ ERROR:", err.message);
+    console.error(err.stack);
     process.exit(1);
   }
 }
