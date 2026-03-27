@@ -66,7 +66,7 @@ async function run() {
         body: JSON.stringify({
           app_id: process.env.ONESIGNAL_APP_ID,
           included_segments: ["All"],
-          headings: { en: "🔥 New Video" },
+          headings: { en: "🎥 Latest Video 🎥" },
           contents: { en: latest.title || "Watch now!" },
           big_picture: latest.thumbnail
             ? `https://anywherecum.pages.dev/images/${latest.thumbnail}`
