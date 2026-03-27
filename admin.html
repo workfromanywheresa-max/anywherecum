@@ -90,20 +90,25 @@ const btn = document.getElementById("triggerBtn");
 
 btn.addEventListener("click", async () => {
   btn.disabled = true;
-  btn.innerText = "Sending…";
+  btn.innerText = "Sending...";
 
   try {
     const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/", {
       method: "POST"
     });
 
-    const data = await res.text();
+    const data = await res.json();
     console.log("Worker response:", data);
 
-    alert("Worker triggered successfully!");
+    if (data.success) {
+      alert("✅ Notification sent!");
+    } else {
+      alert("⚠️ " + (data.message || data.error || "No new video"));
+    }
+
   } catch (err) {
     console.error(err);
-    alert("Error triggering worker");
+    alert("❌ Error triggering worker");
   }
 
   btn.disabled = false;
