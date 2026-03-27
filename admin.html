@@ -83,165 +83,51 @@ if (!localStorage.getItem("adminLoggedIn")) {
 }
 </script>
 
-  export default {
-  async fetch(request, env, ctx) {
+  <button id="triggerBtn">Trigger Notification</button>
 
-    // ✅ Allow GET (for testing in browser)
-    if (request.method === "GET") {
-      return new Response("✅ Worker is live", {
-        headers: corsHeaders()
-      });
-    }
+<script>
+const btn = document.getElementById("triggerBtn");
 
-    // ✅ Handle CORS preflight
-    if (request.method === "OPTIONS") {
-      return new Response(null, {
-        headers: corsHeaders()
-      });
-    }
+btn.addEventListener("click", async () => {
+  btn.disabled = true;
+  btn.innerText = "Sending...";
 
-    // ❌ Only allow POST
-    if (request.method !== "POST") {
-      return json({ error: "Only POST allowed" }, 405);
-    }
-
-    try {
-      const response = await handleCheck(env);
-
-      return new Response(response.body, {
-        status: response.status,
-        headers: {
-          ...Object.fromEntries(response.headers),
-          ...corsHeaders()
-        }
-      });
-
-    } catch (err) {
-      return json({
-        success: false,
-        error: err.message
-      }, 500);
-    }
-  },
-
-  async scheduled(event, env, ctx) {
-    ctx.waitUntil(handleCheck(env));
-  }
-};
-
-
-// 🔥 MAIN FUNCTION
-async function handleCheck(env) {
   try {
-
-    // ✅ Prevent crash if KV not bound
-    if (!env.KV) {
-      throw new Error("KV NOT BOUND. Go to Worker settings and bind KV as 'KV'");
-    }
-
-    const dataSource = "https://anywherecum.pages.dev/videos.json";
-
-    // Fetch videos
-    const res = await fetch(dataSource);
-    if (!res.ok) throw new Error("Failed to fetch videos.json");
-
-    const videos = await res.json();
-
-    if (!Array.isArray(videos)) {
-      throw new Error("videos.json is not an array");
-    }
-
-    const latest = videos[0];
-
-    if (!latest) {
-      return json({ success: false, message: "No videos found" });
-    }
-
-    // Get last sent ID
-    const lastId = await env.KV.get("LAST_UPDATED");
-
-    console.log("Latest:", latest.id);
-    console.log("Last:", lastId);
-
-    // ✅ No new video
-    if (lastId === latest.id) {
-      return json({
-        success: true,
-        sent: false,
-        message: "No new video"
-      });
-    }
-
-    // Save new video ID
-    await env.KV.put("LAST_UPDATED", latest.id);
-    await env.KV.put("LAST_DATE", latest.date || "");
-
-    // 🔔 Send OneSignal notification
-    const oneSignalRes = await fetch("https://onesignal.com/api/v1/notifications", {
+    const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Basic ${env.ONESIGNAL_REST_API_KEY}`
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        app_id: env.ONESIGNAL_APP_ID,
-        included_segments: ["All"],
-        headings: { en: latest.title || "New Video" },
-        contents: { en: latest.title || "New video uploaded" },
-        url: "https://anywherecum.pages.dev/",
-        big_picture: latest.thumbnail
-          ? `https://anywherecum.pages.dev/images/${latest.thumbnail}`
-          : undefined
-      })
+      body: JSON.stringify({ trigger: true }) // ✅ important
     });
 
-    const text = await oneSignalRes.text();
+    const text = await res.text();
+    console.log("Raw:", text);
 
-    let result;
+    let data;
     try {
-      result = JSON.parse(text);
+      data = JSON.parse(text);
     } catch {
-      result = text;
+      throw new Error("Invalid JSON response");
     }
 
-    return json({
-      success: true,
-      sent: true,
-      last_id: latest.id,
-      onesignal: result
-    });
+    if (data.success && data.sent) {
+      alert("✅ Notification sent!");
+    } else if (data.success && !data.sent) {
+      alert("⚠️ No new video");
+    } else {
+      alert("❌ " + (data.error || "Unknown error"));
+    }
 
   } catch (err) {
-    console.error("ERROR:", err);
-
-    return json({
-      success: false,
-      error: err.message
-    }, 500);
+    console.error(err);
+    alert("❌ " + err.message);
   }
-}
 
-
-// ✅ JSON helper
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: {
-      "Content-Type": "application/json",
-      ...corsHeaders()
-    }
-  });
-}
-
-
-// ✅ CORS helper
-function corsHeaders() {
-  return {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type"
-  };
-}
+  btn.disabled = false;
+  btn.innerText = "Trigger Notification";
+});
+</script>
   
 <button class="logout-btn" onclick="logout()">Logout</button>
 
