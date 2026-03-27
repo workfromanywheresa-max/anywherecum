@@ -98,6 +98,7 @@ if (!isLoggedIn) {
   localStorage.setItem("adminLoggedIn", "true");
 }
 </script>
+
   <button onclick="sendNotification()">Send Notification</button>
   
 <button class="logout-btn" onclick="logout()">Logout</button>
@@ -225,25 +226,39 @@ function logout() {
 
 <script>
 async function sendNotification() {
+  try {
+    const res = await fetch('videos.json');
 
-  const res = await fetch('./videos.json');
-  const videos = await res.json();
+    if (!res.ok) {
+      throw new Error("videos.json not found");
+    }
 
-  const latestVideo = videos.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    const videos = await res.json();
 
-  const imageUrl = "https://anywherecum.pages.dev/images/" + latestVideo.thumbnail;
+    if (!videos || videos.length === 0) {
+      throw new Error("No videos available");
+    }
 
-  await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      image: imageUrl
-    })
-  });
+    const latestVideo = videos.sort(
+      (a, b) => new Date(b.date) - new Date(a.date)
+    )[0];
 
-  alert("Notification sent ✅");
+    const imageUrl = "https://anywherecum.pages.dev/images/" + latestVideo.thumbnail;
+
+    await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ image: imageUrl })
+    });
+
+    alert("Notification sent ✅");
+
+  } catch (err) {
+    console.error(err);
+    alert("❌ Error sending notification. Check console.");
+  }
 }
 </script>
 
