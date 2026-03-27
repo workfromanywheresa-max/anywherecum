@@ -8,6 +8,7 @@ async function run() {
     console.log("🚀 Script started");
 
     console.log("🔄 Fetching videos...");
+
     const res = await fetch("https://anywherecum.pages.dev/videos.json");
 
     if (!res.ok) {
@@ -33,12 +34,6 @@ async function run() {
 
     console.log("🎬 Latest video:", latest.title);
 
-    // 🚫 Content filter
-    if (latest.title?.toLowerCase().includes("butthole")) {
-      console.log("🚫 Skipping explicit content");
-      return;
-    }
-
     // 📄 Ensure file exists
     if (!fs.existsSync(LAST_FILE)) {
       fs.writeFileSync(LAST_FILE, JSON.stringify({ date: null }, null, 2));
@@ -58,6 +53,9 @@ async function run() {
       ? `https://anywherecum.pages.dev/images/${latest.thumbnail}`
       : null;
 
+    // 🔞 NSFW badge (only in content)
+    const isNSFW = latest.title?.toLowerCase().includes("nsfw");
+
     const response = await fetch(
       "https://onesignal.com/api/v1/notifications",
       {
@@ -70,21 +68,20 @@ async function run() {
           app_id: process.env.ONESIGNAL_APP_ID,
           included_segments: ["All"],
 
+          // Title stays normal
           headings: { en: "🎥 Latest Video 🎥" },
-          contents: { en: latest.title },
 
+          // 🔞 Badge ONLY in content
+          contents: {
+            en: isNSFW
+              ? `🔞 ${latest.title || ""}`
+              : latest.title || "",
+          },
+
+          // Always open homepage
           url: "https://anywherecum.pages.dev/",
 
-          // ✅ Chrome Action Button
-          buttons: [
-            {
-              id: "accept-button",   // 🔥 THIS is the key
-              text: "Open",
-              url: "https://anywherecum.pages.dev/"
-            }
-          ],
-
-          // 🖼️ Images
+          // Images
           big_picture: imageUrl,
           chrome_web_image: imageUrl,
           large_icon: imageUrl,
@@ -103,6 +100,7 @@ async function run() {
 
     console.log("✅ Notification sent!");
 
+    // 💾 Save last sent
     fs.writeFileSync(
       LAST_FILE,
       JSON.stringify({ date: latest.date }, null, 2)
