@@ -183,7 +183,7 @@ h2 {
   });
 </script>
 
-  <!-- TOP AD (Flush + Auto Show + Countdown + Delayed Close Button + Reset Cycle) -->
+  <!-- TOP AD (Clean + Working Version) -->
 <div id="bottomAd" style="
 position: fixed;
 top: -200px;
@@ -198,14 +198,13 @@ text-align: center;
 z-index: 9999;
 background: #fff;
 opacity: 0;
-display: none;
 ">
 
-  <!-- Countdown Timer -->
+  <!-- Countdown -->
   <div id="countdown"
        style="position:absolute; top:2px; right:30px;
-       background:black; color:#fff; font-size:12px; font-weight:bold;
-       padding:2px 6px; border-radius:4px; z-index:10000;">
+       background:black; color:#fff; font-size:12px;
+       font-weight:bold; padding:2px 6px; border-radius:4px;">
     15s
   </div>
 
@@ -216,7 +215,7 @@ display: none;
        width:20px; height:20px; line-height:20px;
        text-align:center; background:#000; color:#fff;
        font-size:14px; font-weight:bold; border-radius:4px;
-       cursor:pointer; z-index:10001; display:none;">
+       cursor:pointer; display:none;">
     ✕
   </div>
 
@@ -233,50 +232,23 @@ display: none;
   padding:2px 6px;
   border-bottom-left-radius:4px;
   border-bottom-right-radius:4px;
-  z-index:9999;
   pointer-events:none;
   animation:glow 1s infinite alternate;">
     🔴 Live
   </div>
 
-  <!-- JuicyAds -->
-  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+  <!-- Ad Script -->
+  <script async src="https://poweredby.jads.co/js/jads.js"></script>
   <ins id="1113670" data-width="300" data-height="62"></ins>
-  <script type="text/javascript" data-cfasync="false" async>
+  <script>
     (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});
   </script>
 
 </div>
 
 <style>
-.slide-up {
-  animation: slideDownFromTop 0.6s ease-out forwards;
-}
-
-.slide-down {
-  animation: slideUpToTop 0.4s ease-in forwards;
-}
-
-@keyframes slideDownFromTop {
-  from {
-    top: -200px;
-    opacity: 0;
-  }
-  to {
-    top: 0;
-    opacity: 1;
-  }
-}
-
-@keyframes slideUpToTop {
-  from {
-    top: 0;
-    opacity: 1;
-  }
-  to {
-    top: -200px;
-    opacity: 0;
-  }
+#bottomAd {
+  transition: top 0.5s ease, opacity 0.5s ease;
 }
 
 @keyframes glow {
@@ -287,27 +259,32 @@ display: none;
 </style>
 
 <script>
-const ad = document.getElementById("bottomAd");
-const countdownEl = document.getElementById("countdown");
-const closeBtn = document.getElementById("closeBtn");
+document.addEventListener("DOMContentLoaded", function () {
 
-let countdownInterval;
-let cycleTimeout;
+  const ad = document.getElementById("bottomAd");
+  const countdownEl = document.getElementById("countdown");
+  const closeBtn = document.getElementById("closeBtn");
 
-// Show ad
-function showAd() {
-  ad.style.display = "block";
-  ad.classList.remove("slide-down");
-  ad.classList.add("slide-up");
+  let countdownInterval;
+  let cycleTimeout;
 
-  closeBtn.style.display = "none";
+  function showAd() {
+    ad.style.display = "block";
+    ad.style.opacity = "1";
+    ad.style.top = "-200px";
 
-  let timeLeft = 15;
-  countdownEl.textContent = timeLeft + "s";
+    // Animate down
+    setTimeout(() => {
+      ad.style.top = "0";
+    }, 50);
 
-  clearInterval(countdownInterval);
+    closeBtn.style.display = "none";
 
-  setTimeout(() => {
+    let timeLeft = 15;
+    countdownEl.textContent = timeLeft + "s";
+
+    clearInterval(countdownInterval);
+
     countdownInterval = setInterval(() => {
       timeLeft--;
       countdownEl.textContent = timeLeft + "s";
@@ -317,37 +294,34 @@ function showAd() {
         closeBtn.style.display = "block";
       }
     }, 1000);
-  }, 300);
-}
+  }
 
-// Hide ad
-function hideAd() {
-  ad.classList.remove("slide-up");
-  ad.classList.add("slide-down");
+  function hideAd() {
+    ad.style.top = "-200px";
+    ad.style.opacity = "0";
 
-  setTimeout(() => {
-    ad.style.display = "none";
-    scheduleNextAd();
-  }, 400);
-}
+    setTimeout(() => {
+      ad.style.display = "none";
+      scheduleNextAd();
+    }, 500);
+  }
 
-// Schedule next ad in 2 minutes
-function scheduleNextAd() {
-  clearTimeout(cycleTimeout);
+  function scheduleNextAd() {
+    clearTimeout(cycleTimeout);
+    cycleTimeout = setTimeout(showAd, 120000); // 2 minutes
+  }
 
-  cycleTimeout = setTimeout(() => {
-    showAd();
-  }, 120000);
-}
-
-// Initial load
-window.onload = function () {
+  // Start after 10 seconds
   setTimeout(() => {
     showAd();
     scheduleNextAd();
   }, 10000);
-};
-                   </script>
+
+  // Make hideAd globally accessible
+  window.hideAd = hideAd;
+
+});
+</script>
 
 <button onclick="history.back()">← Back</button>
 
