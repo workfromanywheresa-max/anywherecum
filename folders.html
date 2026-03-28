@@ -243,12 +243,12 @@ h2 {
 ">
   <div style="
     position: relative;
+    display: inline-block;
     border: 2px solid red;
     border-radius: 12px;
-    padding: 0; /* FLUSH */
-    display: inline-block;
+    overflow: hidden; /* FIX: stops ad spilling outside border */
   ">
-    
+
     <!-- 🔴 Live Badge -->
     <div style="
       position: absolute;
@@ -264,6 +264,7 @@ h2 {
       align-items: center;
       gap: 5px;
       font-weight: bold;
+      z-index: 10; /* FIX: always on top */
     ">
       <span style="
         width: 8px;
@@ -276,12 +277,14 @@ h2 {
       Live
     </div>
 
-    <!-- Ad -->
-    <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-    <ins id="1113665" data-width="300" data-height="112"></ins>
-    <script type="text/javascript" data-cfasync="false" async>
-      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113665});
-    </script>
+    <!-- Ad Wrapper -->
+    <div style="line-height: 0;">
+      <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+      <ins id="1113665" style="display:block; width:300px; height:112px;"></ins>
+      <script type="text/javascript" data-cfasync="false" async>
+        (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113665});
+      </script>
+    </div>
 
   </div>
 </div>
