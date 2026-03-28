@@ -99,7 +99,7 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <h2>📅 Monthly Visits</h2>
   <ul id="monthlyList"></ul>
 
-  <button onclick="expandMonths()" style="
+  <button onclick="toggleMonths()" style="
     margin-top:10px;
     padding:6px 10px;
     background:#333;
@@ -142,9 +142,23 @@ function getMonthLabel(offset) {
 }
 
 /* MONTH CONTROL */
-let monthsToShow = 3;
+let monthsExpanded = false;
+let baseMonths = 3;
+let monthsToShow = baseMonths;
 
-/* MONTHLY VISITS (FRONTEND ONLY) */
+/* TOGGLE MONTHS */
+function toggleMonths() {
+  monthsExpanded = !monthsExpanded;
+
+  monthsToShow = monthsExpanded ? baseMonths * 2 : baseMonths;
+
+  document.querySelector("button[onclick='toggleMonths()']").innerText =
+    monthsExpanded ? "Show Less" : "Show More";
+
+  loadMonthlyVisits();
+}
+
+/* MONTHLY VISITS */
 async function loadMonthlyVisits() {
   const list = document.getElementById("monthlyList");
   list.innerHTML = "";
@@ -165,7 +179,7 @@ async function loadMonthlyVisits() {
     let value = 0;
 
     if (i === 0) {
-      value = total; // only current month has data
+      value = total;
     }
 
     li.innerHTML = `
@@ -175,12 +189,6 @@ async function loadMonthlyVisits() {
 
     list.appendChild(li);
   }
-}
-
-/* EXPAND */
-function expandMonths() {
-  monthsToShow += 3;
-  loadMonthlyVisits();
 }
 
 /* PAGE VIEWS */
