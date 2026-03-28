@@ -83,20 +83,6 @@ li {
   background: #444;
   border-radius: 3px;
 }
-
-/* DIGIT ANIMATION */
-.digit {
-  display: inline-block;
-  height: 1em;
-  overflow: hidden;
-  width: 0.6em;
-  position: relative;
-}
-
-.digit-inner {
-  display: block;
-  transition: transform 0.3s ease;
-}
 </style>
 </head>
 
@@ -188,56 +174,22 @@ function sumValues(data) {
   return total;
 }
 
-/* DIGIT ANIMATION */
+/* Smaller bracket styling */
 function bracket(num) {
-  const digits = String(num);
-
-  let html = `<span style="font-size: 0.4em; opacity: 0.5; display: inline-flex;">(`;
-
-  digits.split("").forEach(d => {
-    html += `
-      <span class="digit">
-        <span class="digit-inner">${d}</span>
-      </span>
-    `;
-  });
-
-  html += `)</span>`;
-
-  return html;
+  return `<span style="font-size: 0.4em; opacity: 0.5;">(${num})</span>`;
 }
 
-function animateDigits(container, newValue) {
-  const newDigits = String(newValue);
-  const digitSpans = container.querySelectorAll(".digit-inner");
-
-  newDigits.split("").forEach((digit, i) => {
-    const el = digitSpans[i];
-    if (!el) return;
-
-    const oldDigit = el.textContent;
-
-    if (oldDigit !== digit) {
-      el.style.transform = "translateY(-100%)";
-
-      setTimeout(() => {
-        el.textContent = digit;
-        el.style.transition = "none";
-        el.style.transform = "translateY(100%)";
-
-        requestAnimationFrame(() => {
-          el.style.transition = "transform 0.3s ease";
-          el.style.transform = "translateY(0)";
-        });
-      }, 150);
-    }
-  });
+function getFormattedCached(key) {
+  const val = loadCache(key);
+  if (!val) return "Loading...";
+  const num = Number(val);
+  return `${formatViews(num)} ${bracket(num)}`;
 }
 
 /* ---------- TOTAL ---------- */
-totalEl.innerHTML = "Site Visits: " + formatViews(loadCache("totalViews") || 0) + " <span id='totalBracket'></span>";
-videoEl.innerHTML = "Video Views: " + formatViews(loadCache("videoViews") || 0) + " <span id='videoBracket'></span>";
-cycleEl.innerHTML = "Cycle Views: " + formatViews(loadCache("cycleViews") || 0) + " <span id='cycleBracket'></span>";
+totalEl.innerHTML = "Site Visits: " + getFormattedCached("totalViews");
+videoEl.innerHTML = "Video Views: " + getFormattedCached("videoViews");
+cycleEl.innerHTML = "Cycle Views: " + getFormattedCached("cycleViews");
 
 /* ---------- MONTH ---------- */
 function getMonthLabel(offset) {
@@ -248,6 +200,11 @@ function getMonthLabel(offset) {
 
 const monthlyList = document.getElementById("monthlyList");
 
+const cachedMonthly = loadCache("monthlyTotals");
+if (cachedMonthly) {
+  renderMonthly(JSON.parse(cachedMonthly));
+}
+
 function renderMonthly(data) {
   let html = "";
 
@@ -257,7 +214,7 @@ function renderMonthly(data) {
     html += `
       <li>
         <span>${getMonthLabel(i)}</span>
-        <span class="value">${formatViews(value)} (${value})</span>
+        <span class="value">${formatViews(value)} ${bracket(value)}</span>
       </li>
     `;
   }
@@ -273,11 +230,17 @@ onValue(pageViewsRef, (snapshot) => {
   monthlyTotals[0] = sumValues(data);
 
   renderMonthly(monthlyTotals);
+
   saveCache("monthlyTotals", JSON.stringify(monthlyTotals));
 });
 
-/* ---------- PAGE VIEWS ---------- */
+/* ---------- PAGE VIEWS (SORTED) ---------- */
 const pageList = document.getElementById("pageViews");
+
+const cachedPage = loadCache("pageViewsData");
+if (cachedPage) {
+  renderPages(JSON.parse(cachedPage));
+}
 
 function renderPages(data) {
   const items = Object.entries(data || {})
@@ -289,7 +252,7 @@ function renderPages(data) {
   items.forEach(([key, value]) => {
     html += `<li>
       <span>${key}</span>
-      <span class="value">${formatViews(value)} (${value})</span>
+      <span class="value">${formatViews(value)} ${bracket(value)}</span>
     </li>`;
   });
 
@@ -308,12 +271,20 @@ onValue(pageViewsRef, (snapshot) => {
 /* ---------- VIDEO ---------- */
 onValue(videoViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val() || {});
+  videoEl.innerHTML = `
+    Video Views: ${formatViews(total)} ${bracket(total)}
+  `;
+
   saveCache("videoViews", total);
 });
 
 /* ---------- CYCLE ---------- */
 onValue(cycleViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val() || {});
+  cycleEl.innerHTML = `
+    Cycle Views: ${formatViews(total)} ${bracket(total)}
+  `;
+
   saveCache("cycleViews", total);
 });
 
