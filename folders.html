@@ -236,23 +236,63 @@ h2 {
 <div id="vipContainer"></div>
 <div id="normalContainer"></div>
 
-<div class="ad-container">
-  
-  <!-- JuicyAds -->
-  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-  <ins id="1113665" data-width="300" data-height="112"></ins>
-  <script type="text/javascript" data-cfasync="false" async>
-    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113665});
-  </script>
-  <!-- End JuicyAds -->
+  <div style="
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+">
+  <div style="
+    position: relative;
+    border: 2px solid red;
+    border-radius: 12px;
+    padding: 5px;
+    display: inline-block;
+  ">
+    
+    <!-- 🔴 Live Badge -->
+    <div style="
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: red;
+      color: white;
+      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: bold;
+    ">
+      <span style="
+        width: 8px;
+        height: 8px;
+        background: white;
+        border-radius: 50%;
+        display: inline-block;
+        animation: blink 1s infinite;
+      "></span>
+      Live
+    </div>
 
-  <!-- Live overlay -->
-  <div class="live-badge">
-    <span class="live-dot"></span>
-    🔴 Live
+    <!-- Ad -->
+    <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+    <ins id="1113665" data-width="300" data-height="112"></ins>
+    <script type="text/javascript" data-cfasync="false" async>
+      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113665});
+    </script>
+
   </div>
-
 </div>
+
+<!-- Blink Animation -->
+<style>
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+</style>
 
   <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
   © 2026 AnywhereCum – Legal content only. 18+<br>
