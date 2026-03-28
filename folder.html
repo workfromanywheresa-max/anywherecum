@@ -231,40 +231,43 @@ opacity: 0;
     🔴 Live
   </div>
 
-  <!-- ⏱ Timer -->
-  <div id="countdown" style="
+  <!-- ⏱ Timer / ❌ Close (same position) -->
+  <div style="
     position:absolute;
     top:4px;
     right:4px;
-    background:black;
-    color:#fff;
-    font-size:11px;
-    font-weight:bold;
-    padding:2px 6px;
-    border-radius:4px;
-    z-index:1000;">
-    15s
-  </div>
+    z-index:1000;
+  ">
+    <!-- Timer -->
+    <div id="countdown" style="
+      background:black;
+      color:#fff;
+      font-size:11px;
+      font-weight:bold;
+      padding:2px 6px;
+      border-radius:4px;
+    ">
+      15s
+    </div>
 
-  <!-- ❌ Close -->
-  <div id="closeBtn" onclick="hideAd()" style="
-    position:absolute;
-    top:4px;
-    right:4px;
-    width:20px;
-    height:20px;
-    line-height:20px;
-    text-align:center;
-    background:#000;
-    color:#fff;
-    font-size:13px;
-    font-weight:bold;
-    border-radius:4px;
-    cursor:pointer;
-    display:none;
-    z-index:9999 !important;
-    pointer-events:auto !important;">
-    ✕
+    <!-- Close Button -->
+    <div id="closeBtn" onclick="hideAd()" style="
+      background:#000;
+      color:#fff;
+      font-size:13px;
+      font-weight:bold;
+      width:20px;
+      height:20px;
+      line-height:20px;
+      text-align:center;
+      border-radius:4px;
+      cursor:pointer;
+      display:none;
+      align-items:center;
+      justify-content:center;
+    ">
+      ✕
+    </div>
   </div>
 
 </div>
@@ -296,8 +299,6 @@ document.addEventListener("DOMContentLoaded", function () {
     let timeLeft = 15;
 
     countdownEl.style.display = "block";
-    countdownEl.style.opacity = "1";
-
     closeBtn.style.display = "none";
 
     countdownEl.textContent = timeLeft + "s";
@@ -311,11 +312,11 @@ document.addEventListener("DOMContentLoaded", function () {
       if (timeLeft <= 0) {
         clearInterval(countdownInterval);
 
+        // Hide timer
         countdownEl.style.display = "none";
 
-        // FORCE X to be visible
-        closeBtn.style.display = "block";
-        closeBtn.style.opacity = "1";
+        // Show X in SAME spot
+        closeBtn.style.display = "flex";
       }
     }, 1000);
   }
