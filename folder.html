@@ -183,7 +183,7 @@ h2 {
   });
 </script>
 
-  <!-- TOP AD (Clean + Working Version) -->
+  <!-- TOP AD -->
 <div id="bottomAd" style="
 position: fixed;
 top: -200px;
@@ -208,7 +208,7 @@ opacity: 0;
     15s
   </div>
 
-  <!-- Close Button -->
+  <!-- Close Button (X) -->
   <div id="closeBtn"
        onclick="hideAd()"
        style="position:absolute; top:2px; right:4px;
@@ -271,9 +271,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function showAd() {
     ad.style.display = "block";
     ad.style.opacity = "1";
-    ad.style.top = "-200px";
 
-    // Animate down
     setTimeout(() => {
       ad.style.top = "0";
     }, 50);
@@ -291,7 +289,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (timeLeft <= 0) {
         clearInterval(countdownInterval);
-        closeBtn.style.display = "block";
+        closeBtn.style.display = "block"; // X appears ONLY after timer
       }
     }, 1000);
   }
@@ -311,13 +309,12 @@ document.addEventListener("DOMContentLoaded", function () {
     cycleTimeout = setTimeout(showAd, 120000); // 2 minutes
   }
 
-  // Start after 10 seconds
+  // First show after 10 seconds
   setTimeout(() => {
     showAd();
     scheduleNextAd();
   }, 10000);
 
-  // Make hideAd globally accessible
   window.hideAd = hideAd;
 
 });
