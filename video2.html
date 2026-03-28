@@ -74,9 +74,91 @@ button:hover {
 }
 </style>
 
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f",
+    });
+  });
+</script>
+
 </head>
   
 <body>
+
+  <div id="topBanner" style="
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -100%);
+  width: 95%;
+  max-width: 700px;
+  background: #ffffff;
+  color: #111;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 12px;
+  font-size: 11px;
+  z-index: 9999;
+  border-radius: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.5s ease;
+">
+  <span style="flex: 1; text-align: center;">
+    🔔 Click the bell icon on your bottom left to receive notifications
+  </span>
+  <button id="closeBtn" style="
+    position: absolute;
+    right: 8px;
+    background: transparent;
+    border: none;
+    color: #111;
+    font-size: 12px;
+    cursor: pointer;
+    line-height: 1;
+  ">✖</button>
+</div>
+
+<script>
+  const banner = document.getElementById("topBanner");
+  const closeBtn = document.getElementById("closeBtn");
+
+  const lastClosed = localStorage.getItem("bannerClosedTime");
+  const now = Date.now();
+  const twentyFourHours = 24 * 60 * 60 * 1000;
+
+  if (!lastClosed || now - lastClosed > twentyFourHours) {
+    // Show banner
+    banner.style.display = "flex";
+
+    // Slide down smoothly
+    setTimeout(() => {
+      banner.style.transform = "translate(-50%, 0)";
+    }, 50);
+
+    // Auto-hide after 30 seconds
+    setTimeout(() => {
+      banner.style.transform = "translate(-50%, -100%)";
+      setTimeout(() => {
+        banner.style.display = "none";
+        localStorage.setItem("bannerClosedTime", Date.now());
+      }, 500);
+    }, 30000);
+  }
+
+  closeBtn.addEventListener("click", () => {
+    banner.style.transform = "translate(-50%, -100%)";
+    setTimeout(() => {
+      banner.style.display = "none";
+      localStorage.setItem("bannerClosedTime", Date.now());
+    }, 500);
+  });
+</script>
 
   <!-- Back Button -->
   <button onclick="history.back()" style="
