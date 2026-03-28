@@ -182,7 +182,7 @@ h2 {
     }, 500);
   });
 </script>
-
+  
   <!-- TOP AD -->
 <div id="topAd" style="
 position: fixed;
@@ -199,7 +199,7 @@ background: #fff;
 opacity: 0;
 ">
 
-  <!-- 🧱 Ad Wrapper (LOWER layer) -->
+  <!-- 🧱 Ad Wrapper -->
   <div style="
     position:absolute;
     top:0;
@@ -215,7 +215,7 @@ opacity: 0;
     </script>
   </div>
 
-  <!-- 🔴 Live Badge (TOP layer) -->
+  <!-- 🔴 Live Badge -->
   <div style="
   position:absolute;
   top:2px;
@@ -246,10 +246,8 @@ opacity: 0;
     15s
   </div>
 
-  <!-- ❌ Close -->
-  <div id="closeBtn"
-    onclick="hideAd()"
-    style="
+  <!-- ❌ Close Button -->
+  <div id="closeBtn" onclick="hideAd()" style="
     position:absolute;
     top:4px;
     right:4px;
@@ -274,6 +272,9 @@ opacity: 0;
 #topAd {
   transition: top 0.5s ease, opacity 0.5s ease;
 }
+#countdown, #closeBtn {
+  transition: opacity 0.3s ease;
+}
 </style>
 
 <script>
@@ -295,8 +296,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 50);
 
     let timeLeft = 15;
+
     countdownEl.style.display = "block";
+    countdownEl.style.opacity = "1";
+
     closeBtn.style.display = "none";
+
     countdownEl.textContent = timeLeft + "s";
 
     clearInterval(countdownInterval);
@@ -307,8 +312,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (timeLeft <= 0) {
         clearInterval(countdownInterval);
-        countdownEl.style.display = "none";
-        closeBtn.style.display = "block";
+
+        // fade out timer
+        countdownEl.style.opacity = "0";
+
+        setTimeout(() => {
+          countdownEl.style.display = "none";
+
+          // show X button in same position
+          closeBtn.style.display = "block";
+          closeBtn.style.opacity = "1";
+        }, 200);
       }
     }, 1000);
   }
@@ -325,7 +339,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function scheduleNextAd() {
     clearTimeout(cycleTimeout);
-    cycleTimeout = setTimeout(showAd, 120000);
+    cycleTimeout = setTimeout(showAd, 120000); // 2 minutes
   }
 
   setTimeout(() => {
@@ -337,7 +351,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 </script>
-
   
 <button onclick="history.back()">← Back</button>
 
