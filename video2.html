@@ -88,6 +88,158 @@ button:hover {
   
 <body>
 
+  <!-- TOP AD -->
+<div id="topAdMain" style="
+position: fixed;
+top: -80px;
+left: 50%;
+transform: translateX(-50%);
+width: 320px;
+height: 50px;
+border: 2px solid red;
+border-radius: 8px;
+overflow: hidden;
+z-index: 9999;
+background: #fff;
+transition: top 0.5s ease;
+">
+
+  <!-- Ad -->
+  <div style="
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:1;
+    background:#fff;
+  ">
+    <script>
+      atOptions = {
+        'key' : '58e0d60dc3ec78d2ff8981481d093080',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
+    </script>
+    <script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
+  </div>
+
+  <!-- 🔴 Live -->
+  <div style="
+    position:absolute;
+    top:2px;
+    left:50%;
+    transform:translateX(-50%);
+    background:red;
+    color:#fff;
+    font-weight:bold;
+    font-size:11px;
+    padding:1px 6px;
+    border-radius:4px;
+    z-index:1000;">
+    🔴 Live
+  </div>
+
+  <!-- Timer / Close -->
+  <div style="
+    position:absolute;
+    top:4px;
+    right:14px;
+    z-index:1000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  ">
+
+    <!-- Timer -->
+    <div id="mainCountdown" style="
+      background:black;
+      color:#fff;
+      font-size:11px;
+      font-weight:bold;
+      padding:2px 6px;
+      border-radius:4px;
+    ">
+      15s
+    </div>
+
+    <!-- Close Button -->
+    <div id="mainCloseBtn" style="
+      display:none;
+      background:#000;
+      color:#fff;
+      font-size:13px;
+      font-weight:bold;
+      width:20px;
+      height:20px;
+      line-height:20px;
+      text-align:center;
+      border-radius:4px;
+      cursor:pointer;
+      align-items:center;
+      justify-content:center;
+    ">
+      ✕
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const ad = document.getElementById("topAdMain");
+  const countdownEl = document.getElementById("mainCountdown");
+  const closeBtn = document.getElementById("mainCloseBtn");
+
+  let countdownInterval;
+  let cycleTimeout;
+
+  function showAd() {
+    ad.style.top = "10px";
+
+    let timeLeft = 15;
+
+    countdownEl.style.display = "block";
+    closeBtn.style.display = "none";
+
+    countdownEl.textContent = timeLeft + "s";
+
+    clearInterval(countdownInterval);
+
+    countdownInterval = setInterval(() => {
+      timeLeft--;
+      countdownEl.textContent = timeLeft + "s";
+
+      if (timeLeft <= 0) {
+        clearInterval(countdownInterval);
+
+        countdownEl.style.display = "none";
+        closeBtn.style.display = "flex";
+      }
+    }, 1000);
+  }
+
+  function hideMainAd() {
+    ad.style.top = "-80px";
+
+    clearInterval(countdownInterval);
+
+    clearTimeout(cycleTimeout);
+    cycleTimeout = setTimeout(showAd, 120000);
+  }
+
+  closeBtn.addEventListener("click", hideMainAd);
+
+  setTimeout(() => {
+    showAd();
+  }, 30000);
+
+});
+</script>
+
   <div id="topBanner" style="
   position: fixed;
   top: 0;
@@ -289,124 +441,6 @@ observer.observe(adContainer, { childList: true, subtree: true });
     <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" style="color:#ff4444; text-decoration:none; margin:0 5px; display:inline-block; white-space:nowrap;"> ⬆️Back to Top </a>
   </div>
 </footer>
-
-<!-- Ad4 (Bottom Ad with Slide/Countdown/Glow) -->
-<div id="bottomAd" style="
-position: fixed;
-bottom: -200px;
-left: 50%;
-transform: translateX(-50%);
-width: 320px;
-height: 50px;
-border: 2px solid red;
-border-radius: 8px;
-overflow: hidden;
-text-align: center;
-z-index: 9999;
-background: #fff;
-opacity: 0;
-display: none;
-">
-
-  <!-- Countdown Timer -->
-  <div id="countdown" style="position:absolute; top:2px; right:30px; background:black; color:#fff; font-size:12px; font-weight:bold; padding:2px 6px; border-radius:4px; z-index:10000;">
-    15s
-  </div>
-
-  <!-- Close Button -->
-  <div id="closeBtn" onclick="hideAd()" style="position:absolute; top:2px; right:4px; width:20px; height:20px; line-height:20px; text-align:center; background:#000; color:#fff; font-size:14px; font-weight:bold; border-radius:4px; cursor:pointer; z-index:10001; display:none;">
-    ✕
-  </div>
-
-  <!-- Live Badge -->
-  <div style="position:absolute;top:0;left:50%;transform:translateX(-50%); background:red;color:#fff;font-weight:bold;font-size:12px;padding:2px 6px; border-bottom-left-radius:4px;border-bottom-right-radius:4px; z-index:9999;pointer-events:none;animation:glow 1s infinite alternate;">
-    ⚫️ Ad
-  </div>
-
-  <!-- High Performance Format Ad -->
-  <script>
-    atOptions = {
-      'key' : '58e0d60dc3ec78d2ff8981481d093080',
-      'format' : 'iframe',
-      'height' : 50,
-      'width' : 320,
-      'params' : {}
-    };
-  </script>
-  <script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
-
-</div>
-
-<style>
-.slide-up { animation: slideUp 0.6s ease-out forwards; }
-.slide-down { animation: slideDown 0.4s ease-in forwards; }
-@keyframes slideUp { from { bottom: -200px; opacity: 0; } to { bottom: 0; opacity: 1; } }
-@keyframes slideDown { from { bottom: 0; opacity: 1; } to { bottom: -200px; opacity: 0; } }
-@keyframes glow { 0% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; } 50% { box-shadow:0 0 6px #fff,0 0 12px red; opacity:1; } 100% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; } }
-</style>
-
-<script>
-const ad = document.getElementById("bottomAd");
-const countdownEl = document.getElementById("countdown");
-const closeBtn = document.getElementById("closeBtn");
-
-let countdownInterval;
-let cycleTimeout;
-
-// Show ad
-function showAd() {
-  ad.style.display = "block";
-  ad.classList.remove("slide-down");
-  ad.classList.add("slide-up");
-
-  closeBtn.style.display = "none";
-
-  let timeLeft = 15;
-  countdownEl.textContent = timeLeft + "s";
-
-  clearInterval(countdownInterval);
-
-  setTimeout(() => {
-    countdownInterval = setInterval(() => {
-      timeLeft--;
-      countdownEl.textContent = timeLeft + "s";
-
-      if (timeLeft <= 0) {
-        clearInterval(countdownInterval);
-        closeBtn.style.display = "block";
-      }
-    }, 1000);
-  }, 300);
-}
-
-// Hide ad
-function hideAd() {
-  ad.classList.remove("slide-up");
-  ad.classList.add("slide-down");
-
-  setTimeout(() => {
-    ad.style.display = "none";
-    scheduleNextAd();
-  }, 400);
-}
-
-// Schedule next ad in 2 minutes
-function scheduleNextAd() {
-  clearTimeout(cycleTimeout);
-
-  cycleTimeout = setTimeout(() => {
-    showAd();
-  }, 120000);
-}
-
-// Initial load
-window.onload = function () {
-  setTimeout(() => {
-    showAd();
-    scheduleNextAd();
-  }, 10000);
-};
-</script>
 
 <script type="module" src="views.js"></script>
 </body>
