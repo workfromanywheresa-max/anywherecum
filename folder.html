@@ -256,7 +256,7 @@ transition: top 0.5s ease;
     </div>
 
     <!-- Close Button -->
-    <div id="mainCloseBtn" onclick="hideMainAd()" style="
+    <div id="mainCloseBtn" style="
       display:none;
       background:#000;
       color:#fff;
@@ -268,6 +268,8 @@ transition: top 0.5s ease;
       text-align:center;
       border-radius:4px;
       cursor:pointer;
+      align-items:center;
+      justify-content:center;
     ">
       ✕
     </div>
@@ -315,17 +317,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
     clearInterval(countdownInterval);
 
-    // 👉 Start 2 minute cooldown AFTER X is clicked
     clearTimeout(cycleTimeout);
     cycleTimeout = setTimeout(showAd, 120000);
   }
+
+  // Attach click properly
+  closeBtn.addEventListener("click", hideMainAd);
 
   // Start after 10 seconds
   setTimeout(() => {
     showAd();
   }, 10000);
-
-  window.hideMainAd = hideMainAd;
 
 });
 </script>
