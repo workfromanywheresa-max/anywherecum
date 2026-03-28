@@ -95,7 +95,7 @@ function formatViews(num) {
 const pageRef = ref(db, "pageViews");
 const el = document.getElementById("adminViews");
 
-/* ================= UI UPDATE FUNCTION ================= */
+/* ================= UPDATE UI ================= */
 function updateUI(total) {
   const formatted = formatViews(total);
 
@@ -103,23 +103,29 @@ function updateUI(total) {
     el.innerText = `👁 ${formatted} | Admin`;
   }
 
-  // Save RAW number to cache
+  // store RAW number only
   localStorage.setItem("cachedViews", total);
 }
 
-/* ================= LOAD FROM CACHE FIRST ================= */
+/* ================= SAFE CACHE LOAD ================= */
 
-const cachedViews = localStorage.getItem("cachedViews");
+const rawCache = localStorage.getItem("cachedViews");
+
+let cachedViews = null;
+
+if (rawCache !== null && rawCache !== "null" && !isNaN(rawCache)) {
+  cachedViews = Number(rawCache);
+}
 
 if (el) {
   if (cachedViews !== null) {
-    updateUI(Number(cachedViews));
+    updateUI(cachedViews);
   } else {
     el.innerText = "👁 Loading...";
   }
 }
 
-/* ================= FIREBASE LISTENER ================= */
+/* ================= TOTAL FUNCTION ================= */
 
 function getTotal(pageData) {
   let total = 0;
@@ -133,13 +139,16 @@ function getTotal(pageData) {
   return total;
 }
 
+/* ================= FIREBASE LISTENER ================= */
+
 onValue(pageRef, (snapshot) => {
   const data = snapshot.val() || {};
   const total = getTotal(data);
 
-  // Only update if changed
-  const cached = Number(localStorage.getItem("cachedViews"));
+  const rawCache = localStorage.getItem("cachedViews");
+  const cached = rawCache !== null && !isNaN(rawCache) ? Number(rawCache) : null;
 
+  // only update if changed
   if (cached !== total) {
     updateUI(total);
   }
