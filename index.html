@@ -180,27 +180,31 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 80%;
-  max-width: 500px;
+  width: 70%;
+  max-width: 420px;
   background: #222;
   color: white;
   display: none;
-  justify-content: center;
   align-items: center;
-  padding: 4px 10px;
-  font-size: 12px;
+  justify-content: center;
+  padding: 2px 8px;
+  font-size: 11px;
   z-index: 9999;
-  border-radius: 6px;
+  border-radius: 5px;
+  white-space: nowrap;
+  overflow: hidden;
   animation: slideDown 0.4s ease;
 ">
-  <span>🔔 Click the bell icon on your bottom left to receive notifications</span>
+  <span style="flex: 1; text-align: center;">
+    🔔 Click the bell icon on your bottom left to receive notifications
+  </span>
   <button id="closeBtn" style="
     position: absolute;
-    right: 8px;
+    right: 6px;
     background: transparent;
     border: none;
     color: white;
-    font-size: 12px;
+    font-size: 11px;
     cursor: pointer;
     line-height: 1;
   ">✖</button>
