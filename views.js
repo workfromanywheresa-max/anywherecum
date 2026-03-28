@@ -95,12 +95,25 @@ function formatViews(num) {
 const pageRef = ref(db, "pageViews");
 const el = document.getElementById("adminViews");
 
-/* ================= GET CACHE FIRST ================= */
+/* ================= UI UPDATE FUNCTION ================= */
+function updateUI(total) {
+  const formatted = formatViews(total);
+
+  if (el) {
+    el.innerText = `👁 ${formatted} | Admin`;
+  }
+
+  // Save RAW number to cache
+  localStorage.setItem("cachedViews", total);
+}
+
+/* ================= LOAD FROM CACHE FIRST ================= */
+
 const cachedViews = localStorage.getItem("cachedViews");
 
 if (el) {
-  if (cachedViews) {
-    el.innerText = `👁 ${cachedViews} | Admin`;
+  if (cachedViews !== null) {
+    updateUI(Number(cachedViews));
   } else {
     el.innerText = "👁 Loading...";
   }
@@ -123,12 +136,11 @@ function getTotal(pageData) {
 onValue(pageRef, (snapshot) => {
   const data = snapshot.val() || {};
   const total = getTotal(data);
-  const formatted = formatViews(total);
 
-  if (el) {
-    el.innerText = `👁 ${formatted} | Admin`;
+  // Only update if changed
+  const cached = Number(localStorage.getItem("cachedViews"));
+
+  if (cached !== total) {
+    updateUI(total);
   }
-
-  /* Save latest value for instant future loads */
-  localStorage.setItem("cachedViews", formatted);
 });
