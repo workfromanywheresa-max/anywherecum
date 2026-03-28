@@ -59,9 +59,8 @@ li {
   cursor: pointer;
 }
 
-/* SCROLLABLE MONTHLY LIST */
 .monthly-box {
-  max-height: 120px; /* shows ~3 months */
+  max-height: 120px;
   overflow-y: auto;
   padding-right: 5px;
 }
@@ -108,13 +107,11 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="cycleViewsTotal" class="value">Cycle Views: Loading...</div>
 </div>
 
-<!-- MONTHLY -->
 <div class="card">
   <h2>📅 Monthly Visits</h2>
   <ul id="monthlyList" class="monthly-box"></ul>
 </div>
 
-<!-- PAGE VIEWS -->
 <div class="container">
   <div class="card">
     <h2>📊 Page Views</h2>
@@ -122,62 +119,70 @@ if (!localStorage.getItem("adminLoggedIn")) {
   </div>
 </div>
 
-<script>
-const DB = "https://anywherecum-1c8d0-default-rtdb.firebaseio.com";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-/* FORMAT */
+/* ---------------- FIREBASE ---------------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
+  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/* ---------------- REFERENCES ---------------- */
+const pageViewsRef = ref(db, "pageViews");
+const videoViewsRef = ref(db, "views");
+const cycleViewsRef = ref(db, "cycleViews");
+
+/* ---------------- FORMAT ---------------- */
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + "K";
   return num;
 }
 
-/* FETCH */
-async function fetchData(path) {
-  const res = await fetch(`${DB}/${path}.json`);
-  return await res.json();
+/* ---------------- SUM ---------------- */
+function sumValues(data) {
+  let total = 0;
+  if (data) {
+    Object.values(data).forEach(v => total += typeof v === "number" ? v : 0);
+  }
+  return total;
 }
 
-/* MONTH LABEL */
+/* ---------------- MONTH LABEL ---------------- */
 function getMonthLabel(offset) {
   const now = new Date();
   const d = new Date(now.getFullYear(), now.getMonth() - offset, 1);
   return d.toLocaleString("default", { month: "long" });
 }
 
-/* MONTHLY VISITS (ONLY LOAD ONCE) */
-async function loadMonthlyVisits() {
+/* ---------------- MONTHLY (STATIC LOAD) ---------------- */
+onValue(pageViewsRef, (snapshot) => {
+  const data = snapshot.val();
   const list = document.getElementById("monthlyList");
   list.innerHTML = "";
 
-  const data = await fetchData("pageViews");
-
-  let total = 0;
-
-  if (data) {
-    Object.values(data).forEach(v => {
-      total += typeof v === "number" ? v : 0;
-    });
-  }
+  let total = sumValues(data);
 
   for (let i = 0; i < 12; i++) {
     const li = document.createElement("li");
 
-    let value = 0;
-    if (i === 0) value = total;
-
     li.innerHTML = `
       <span>${getMonthLabel(i)}</span>
-      <span class="value">${formatViews(value)}</span>
+      <span class="value">${i === 0 ? formatViews(total) : 0}</span>
     `;
 
     list.appendChild(li);
   }
-}
+});
 
-/* PAGE VIEWS */
-async function loadPageViews() {
-  const data = await fetchData("pageViews");
+/* ---------------- PAGE VIEWS ---------------- */
+onValue(pageViewsRef, (snapshot) => {
+  const data = snapshot.val();
 
   const list = document.getElementById("pageViews");
   list.innerHTML = "";
@@ -195,56 +200,25 @@ async function loadPageViews() {
     });
   }
 
-  return total;
-}
+  document.getElementById("totalViews").innerText =
+    "Site Visits: " + formatViews(total);
+});
 
-/* VIDEO */
-async function loadVideoViewsTotal() {
-  const data = await fetchData("views");
-  let total = 0;
+/* ---------------- VIDEO ---------------- */
+onValue(videoViewsRef, (snapshot) => {
+  const total = sumValues(snapshot.val());
+  document.getElementById("videoViewsTotal").innerText =
+    "Video Views: " + formatViews(total);
+});
 
-  if (data) {
-    Object.values(data).forEach(v => total += typeof v === "number" ? v : 0);
-  }
+/* ---------------- CYCLE ---------------- */
+onValue(cycleViewsRef, (snapshot) => {
+  const total = sumValues(snapshot.val());
+  document.getElementById("cycleViewsTotal").innerText =
+    "Cycle Views: " + formatViews(total);
+});
 
-  return total;
-}
-
-/* CYCLE */
-async function loadCycleViewsTotal() {
-  const data = await fetchData("cycleViews");
-  let total = 0;
-
-  if (data) {
-    Object.values(data).forEach(v => total += typeof v === "number" ? v : 0);
-  }
-
-  return total;
-}
-
-/* UPDATE ONLY TOTALS (NO FLICKER) */
-async function updateTotalsOnly() {
-  const pageTotal = await loadPageViews();
-  const videoTotal = await loadVideoViewsTotal();
-  const cycleTotal = await loadCycleViewsTotal();
-
-  document.getElementById("totalViews").innerText = "Site Visits: " + formatViews(pageTotal);
-  document.getElementById("videoViewsTotal").innerText = "Video Views: " + formatViews(videoTotal);
-  document.getElementById("cycleViewsTotal").innerText = "Cycle Views: " + formatViews(cycleTotal);
-}
-
-/* INIT ONCE */
-async function init() {
-  await loadMonthlyVisits();
-  await updateTotalsOnly();
-}
-
-init();
-
-/* REFRESH ONLY NUMBERS (NO REBUILD) */
-setInterval(updateTotalsOnly, 10000);
-
-/* LOGOUT */
+/* ---------------- LOGOUT ---------------- */
 function logout() {
   localStorage.removeItem("adminLoggedIn");
   location.reload();
