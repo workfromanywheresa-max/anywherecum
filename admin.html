@@ -160,20 +160,6 @@ function sumValues(data) {
   return total;
 }
 
-/* ---------------- CACHE ---------------- */
-function loadCache(key) {
-  return localStorage.getItem(key);
-}
-
-function saveCache(key, value) {
-  localStorage.setItem(key, value);
-}
-
-/* ---------------- INSTANT LOAD ---------------- */
-if (totalEl) totalEl.innerText = "Site Visits: " + (loadCache("totalViews") || "Loading...");
-if (videoEl) videoEl.innerText = "Video Views: " + (loadCache("videoViews") || "Loading...");
-if (cycleEl) cycleEl.innerText = "Cycle Views: " + (loadCache("cycleViews") || "Loading...");
-
 /* ---------------- MONTH ---------------- */
 function getMonthLabel(offset) {
   const now = new Date();
@@ -227,8 +213,6 @@ onValue(pageViewsRef, (snapshot) => {
     ${short} 
     <span style="font-size: 0.75em; opacity: 0.7;">(${total})</span>
   `;
-
-  saveCache("totalViews", total);
 });
 
 /* ---------------- VIDEO ---------------- */
@@ -241,8 +225,6 @@ onValue(videoViewsRef, (snapshot) => {
     ${short} 
     <span style="font-size: 0.75em; opacity: 0.7;">(${total})</span>
   `;
-
-  saveCache("videoViews", total);
 });
 
 /* ---------------- CYCLE ---------------- */
@@ -255,8 +237,6 @@ onValue(cycleViewsRef, (snapshot) => {
     ${short} 
     <span style="font-size: 0.75em; opacity: 0.7;">(${total})</span>
   `;
-
-  saveCache("cycleViews", total);
 });
 
 /* ---------------- LOGOUT ---------------- */
