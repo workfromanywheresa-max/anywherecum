@@ -184,9 +184,9 @@ h2 {
 </script>
 
   <!-- TOP AD -->
-<div id="bottomAd" style="
+<div id="topAd" style="
 position: fixed;
-top: -200px;
+top: -80px;
 left: 50%;
 transform: translateX(-50%);
 width: 300px;
@@ -194,47 +194,63 @@ height: 62px;
 border: 2px solid red;
 border-radius: 8px;
 overflow: hidden;
-text-align: center;
 z-index: 9999;
 background: #fff;
 opacity: 0;
 ">
 
-  <!-- Countdown -->
-  <div id="countdown"
-       style="position:absolute; top:2px; right:30px;
-       background:black; color:#fff; font-size:12px;
-       font-weight:bold; padding:2px 6px; border-radius:4px;">
-    15s
-  </div>
-
-  <!-- Close Button (X) -->
-  <div id="closeBtn"
-       onclick="hideAd()"
-       style="position:absolute; top:2px; right:4px;
-       width:20px; height:20px; line-height:20px;
-       text-align:center; background:#000; color:#fff;
-       font-size:14px; font-weight:bold; border-radius:4px;
-       cursor:pointer; display:none;">
-    ✕
-  </div>
-
-  <!-- Live Badge -->
+  <!-- 🔴 Live Badge -->
   <div style="
   position:absolute;
-  top:0;
+  top:2px;
   left:50%;
   transform:translateX(-50%);
   background:red;
   color:#fff;
   font-weight:bold;
-  font-size:12px;
-  padding:2px 6px;
-  border-bottom-left-radius:4px;
-  border-bottom-right-radius:4px;
-  pointer-events:none;
-  animation:glow 1s infinite alternate;">
+  font-size:11px;
+  padding:1px 6px;
+  border-radius:4px;
+  z-index:2;">
     🔴 Live
+  </div>
+
+  <!-- ⏱ Timer (top-right) -->
+  <div id="countdown"
+       style="
+       position:absolute;
+       top:4px;
+       right:4px;
+       background:black;
+       color:#fff;
+       font-size:11px;
+       font-weight:bold;
+       padding:2px 6px;
+       border-radius:4px;
+       z-index:3;">
+    15s
+  </div>
+
+  <!-- ❌ Close Button (same position, hidden first) -->
+  <div id="closeBtn"
+       onclick="hideAd()"
+       style="
+       position:absolute;
+       top:4px;
+       right:4px;
+       width:20px;
+       height:20px;
+       line-height:20px;
+       text-align:center;
+       background:#000;
+       color:#fff;
+       font-size:13px;
+       font-weight:bold;
+       border-radius:4px;
+       cursor:pointer;
+       display:none;
+       z-index:4;">
+    ✕
   </div>
 
   <!-- Ad Script -->
@@ -247,21 +263,15 @@ opacity: 0;
 </div>
 
 <style>
-#bottomAd {
+#topAd {
   transition: top 0.5s ease, opacity 0.5s ease;
-}
-
-@keyframes glow {
-  0% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
-  50% { box-shadow:0 0 6px #fff,0 0 12px red; opacity:1; }
-  100% { box-shadow:0 0 2px #fff,0 0 5px red; opacity:.8; }
 }
 </style>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-  const ad = document.getElementById("bottomAd");
+  const ad = document.getElementById("topAd");
   const countdownEl = document.getElementById("countdown");
   const closeBtn = document.getElementById("closeBtn");
 
@@ -276,9 +286,10 @@ document.addEventListener("DOMContentLoaded", function () {
       ad.style.top = "0";
     }, 50);
 
-    closeBtn.style.display = "none";
-
+    // Reset states
     let timeLeft = 15;
+    countdownEl.style.display = "block";
+    closeBtn.style.display = "none";
     countdownEl.textContent = timeLeft + "s";
 
     clearInterval(countdownInterval);
@@ -289,13 +300,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (timeLeft <= 0) {
         clearInterval(countdownInterval);
-        closeBtn.style.display = "block"; // X appears ONLY after timer
+
+        // Swap timer → X button
+        countdownEl.style.display = "none";
+        closeBtn.style.display = "block";
       }
     }, 1000);
   }
 
   function hideAd() {
-    ad.style.top = "-200px";
+    ad.style.top = "-80px";
     ad.style.opacity = "0";
 
     setTimeout(() => {
@@ -306,20 +320,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function scheduleNextAd() {
     clearTimeout(cycleTimeout);
-    cycleTimeout = setTimeout(showAd, 120000); // 2 minutes
+    cycleTimeout = setTimeout(showAd, 120000); // 2 min
   }
 
-  // First show after 10 seconds
+  // First show after 10s
   setTimeout(() => {
     showAd();
     scheduleNextAd();
-  }, 35000);
+  }, 10000);
 
   window.hideAd = hideAd;
 
 });
 </script>
-
+  
 <button onclick="history.back()">← Back</button>
 
 <h2 id="folderTitle">Folder</h2>
