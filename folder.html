@@ -199,7 +199,23 @@ background: #fff;
 opacity: 0;
 ">
 
-  <!-- 🔴 Live Badge -->
+  <!-- 🧱 Ad Wrapper (LOWER layer) -->
+  <div style="
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:1;">
+    
+    <script async src="https://poweredby.jads.co/js/jads.js"></script>
+    <ins id="1113670" data-width="300" data-height="62"></ins>
+    <script>
+      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});
+    </script>
+  </div>
+
+  <!-- 🔴 Live Badge (TOP layer) -->
   <div style="
   position:absolute;
   top:2px;
@@ -211,54 +227,46 @@ opacity: 0;
   font-size:11px;
   padding:1px 6px;
   border-radius:4px;
-  z-index:2;">
+  z-index:10;">
     🔴 Live
   </div>
 
-  <!-- ⏱ Timer (top-right) -->
-  <div id="countdown"
-       style="
-       position:absolute;
-       top:4px;
-       right:4px;
-       background:black;
-       color:#fff;
-       font-size:11px;
-       font-weight:bold;
-       padding:2px 6px;
-       border-radius:4px;
-       z-index:3;">
+  <!-- ⏱ Timer -->
+  <div id="countdown" style="
+    position:absolute;
+    top:4px;
+    right:4px;
+    background:black;
+    color:#fff;
+    font-size:11px;
+    font-weight:bold;
+    padding:2px 6px;
+    border-radius:4px;
+    z-index:10;">
     15s
   </div>
 
-  <!-- ❌ Close Button (same position, hidden first) -->
+  <!-- ❌ Close -->
   <div id="closeBtn"
-       onclick="hideAd()"
-       style="
-       position:absolute;
-       top:4px;
-       right:4px;
-       width:20px;
-       height:20px;
-       line-height:20px;
-       text-align:center;
-       background:#000;
-       color:#fff;
-       font-size:13px;
-       font-weight:bold;
-       border-radius:4px;
-       cursor:pointer;
-       display:none;
-       z-index:4;">
+    onclick="hideAd()"
+    style="
+    position:absolute;
+    top:4px;
+    right:4px;
+    width:20px;
+    height:20px;
+    line-height:20px;
+    text-align:center;
+    background:#000;
+    color:#fff;
+    font-size:13px;
+    font-weight:bold;
+    border-radius:4px;
+    cursor:pointer;
+    display:none;
+    z-index:11;">
     ✕
   </div>
-
-  <!-- Ad Script -->
-  <script async src="https://poweredby.jads.co/js/jads.js"></script>
-  <ins id="1113670" data-width="300" data-height="62"></ins>
-  <script>
-    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});
-  </script>
 
 </div>
 
@@ -286,7 +294,6 @@ document.addEventListener("DOMContentLoaded", function () {
       ad.style.top = "0";
     }, 50);
 
-    // Reset states
     let timeLeft = 15;
     countdownEl.style.display = "block";
     closeBtn.style.display = "none";
@@ -300,8 +307,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (timeLeft <= 0) {
         clearInterval(countdownInterval);
-
-        // Swap timer → X button
         countdownEl.style.display = "none";
         closeBtn.style.display = "block";
       }
@@ -320,10 +325,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function scheduleNextAd() {
     clearTimeout(cycleTimeout);
-    cycleTimeout = setTimeout(showAd, 120000); // 2 min
+    cycleTimeout = setTimeout(showAd, 120000);
   }
 
-  // First show after 10s
   setTimeout(() => {
     showAd();
     scheduleNextAd();
@@ -333,6 +337,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 </script>
+
   
 <button onclick="history.back()">← Back</button>
 
