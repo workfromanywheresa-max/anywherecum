@@ -199,7 +199,7 @@ background: #fff;
 opacity: 0;
 ">
 
-  <!-- 🧱 Ad Wrapper -->
+  <!-- Ad -->
   <div style="
     position:absolute;
     top:0;
@@ -215,19 +215,19 @@ opacity: 0;
     </script>
   </div>
 
-  <!-- 🔴 Live Badge -->
+  <!-- 🔴 Live -->
   <div style="
-  position:absolute;
-  top:2px;
-  left:50%;
-  transform:translateX(-50%);
-  background:red;
-  color:#fff;
-  font-weight:bold;
-  font-size:11px;
-  padding:1px 6px;
-  border-radius:4px;
-  z-index:10;">
+    position:absolute;
+    top:2px;
+    left:50%;
+    transform:translateX(-50%);
+    background:red;
+    color:#fff;
+    font-weight:bold;
+    font-size:11px;
+    padding:1px 6px;
+    border-radius:4px;
+    z-index:1000;">
     🔴 Live
   </div>
 
@@ -242,11 +242,11 @@ opacity: 0;
     font-weight:bold;
     padding:2px 6px;
     border-radius:4px;
-    z-index:10;">
+    z-index:1000;">
     15s
   </div>
 
-  <!-- ❌ Close Button -->
+  <!-- ❌ Close -->
   <div id="closeBtn" onclick="hideAd()" style="
     position:absolute;
     top:4px;
@@ -262,7 +262,8 @@ opacity: 0;
     border-radius:4px;
     cursor:pointer;
     display:none;
-    z-index:11;">
+    z-index:9999 !important;
+    pointer-events:auto !important;">
     ✕
   </div>
 
@@ -271,9 +272,6 @@ opacity: 0;
 <style>
 #topAd {
   transition: top 0.5s ease, opacity 0.5s ease;
-}
-#countdown, #closeBtn {
-  transition: opacity 0.3s ease;
 }
 </style>
 
@@ -313,16 +311,11 @@ document.addEventListener("DOMContentLoaded", function () {
       if (timeLeft <= 0) {
         clearInterval(countdownInterval);
 
-        // fade out timer
-        countdownEl.style.opacity = "0";
+        countdownEl.style.display = "none";
 
-        setTimeout(() => {
-          countdownEl.style.display = "none";
-
-          // show X button in same position
-          closeBtn.style.display = "block";
-          closeBtn.style.opacity = "1";
-        }, 200);
+        // FORCE X to be visible
+        closeBtn.style.display = "block";
+        closeBtn.style.opacity = "1";
       }
     }, 1000);
   }
@@ -339,7 +332,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function scheduleNextAd() {
     clearTimeout(cycleTimeout);
-    cycleTimeout = setTimeout(showAd, 120000); // 2 minutes
+    cycleTimeout = setTimeout(showAd, 120000);
   }
 
   setTimeout(() => {
