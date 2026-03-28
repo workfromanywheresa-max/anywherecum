@@ -44,7 +44,6 @@ li {
   min-width: 60px;
   text-align: right;
   display: inline-block;
-  transition: opacity 0.15s ease;
 }
 
 .total-card {
@@ -115,7 +114,6 @@ if (!localStorage.getItem("adminLoggedIn")) {
 
 <div class="total-card">
   <h2>🔥 Total Views</h2>
-
   <div id="totalViews" class="value">Loading...</div>
   <div id="videoViewsTotal" class="value">Video Views: Loading...</div>
   <div id="cycleViewsTotal" class="value">Cycle Views: Loading...</div>
@@ -169,33 +167,13 @@ function sumValues(data) {
   return total;
 }
 
-function loadCache(key) {
-  return localStorage.getItem(key);
-}
-
-function saveCache(key, value) {
-  localStorage.setItem(key, value);
-}
-
 function getMonthLabel(offset) {
   const now = new Date();
   const d = new Date(now.getFullYear(), now.getMonth() - offset, 1);
   return d.toLocaleString("default", { month: "long" });
 }
 
-/* ---------- CACHE ---------- */
-function getFormattedCached(key) {
-  const val = loadCache(key);
-  if (!val) return "Loading...";
-  const num = Number(val);
-  return `${formatViews(num)} <span style="font-size:0.75em;opacity:0.7;">(${num})</span>`;
-}
-
-totalEl.innerHTML = "Site Visits: " + getFormattedCached("totalViews");
-videoEl.innerHTML = "Video Views: " + getFormattedCached("videoViews");
-cycleEl.innerHTML = "Cycle Views: " + getFormattedCached("cycleViews");
-
-/* ---------- PAGE VIEWS (NO FLICKER) ---------- */
+/* ---------- PAGE VIEWS ---------- */
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val();
   const list = document.getElementById("pageViews");
@@ -223,21 +201,27 @@ onValue(pageViewsRef, (snapshot) => {
       }
 
       const spans = li.querySelectorAll("span");
-      spans[0].textContent = key;
-      spans[1].textContent = formatViews(value);
+
+      if (spans[0].textContent !== key) spans[0].textContent = key;
+
+      const newValue = formatViews(value);
+      if (spans[1].textContent !== newValue) {
+        spans[1].textContent = newValue;
+      }
     });
   }
 
-  totalEl.innerHTML = `
-    Site Visits: 
-    ${formatViews(total)} 
+  const formattedTotal = `
+    Site Visits: ${formatViews(total)} 
     <span style="font-size:0.75em;opacity:0.7;">(${total})</span>
   `;
 
-  saveCache("totalViews", total);
+  if (totalEl.innerHTML !== formattedTotal) {
+    totalEl.innerHTML = formattedTotal;
+  }
 });
 
-/* ---------- MONTHLY (NO FLICKER) ---------- */
+/* ---------- MONTHLY ---------- */
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val();
   const list = document.getElementById("monthlyList");
@@ -263,38 +247,38 @@ onValue(pageViewsRef, (snapshot) => {
 
   for (let i = 0; i < list.children.length; i++) {
     const valueSpan = list.children[i].querySelector(".value");
+
     const value = i === 0 ? total : 0;
+    const formatted = formatViews(value);
 
-    valueSpan.textContent = formatViews(value);
+    if (valueSpan.textContent !== formatted) {
+      valueSpan.textContent = formatted;
+    }
   }
-
-  saveCache("monthlyTotal", total);
 });
 
 /* ---------- VIDEO ---------- */
 onValue(videoViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val());
 
-  videoEl.innerHTML = `
-    Video Views: 
-    ${formatViews(total)} 
-    <span style="font-size:0.75em;opacity:0.7;">(${total})</span>
-  `;
+  const formatted = `Video Views: ${formatViews(total)} 
+  <span style="font-size:0.75em;opacity:0.7;">(${total})</span>`;
 
-  saveCache("videoViews", total);
+  if (videoEl.innerHTML !== formatted) {
+    videoEl.innerHTML = formatted;
+  }
 });
 
 /* ---------- CYCLE ---------- */
 onValue(cycleViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val());
 
-  cycleEl.innerHTML = `
-    Cycle Views: 
-    ${formatViews(total)} 
-    <span style="font-size:0.75em;opacity:0.7;">(${total})</span>
-  `;
+  const formatted = `Cycle Views: ${formatViews(total)} 
+  <span style="font-size:0.75em;opacity:0.7;">(${total})</span>`;
 
-  saveCache("cycleViews", total);
+  if (cycleEl.innerHTML !== formatted) {
+    cycleEl.innerHTML = formatted;
+  }
 });
 
 /* ---------- LOGOUT ---------- */
