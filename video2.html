@@ -323,6 +323,7 @@ document.addEventListener("DOMContentLoaded", function () {
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
+  z-index: 1; /* create stacking context */
 ">
 
   <!-- 🔴 LIVE Badge (Blinking Pill) -->
@@ -336,13 +337,14 @@ document.addEventListener("DOMContentLoaded", function () {
     font-weight: bold;
     padding: 3px 8px;
     border-radius: 999px;
-    z-index: 10;
+    z-index: 9999; /* 🔥 force on top */
+    pointer-events: none;
     animation: blinkLive 1s infinite;
   ">
     🔴 LIVE
   </div>
 
-  <div id="adContainer" style="width:100%; height:100%;">
+  <div id="adContainer" style="width:100%; height:100%; position: relative;">
     <!-- JuicyAds v3.0 -->
     <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
     <ins id="1113670" data-width="300" data-height="62"></ins>
@@ -353,15 +355,6 @@ document.addEventListener("DOMContentLoaded", function () {
   </div>
 
 </div>
-
-<!-- Blinking Animation -->
-<style>
-@keyframes blinkLive {
-  0% { opacity: 1; }
-  50% { opacity: 0.3; }
-  100% { opacity: 1; }
-}
-</style>
 
 <!-- Ad2 (Button) -->
 <div style="text-align:center; margin-top:20px;">
