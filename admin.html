@@ -41,9 +41,6 @@ li {
 .value {
   color: #00ffcc;
   font-weight: bold;
-  min-width: 60px;
-  text-align: right;
-  display: inline-block;
 }
 
 .total-card {
@@ -76,12 +73,19 @@ li {
   overflow-y: auto;
 }
 
-.monthly-box::-webkit-scrollbar,
+.monthly-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+.monthly-box::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+
 #pageViews::-webkit-scrollbar {
   width: 6px;
 }
 
-.monthly-box::-webkit-scrollbar-thumb,
 #pageViews::-webkit-scrollbar-thumb {
   background: #444;
   border-radius: 3px;
@@ -114,6 +118,7 @@ if (!localStorage.getItem("adminLoggedIn")) {
 
 <div class="total-card">
   <h2>🔥 Total Views</h2>
+
   <div id="totalViews" class="value">Loading...</div>
   <div id="videoViewsTotal" class="value">Video Views: Loading...</div>
   <div id="cycleViewsTotal" class="value">Cycle Views: Loading...</div>
@@ -167,121 +172,127 @@ function sumValues(data) {
   return total;
 }
 
+function loadCache(key) {
+  return localStorage.getItem(key);
+}
+
+function saveCache(key, value) {
+  localStorage.setItem(key, value);
+}
+
+function getFormattedCached(key) {
+  const val = loadCache(key);
+  if (!val) return "Loading...";
+  const num = Number(val);
+  return `${formatViews(num)} <span style="font-size: 0.75em; opacity: 0.7;">(${num})</span>`;
+}
+
+totalEl.innerHTML = "Site Visits: " + getFormattedCached("totalViews");
+videoEl.innerHTML = "Video Views: " + getFormattedCached("videoViews");
+cycleEl.innerHTML = "Cycle Views: " + getFormattedCached("cycleViews");
+
 function getMonthLabel(offset) {
   const now = new Date();
   const d = new Date(now.getFullYear(), now.getMonth() - offset, 1);
   return d.toLocaleString("default", { month: "long" });
 }
 
-/* ---------- PAGE VIEWS ---------- */
+/* -------- PAGE VIEWS -------- */
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val();
   const list = document.getElementById("pageViews");
 
+  const newDataString = JSON.stringify(data || {});
+  if (list.dataset.last === newDataString) return;
+  list.dataset.last = newDataString;
+
   let total = 0;
 
   if (data) {
-    Object.entries(data).forEach(([key, value]) => {
-      value = typeof value === "number" ? value : 0;
-      total += value;
+    const items = Object.entries(data);
 
-      let li = list.querySelector(`[data-key="${key}"]`);
+    if (list.children.length !== items.length) {
+      list.innerHTML = "";
 
-      if (!li) {
-        li = document.createElement("li");
-        li.dataset.key = key;
+      items.forEach(([key, value]) => {
+        value = typeof value === "number" ? value : 0;
+        total += value;
 
-        const nameSpan = document.createElement("span");
-        const valueSpan = document.createElement("span");
-        valueSpan.className = "value";
-
-        li.appendChild(nameSpan);
-        li.appendChild(valueSpan);
+        const li = document.createElement("li");
+        li.innerHTML = `<span>${key}</span><span class="value">${formatViews(value)}</span>`;
         list.appendChild(li);
-      }
-
-      const spans = li.querySelectorAll("span");
-
-      if (spans[0].textContent !== key) spans[0].textContent = key;
-
-      const newValue = formatViews(value);
-      if (spans[1].textContent !== newValue) {
-        spans[1].textContent = newValue;
-      }
-    });
+      });
+    }
   }
 
-  const formattedTotal = `
-    Site Visits: ${formatViews(total)} 
-    <span style="font-size:0.75em;opacity:0.7;">(${total})</span>
+  const short = formatViews(total);
+
+  totalEl.innerHTML = `
+    Site Visits: 
+    ${short} 
+    <span style="font-size: 0.75em; opacity: 0.7;">(${total})</span>
   `;
 
-  if (totalEl.innerHTML !== formattedTotal) {
-    totalEl.innerHTML = formattedTotal;
-  }
+  saveCache("totalViews", total);
 });
 
-/* ---------- MONTHLY ---------- */
+/* -------- MONTHLY -------- */
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val();
   const list = document.getElementById("monthlyList");
 
+  const newDataString = JSON.stringify(data || {});
+  if (list.dataset.last === newDataString) return;
+  list.dataset.last = newDataString;
+
   const total = sumValues(data);
+  saveCache("monthlyTotal", total);
 
   if (list.children.length === 0) {
     for (let i = 0; i < 12; i++) {
       const li = document.createElement("li");
 
-      const nameSpan = document.createElement("span");
-      nameSpan.textContent = getMonthLabel(i);
+      const cachedTotal = loadCache("monthlyTotal") || total;
 
-      const valueSpan = document.createElement("span");
-      valueSpan.className = "value";
-      valueSpan.textContent = "0";
+      li.innerHTML = `
+        <span>${getMonthLabel(i)}</span>
+        <span class="value">${i === 0 ? formatViews(cachedTotal) : 0}</span>
+      `;
 
-      li.appendChild(nameSpan);
-      li.appendChild(valueSpan);
       list.appendChild(li);
     }
   }
-
-  for (let i = 0; i < list.children.length; i++) {
-    const valueSpan = list.children[i].querySelector(".value");
-
-    const value = i === 0 ? total : 0;
-    const formatted = formatViews(value);
-
-    if (valueSpan.textContent !== formatted) {
-      valueSpan.textContent = formatted;
-    }
-  }
 });
 
-/* ---------- VIDEO ---------- */
+/* -------- VIDEO -------- */
 onValue(videoViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val());
+  const short = formatViews(total);
 
-  const formatted = `Video Views: ${formatViews(total)} 
-  <span style="font-size:0.75em;opacity:0.7;">(${total})</span>`;
+  videoEl.innerHTML = `
+    Video Views: 
+    ${short} 
+    <span style="font-size: 0.75em; opacity: 0.7;">(${total})</span>
+  `;
 
-  if (videoEl.innerHTML !== formatted) {
-    videoEl.innerHTML = formatted;
-  }
+  saveCache("videoViews", total);
 });
 
-/* ---------- CYCLE ---------- */
+/* -------- CYCLE -------- */
 onValue(cycleViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val());
+  const short = formatViews(total);
 
-  const formatted = `Cycle Views: ${formatViews(total)} 
-  <span style="font-size:0.75em;opacity:0.7;">(${total})</span>`;
+  cycleEl.innerHTML = `
+    Cycle Views: 
+    ${short} 
+    <span style="font-size: 0.75em; opacity: 0.7;">(${total})</span>
+  `;
 
-  if (cycleEl.innerHTML !== formatted) {
-    cycleEl.innerHTML = formatted;
-  }
+  saveCache("cycleViews", total);
 });
 
-/* ---------- LOGOUT ---------- */
+/* -------- LOGOUT -------- */
 function logout() {
   localStorage.removeItem("adminLoggedIn");
   location.reload();
