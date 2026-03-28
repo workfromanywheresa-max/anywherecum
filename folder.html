@@ -200,6 +200,15 @@ background: #fff;
 transition: top 0.5s ease;
 ">
 
+  <!-- Blink animation (required for inline use) -->
+  <style>
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+  </style>
+
   <!-- Ad -->
   <div style="
     position:absolute;
@@ -217,7 +226,7 @@ transition: top 0.5s ease;
     </script>
   </div>
 
-  <!-- 🔴 Live -->
+  <!-- 🔴 Live (Blinking) -->
   <div style="
     position:absolute;
     top:2px;
@@ -229,7 +238,9 @@ transition: top 0.5s ease;
     font-size:11px;
     padding:1px 6px;
     border-radius:4px;
-    z-index:1000;">
+    z-index:1000;
+    animation: blink 1s infinite;
+  ">
     🔴 Live
   </div>
 
@@ -322,10 +333,8 @@ document.addEventListener("DOMContentLoaded", function () {
     cycleTimeout = setTimeout(showAd, 120000);
   }
 
-  // Attach click properly
   closeBtn.addEventListener("click", hideMainAd);
 
-  // Start after 10 seconds
   setTimeout(() => {
     showAd();
   }, 30000);
