@@ -315,7 +315,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let cycleTimeout;
 
   function showAd() {
-    ad.style.top = "10px";
+    ad.style.top = "0px"; // ✅ Now it touches the very top
 
     let timeLeft = 15;
 
