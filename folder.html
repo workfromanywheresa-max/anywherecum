@@ -232,43 +232,48 @@ opacity: 0;
   </div>
 
   <!-- ⏱ Timer / ❌ Close -->
-  <div style="
-    position:absolute;
-    top:4px;
-    right:30px; /* moved slightly left */
-    z-index:1000;
+<div style="
+  position:absolute;
+  top:4px;
+  right:30px; /* timer position */
+  z-index:1000;
+">
+  
+  <!-- Timer -->
+  <div id="countdown" style="
+    background:black;
+    color:#fff;
+    font-size:11px;
+    font-weight:bold;
+    padding:2px 6px;
+    border-radius:4px;
   ">
-    <!-- Timer -->
-    <div id="countdown" style="
-      background:black;
-      color:#fff;
-      font-size:11px;
-      font-weight:bold;
-      padding:2px 6px;
-      border-radius:4px;
-    ">
-      15s
-    </div>
-
-    <!-- Close Button -->
-    <div id="closeBtn" onclick="hideAd()" style="
-      background:#000;
-      color:#fff;
-      font-size:13px;
-      font-weight:bold;
-      width:20px;
-      height:20px;
-      line-height:20px;
-      text-align:center;
-      border-radius:4px;
-      cursor:pointer;
-      display:none;
-      align-items:center;
-      justify-content:center;
-    ">
-      ✕
-    </div>
+    15s
   </div>
+
+  <!-- Close Button -->
+  <div id="closeBtn" onclick="hideAd()" style="
+    position:absolute;
+    top:0;
+    right:-16px; /* puts X 14px to the right of timer */
+    background:#000;
+    color:#fff;
+    font-size:13px;
+    font-weight:bold;
+    width:20px;
+    height:20px;
+    line-height:20px;
+    text-align:center;
+    border-radius:4px;
+    cursor:pointer;
+    display:none;
+    align-items:center;
+    justify-content:center;
+  ">
+    ✕
+  </div>
+
+</div>
 
 </div>
 
