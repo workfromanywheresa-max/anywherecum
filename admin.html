@@ -28,7 +28,7 @@ h1, h2 { color: #ff4444; }
   gap: 20px;
 }
 
-ul { list-style: none; padding: 0; }
+ul { list-style: none; padding: 0; margin: 0; }
 
 li {
   padding: 8px;
@@ -58,6 +58,23 @@ li {
   border-radius: 6px;
   cursor: pointer;
 }
+
+/* 🔥 SCROLLABLE MONTHLY LIST */
+.monthly-box {
+  max-height: 120px; /* ≈ 3 items */
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+/* optional: nicer scrollbar */
+.monthly-box::-webkit-scrollbar {
+  width: 6px;
+}
+
+.monthly-box::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
 </style>
 </head>
 
@@ -82,8 +99,6 @@ if (!localStorage.getItem("adminLoggedIn")) {
 }
 </script>
 
-<button id="triggerBtn">Trigger Notification</button>
-
 <button class="logout-btn" onclick="logout()">Logout</button>
 
 <div class="total-card">
@@ -97,17 +112,9 @@ if (!localStorage.getItem("adminLoggedIn")) {
 <!-- MONTHLY -->
 <div class="card">
   <h2>📅 Monthly Visits</h2>
-  <ul id="monthlyList"></ul>
 
-  <button onclick="toggleMonths()" style="
-    margin-top:10px;
-    padding:6px 10px;
-    background:#333;
-    color:#fff;
-    border:none;
-    border-radius:6px;
-    cursor:pointer;
-  ">Show More</button>
+  <!-- scroll container -->
+  <ul id="monthlyList" class="monthly-box"></ul>
 </div>
 
 <!-- PAGE VIEWS -->
@@ -141,23 +148,6 @@ function getMonthLabel(offset) {
   return d.toLocaleString("default", { month: "long" });
 }
 
-/* MONTH CONTROL */
-let monthsExpanded = false;
-let baseMonths = 3;
-let monthsToShow = baseMonths;
-
-/* TOGGLE MONTHS */
-function toggleMonths() {
-  monthsExpanded = !monthsExpanded;
-
-  monthsToShow = monthsExpanded ? baseMonths * 2 : baseMonths;
-
-  document.querySelector("button[onclick='toggleMonths()']").innerText =
-    monthsExpanded ? "Show Less" : "Show More";
-
-  loadMonthlyVisits();
-}
-
 /* MONTHLY VISITS */
 async function loadMonthlyVisits() {
   const list = document.getElementById("monthlyList");
@@ -173,14 +163,13 @@ async function loadMonthlyVisits() {
     });
   }
 
-  for (let i = 0; i < monthsToShow; i++) {
+  // show more months (scroll handles overflow)
+  for (let i = 0; i < 12; i++) {
     const li = document.createElement("li");
 
     let value = 0;
 
-    if (i === 0) {
-      value = total;
-    }
+    if (i === 0) value = total;
 
     li.innerHTML = `
       <span>${getMonthLabel(i)}</span>
