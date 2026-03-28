@@ -90,42 +90,46 @@ function formatViews(num) {
   return num;
 }
 
-/* ================= FIREBASE LIVE COUNTER ================= */
+/* ================= FIREBASE ================= */
 
 const pageRef = ref(db, "pageViews");
 const el = document.getElementById("adminViews");
 
+/* ================= CACHE ================= */
+
+function saveCache(key, value) {
+  localStorage.setItem(key, value);
+}
+
+function getCache(key) {
+  return localStorage.getItem(key);
+}
+
+/* ================= LOAD CACHE ================= */
+
+const cachedTotalRaw = getCache("totalViews");
+
+let cachedTotal = (!isNaN(cachedTotalRaw) && cachedTotalRaw !== null)
+  ? Number(cachedTotalRaw)
+  : null;
+
 /* ================= UPDATE UI ================= */
+
 function updateUI(total) {
   const formatted = formatViews(total);
 
   if (el) {
     el.innerText = `👁 ${formatted} | Admin`;
   }
-
-  // store RAW number only
-  localStorage.setItem("cachedViews", total);
 }
 
-/* ================= SAFE CACHE LOAD ================= */
+/* ================= INITIAL LOAD ================= */
 
-const rawCache = localStorage.getItem("cachedViews");
-
-let cachedViews = null;
-
-if (rawCache !== null && rawCache !== "null" && !isNaN(rawCache)) {
-  cachedViews = Number(rawCache);
+if (el && cachedTotal !== null) {
+  updateUI(cachedTotal);
 }
 
-if (el) {
-  if (cachedViews !== null) {
-    updateUI(cachedViews);
-  } else {
-    el.innerText = "👁 Loading...";
-  }
-}
-
-/* ================= TOTAL FUNCTION ================= */
+/* ================= SUM FUNCTION ================= */
 
 function getTotal(pageData) {
   let total = 0;
@@ -139,17 +143,19 @@ function getTotal(pageData) {
   return total;
 }
 
-/* ================= FIREBASE LISTENER ================= */
+/* ================= LISTENER ================= */
 
 onValue(pageRef, (snapshot) => {
   const data = snapshot.val() || {};
   const total = getTotal(data);
 
-  const rawCache = localStorage.getItem("cachedViews");
-  const cached = rawCache !== null && !isNaN(rawCache) ? Number(rawCache) : null;
-
-  // only update if changed
-  if (cached !== total) {
+  // ONLY update if changed (removes flicker)
+  if (cachedTotal !== total) {
     updateUI(total);
+
+    saveCache("totalViews", total);
+    saveCache("pageViewsData", JSON.stringify(data));
+
+    cachedTotal = total;
   }
 });
