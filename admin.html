@@ -195,12 +195,16 @@ function getMonthLabel(offset) {
 
 const monthlyList = document.getElementById("monthlyList");
 
-/* CACHE LOAD */
-const cachedMonthly = loadCache("monthlyData");
+/* LOAD CACHE */
+const cachedMonthly = loadCache("monthlyTotals");
 if (cachedMonthly) {
-  const data = JSON.parse(cachedMonthly);
+  renderMonthly(JSON.parse(cachedMonthly));
+}
 
+/* RENDER */
+function renderMonthly(data) {
   let html = "";
+
   for (let i = 0; i < 12; i++) {
     const value = data[i] || 0;
 
@@ -215,23 +219,19 @@ if (cachedMonthly) {
   monthlyList.innerHTML = html;
 }
 
+/* FIREBASE */
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val() || {};
-  const total = sumValues(data);
 
-  let html = "";
+  let total = sumValues(data);
 
-  for (let i = 0; i < 12; i++) {
-    html += `
-      <li>
-        <span>${getMonthLabel(i)}</span>
-        <span class="value">${i === 0 ? formatViews(total) : 0}</span>
-      </li>
-    `;
-  }
+  /* SIMPLE MONTHLY CACHE (same as your total logic) */
+  let monthlyTotals = new Array(12).fill(0);
+  monthlyTotals[0] = total; // current month only
 
-  monthlyList.innerHTML = html;
-  saveCache("monthlyData", JSON.stringify(data));
+  renderMonthly(monthlyTotals);
+
+  saveCache("monthlyTotals", JSON.stringify(monthlyTotals));
 });
 
 /* ---------- PAGE VIEWS ---------- */
