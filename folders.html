@@ -241,10 +241,10 @@ h2 {
     position:relative;
     display:inline-block;
     border:2px solid red;
-    border-radius:12px;
-    overflow:visible; /* IMPORTANT: allow badge to show */
+    overflow:visible;
     width:300px;
     height:112px;
+    border-radius:0; /* REMOVE rounding from ad container */
   ">
 
     <!-- 🔴 Live Badge -->
@@ -257,7 +257,7 @@ h2 {
       color:white;
       font-size:12px;
       padding:3px 10px;
-      border-radius:20px;
+      border-radius:20px; /* KEEP rounded */
       display:flex;
       align-items:center;
       gap:5px;
@@ -275,7 +275,7 @@ h2 {
       Live
     </div>
 
-    <!-- Ad Wrapper (no extra spacing) -->
+    <!-- Ad Wrapper -->
     <div style="width:300px; height:112px; line-height:0; overflow:hidden;">
       <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
       <ins id="1113665" style="display:block; width:300px; height:112px;"></ins>
