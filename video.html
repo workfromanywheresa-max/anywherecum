@@ -89,6 +89,7 @@ height: 62px;
 border: 2px solid red;
 border-radius: 8px;
 overflow: hidden;
+box-sizing: border-box;
 z-index: 9999;
 background: #fff;
 transition: top 0.5s ease;
@@ -103,7 +104,7 @@ transition: top 0.5s ease;
     }
   </style>
 
-  <!-- Ad (SMALLER / CLEAN VERSION) -->
+  <!-- Ad -->
   <div style="
     position:absolute;
     top:0;
@@ -113,7 +114,6 @@ transition: top 0.5s ease;
     z-index:1;
     background:#fff;
   ">
-    <!-- JuicyAds -->
     <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
     <ins id="1113670" data-width="300" data-height="62"></ins>
     <script type="text/javascript" data-cfasync="false" async>
@@ -193,7 +193,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let cycleTimeout;
 
   function showAd() {
-    ad.style.top = "10px";
+    ad.style.top = "0px"; // ✅ Now it touches the very top
 
     let timeLeft = 15;
 
