@@ -236,49 +236,47 @@ h2 {
 <div id="vipContainer"></div>
 <div id="normalContainer"></div>
 
+  <div style="display:flex; justify-content:center; margin:20px 0;">
   <div style="
-  display: flex;
-  justify-content: center;
-  margin: 20px 0;
-">
-  <div style="
-    position: relative;
-    display: inline-block;
-    border: 2px solid red;
-    border-radius: 12px;
-    overflow: hidden; /* FIX: stops ad spilling outside border */
+    position:relative;
+    display:inline-block;
+    border:2px solid red;
+    border-radius:12px;
+    overflow:visible; /* IMPORTANT: allow badge to show */
+    width:300px;
+    height:112px;
   ">
 
     <!-- 🔴 Live Badge -->
     <div style="
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: red;
-      color: white;
-      font-size: 12px;
-      padding: 3px 10px;
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-weight: bold;
-      z-index: 10; /* FIX: always on top */
+      position:absolute;
+      top:0;
+      left:50%;
+      transform:translate(-50%, -50%);
+      background:red;
+      color:white;
+      font-size:12px;
+      padding:3px 10px;
+      border-radius:20px;
+      display:flex;
+      align-items:center;
+      gap:5px;
+      font-weight:bold;
+      z-index:9999;
     ">
       <span style="
-        width: 8px;
-        height: 8px;
-        background: white;
-        border-radius: 50%;
-        display: inline-block;
-        animation: blink 1s infinite;
+        width:8px;
+        height:8px;
+        background:white;
+        border-radius:50%;
+        display:inline-block;
+        animation:blink 1s infinite;
       "></span>
       Live
     </div>
 
-    <!-- Ad Wrapper -->
-    <div style="line-height: 0;">
+    <!-- Ad Wrapper (no extra spacing) -->
+    <div style="width:300px; height:112px; line-height:0; overflow:hidden;">
       <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
       <ins id="1113665" style="display:block; width:300px; height:112px;"></ins>
       <script type="text/javascript" data-cfasync="false" async>
@@ -289,11 +287,10 @@ h2 {
   </div>
 </div>
 
-<!-- Blink Animation -->
 <style>
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,100% { opacity:1; }
+  50% { opacity:0; }
 }
 </style>
 
