@@ -149,6 +149,23 @@ const totalEl = document.getElementById("totalViews");
 const videoEl = document.getElementById("videoViewsTotal");
 const cycleEl = document.getElementById("cycleViewsTotal");
 
+/* ---------- CACHE ---------- */
+function loadCache(key) {
+  return localStorage.getItem(key);
+}
+
+function saveCache(key, value) {
+  localStorage.setItem(key, value);
+}
+
+function loadHTMLCache(key) {
+  return localStorage.getItem(key);
+}
+
+function saveHTMLCache(key, html) {
+  localStorage.setItem(key, html);
+}
+
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + "K";
@@ -165,14 +182,6 @@ function sumValues(data) {
   return total;
 }
 
-function loadCache(key) {
-  return localStorage.getItem(key);
-}
-
-function saveCache(key, value) {
-  localStorage.setItem(key, value);
-}
-
 function getFormattedCached(key) {
   const val = loadCache(key);
   if (!val) return "Loading...";
@@ -180,76 +189,79 @@ function getFormattedCached(key) {
   return `${formatViews(num)} <span style="font-size: 0.75em; opacity: 0.7;">(${num})</span>`;
 }
 
-/* ✅ SHOW CACHED VALUES INSTANTLY */
+/* ---------- TOTAL (UNCHANGED) ---------- */
 totalEl.innerHTML = "Site Visits: " + getFormattedCached("totalViews");
 videoEl.innerHTML = "Video Views: " + getFormattedCached("videoViews");
 cycleEl.innerHTML = "Cycle Views: " + getFormattedCached("cycleViews");
 
+/* ---------- MONTH ---------- */
 function getMonthLabel(offset) {
   const now = new Date();
   const d = new Date(now.getFullYear(), now.getMonth() - offset, 1);
   return d.toLocaleString("default", { month: "long" });
 }
 
-/* -------- PAGE VIEWS -------- */
+const monthlyList = document.getElementById("monthlyList");
+
+/* LOAD CACHE FIRST */
+const cachedMonthly = loadHTMLCache("monthlyHTML");
+if (cachedMonthly) {
+  monthlyList.innerHTML = cachedMonthly;
+}
+
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val() || {};
-  const list = document.getElementById("pageViews");
+  const total = sumValues(data);
 
-  const newString = JSON.stringify(data);
-  if (list.dataset.last === newString) return;
-  list.dataset.last = newString;
+  let html = "";
+
+  for (let i = 0; i < 12; i++) {
+    html += `
+      <li>
+        <span>${getMonthLabel(i)}</span>
+        <span class="value">${i === 0 ? formatViews(total) : 0}</span>
+      </li>
+    `;
+  }
+
+  monthlyList.innerHTML = html;
+  saveHTMLCache("monthlyHTML", html);
+});
+
+/* ---------- PAGE VIEWS ---------- */
+const pageList = document.getElementById("pageViews");
+
+/* LOAD CACHE FIRST */
+const cachedPage = loadHTMLCache("pageViewsHTML");
+if (cachedPage) {
+  pageList.innerHTML = cachedPage;
+}
+
+onValue(pageViewsRef, (snapshot) => {
+  const data = snapshot.val() || {};
 
   const items = Object.entries(data);
   let total = 0;
 
-  list.innerHTML = "";
+  let html = "";
 
   items.forEach(([key, value]) => {
     value = typeof value === "number" ? value : 0;
     total += value;
 
-    const li = document.createElement("li");
-    li.innerHTML = `<span>${key}</span><span class="value">${formatViews(value)}</span>`;
-    list.appendChild(li);
+    html += `<li>
+      <span>${key}</span>
+      <span class="value">${formatViews(value)}</span>
+    </li>`;
   });
 
-  totalEl.innerHTML = `
-    Site Visits: 
-    ${formatViews(total)} 
-    <span style="font-size: 0.75em; opacity: 0.7;">(${total})</span>
-  `;
+  pageList.innerHTML = html;
+  saveHTMLCache("pageViewsHTML", html);
 
   saveCache("totalViews", total);
 });
 
-/* -------- MONTHLY -------- */
-onValue(pageViewsRef, (snapshot) => {
-  const data = snapshot.val() || {};
-  const list = document.getElementById("monthlyList");
-
-  const newString = JSON.stringify(data);
-  if (list.dataset.last === newString) return;
-  list.dataset.last = newString;
-
-  const total = sumValues(data);
-  saveCache("monthlyTotal", total);
-
-  list.innerHTML = "";
-
-  for (let i = 0; i < 12; i++) {
-    const li = document.createElement("li");
-
-    li.innerHTML = `
-      <span>${getMonthLabel(i)}</span>
-      <span class="value">${i === 0 ? formatViews(total) : 0}</span>
-    `;
-
-    list.appendChild(li);
-  }
-});
-
-/* -------- VIDEO -------- */
+/* ---------- VIDEO ---------- */
 onValue(videoViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val() || {});
   const short = formatViews(total);
@@ -263,7 +275,7 @@ onValue(videoViewsRef, (snapshot) => {
   saveCache("videoViews", total);
 });
 
-/* -------- CYCLE -------- */
+/* ---------- CYCLE ---------- */
 onValue(cycleViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val() || {});
   const short = formatViews(total);
@@ -277,7 +289,7 @@ onValue(cycleViewsRef, (snapshot) => {
   saveCache("cycleViews", total);
 });
 
-/* -------- LOGOUT -------- */
+/* ---------- LOGOUT ---------- */
 function logout() {
   localStorage.removeItem("adminLoggedIn");
   location.reload();
