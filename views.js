@@ -59,7 +59,6 @@ function trackPreviewClick(folderName) {
   sendToWorker(folderName);
 }
 
-/* expose globally */
 window.trackPreviewClick = trackPreviewClick;
 
 /* ---------------- Auto-detect preview clicks ---------------- */
@@ -80,7 +79,7 @@ document.addEventListener("click", function (e) {
 /* ---------------- Run page tracking ---------------- */
 trackPage(pageName);
 
-/* ================= FORMAT FUNCTION (K / M) ================= */
+/* ================= FORMAT FUNCTION ================= */
 function formatViews(num) {
   if (num >= 1000000) {
     return (num / 1000000).toFixed(1).replace(".0", "") + "M";
@@ -94,6 +93,20 @@ function formatViews(num) {
 /* ================= FIREBASE LIVE COUNTER ================= */
 
 const pageRef = ref(db, "pageViews");
+const el = document.getElementById("adminViews");
+
+/* ================= GET CACHE FIRST ================= */
+const cachedViews = localStorage.getItem("cachedViews");
+
+if (el) {
+  if (cachedViews) {
+    el.innerText = `👁 ${cachedViews} | Admin`;
+  } else {
+    el.innerText = "👁 Loading...";
+  }
+}
+
+/* ================= FIREBASE LISTENER ================= */
 
 function getTotal(pageData) {
   let total = 0;
@@ -110,9 +123,12 @@ function getTotal(pageData) {
 onValue(pageRef, (snapshot) => {
   const data = snapshot.val() || {};
   const total = getTotal(data);
+  const formatted = formatViews(total);
 
-  const el = document.getElementById("adminViews");
   if (el) {
-    el.innerText = `👁${formatViews(total)} | Admin`;
+    el.innerText = `👁 ${formatted} | Admin`;
   }
+
+  /* Save latest value for instant future loads */
+  localStorage.setItem("cachedViews", formatted);
 });
