@@ -162,6 +162,33 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 @media(max-width:500px){ #popupContent button { flex:1 1 100%; } }
 </style>
 
+  <styles>
+    #topBanner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #222;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  font-size: 16px;
+  z-index: 9999;
+}
+
+#closeBtn {
+  position: absolute;
+  right: 15px;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+}
+  </styles>
+
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -174,6 +201,11 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 
 </head>
 <body>
+
+  <div id="topBanner">
+  <span>🔔 Click the bell icon on your bottom left to receive notifications</span>
+  <button id="closeBtn">✖</button>
+  </div>
 
   <!-- JuicyAds PopUnders v3 Start -->
 <script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p29423b414&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
@@ -751,6 +783,29 @@ document.addEventListener("click", function (e) {
   }
 
 });
+  </script>
+
+  <script>
+  const banner = document.getElementById("topBanner");
+  const closeBtn = document.getElementById("closeBtn");
+
+  const lastClosed = localStorage.getItem("bannerClosedTime");
+  const now = Date.now();
+
+  // 1 minute = 60 * 1000 ms
+  const oneMinute = 60 * 1000;
+
+  // Show banner if 1 minute has passed OR never closed
+  if (!lastClosed || now - lastClosed > oneMinute) {
+    banner.style.display = "flex";
+  } else {
+    banner.style.display = "none";
+  }
+
+  closeBtn.addEventListener("click", () => {
+    banner.style.display = "none";
+    localStorage.setItem("bannerClosedTime", Date.now());
+  });
   </script>
   
   <script type="module" src="views.js"></script>
