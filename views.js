@@ -26,7 +26,7 @@ async function sendToWorker(type) {
   }
 }
 
-/* ---------------- Detect Page ---------------- */
+/* ---------------- Page Detection ---------------- */
 let path = window.location.pathname.toLowerCase();
 
 let pageName;
@@ -44,7 +44,6 @@ function trackPage(page) {
   if (sessionStorage.getItem(key)) return;
 
   sessionStorage.setItem(key, "1");
-
   sendToWorker(page);
 }
 
@@ -55,13 +54,12 @@ function trackPreviewClick(folderName) {
   if (sessionStorage.getItem(key)) return;
 
   sessionStorage.setItem(key, "1");
-
   sendToWorker(folderName);
 }
 
 window.trackPreviewClick = trackPreviewClick;
 
-/* ---------------- Auto-detect preview clicks ---------------- */
+/* ---------------- Detect Clicks ---------------- */
 document.addEventListener("click", function (e) {
   const preview = e.target.closest(".folder-preview");
 
@@ -74,28 +72,24 @@ document.addEventListener("click", function (e) {
   }
 });
 
-/* ---------------- Run page tracking ---------------- */
+/* ---------------- Run Page Tracking ---------------- */
 trackPage(pageName);
 
-/* ================= FORMAT FUNCTION ================= */
+/* ---------------- Format ---------------- */
 function formatViews(num) {
   num = Number(num);
   if (isNaN(num)) return "0";
 
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1).replace(".0", "") + "M";
-  }
-  if (num >= 1000) {
-    return (num / 1000).toFixed(1).replace(".0", "") + "K";
-  }
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0", "") + "M";
+  if (num >= 1000) return (num / 1000).toFixed(1).replace(".0", "") + "K";
+
   return num;
 }
 
-/* ================= DOM ================= */
-const viewNumber = document.getElementById("viewNumber");
+/* ---------------- DOM ---------------- */
+const el = document.getElementById("adminViews");
 
-/* ================= CACHE ================= */
-
+/* ---------------- Cache ---------------- */
 function saveCache(key, value) {
   localStorage.setItem(key, value);
 }
@@ -104,60 +98,49 @@ function getCache(key) {
   return localStorage.getItem(key);
 }
 
-/* ================= LOAD CACHE ================= */
+/* ---------------- Cached Value ---------------- */
+const cachedRaw = getCache("totalViews");
 
-const cachedTotalRaw = getCache("totalViews");
-
-let cachedTotal = (!isNaN(cachedTotalRaw) && cachedTotalRaw !== null)
-  ? Number(cachedTotalRaw)
+let cachedTotal = (!isNaN(cachedRaw) && cachedRaw !== null)
+  ? Number(cachedRaw)
   : null;
 
-/* ================= FIRST LOAD FLAG ================= */
+/* ---------------- FIRST LOAD ---------------- */
+let firstLoad = true;
 
-let isFirstLoad = true;
-
-/* ================= UPDATE UI (FIXED) ================= */
-
+/* ---------------- UI UPDATE (NO FLICKER) ---------------- */
 function updateUI(total) {
   const formatted = formatViews(total);
 
-  if (viewNumber) {
-    // ONLY update number (no flicker)
-    viewNumber.innerText = `👁${formatted}`;
+  if (!el) return;
+
+  const newText = `👁 ${formatted} | Admin`;
+
+  if (el.textContent !== newText) {
+    el.textContent = newText;
   }
 }
 
-/* ================= INITIAL UI ================= */
-
-if (viewNumber && cachedTotal !== null) {
+/* ---------------- Initial UI ---------------- */
+if (el && cachedTotal !== null) {
   updateUI(cachedTotal);
 }
 
-/* ================= SUM FUNCTION ================= */
-
-function getTotal(pageData) {
-  let total = 0;
-
-  if (pageData) {
-    Object.values(pageData).forEach(v => {
-      if (typeof v === "number") total += v;
-    });
-  }
-
-  return total;
-}
-
-/* ================= FIREBASE ================= */
-
+/* ---------------- Firebase ---------------- */
 const pageRef = ref(db, "pageViews");
 
 onValue(pageRef, (snapshot) => {
   const data = snapshot.val() || {};
-  const total = getTotal(data);
 
-  /* -------- FIRST LOAD: sync only (NO UI overwrite) -------- */
-  if (isFirstLoad) {
-    isFirstLoad = false;
+  let total = 0;
+
+  Object.values(data).forEach(v => {
+    if (typeof v === "number") total += v;
+  });
+
+  /* -------- FIRST LOAD -------- */
+  if (firstLoad) {
+    firstLoad = false;
 
     if (cachedTotal !== total) {
       saveCache("totalViews", total);
@@ -168,7 +151,7 @@ onValue(pageRef, (snapshot) => {
     return;
   }
 
-  /* -------- NORMAL UPDATES -------- */
+  /* -------- NORMAL UPDATE -------- */
   if (cachedTotal !== total) {
     updateUI(total);
 
