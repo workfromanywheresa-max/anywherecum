@@ -3,7 +3,7 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12
 
 /* ---------------- Firebase ---------------- */
 const firebaseConfig = {
-  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
+  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6NqPpppR4kx0",
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
 };
 
@@ -19,7 +19,10 @@ async function sendToWorker(type) {
     await fetch(WORKER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type })
+      body: JSON.stringify({ 
+        type,
+        month: new Date().toISOString().slice(0, 7) // ✅ ADDED: month tracking
+      })
     });
   } catch (err) {
     console.error("Worker tracking failed:", err);
