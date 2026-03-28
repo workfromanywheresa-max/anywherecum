@@ -231,11 +231,11 @@ opacity: 0;
     🔴 Live
   </div>
 
-  <!-- ⏱ Timer / ❌ Close (same position) -->
+  <!-- ⏱ Timer / ❌ Close -->
   <div style="
     position:absolute;
     top:4px;
-    right:4px;
+    right:14px; /* moved slightly left */
     z-index:1000;
   ">
     <!-- Timer -->
@@ -315,7 +315,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Hide timer
         countdownEl.style.display = "none";
 
-        // Show X in SAME spot
+        // Show X in SAME position
         closeBtn.style.display = "flex";
       }
     }, 1000);
