@@ -63,7 +63,6 @@ window.trackPreviewClick = trackPreviewClick;
 
 /* ---------------- Auto-detect preview clicks ---------------- */
 document.addEventListener("click", function (e) {
-
   const preview = e.target.closest(".folder-preview");
 
   if (preview) {
@@ -73,7 +72,6 @@ document.addEventListener("click", function (e) {
       trackPreviewClick(folderName);
     }
   }
-
 });
 
 /* ---------------- Run page tracking ---------------- */
@@ -81,6 +79,9 @@ trackPage(pageName);
 
 /* ================= FORMAT FUNCTION ================= */
 function formatViews(num) {
+  num = Number(num);
+  if (isNaN(num)) return "0";
+
   if (num >= 1000000) {
     return (num / 1000000).toFixed(1).replace(".0", "") + "M";
   }
@@ -90,10 +91,8 @@ function formatViews(num) {
   return num;
 }
 
-/* ================= FIREBASE ================= */
-
-const pageRef = ref(db, "pageViews");
-const el = document.getElementById("adminViews");
+/* ================= DOM ================= */
+const viewNumber = document.getElementById("viewNumber");
 
 /* ================= CACHE ================= */
 
@@ -117,19 +116,20 @@ let cachedTotal = (!isNaN(cachedTotalRaw) && cachedTotalRaw !== null)
 
 let isFirstLoad = true;
 
-/* ================= UPDATE UI ================= */
+/* ================= UPDATE UI (FIXED) ================= */
 
 function updateUI(total) {
   const formatted = formatViews(total);
 
-  if (el) {
-    el.innerText = `👁 ${formatted} | Admin`;
+  if (viewNumber) {
+    // ONLY update number (no flicker)
+    viewNumber.innerText = `👁${formatted}`;
   }
 }
 
 /* ================= INITIAL UI ================= */
 
-if (el && cachedTotal !== null) {
+if (viewNumber && cachedTotal !== null) {
   updateUI(cachedTotal);
 }
 
@@ -147,7 +147,9 @@ function getTotal(pageData) {
   return total;
 }
 
-/* ================= LISTENER ================= */
+/* ================= FIREBASE ================= */
+
+const pageRef = ref(db, "pageViews");
 
 onValue(pageRef, (snapshot) => {
   const data = snapshot.val() || {};
