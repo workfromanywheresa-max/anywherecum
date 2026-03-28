@@ -186,9 +186,9 @@ h2 {
   <!-- TOP AD -->
 <div id="topAd" style="
 position: fixed;
-top: -100px;
+top: 0;
 left: 50%;
-transform: translateX(-50%);
+transform: translate(-50%, -100%);
 width: 300px;
 height: 62px;
 border: 2px solid red;
@@ -197,8 +197,7 @@ overflow: hidden;
 z-index: 9999;
 background: #fff;
 opacity: 0;
-transition: top 0.5s ease, opacity 0.5s ease;
-will-change: top, opacity;
+transition: transform 0.5s ease, opacity 0.5s ease;
 ">
 
   <!-- Ad -->
@@ -278,6 +277,13 @@ will-change: top, opacity;
 
 </div>
 
+<style>
+body {
+  margin: 0;
+  padding: 0;
+}
+</style>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -291,11 +297,10 @@ document.addEventListener("DOMContentLoaded", function () {
   function showAd() {
     ad.style.display = "block";
 
-    // Animate down from top
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       ad.style.opacity = "1";
-      ad.style.top = "0";
-    }, 50);
+      ad.style.transform = "translate(-50%, 0)";
+    });
 
     let timeLeft = 15;
 
@@ -320,7 +325,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function hideAd() {
-    ad.style.top = "-100px";
+    ad.style.transform = "translate(-50%, -100%)";
     ad.style.opacity = "0";
 
     setTimeout(() => {
@@ -334,7 +339,7 @@ document.addEventListener("DOMContentLoaded", function () {
     cycleTimeout = setTimeout(showAd, 120000);
   }
 
-  // Initial load
+  // Initial show after 10s
   setTimeout(() => {
     showAd();
     scheduleNextAd();
