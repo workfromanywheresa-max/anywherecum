@@ -158,14 +158,6 @@ function saveCache(key, value) {
   localStorage.setItem(key, value);
 }
 
-function loadHTMLCache(key) {
-  return localStorage.getItem(key);
-}
-
-function saveHTMLCache(key, html) {
-  localStorage.setItem(key, html);
-}
-
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + "K";
@@ -189,7 +181,7 @@ function getFormattedCached(key) {
   return `${formatViews(num)} <span style="font-size: 0.75em; opacity: 0.7;">(${num})</span>`;
 }
 
-/* ---------- TOTAL (UNCHANGED) ---------- */
+/* ---------- TOTAL ---------- */
 totalEl.innerHTML = "Site Visits: " + getFormattedCached("totalViews");
 videoEl.innerHTML = "Video Views: " + getFormattedCached("videoViews");
 cycleEl.innerHTML = "Cycle Views: " + getFormattedCached("cycleViews");
@@ -203,10 +195,24 @@ function getMonthLabel(offset) {
 
 const monthlyList = document.getElementById("monthlyList");
 
-/* LOAD CACHE FIRST */
-const cachedMonthly = loadHTMLCache("monthlyHTML");
+/* CACHE LOAD */
+const cachedMonthly = loadCache("monthlyData");
 if (cachedMonthly) {
-  monthlyList.innerHTML = cachedMonthly;
+  const data = JSON.parse(cachedMonthly);
+
+  let html = "";
+  for (let i = 0; i < 12; i++) {
+    const value = data[i] || 0;
+
+    html += `
+      <li>
+        <span>${getMonthLabel(i)}</span>
+        <span class="value">${formatViews(value)}</span>
+      </li>
+    `;
+  }
+
+  monthlyList.innerHTML = html;
 }
 
 onValue(pageViewsRef, (snapshot) => {
@@ -225,16 +231,28 @@ onValue(pageViewsRef, (snapshot) => {
   }
 
   monthlyList.innerHTML = html;
-  saveHTMLCache("monthlyHTML", html);
+  saveCache("monthlyData", JSON.stringify(data));
 });
 
 /* ---------- PAGE VIEWS ---------- */
 const pageList = document.getElementById("pageViews");
 
-/* LOAD CACHE FIRST */
-const cachedPage = loadHTMLCache("pageViewsHTML");
+/* CACHE LOAD */
+const cachedPage = loadCache("pageViewsData");
 if (cachedPage) {
-  pageList.innerHTML = cachedPage;
+  const data = JSON.parse(cachedPage);
+
+  let html = "";
+  Object.entries(data).forEach(([key, value]) => {
+    value = typeof value === "number" ? value : 0;
+
+    html += `<li>
+      <span>${key}</span>
+      <span class="value">${formatViews(value)}</span>
+    </li>`;
+  });
+
+  pageList.innerHTML = html;
 }
 
 onValue(pageViewsRef, (snapshot) => {
@@ -256,8 +274,8 @@ onValue(pageViewsRef, (snapshot) => {
   });
 
   pageList.innerHTML = html;
-  saveHTMLCache("pageViewsHTML", html);
 
+  saveCache("pageViewsData", JSON.stringify(data));
   saveCache("totalViews", total);
 });
 
@@ -290,6 +308,293 @@ onValue(cycleViewsRef, (snapshot) => {
 });
 
 /* ---------- LOGOUT ---------- */
+function logout() {
+  localStorage.removeItem("adminLoggedIn");
+  location.reload();
+}
+</script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Dashboard - Site Views</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #121212;
+  color: #fff;
+  margin: 0;
+  padding: 20px;
+}
+
+h1, h2 { color: #ff4444; }
+
+.card {
+  background: #1e1e1e;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+ul { list-style: none; padding: 0; margin: 0; }
+
+li {
+  padding: 8px;
+  border-bottom: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  height: 32px;
+}
+
+.value {
+  color: #00ffcc;
+  font-weight: bold;
+}
+
+.total-card {
+  background: #1e1e1e;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.logout-btn {
+  float: right;
+  background: #ff4444;
+  border: none;
+  padding: 8px 12px;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.monthly-box {
+  max-height: 120px;
+  min-height: 120px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+#pageViews {
+  max-height: 300px;
+  min-height: 300px;
+  overflow-y: auto;
+}
+
+.monthly-box::-webkit-scrollbar,
+#pageViews::-webkit-scrollbar {
+  width: 6px;
+}
+
+.monthly-box::-webkit-scrollbar-thumb,
+#pageViews::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+</style>
+</head>
+
+<body>
+
+<script>
+const ADMIN_PASSWORD = "Anywherecum1099";
+
+if (!localStorage.getItem("adminLoggedIn")) {
+  const entered = prompt("Enter Admin Password:");
+
+  if (!entered || entered.trim() !== ADMIN_PASSWORD) {
+    document.documentElement.innerHTML = `
+      <body style="background:#121212;color:red;display:flex;justify-content:center;align-items:center;height:100vh;">
+        <h1>❌ Access Denied</h1>
+      </body>
+    `;
+    throw new Error("Unauthorized");
+  }
+
+  localStorage.setItem("adminLoggedIn", "true");
+}
+</script>
+
+<button class="logout-btn" onclick="logout()">Logout</button>
+
+<div class="total-card">
+  <h2>🔥 Total Views</h2>
+
+  <div id="totalViews" class="value">Loading...</div>
+  <div id="videoViewsTotal" class="value">Video Views: Loading...</div>
+  <div id="cycleViewsTotal" class="value">Cycle Views: Loading...</div>
+</div>
+
+<div class="card">
+  <h2>📅 Monthly Visits</h2>
+  <ul id="monthlyList" class="monthly-box"></ul>
+</div>
+
+<div class="container">
+  <div class="card">
+    <h2>📊 Page Views</h2>
+    <ul id="pageViews"></ul>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
+  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const pageViewsRef = ref(db, "pageViews");
+const videoViewsRef = ref(db, "views");
+const cycleViewsRef = ref(db, "cycleViews");
+
+const totalEl = document.getElementById("totalViews");
+const videoEl = document.getElementById("videoViewsTotal");
+const cycleEl = document.getElementById("cycleViewsTotal");
+
+function formatViews(num) {
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
+  if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + "K";
+  return num;
+}
+
+function sumValues(data) {
+  let total = 0;
+  if (data) {
+    Object.values(data).forEach(v => {
+      if (typeof v === "number") total += v;
+    });
+  }
+  return total;
+}
+
+function loadCache(key) {
+  return localStorage.getItem(key);
+}
+
+function saveCache(key, value) {
+  localStorage.setItem(key, value);
+}
+
+function getFormattedCached(key) {
+  const val = loadCache(key);
+  if (!val) return "Loading...";
+  const num = Number(val);
+  return `${formatViews(num)} <span style="font-size: 0.75em; opacity: 0.7;">(${num})</span>`;
+}
+
+/* ✅ SHOW CACHED VALUES INSTANTLY */
+totalEl.innerHTML = "Site Visits: " + getFormattedCached("totalViews");
+videoEl.innerHTML = "Video Views: " + getFormattedCached("videoViews");
+cycleEl.innerHTML = "Cycle Views: " + getFormattedCached("cycleViews");
+
+function getMonthLabel(offset) {
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+  return d.toLocaleString("default", { month: "long" });
+}
+
+/* -------- PAGE VIEWS -------- */
+onValue(pageViewsRef, (snapshot) => {
+  const data = snapshot.val() || {};
+  const list = document.getElementById("pageViews");
+
+  const newString = JSON.stringify(data);
+  if (list.dataset.last === newString) return;
+  list.dataset.last = newString;
+
+  const items = Object.entries(data);
+  let total = 0;
+
+  list.innerHTML = "";
+
+  items.forEach(([key, value]) => {
+    value = typeof value === "number" ? value : 0;
+    total += value;
+
+    const li = document.createElement("li");
+    li.innerHTML = `<span>${key}</span><span class="value">${formatViews(value)}</span>`;
+    list.appendChild(li);
+  });
+
+  totalEl.innerHTML = `
+    Site Visits: 
+    ${formatViews(total)} 
+    <span style="font-size: 0.75em; opacity: 0.7;">(${total})</span>
+  `;
+
+  saveCache("totalViews", total);
+});
+
+/* -------- MONTHLY -------- */
+onValue(pageViewsRef, (snapshot) => {
+  const data = snapshot.val() || {};
+  const list = document.getElementById("monthlyList");
+
+  const newString = JSON.stringify(data);
+  if (list.dataset.last === newString) return;
+  list.dataset.last = newString;
+
+  const total = sumValues(data);
+  saveCache("monthlyTotal", total);
+
+  list.innerHTML = "";
+
+  for (let i = 0; i < 12; i++) {
+    const li = document.createElement("li");
+
+    li.innerHTML = `
+      <span>${getMonthLabel(i)}</span>
+      <span class="value">${i === 0 ? formatViews(total) : 0}</span>
+    `;
+
+    list.appendChild(li);
+  }
+});
+
+/* -------- VIDEO -------- */
+onValue(videoViewsRef, (snapshot) => {
+  const total = sumValues(snapshot.val() || {});
+  const short = formatViews(total);
+
+  videoEl.innerHTML = `
+    Video Views: 
+    ${short} 
+    <span style="font-size: 0.75em; opacity: 0.7;">(${total})</span>
+  `;
+
+  saveCache("videoViews", total);
+});
+
+/* -------- CYCLE -------- */
+onValue(cycleViewsRef, (snapshot) => {
+  const total = sumValues(snapshot.val() || {});
+  const short = formatViews(total);
+
+  cycleEl.innerHTML = `
+    Cycle Views: 
+    ${short} 
+    <span style="font-size: 0.75em; opacity: 0.7;">(${total})</span>
+  `;
+
+  saveCache("cycleViews", total);
+});
+
+/* -------- LOGOUT -------- */
 function logout() {
   localStorage.removeItem("adminLoggedIn");
   location.reload();
