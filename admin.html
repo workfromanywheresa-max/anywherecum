@@ -214,7 +214,7 @@ function renderMonthly(data) {
     html += `
       <li>
         <span>${getMonthLabel(i)}</span>
-        <span class="value">${formatViews(value)}</span>
+        <span class="value">${formatViews(value)} ${bracket(value)}</span>
       </li>
     `;
   }
@@ -252,7 +252,7 @@ function renderPages(data) {
   items.forEach(([key, value]) => {
     html += `<li>
       <span>${key}</span>
-      <span class="value">${formatViews(value)}</span>
+      <span class="value">${formatViews(value)} ${bracket(value)}</span>
     </li>`;
   });
 
