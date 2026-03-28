@@ -697,27 +697,27 @@ if (videos.length) {
   const latestDiv = document.getElementById('latestVideo');
 
   // Clear existing content safely
-  latestDiv.innerHTML = "";
+latestDiv.innerHTML = "";
 
-  const ul = document.createElement("ul");
-  ul.className = "folder-grid";
+const ul = document.createElement("ul");
+ul.className = "folder-grid";
 
-  const li = document.createElement("li");
-  li.dataset.folder = latestVideo.folder;
+const li = document.createElement("li");
+li.dataset.folder = latestVideo.folder;
 
-  const img = document.createElement("img");
-  img.src = BASE_URL + latestVideo.thumbnail;
-  img.alt = latestVideo.folder;
-  img.style.cssText = "width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;";
+const img = document.createElement("img");
+img.src = BASE_URL + latestVideo.thumbnail;
+img.alt = latestVideo.folder;
+img.style.cssText = "width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;";
 
-  const link = document.createElement("a");
-  link.className = "folder-link latest-link";
-  link.href = "folder.html?folder=" + encodeURIComponent(latestVideo.folder);
-  link.textContent = "Watch Now: New Video Available!!!";
-  link.dataset.folder = latestVideo.folder;
+const link = document.createElement("a");
+link.className = "folder-link latest-link";
+link.href = "folder.html?folder=" + encodeURIComponent(latestVideo.folder);
+link.textContent = "Watch Now: New Video Available!!!";
+link.dataset.folder = latestVideo.folder;
 
-  img.onclick = (e) => {
-  e.stopPropagation(); // ✅ stop global listener
+img.onclick = (e) => {
+  e.stopPropagation(); // stop global listener
 
   if (window.trackPreviewClick) {
     window.trackPreviewClick(latestVideo.folder);
@@ -730,7 +730,7 @@ if (videos.length) {
 
 link.onclick = (e) => {
   e.preventDefault();
-  e.stopPropagation(); // ✅ stop global listener
+  e.stopPropagation(); // stop global listener
 
   if (window.trackPreviewClick) {
     window.trackPreviewClick(latestVideo.folder);
@@ -741,16 +741,14 @@ link.onclick = (e) => {
   }, 200);
 };
 
-  li.appendChild(img);
-  li.appendChild(link);
-  ul.appendChild(li);
+li.appendChild(img);
+li.appendChild(link);
+ul.appendChild(li);
 
-  latestDiv.appendChild(title);
-  latestDiv.appendChild(ul);
-      }
-  });
+latestDiv.appendChild(ul);
+
 });
-                                                                 
+});
 </script>
 
   <script>
