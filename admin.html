@@ -73,19 +73,12 @@ li {
   overflow-y: auto;
 }
 
-.monthly-box::-webkit-scrollbar {
-  width: 6px;
-}
-
-.monthly-box::-webkit-scrollbar-thumb {
-  background: #444;
-  border-radius: 3px;
-}
-
+.monthly-box::-webkit-scrollbar,
 #pageViews::-webkit-scrollbar {
   width: 6px;
 }
 
+.monthly-box::-webkit-scrollbar-thumb,
 #pageViews::-webkit-scrollbar-thumb {
   background: #444;
   border-radius: 3px;
@@ -187,6 +180,7 @@ function getFormattedCached(key) {
   return `${formatViews(num)} <span style="font-size: 0.75em; opacity: 0.7;">(${num})</span>`;
 }
 
+/* ✅ SHOW CACHED VALUES INSTANTLY */
 totalEl.innerHTML = "Site Visits: " + getFormattedCached("totalViews");
 videoEl.innerHTML = "Video Views: " + getFormattedCached("videoViews");
 cycleEl.innerHTML = "Cycle Views: " + getFormattedCached("cycleViews");
@@ -199,37 +193,30 @@ function getMonthLabel(offset) {
 
 /* -------- PAGE VIEWS -------- */
 onValue(pageViewsRef, (snapshot) => {
-  const data = snapshot.val();
+  const data = snapshot.val() || {};
   const list = document.getElementById("pageViews");
 
-  const newDataString = JSON.stringify(data || {});
-  if (list.dataset.last === newDataString) return;
-  list.dataset.last = newDataString;
+  const newString = JSON.stringify(data);
+  if (list.dataset.last === newString) return;
+  list.dataset.last = newString;
 
+  const items = Object.entries(data);
   let total = 0;
 
-  if (data) {
-    const items = Object.entries(data);
+  list.innerHTML = "";
 
-    if (list.children.length !== items.length) {
-      list.innerHTML = "";
+  items.forEach(([key, value]) => {
+    value = typeof value === "number" ? value : 0;
+    total += value;
 
-      items.forEach(([key, value]) => {
-        value = typeof value === "number" ? value : 0;
-        total += value;
-
-        const li = document.createElement("li");
-        li.innerHTML = `<span>${key}</span><span class="value">${formatViews(value)}</span>`;
-        list.appendChild(li);
-      });
-    }
-  }
-
-  const short = formatViews(total);
+    const li = document.createElement("li");
+    li.innerHTML = `<span>${key}</span><span class="value">${formatViews(value)}</span>`;
+    list.appendChild(li);
+  });
 
   totalEl.innerHTML = `
     Site Visits: 
-    ${short} 
+    ${formatViews(total)} 
     <span style="font-size: 0.75em; opacity: 0.7;">(${total})</span>
   `;
 
@@ -238,35 +225,33 @@ onValue(pageViewsRef, (snapshot) => {
 
 /* -------- MONTHLY -------- */
 onValue(pageViewsRef, (snapshot) => {
-  const data = snapshot.val();
+  const data = snapshot.val() || {};
   const list = document.getElementById("monthlyList");
 
-  const newDataString = JSON.stringify(data || {});
-  if (list.dataset.last === newDataString) return;
-  list.dataset.last = newDataString;
+  const newString = JSON.stringify(data);
+  if (list.dataset.last === newString) return;
+  list.dataset.last = newString;
 
   const total = sumValues(data);
   saveCache("monthlyTotal", total);
 
-  if (list.children.length === 0) {
-    for (let i = 0; i < 12; i++) {
-      const li = document.createElement("li");
+  list.innerHTML = "";
 
-      const cachedTotal = loadCache("monthlyTotal") || total;
+  for (let i = 0; i < 12; i++) {
+    const li = document.createElement("li");
 
-      li.innerHTML = `
-        <span>${getMonthLabel(i)}</span>
-        <span class="value">${i === 0 ? formatViews(cachedTotal) : 0}</span>
-      `;
+    li.innerHTML = `
+      <span>${getMonthLabel(i)}</span>
+      <span class="value">${i === 0 ? formatViews(total) : 0}</span>
+    `;
 
-      list.appendChild(li);
-    }
+    list.appendChild(li);
   }
 });
 
 /* -------- VIDEO -------- */
 onValue(videoViewsRef, (snapshot) => {
-  const total = sumValues(snapshot.val());
+  const total = sumValues(snapshot.val() || {});
   const short = formatViews(total);
 
   videoEl.innerHTML = `
@@ -280,7 +265,7 @@ onValue(videoViewsRef, (snapshot) => {
 
 /* -------- CYCLE -------- */
 onValue(cycleViewsRef, (snapshot) => {
-  const total = sumValues(snapshot.val());
+  const total = sumValues(snapshot.val() || {});
   const short = formatViews(total);
 
   cycleEl.innerHTML = `
