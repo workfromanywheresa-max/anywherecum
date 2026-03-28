@@ -179,7 +179,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   position: fixed;
   top: 0;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -100%);
   width: 95%;
   max-width: 700px;
   background: #ffffff;
@@ -193,8 +193,8 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   border-radius: 5px;
   white-space: nowrap;
   overflow: hidden;
-  animation: slideDown 0.4s ease;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.5s ease;
 ">
   <span style="flex: 1; text-align: center;">
     🔔 Click the bell icon on your bottom left to receive notifications
@@ -212,29 +212,38 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 </div>
 
 <script>
-  const style = document.createElement("style");
-  style.innerHTML = `
-    @keyframes slideDown {
-      from { transform: translate(-50%, -100%); }
-      to { transform: translate(-50%, 0); }
-    }
-  `;
-  document.head.appendChild(style);
-
   const banner = document.getElementById("topBanner");
   const closeBtn = document.getElementById("closeBtn");
 
   const lastClosed = localStorage.getItem("bannerClosedTime");
   const now = Date.now();
-  const oneMinute = 60 * 1000;
+  const twentyFourHours = 24 * 60 * 60 * 1000;
 
-  if (!lastClosed || now - lastClosed > oneMinute) {
+  if (!lastClosed || now - lastClosed > twentyFourHours) {
+    // Show banner
     banner.style.display = "flex";
+
+    // Slide down smoothly
+    setTimeout(() => {
+      banner.style.transform = "translate(-50%, 0)";
+    }, 50);
+
+    // Auto-hide after 30 seconds
+    setTimeout(() => {
+      banner.style.transform = "translate(-50%, -100%)";
+      setTimeout(() => {
+        banner.style.display = "none";
+        localStorage.setItem("bannerClosedTime", Date.now());
+      }, 500);
+    }, 30000);
   }
 
   closeBtn.addEventListener("click", () => {
-    banner.style.display = "none";
-    localStorage.setItem("bannerClosedTime", Date.now());
+    banner.style.transform = "translate(-50%, -100%)";
+    setTimeout(() => {
+      banner.style.display = "none";
+      localStorage.setItem("bannerClosedTime", Date.now());
+    }, 500);
   });
 </script>
 
