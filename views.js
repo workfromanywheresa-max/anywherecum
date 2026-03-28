@@ -113,6 +113,10 @@ let cachedTotal = (!isNaN(cachedTotalRaw) && cachedTotalRaw !== null)
   ? Number(cachedTotalRaw)
   : null;
 
+/* ================= FIRST LOAD FLAG ================= */
+
+let isFirstLoad = true;
+
 /* ================= UPDATE UI ================= */
 
 function updateUI(total) {
@@ -123,7 +127,7 @@ function updateUI(total) {
   }
 }
 
-/* ================= INITIAL LOAD ================= */
+/* ================= INITIAL UI ================= */
 
 if (el && cachedTotal !== null) {
   updateUI(cachedTotal);
@@ -149,7 +153,20 @@ onValue(pageRef, (snapshot) => {
   const data = snapshot.val() || {};
   const total = getTotal(data);
 
-  // ONLY update if changed (removes flicker)
+  /* -------- FIRST LOAD: sync only (NO UI overwrite) -------- */
+  if (isFirstLoad) {
+    isFirstLoad = false;
+
+    if (cachedTotal !== total) {
+      saveCache("totalViews", total);
+      saveCache("pageViewsData", JSON.stringify(data));
+      cachedTotal = total;
+    }
+
+    return;
+  }
+
+  /* -------- NORMAL UPDATES -------- */
   if (cachedTotal !== total) {
     updateUI(total);
 
