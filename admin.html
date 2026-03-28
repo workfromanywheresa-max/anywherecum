@@ -137,6 +137,11 @@ const pageViewsRef = ref(db, "pageViews");
 const videoViewsRef = ref(db, "views");
 const cycleViewsRef = ref(db, "cycleViews");
 
+/* ---------------- ELEMENTS ---------------- */
+const totalEl = document.getElementById("totalViews");
+const videoEl = document.getElementById("videoViewsTotal");
+const cycleEl = document.getElementById("cycleViewsTotal");
+
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
@@ -148,25 +153,41 @@ function formatViews(num) {
 function sumValues(data) {
   let total = 0;
   if (data) {
-    Object.values(data).forEach(v => total += typeof v === "number" ? v : 0);
+    Object.values(data).forEach(v => {
+      if (typeof v === "number") total += v;
+    });
   }
   return total;
 }
 
-/* ---------------- MONTH LABEL ---------------- */
+/* ---------------- CACHE ---------------- */
+function loadCache(key) {
+  return localStorage.getItem(key);
+}
+
+function saveCache(key, value) {
+  localStorage.setItem(key, value);
+}
+
+/* ---------------- INSTANT LOAD ---------------- */
+if (totalEl) totalEl.innerText = "Site Visits: " + (loadCache("totalViews") || "Loading...");
+if (videoEl) videoEl.innerText = "Video Views: " + (loadCache("videoViews") || "Loading...");
+if (cycleEl) cycleEl.innerText = "Cycle Views: " + (loadCache("cycleViews") || "Loading...");
+
+/* ---------------- MONTH ---------------- */
 function getMonthLabel(offset) {
   const now = new Date();
   const d = new Date(now.getFullYear(), now.getMonth() - offset, 1);
   return d.toLocaleString("default", { month: "long" });
 }
 
-/* ---------------- MONTHLY (STATIC LOAD) ---------------- */
+/* ---------------- MONTHLY ---------------- */
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val();
   const list = document.getElementById("monthlyList");
   list.innerHTML = "";
 
-  let total = sumValues(data);
+  const total = sumValues(data);
 
   for (let i = 0; i < 12; i++) {
     const li = document.createElement("li");
@@ -183,7 +204,6 @@ onValue(pageViewsRef, (snapshot) => {
 /* ---------------- PAGE VIEWS ---------------- */
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val();
-
   const list = document.getElementById("pageViews");
   list.innerHTML = "";
 
@@ -200,22 +220,31 @@ onValue(pageViewsRef, (snapshot) => {
     });
   }
 
-  document.getElementById("totalViews").innerText =
-    "Site Visits: " + formatViews(total);
+  const formatted = formatViews(total);
+
+  if (totalEl) totalEl.innerText = "Site Visits: " + formatted;
+
+  saveCache("totalViews", total);
 });
 
 /* ---------------- VIDEO ---------------- */
 onValue(videoViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val());
-  document.getElementById("videoViewsTotal").innerText =
-    "Video Views: " + formatViews(total);
+  const formatted = formatViews(total);
+
+  if (videoEl) videoEl.innerText = "Video Views: " + formatted;
+
+  saveCache("videoViews", total);
 });
 
 /* ---------------- CYCLE ---------------- */
 onValue(cycleViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val());
-  document.getElementById("cycleViewsTotal").innerText =
-    "Cycle Views: " + formatViews(total);
+  const formatted = formatViews(total);
+
+  if (cycleEl) cycleEl.innerText = "Cycle Views: " + formatted;
+
+  saveCache("cycleViews", total);
 });
 
 /* ---------------- LOGOUT ---------------- */
