@@ -286,7 +286,6 @@ document.addEventListener("DOMContentLoaded", function () {
   let cycleTimeout;
 
   function showAd() {
-    // Slide in
     ad.style.top = "10px";
 
     let timeLeft = 15;
@@ -314,12 +313,9 @@ document.addEventListener("DOMContentLoaded", function () {
   function hideMainAd() {
     ad.style.top = "-80px";
 
-    setTimeout(() => {
-      scheduleNextAd();
-    }, 500);
-  }
+    clearInterval(countdownInterval);
 
-  function scheduleNextAd() {
+    // 👉 Start 2 minute cooldown AFTER X is clicked
     clearTimeout(cycleTimeout);
     cycleTimeout = setTimeout(showAd, 120000);
   }
@@ -327,13 +323,12 @@ document.addEventListener("DOMContentLoaded", function () {
   // Start after 10 seconds
   setTimeout(() => {
     showAd();
-    scheduleNextAd();
   }, 10000);
 
   window.hideMainAd = hideMainAd;
 
 });
-        </script>
+</script>
   
 <button onclick="history.back()">← Back</button>
 
