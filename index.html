@@ -699,9 +699,6 @@ if (videos.length) {
   // Clear existing content safely
   latestDiv.innerHTML = "";
 
-  const title = document.createElement("h2");
-  title.textContent = "🎥Latest Video🎥";
-
   const ul = document.createElement("ul");
   ul.className = "folder-grid";
 
@@ -720,39 +717,36 @@ if (videos.length) {
   link.dataset.folder = latestVideo.folder;
 
   img.onclick = (e) => {
-  e.stopPropagation(); // ✅ stop global listener
+    e.stopPropagation(); // stop global listener
 
-  if (window.trackPreviewClick) {
-    window.trackPreviewClick(latestVideo.folder);
-  }
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(latestVideo.folder);
+    }
 
-  setTimeout(() => {
-    window.location.href = link.href;
-  }, 200);
-};
+    setTimeout(() => {
+      window.location.href = link.href;
+    }, 200);
+  };
 
-link.onclick = (e) => {
-  e.preventDefault();
-  e.stopPropagation(); // ✅ stop global listener
+  link.onclick = (e) => {
+    e.preventDefault();
+    e.stopPropagation(); // stop global listener
 
-  if (window.trackPreviewClick) {
-    window.trackPreviewClick(latestVideo.folder);
-  }
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(latestVideo.folder);
+    }
 
-  setTimeout(() => {
-    window.location.href = link.href;
-  }, 200);
-};
+    setTimeout(() => {
+      window.location.href = link.href;
+    }, 200);
+  };
 
   li.appendChild(img);
   li.appendChild(link);
   ul.appendChild(li);
 
-  latestDiv.appendChild(title);
   latestDiv.appendChild(ul);
-      }
-  });
-});
+        }
                                                                  
 </script>
 
