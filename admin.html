@@ -63,7 +63,6 @@ li {
 
 <body>
 
-<!-- 🔐 PASSWORD -->
 <script>
 const ADMIN_PASSWORD = "Anywherecum1099";
 
@@ -85,51 +84,17 @@ if (!localStorage.getItem("adminLoggedIn")) {
 
 <button id="triggerBtn">Trigger Notification</button>
 
-<script>
-const btn = document.getElementById("triggerBtn");
-
-btn.addEventListener("click", async () => {
-  btn.disabled = true;
-  btn.innerText = "Sending...";
-
-  try {
-    const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/", {
-      method: "POST"
-    });
-
-    const text = await res.text();
-    let data = JSON.parse(text);
-
-    if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
-
-    if (data.success && data.sent) {
-      alert("✅ Notification sent!");
-    } else if (data.success && !data.sent) {
-      alert("⚠️ No new video");
-    } else {
-      alert("❌ " + (data.error || "Unknown error"));
-    }
-
-  } catch (err) {
-    alert("❌ Failed: " + err.message);
-  }
-
-  btn.disabled = false;
-  btn.innerText = "Trigger Notification";
-});
-</script>
-
 <button class="logout-btn" onclick="logout()">Logout</button>
 
-<!-- 🔥 TOTAL -->
 <div class="total-card">
   <h2>🔥 Total Views</h2>
+
   <div id="totalViews" class="value">Site Visits: Loading...</div>
   <div id="videoViewsTotal" class="value">Video Views: Loading...</div>
   <div id="cycleViewsTotal" class="value">Cycle Views: Loading...</div>
 </div>
 
-<!-- 📅 MONTHLY VISITS -->
+<!-- MONTHLY -->
 <div class="card">
   <h2>📅 Monthly Visits</h2>
   <ul id="monthlyList"></ul>
@@ -145,10 +110,10 @@ btn.addEventListener("click", async () => {
   ">Show More</button>
 </div>
 
-<!-- 📊 PAGE VIEWS -->
+<!-- PAGE VIEWS -->
 <div class="container">
   <div class="card">
-    <h2>📊 Page Views (Current Month)</h2>
+    <h2>📊 Page Views</h2>
     <ul id="pageViews"></ul>
   </div>
 </div>
@@ -169,121 +134,46 @@ async function fetchData(path) {
   return await res.json();
 }
 
-/* MONTH KEY */
-function getMonthKey() {
+/* MONTH LABEL */
+function getMonthLabel(offset) {
   const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const d = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+  return d.toLocaleString("default", { month: "long" });
 }
 
-/* LAST MONTHS */
-function getLastMonths(count) {
-  const months = [];
-  const now = new Date();
-
-  for (let i = 0; i < count; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    const label = d.toLocaleString("default", { month: "long" });
-    months.push({ key, label });
-  }
-
-  return months;
-}
-
-/* GROWTH */
-function calculateGrowth(current, previous) {
-  if (previous === 0) {
-    return { text: "New", color: "#00ffcc" };
-  }
-
-  const change = ((current - previous) / previous) * 100;
-  const rounded = change.toFixed(1);
-
-  if (change > 0) {
-    return { text: `+${rounded}%`, color: "lime" };
-  } else if (change < 0) {
-    return { text: `${rounded}%`, color: "red" };
-  } else {
-    return { text: "0%", color: "#aaa" };
-  }
-}
-
-/* PAGE VIEWS */
-async function loadPageViews() {
-  const month = getMonthKey();
-  const data = await fetchData(`pageViews/${month}`);
-
-  const list = document.getElementById("pageViews");
-  list.innerHTML = "";
-
-  let total = 0;
-  let combined = [];
-
-  if (data) {
-    Object.entries(data).forEach(([key, value]) => {
-      value = typeof value === "number" ? value : 0;
-      total += value;
-      combined.push({ name: key, value });
-    });
-  }
-
-  combined.sort((a, b) => b.value - a.value);
-
-  combined.forEach(item => {
-    const li = document.createElement("li");
-    li.innerHTML = `<span>${item.name}</span><span class="value">${formatViews(item.value)}</span>`;
-    list.appendChild(li);
-  });
-
-  return total;
-}
-
-/* MONTHLY VISITS */
+/* MONTH CONTROL */
 let monthsToShow = 3;
 
+/* MONTHLY VISITS (FRONTEND ONLY) */
 async function loadMonthlyVisits() {
   const list = document.getElementById("monthlyList");
   list.innerHTML = "";
 
-  const months = getLastMonths(monthsToShow);
+  const data = await fetchData("pageViews");
 
-  let previousTotal = null;
+  let total = 0;
 
-  for (const m of months) {
-    const data = await fetchData(`pageViews/${m.key}`);
+  if (data) {
+    Object.values(data).forEach(v => {
+      total += typeof v === "number" ? v : 0;
+    });
+  }
 
-    let total = 0;
-
-    if (data) {
-      Object.values(data).forEach(v => {
-        total += typeof v === "number" ? v : 0;
-      });
-    }
-
-    let growthHTML = "";
-
-    if (previousTotal !== null) {
-      const growth = calculateGrowth(total, previousTotal);
-
-      growthHTML = `
-        <span style="margin-left:10px; color:${growth.color}; font-size:12px;">
-          ${growth.text}
-        </span>
-      `;
-    }
-
+  for (let i = 0; i < monthsToShow; i++) {
     const li = document.createElement("li");
+
+    let value = 0;
+
+    if (i === 0) {
+      value = total; // only current month has data
+    }
+
     li.innerHTML = `
-      <span>${m.label}</span>
-      <span class="value">
-        ${formatViews(total)}
-        ${growthHTML}
-      </span>
+      <span>${getMonthLabel(i)}</span>
+      <span class="value">${formatViews(value)}</span>
     `;
 
     list.appendChild(li);
-
-    previousTotal = total;
   }
 }
 
@@ -293,7 +183,30 @@ function expandMonths() {
   loadMonthlyVisits();
 }
 
-/* VIDEO TOTAL */
+/* PAGE VIEWS */
+async function loadPageViews() {
+  const data = await fetchData("pageViews");
+
+  const list = document.getElementById("pageViews");
+  list.innerHTML = "";
+
+  let total = 0;
+
+  if (data) {
+    Object.entries(data).forEach(([key, value]) => {
+      value = typeof value === "number" ? value : 0;
+      total += value;
+
+      const li = document.createElement("li");
+      li.innerHTML = `<span>${key}</span><span class="value">${formatViews(value)}</span>`;
+      list.appendChild(li);
+    });
+  }
+
+  return total;
+}
+
+/* VIDEO */
 async function loadVideoViewsTotal() {
   const data = await fetchData("views");
   let total = 0;
@@ -305,7 +218,7 @@ async function loadVideoViewsTotal() {
   return total;
 }
 
-/* CYCLE TOTAL */
+/* CYCLE */
 async function loadCycleViewsTotal() {
   const data = await fetchData("cycleViews");
   let total = 0;
@@ -323,16 +236,11 @@ async function init() {
   const videoTotal = await loadVideoViewsTotal();
   const cycleTotal = await loadCycleViewsTotal();
 
-  document.getElementById("totalViews").innerText =
-    "Site Visits (This Month): " + formatViews(pageTotal);
+  document.getElementById("totalViews").innerText = "Site Visits: " + formatViews(pageTotal);
+  document.getElementById("videoViewsTotal").innerText = "Video Views: " + formatViews(videoTotal);
+  document.getElementById("cycleViewsTotal").innerText = "Cycle Views: " + formatViews(cycleTotal);
 
-  document.getElementById("videoViewsTotal").innerText =
-    "Video Views: " + formatViews(videoTotal);
-
-  document.getElementById("cycleViewsTotal").innerText =
-    "Cycle Views: " + formatViews(cycleTotal);
-
-  await loadMonthlyVisits();
+  loadMonthlyVisits();
 }
 
 init();
