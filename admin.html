@@ -94,21 +94,11 @@ btn.addEventListener("click", async () => {
 
   try {
     const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ trigger: true })
+      method: "POST"
     });
 
     const text = await res.text();
-    let data;
-
-    try {
-      data = JSON.parse(text);
-    } catch {
-      throw new Error("Invalid JSON: " + text);
-    }
+    let data = JSON.parse(text);
 
     if (!res.ok) {
       throw new Error(data.error || "HTTP " + res.status);
@@ -123,8 +113,8 @@ btn.addEventListener("click", async () => {
     }
 
   } catch (err) {
-    console.error("FETCH ERROR:", err);
-    alert("❌ Failed to reach Worker\n" + err.message);
+    console.error(err);
+    alert("❌ Failed: " + err.message);
   }
 
   btn.disabled = false;
