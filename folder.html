@@ -186,7 +186,7 @@ h2 {
   <!-- TOP AD -->
 <div id="topAd" style="
 position: fixed;
-top: -100px; /* start clearly ABOVE screen */
+top: -100px;
 left: 50%;
 transform: translateX(-50%);
 width: 300px;
@@ -233,13 +233,18 @@ will-change: top, opacity;
     🔴 Live
   </div>
 
-  <!-- ⏱ Timer / ❌ Close -->
+  <!-- ⏱ Timer / ❌ Close (LEFT SIDE) -->
   <div style="
     position:absolute;
     top:4px;
-    right:4px;
+    left:4px;
     z-index:1000;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    align-items:flex-start;
   ">
+    
     <div id="countdown" style="
       background:black;
       color:#fff;
@@ -247,6 +252,8 @@ will-change: top, opacity;
       font-weight:bold;
       padding:2px 6px;
       border-radius:4px;
+      width:40px;
+      text-align:center;
     ">
       15s
     </div>
@@ -256,18 +263,17 @@ will-change: top, opacity;
       color:#fff;
       font-size:13px;
       font-weight:bold;
-      width:20px;
+      width:40px;
       height:20px;
       line-height:20px;
       text-align:center;
       border-radius:4px;
       cursor:pointer;
       display:none;
-      align-items:center;
-      justify-content:center;
     ">
       ✕
     </div>
+
   </div>
 
 </div>
@@ -285,7 +291,7 @@ document.addEventListener("DOMContentLoaded", function () {
   function showAd() {
     ad.style.display = "block";
 
-    // FORCE animation from top
+    // Animate down from top
     setTimeout(() => {
       ad.style.opacity = "1";
       ad.style.top = "0";
@@ -308,7 +314,7 @@ document.addEventListener("DOMContentLoaded", function () {
         clearInterval(countdownInterval);
 
         countdownEl.style.display = "none";
-        closeBtn.style.display = "flex";
+        closeBtn.style.display = "block";
       }
     }, 1000);
   }
@@ -328,6 +334,7 @@ document.addEventListener("DOMContentLoaded", function () {
     cycleTimeout = setTimeout(showAd, 120000);
   }
 
+  // Initial load
   setTimeout(() => {
     showAd();
     scheduleNextAd();
