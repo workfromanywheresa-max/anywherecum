@@ -59,14 +59,13 @@ li {
   cursor: pointer;
 }
 
-/* 🔥 SCROLLABLE MONTHLY LIST */
+/* SCROLLABLE MONTHLY LIST */
 .monthly-box {
-  max-height: 120px; /* ≈ 3 items */
+  max-height: 120px; /* shows ~3 months */
   overflow-y: auto;
   padding-right: 5px;
 }
 
-/* optional: nicer scrollbar */
 .monthly-box::-webkit-scrollbar {
   width: 6px;
 }
@@ -112,8 +111,6 @@ if (!localStorage.getItem("adminLoggedIn")) {
 <!-- MONTHLY -->
 <div class="card">
   <h2>📅 Monthly Visits</h2>
-
-  <!-- scroll container -->
   <ul id="monthlyList" class="monthly-box"></ul>
 </div>
 
@@ -148,7 +145,7 @@ function getMonthLabel(offset) {
   return d.toLocaleString("default", { month: "long" });
 }
 
-/* MONTHLY VISITS */
+/* MONTHLY VISITS (ONLY LOAD ONCE) */
 async function loadMonthlyVisits() {
   const list = document.getElementById("monthlyList");
   list.innerHTML = "";
@@ -163,12 +160,10 @@ async function loadMonthlyVisits() {
     });
   }
 
-  // show more months (scroll handles overflow)
   for (let i = 0; i < 12; i++) {
     const li = document.createElement("li");
 
     let value = 0;
-
     if (i === 0) value = total;
 
     li.innerHTML = `
@@ -227,8 +222,8 @@ async function loadCycleViewsTotal() {
   return total;
 }
 
-/* INIT */
-async function init() {
+/* UPDATE ONLY TOTALS (NO FLICKER) */
+async function updateTotalsOnly() {
   const pageTotal = await loadPageViews();
   const videoTotal = await loadVideoViewsTotal();
   const cycleTotal = await loadCycleViewsTotal();
@@ -236,12 +231,18 @@ async function init() {
   document.getElementById("totalViews").innerText = "Site Visits: " + formatViews(pageTotal);
   document.getElementById("videoViewsTotal").innerText = "Video Views: " + formatViews(videoTotal);
   document.getElementById("cycleViewsTotal").innerText = "Cycle Views: " + formatViews(cycleTotal);
+}
 
-  loadMonthlyVisits();
+/* INIT ONCE */
+async function init() {
+  await loadMonthlyVisits();
+  await updateTotalsOnly();
 }
 
 init();
-setInterval(init, 10000);
+
+/* REFRESH ONLY NUMBERS (NO REBUILD) */
+setInterval(updateTotalsOnly, 10000);
 
 /* LOGOUT */
 function logout() {
