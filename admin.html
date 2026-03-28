@@ -44,7 +44,7 @@ li {
   min-width: 60px;
   text-align: right;
   display: inline-block;
-  transition: all 0.2s ease;
+  transition: opacity 0.15s ease;
 }
 
 .total-card {
@@ -183,12 +183,12 @@ function getMonthLabel(offset) {
   return d.toLocaleString("default", { month: "long" });
 }
 
-/* ---------- CACHE DISPLAY ---------- */
+/* ---------- CACHE ---------- */
 function getFormattedCached(key) {
   const val = loadCache(key);
   if (!val) return "Loading...";
   const num = Number(val);
-  return `${formatViews(num)} <span style="font-size: 0.75em; opacity: 0.7;">(${num})</span>`;
+  return `${formatViews(num)} <span style="font-size:0.75em;opacity:0.7;">(${num})</span>`;
 }
 
 totalEl.innerHTML = "Site Visits: " + getFormattedCached("totalViews");
@@ -212,18 +212,26 @@ onValue(pageViewsRef, (snapshot) => {
       if (!li) {
         li = document.createElement("li");
         li.dataset.key = key;
-        li.innerHTML = `<span>${key}</span><span class="value"></span>`;
+
+        const nameSpan = document.createElement("span");
+        const valueSpan = document.createElement("span");
+        valueSpan.className = "value";
+
+        li.appendChild(nameSpan);
+        li.appendChild(valueSpan);
         list.appendChild(li);
       }
 
-      li.querySelector(".value").textContent = formatViews(value);
+      const spans = li.querySelectorAll("span");
+      spans[0].textContent = key;
+      spans[1].textContent = formatViews(value);
     });
   }
 
   totalEl.innerHTML = `
     Site Visits: 
     ${formatViews(total)} 
-    <span style="font-size: 0.75em; opacity: 0.7;">(${total})</span>
+    <span style="font-size:0.75em;opacity:0.7;">(${total})</span>
   `;
 
   saveCache("totalViews", total);
@@ -236,23 +244,28 @@ onValue(pageViewsRef, (snapshot) => {
 
   const total = sumValues(data);
 
-  for (let i = 0; i < 12; i++) {
-    const monthLabel = getMonthLabel(i);
+  if (list.children.length === 0) {
+    for (let i = 0; i < 12; i++) {
+      const li = document.createElement("li");
 
-    let li = list.querySelector(`[data-month="${monthLabel}"]`);
+      const nameSpan = document.createElement("span");
+      nameSpan.textContent = getMonthLabel(i);
 
-    if (!li) {
-      li = document.createElement("li");
-      li.dataset.month = monthLabel;
-      li.innerHTML = `
-        <span>${monthLabel}</span>
-        <span class="value"></span>
-      `;
+      const valueSpan = document.createElement("span");
+      valueSpan.className = "value";
+      valueSpan.textContent = "0";
+
+      li.appendChild(nameSpan);
+      li.appendChild(valueSpan);
       list.appendChild(li);
     }
+  }
 
+  for (let i = 0; i < list.children.length; i++) {
+    const valueSpan = list.children[i].querySelector(".value");
     const value = i === 0 ? total : 0;
-    li.querySelector(".value").textContent = formatViews(value);
+
+    valueSpan.textContent = formatViews(value);
   }
 
   saveCache("monthlyTotal", total);
@@ -265,7 +278,7 @@ onValue(videoViewsRef, (snapshot) => {
   videoEl.innerHTML = `
     Video Views: 
     ${formatViews(total)} 
-    <span style="font-size: 0.75em; opacity: 0.7;">(${total})</span>
+    <span style="font-size:0.75em;opacity:0.7;">(${total})</span>
   `;
 
   saveCache("videoViews", total);
@@ -278,7 +291,7 @@ onValue(cycleViewsRef, (snapshot) => {
   cycleEl.innerHTML = `
     Cycle Views: 
     ${formatViews(total)} 
-    <span style="font-size: 0.75em; opacity: 0.7;">(${total})</span>
+    <span style="font-size:0.75em;opacity:0.7;">(${total})</span>
   `;
 
   saveCache("cycleViews", total);
