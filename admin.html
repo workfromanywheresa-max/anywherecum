@@ -174,11 +174,16 @@ function sumValues(data) {
   return total;
 }
 
+/* Smaller bracket styling */
+function bracket(num) {
+  return `<span style="font-size: 0.6em; opacity: 0.5;">(${num})</span>`;
+}
+
 function getFormattedCached(key) {
   const val = loadCache(key);
   if (!val) return "Loading...";
   const num = Number(val);
-  return `${formatViews(num)} <span style="font-size: 0.75em; opacity: 0.7;">(${num})</span>`;
+  return `${formatViews(num)} ${bracket(num)}`;
 }
 
 /* ---------- TOTAL ---------- */
@@ -195,13 +200,11 @@ function getMonthLabel(offset) {
 
 const monthlyList = document.getElementById("monthlyList");
 
-/* LOAD CACHE */
 const cachedMonthly = loadCache("monthlyTotals");
 if (cachedMonthly) {
   renderMonthly(JSON.parse(cachedMonthly));
 }
 
-/* RENDER */
 function renderMonthly(data) {
   let html = "";
 
@@ -219,14 +222,12 @@ function renderMonthly(data) {
   monthlyList.innerHTML = html;
 }
 
-/* FIREBASE */
+/* ---------- FIREBASE ---------- */
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val() || {};
 
-  let total = sumValues(data);
-
   let monthlyTotals = new Array(12).fill(0);
-  monthlyTotals[0] = total;
+  monthlyTotals[0] = sumValues(data);
 
   renderMonthly(monthlyTotals);
 
@@ -238,21 +239,17 @@ const pageList = document.getElementById("pageViews");
 
 const cachedPage = loadCache("pageViewsData");
 if (cachedPage) {
-  const data = JSON.parse(cachedPage);
-  renderPages(data);
+  renderPages(JSON.parse(cachedPage));
 }
 
 function renderPages(data) {
   const items = Object.entries(data || {})
     .map(([key, value]) => [key, typeof value === "number" ? value : 0])
-    .sort((a, b) => b[1] - a[1]); // 🔥 SORT HIGH → LOW
+    .sort((a, b) => b[1] - a[1]);
 
   let html = "";
-  let total = 0;
 
   items.forEach(([key, value]) => {
-    total += value;
-
     html += `<li>
       <span>${key}</span>
       <span class="value">${formatViews(value)}</span>
@@ -274,12 +271,8 @@ onValue(pageViewsRef, (snapshot) => {
 /* ---------- VIDEO ---------- */
 onValue(videoViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val() || {});
-  const short = formatViews(total);
-
   videoEl.innerHTML = `
-    Video Views: 
-    ${short} 
-    <span style="font-size: 0.75em; opacity: 0.7;">(${total})</span>
+    Video Views: ${formatViews(total)} ${bracket(total)}
   `;
 
   saveCache("videoViews", total);
@@ -288,12 +281,8 @@ onValue(videoViewsRef, (snapshot) => {
 /* ---------- CYCLE ---------- */
 onValue(cycleViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val() || {});
-  const short = formatViews(total);
-
   cycleEl.innerHTML = `
-    Cycle Views: 
-    ${short} 
-    <span style="font-size: 0.75em; opacity: 0.7;">(${total})</span>
+    Cycle Views: ${formatViews(total)} ${bracket(total)}
   `;
 
   saveCache("cycleViews", total);
