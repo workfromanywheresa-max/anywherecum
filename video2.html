@@ -323,10 +323,10 @@ document.addEventListener("DOMContentLoaded", function () {
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
-  z-index: 1; /* create stacking context */
+  z-index: 1;
 ">
 
-  <!-- 🔴 LIVE Badge (Blinking Pill) -->
+  <!-- 🔴 LIVE Badge (Blinking + Glow) -->
   <div style="
     position: absolute;
     top: 4px;
@@ -337,7 +337,7 @@ document.addEventListener("DOMContentLoaded", function () {
     font-weight: bold;
     padding: 3px 8px;
     border-radius: 999px;
-    z-index: 9999; /* 🔥 force on top */
+    z-index: 9999;
     pointer-events: none;
     animation: blinkLive 1s infinite;
   ">
@@ -355,6 +355,27 @@ document.addEventListener("DOMContentLoaded", function () {
   </div>
 
 </div>
+
+<!-- Blinking Animation -->
+<style>
+@keyframes blinkLive {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0px rgba(255, 0, 0, 0);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.1);
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0px rgba(255, 0, 0, 0);
+  }
+}
+</style>
 
 <!-- Ad2 (Button) -->
 <div style="text-align:center; margin-top:20px;">
