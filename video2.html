@@ -182,7 +182,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let cycleTimeout;
 
   function showAd() {
-    ad.style.top = "10px";
+    ad.style.top = "0px"; // ✅ FIXED: touches the top
 
     let timeLeft = 15;
 
@@ -207,7 +207,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function hideMainAd() {
-    ad.style.top = "0px";
+    ad.style.top = "-80px";
 
     clearInterval(countdownInterval);
 
@@ -222,7 +222,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }, 30000);
 
 });
-</script>
+  </script>
   
   <!-- Back Button -->
   <button onclick="history.back()" style="
