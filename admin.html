@@ -225,26 +225,33 @@ onValue(pageViewsRef, (snapshot) => {
 
   let total = sumValues(data);
 
-  /* SIMPLE MONTHLY CACHE (same as your total logic) */
   let monthlyTotals = new Array(12).fill(0);
-  monthlyTotals[0] = total; // current month only
+  monthlyTotals[0] = total;
 
   renderMonthly(monthlyTotals);
 
   saveCache("monthlyTotals", JSON.stringify(monthlyTotals));
 });
 
-/* ---------- PAGE VIEWS ---------- */
+/* ---------- PAGE VIEWS (SORTED) ---------- */
 const pageList = document.getElementById("pageViews");
 
-/* CACHE LOAD */
 const cachedPage = loadCache("pageViewsData");
 if (cachedPage) {
   const data = JSON.parse(cachedPage);
+  renderPages(data);
+}
+
+function renderPages(data) {
+  const items = Object.entries(data || {})
+    .map(([key, value]) => [key, typeof value === "number" ? value : 0])
+    .sort((a, b) => b[1] - a[1]); // 🔥 SORT HIGH → LOW
 
   let html = "";
-  Object.entries(data).forEach(([key, value]) => {
-    value = typeof value === "number" ? value : 0;
+  let total = 0;
+
+  items.forEach(([key, value]) => {
+    total += value;
 
     html += `<li>
       <span>${key}</span>
@@ -258,25 +265,10 @@ if (cachedPage) {
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val() || {};
 
-  const items = Object.entries(data);
-  let total = 0;
-
-  let html = "";
-
-  items.forEach(([key, value]) => {
-    value = typeof value === "number" ? value : 0;
-    total += value;
-
-    html += `<li>
-      <span>${key}</span>
-      <span class="value">${formatViews(value)}</span>
-    </li>`;
-  });
-
-  pageList.innerHTML = html;
+  renderPages(data);
 
   saveCache("pageViewsData", JSON.stringify(data));
-  saveCache("totalViews", total);
+  saveCache("totalViews", sumValues(data));
 });
 
 /* ---------- VIDEO ---------- */
