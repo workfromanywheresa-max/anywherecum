@@ -605,7 +605,6 @@ window.onload = function () {
   </span>
   <button id="acceptCookies" style="padding:6px 15px; font-size:14px; font-weight:bold; color:#fff; background-color:#ff4444; border:none; border-radius:5px; cursor:pointer; box-shadow:0 0 5px #ff4444;">Accept</button>
 </div>
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const BASE_URL = "https://anywherecum.pages.dev/images/";
@@ -673,6 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
     Object.keys(folders).sort().forEach(folderName=>{
       const folderVideos=folders[folderName]; folderVideos.sort((a,b)=>new Date(b.date)-new Date(a.date));
       const latest=folderVideos[0]; const li=document.createElement('li');
+
       const thumb=document.createElement('img'); 
       thumb.src=BASE_URL + latest.thumbnail; 
       thumb.alt=folderName; 
@@ -681,7 +681,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const link=document.createElement('a'); 
       link.className="folder-link"; 
       link.href="folder.html?folder="+encodeURIComponent(folderName); 
-      link.target="_self"; // <-- NEW TAB
+      link.target="_self";
       link.textContent=folderName;
 
       li.appendChild(thumb); 
@@ -689,71 +689,62 @@ document.addEventListener('DOMContentLoaded', () => {
       folderList.appendChild(li);
     });
 
-    // Latest Video (FIXED)
-if (videos.length) {
-  const latestVideo = videos.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    // Latest Video (FIXED - H2 REMOVED)
+    if (videos.length) {
+      const latestVideo = videos.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
-  const latestDiv = document.getElementById('latestVideo');
+      const latestDiv = document.getElementById('latestVideo');
 
-  // Clear existing content safely
-  latestDiv.innerHTML = "";
+      // Clear existing content safely
+      latestDiv.innerHTML = "";
 
-  const title = document.createElement("h2");
-  title.textContent = "🎥Latest Video🎥";
+      const ul = document.createElement("ul");
+      ul.className = "folder-grid";
 
-  const ul = document.createElement("ul");
-  ul.className = "folder-grid";
+      const li = document.createElement("li");
+      li.dataset.folder = latestVideo.folder;
 
-  const li = document.createElement("li");
-  li.dataset.folder = latestVideo.folder;
+      const img = document.createElement("img");
+      img.src = BASE_URL + latestVideo.thumbnail;
+      img.alt = latestVideo.folder;
+      img.style.cssText = "width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;";
 
-  const img = document.createElement("img");
-  img.src = BASE_URL + latestVideo.thumbnail;
-  img.alt = latestVideo.folder;
-  img.style.cssText = "width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;";
+      const link = document.createElement("a");
+      link.className = "folder-link latest-link";
+      link.href = "folder.html?folder=" + encodeURIComponent(latestVideo.folder);
+      link.textContent = "Watch Now: New Video Available!!!";
+      link.dataset.folder = latestVideo.folder;
 
-  const link = document.createElement("a");
-  link.className = "folder-link latest-link";
-  link.href = "folder.html?folder=" + encodeURIComponent(latestVideo.folder);
-  link.textContent = "Watch Now: New Video Available!!!";
-  link.dataset.folder = latestVideo.folder;
+      img.onclick = (e) => {
+        e.stopPropagation();
+        if (window.trackPreviewClick) {
+          window.trackPreviewClick(latestVideo.folder);
+        }
+        setTimeout(() => {
+          window.location.href = link.href;
+        }, 200);
+      };
 
-  img.onclick = (e) => {
-  e.stopPropagation(); // ✅ stop global listener
+      link.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (window.trackPreviewClick) {
+          window.trackPreviewClick(latestVideo.folder);
+        }
+        setTimeout(() => {
+          window.location.href = link.href;
+        }, 200);
+      };
 
-  if (window.trackPreviewClick) {
-    window.trackPreviewClick(latestVideo.folder);
-  }
+      li.appendChild(img);
+      li.appendChild(link);
+      ul.appendChild(li);
 
-  setTimeout(() => {
-    window.location.href = link.href;
-  }, 200);
-};
-
-link.onclick = (e) => {
-  e.preventDefault();
-  e.stopPropagation(); // ✅ stop global listener
-
-  if (window.trackPreviewClick) {
-    window.trackPreviewClick(latestVideo.folder);
-  }
-
-  setTimeout(() => {
-    window.location.href = link.href;
-  }, 200);
-};
-
-  li.appendChild(img);
-  li.appendChild(link);
-  ul.appendChild(li);
-
-  latestDiv.appendChild(title);
-  latestDiv.appendChild(ul);
-      }
+      latestDiv.appendChild(ul);
+    }
   });
 });
-                                                                 
-</script>
+                                        </script>
 
   <script>
 document.addEventListener("click", function (e) {
