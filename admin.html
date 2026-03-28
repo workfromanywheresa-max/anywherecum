@@ -62,8 +62,15 @@ li {
 
 .monthly-box {
   max-height: 120px;
+  min-height: 120px;
   overflow-y: auto;
   padding-right: 5px;
+}
+
+#pageViews {
+  max-height: 300px;
+  min-height: 300px;
+  overflow-y: auto;
 }
 
 .monthly-box::-webkit-scrollbar {
@@ -71,6 +78,15 @@ li {
 }
 
 .monthly-box::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+
+#pageViews::-webkit-scrollbar {
+  width: 6px;
+}
+
+#pageViews::-webkit-scrollbar-thumb {
   background: #444;
   border-radius: 3px;
 }
@@ -124,7 +140,6 @@ if (!localStorage.getItem("adminLoggedIn")) {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-/* ---------------- FIREBASE ---------------- */
 const firebaseConfig = {
   apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
@@ -133,24 +148,20 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ---------------- REFERENCES ---------------- */
 const pageViewsRef = ref(db, "pageViews");
 const videoViewsRef = ref(db, "views");
 const cycleViewsRef = ref(db, "cycleViews");
 
-/* ---------------- ELEMENTS ---------------- */
 const totalEl = document.getElementById("totalViews");
 const videoEl = document.getElementById("videoViewsTotal");
 const cycleEl = document.getElementById("cycleViewsTotal");
 
-/* ---------------- FORMAT ---------------- */
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + "K";
   return num;
 }
 
-/* ---------------- SUM ---------------- */
 function sumValues(data) {
   let total = 0;
   if (data) {
@@ -161,7 +172,6 @@ function sumValues(data) {
   return total;
 }
 
-/* ---------------- CACHE ---------------- */
 function loadCache(key) {
   return localStorage.getItem(key);
 }
@@ -170,29 +180,24 @@ function saveCache(key, value) {
   localStorage.setItem(key, value);
 }
 
-/* ---------------- INSTANT LOAD ---------------- */
 function getFormattedCached(key) {
   const val = loadCache(key);
   if (!val) return "Loading...";
-
   const num = Number(val);
-  const short = formatViews(num);
-
-  return `${short} <span style="font-size: 0.75em; opacity: 0.7;">(${num})</span>`;
+  return `${formatViews(num)} <span style="font-size: 0.75em; opacity: 0.7;">(${num})</span>`;
 }
 
-if (totalEl) totalEl.innerHTML = "Site Visits: " + getFormattedCached("totalViews");
-if (videoEl) videoEl.innerHTML = "Video Views: " + getFormattedCached("videoViews");
-if (cycleEl) cycleEl.innerHTML = "Cycle Views: " + getFormattedCached("cycleViews");
+totalEl.innerHTML = "Site Visits: " + getFormattedCached("totalViews");
+videoEl.innerHTML = "Video Views: " + getFormattedCached("videoViews");
+cycleEl.innerHTML = "Cycle Views: " + getFormattedCached("cycleViews");
 
-/* ---------------- MONTH ---------------- */
 function getMonthLabel(offset) {
   const now = new Date();
   const d = new Date(now.getFullYear(), now.getMonth() - offset, 1);
   return d.toLocaleString("default", { month: "long" });
 }
 
-/* ---------------- PAGE VIEWS ---------------- */
+/* -------- PAGE VIEWS -------- */
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val();
   const list = document.getElementById("pageViews");
@@ -201,19 +206,23 @@ onValue(pageViewsRef, (snapshot) => {
   if (list.dataset.last === newDataString) return;
   list.dataset.last = newDataString;
 
-  list.innerHTML = "";
-
   let total = 0;
 
   if (data) {
-    Object.entries(data).forEach(([key, value]) => {
-      value = typeof value === "number" ? value : 0;
-      total += value;
+    const items = Object.entries(data);
 
-      const li = document.createElement("li");
-      li.innerHTML = `<span>${key}</span><span class="value">${formatViews(value)}</span>`;
-      list.appendChild(li);
-    });
+    if (list.children.length !== items.length) {
+      list.innerHTML = "";
+
+      items.forEach(([key, value]) => {
+        value = typeof value === "number" ? value : 0;
+        total += value;
+
+        const li = document.createElement("li");
+        li.innerHTML = `<span>${key}</span><span class="value">${formatViews(value)}</span>`;
+        list.appendChild(li);
+      });
+    }
   }
 
   const short = formatViews(total);
@@ -227,7 +236,7 @@ onValue(pageViewsRef, (snapshot) => {
   saveCache("totalViews", total);
 });
 
-/* ---------------- MONTHLY ---------------- */
+/* -------- MONTHLY -------- */
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val();
   const list = document.getElementById("monthlyList");
@@ -236,26 +245,26 @@ onValue(pageViewsRef, (snapshot) => {
   if (list.dataset.last === newDataString) return;
   list.dataset.last = newDataString;
 
-  list.innerHTML = "";
-
   const total = sumValues(data);
   saveCache("monthlyTotal", total);
 
-  for (let i = 0; i < 12; i++) {
-    const li = document.createElement("li");
+  if (list.children.length === 0) {
+    for (let i = 0; i < 12; i++) {
+      const li = document.createElement("li");
 
-    const cachedTotal = loadCache("monthlyTotal") || total;
+      const cachedTotal = loadCache("monthlyTotal") || total;
 
-    li.innerHTML = `
-      <span>${getMonthLabel(i)}</span>
-      <span class="value">${i === 0 ? formatViews(cachedTotal) : 0}</span>
-    `;
+      li.innerHTML = `
+        <span>${getMonthLabel(i)}</span>
+        <span class="value">${i === 0 ? formatViews(cachedTotal) : 0}</span>
+      `;
 
-    list.appendChild(li);
+      list.appendChild(li);
+    }
   }
 });
 
-/* ---------------- VIDEO ---------------- */
+/* -------- VIDEO -------- */
 onValue(videoViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val());
   const short = formatViews(total);
@@ -269,7 +278,7 @@ onValue(videoViewsRef, (snapshot) => {
   saveCache("videoViews", total);
 });
 
-/* ---------------- CYCLE ---------------- */
+/* -------- CYCLE -------- */
 onValue(cycleViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val());
   const short = formatViews(total);
@@ -283,7 +292,7 @@ onValue(cycleViewsRef, (snapshot) => {
   saveCache("cycleViews", total);
 });
 
-/* ---------------- LOGOUT ---------------- */
+/* -------- LOGOUT -------- */
 function logout() {
   localStorage.removeItem("adminLoggedIn");
   location.reload();
