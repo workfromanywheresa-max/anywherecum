@@ -63,7 +63,7 @@ li {
 
 <body>
 
-<!-- 🔐 PASSWORD PROTECTION -->
+<!-- 🔐 PASSWORD -->
 <script>
 const ADMIN_PASSWORD = "Anywherecum1099";
 
@@ -83,7 +83,7 @@ if (!localStorage.getItem("adminLoggedIn")) {
 }
 </script>
 
-  <button id="triggerBtn">Trigger Notification</button>
+<button id="triggerBtn">Trigger Notification</button>
 
 <script>
 const btn = document.getElementById("triggerBtn");
@@ -100,9 +100,7 @@ btn.addEventListener("click", async () => {
     const text = await res.text();
     let data = JSON.parse(text);
 
-    if (!res.ok) {
-      throw new Error(data.error || "HTTP " + res.status);
-    }
+    if (!res.ok) throw new Error(data.error || "HTTP " + res.status);
 
     if (data.success && data.sent) {
       alert("✅ Notification sent!");
@@ -113,7 +111,6 @@ btn.addEventListener("click", async () => {
     }
 
   } catch (err) {
-    console.error(err);
     alert("❌ Failed: " + err.message);
   }
 
@@ -121,20 +118,37 @@ btn.addEventListener("click", async () => {
   btn.innerText = "Trigger Notification";
 });
 </script>
-  
+
 <button class="logout-btn" onclick="logout()">Logout</button>
 
+<!-- 🔥 TOTAL -->
 <div class="total-card">
   <h2>🔥 Total Views</h2>
-
   <div id="totalViews" class="value">Site Visits: Loading...</div>
   <div id="videoViewsTotal" class="value">Video Views: Loading...</div>
   <div id="cycleViewsTotal" class="value">Cycle Views: Loading...</div>
 </div>
 
+<!-- 📅 MONTHLY VISITS -->
+<div class="card">
+  <h2>📅 Monthly Visits</h2>
+  <ul id="monthlyList"></ul>
+
+  <button onclick="expandMonths()" style="
+    margin-top:10px;
+    padding:6px 10px;
+    background:#333;
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+  ">Show More</button>
+</div>
+
+<!-- 📊 PAGE VIEWS -->
 <div class="container">
   <div class="card">
-    <h2>📊 Page Views</h2>
+    <h2>📊 Page Views (Current Month)</h2>
     <ul id="pageViews"></ul>
   </div>
 </div>
@@ -149,14 +163,55 @@ function formatViews(num) {
   return num;
 }
 
+/* FETCH */
 async function fetchData(path) {
   const res = await fetch(`${DB}/${path}.json`);
   return await res.json();
 }
 
+/* MONTH KEY */
+function getMonthKey() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+/* LAST MONTHS */
+function getLastMonths(count) {
+  const months = [];
+  const now = new Date();
+
+  for (let i = 0; i < count; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const label = d.toLocaleString("default", { month: "long" });
+    months.push({ key, label });
+  }
+
+  return months;
+}
+
+/* GROWTH */
+function calculateGrowth(current, previous) {
+  if (previous === 0) {
+    return { text: "New", color: "#00ffcc" };
+  }
+
+  const change = ((current - previous) / previous) * 100;
+  const rounded = change.toFixed(1);
+
+  if (change > 0) {
+    return { text: `+${rounded}%`, color: "lime" };
+  } else if (change < 0) {
+    return { text: `${rounded}%`, color: "red" };
+  } else {
+    return { text: "0%", color: "#aaa" };
+  }
+}
+
 /* PAGE VIEWS */
 async function loadPageViews() {
-  const data = await fetchData("pageViews");
+  const month = getMonthKey();
+  const data = await fetchData(`pageViews/${month}`);
 
   const list = document.getElementById("pageViews");
   list.innerHTML = "";
@@ -183,11 +238,66 @@ async function loadPageViews() {
   return total;
 }
 
-/* VIDEO VIEWS */
+/* MONTHLY VISITS */
+let monthsToShow = 3;
+
+async function loadMonthlyVisits() {
+  const list = document.getElementById("monthlyList");
+  list.innerHTML = "";
+
+  const months = getLastMonths(monthsToShow);
+
+  let previousTotal = null;
+
+  for (const m of months) {
+    const data = await fetchData(`pageViews/${m.key}`);
+
+    let total = 0;
+
+    if (data) {
+      Object.values(data).forEach(v => {
+        total += typeof v === "number" ? v : 0;
+      });
+    }
+
+    let growthHTML = "";
+
+    if (previousTotal !== null) {
+      const growth = calculateGrowth(total, previousTotal);
+
+      growthHTML = `
+        <span style="margin-left:10px; color:${growth.color}; font-size:12px;">
+          ${growth.text}
+        </span>
+      `;
+    }
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <span>${m.label}</span>
+      <span class="value">
+        ${formatViews(total)}
+        ${growthHTML}
+      </span>
+    `;
+
+    list.appendChild(li);
+
+    previousTotal = total;
+  }
+}
+
+/* EXPAND */
+function expandMonths() {
+  monthsToShow += 3;
+  loadMonthlyVisits();
+}
+
+/* VIDEO TOTAL */
 async function loadVideoViewsTotal() {
   const data = await fetchData("views");
-
   let total = 0;
+
   if (data) {
     Object.values(data).forEach(v => total += typeof v === "number" ? v : 0);
   }
@@ -195,11 +305,11 @@ async function loadVideoViewsTotal() {
   return total;
 }
 
-/* CYCLE VIEWS */
+/* CYCLE TOTAL */
 async function loadCycleViewsTotal() {
   const data = await fetchData("cycleViews");
-
   let total = 0;
+
   if (data) {
     Object.values(data).forEach(v => total += typeof v === "number" ? v : 0);
   }
@@ -213,9 +323,16 @@ async function init() {
   const videoTotal = await loadVideoViewsTotal();
   const cycleTotal = await loadCycleViewsTotal();
 
-  document.getElementById("totalViews").innerText = "Site Visits: " + formatViews(pageTotal);
-  document.getElementById("videoViewsTotal").innerText = "Video Views: " + formatViews(videoTotal);
-  document.getElementById("cycleViewsTotal").innerText = "Cycle Views: " + formatViews(cycleTotal);
+  document.getElementById("totalViews").innerText =
+    "Site Visits (This Month): " + formatViews(pageTotal);
+
+  document.getElementById("videoViewsTotal").innerText =
+    "Video Views: " + formatViews(videoTotal);
+
+  document.getElementById("cycleViewsTotal").innerText =
+    "Cycle Views: " + formatViews(cycleTotal);
+
+  await loadMonthlyVisits();
 }
 
 init();
@@ -227,6 +344,6 @@ function logout() {
   location.reload();
 }
 </script>
-  
+
 </body>
 </html>
