@@ -186,7 +186,7 @@ h2 {
   <!-- TOP AD -->
 <div id="topAd" style="
 position: fixed;
-top: -80px;
+top: -100px; /* start clearly ABOVE screen */
 left: 50%;
 transform: translateX(-50%);
 width: 300px;
@@ -197,6 +197,8 @@ overflow: hidden;
 z-index: 9999;
 background: #fff;
 opacity: 0;
+transition: top 0.5s ease, opacity 0.5s ease;
+will-change: top, opacity;
 ">
 
   <!-- Ad -->
@@ -231,14 +233,13 @@ opacity: 0;
     🔴 Live
   </div>
 
-  <!-- ⏱ Timer / ❌ Close (same position) -->
+  <!-- ⏱ Timer / ❌ Close -->
   <div style="
     position:absolute;
     top:4px;
     right:4px;
     z-index:1000;
   ">
-    <!-- Timer -->
     <div id="countdown" style="
       background:black;
       color:#fff;
@@ -250,7 +251,6 @@ opacity: 0;
       15s
     </div>
 
-    <!-- Close Button -->
     <div id="closeBtn" onclick="hideAd()" style="
       background:#000;
       color:#fff;
@@ -272,12 +272,6 @@ opacity: 0;
 
 </div>
 
-<style>
-#topAd {
-  transition: top 0.5s ease, opacity 0.5s ease;
-}
-</style>
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -290,9 +284,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function showAd() {
     ad.style.display = "block";
-    ad.style.opacity = "1";
 
+    // FORCE animation from top
     setTimeout(() => {
+      ad.style.opacity = "1";
       ad.style.top = "0";
     }, 50);
 
@@ -312,17 +307,14 @@ document.addEventListener("DOMContentLoaded", function () {
       if (timeLeft <= 0) {
         clearInterval(countdownInterval);
 
-        // Hide timer
         countdownEl.style.display = "none";
-
-        // Show X in SAME spot
         closeBtn.style.display = "flex";
       }
     }, 1000);
   }
 
   function hideAd() {
-    ad.style.top = "-80px";
+    ad.style.top = "-100px";
     ad.style.opacity = "0";
 
     setTimeout(() => {
