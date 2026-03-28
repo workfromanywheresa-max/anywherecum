@@ -182,9 +182,9 @@ h2 {
     }, 500);
   });
 </script>
-  
+
   <!-- TOP AD -->
-<div id="topAd" style="
+<div id="topAdMain" style="
 position: fixed;
 top: -80px;
 left: 50%;
@@ -232,53 +232,48 @@ opacity: 0;
   </div>
 
   <!-- ⏱ Timer / ❌ Close -->
-<div style="
-  position:absolute;
-  top:4px;
-  right:30px; /* timer position */
-  z-index:1000;
-">
-  
-  <!-- Timer -->
-  <div id="countdown" style="
-    background:black;
-    color:#fff;
-    font-size:11px;
-    font-weight:bold;
-    padding:2px 6px;
-    border-radius:4px;
-  ">
-    15s
-  </div>
-
-  <!-- Close Button -->
-  <div id="closeBtn" onclick="hideAd()" style="
+  <div style="
     position:absolute;
-    top:0;
-    right:-16px; /* puts X 14px to the right of timer */
-    background:#000;
-    color:#fff;
-    font-size:13px;
-    font-weight:bold;
-    width:20px;
-    height:20px;
-    line-height:20px;
-    text-align:center;
-    border-radius:4px;
-    cursor:pointer;
-    display:none;
-    align-items:center;
-    justify-content:center;
+    top:4px;
+    right:14px;
+    z-index:1000;
   ">
-    ✕
-  </div>
+    <!-- Timer -->
+    <div id="mainCountdown" style="
+      background:black;
+      color:#fff;
+      font-size:11px;
+      font-weight:bold;
+      padding:2px 6px;
+      border-radius:4px;
+    ">
+      15s
+    </div>
 
-</div>
+    <!-- Close Button -->
+    <div id="mainCloseBtn" onclick="hideMainAd()" style="
+      background:#000;
+      color:#fff;
+      font-size:13px;
+      font-weight:bold;
+      width:20px;
+      height:20px;
+      line-height:20px;
+      text-align:center;
+      border-radius:4px;
+      cursor:pointer;
+      display:none;
+      align-items:center;
+      justify-content:center;
+    ">
+      ✕
+    </div>
+  </div>
 
 </div>
 
 <style>
-#topAd {
+#topAdMain {
   transition: top 0.5s ease, opacity 0.5s ease;
 }
 </style>
@@ -286,9 +281,9 @@ opacity: 0;
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-  const ad = document.getElementById("topAd");
-  const countdownEl = document.getElementById("countdown");
-  const closeBtn = document.getElementById("closeBtn");
+  const ad = document.getElementById("topAdMain");
+  const countdownEl = document.getElementById("mainCountdown");
+  const closeBtn = document.getElementById("mainCloseBtn");
 
   let countdownInterval;
   let cycleTimeout;
@@ -317,16 +312,13 @@ document.addEventListener("DOMContentLoaded", function () {
       if (timeLeft <= 0) {
         clearInterval(countdownInterval);
 
-        // Hide timer
         countdownEl.style.display = "none";
-
-        // Show X in SAME position
-        closeBtn.style.display = "flex";
+        closeBtn.style.display = "block";
       }
     }, 1000);
   }
 
-  function hideAd() {
+  function hideMainAd() {
     ad.style.top = "-80px";
     ad.style.opacity = "0";
 
@@ -346,7 +338,7 @@ document.addEventListener("DOMContentLoaded", function () {
     scheduleNextAd();
   }, 10000);
 
-  window.hideAd = hideAd;
+  window.hideMainAd = hideMainAd;
 
 });
 </script>
