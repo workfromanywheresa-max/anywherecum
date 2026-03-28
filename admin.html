@@ -83,33 +83,6 @@ li {
   background: #444;
   border-radius: 3px;
 }
-
-/* 🔥 NUMBER ROLL ANIMATION */
-.roll-container {
-  display: inline-flex;
-  overflow: hidden;
-  height: 1em;
-}
-
-.roll-digit {
-  display: inline-block;
-  width: 0.6em;
-  height: 1em;
-  overflow: hidden;
-  position: relative;
-}
-
-.roll-digit-inner {
-  display: block;
-  transition: transform 0.35s ease;
-}
-
-.roll-digit-inner span {
-  display: block;
-  height: 1em;
-  line-height: 1em;
-  text-align: center;
-}
 </style>
 </head>
 
@@ -201,56 +174,22 @@ function sumValues(data) {
   return total;
 }
 
-/* ---------- 🔥 ROLLING NUMBER ---------- */
-function animateNumber(el, newValue, label = "") {
-  const newStr = String(newValue);
-  const oldStr = el.dataset.value || "";
+/* Smaller bracket styling */
+function bracket(num) {
+  return `<span style="font-size: 0.4em; opacity: 0.5;">(${num})</span>`;
+}
 
-  if (!oldStr) {
-    el.innerHTML = label + " " + newStr;
-    el.dataset.value = newStr;
-    return;
-  }
-
-  const maxLen = Math.max(oldStr.length, newStr.length);
-  let html = "";
-
-  for (let i = 0; i < maxLen; i++) {
-    const oldDigit = oldStr[i] || "0";
-    const newDigit = newStr[i] || "0";
-
-    html += `
-      <span class="roll-digit">
-        <span class="roll-digit-inner">
-          <span>${oldDigit}</span>
-          <span>${newDigit}</span>
-        </span>
-      </span>
-    `;
-  }
-
-  el.innerHTML = label + " <span class='roll-container'>" + html + "</span>";
-
-  const inners = el.querySelectorAll(".roll-digit-inner");
-
-  inners.forEach(inner => {
-    inner.style.transform = "translateY(0%)";
-    inner.offsetHeight;
-    inner.style.transform = "translateY(-100%)";
-  });
-
-  el.dataset.value = newStr;
+function getFormattedCached(key) {
+  const val = loadCache(key);
+  if (!val) return "Loading...";
+  const num = Number(val);
+  return `${formatViews(num)} ${bracket(num)}`;
 }
 
 /* ---------- TOTAL ---------- */
-const cachedTotal = loadCache("totalViews");
-if (cachedTotal) animateNumber(totalEl, cachedTotal, "Site Visits:");
-
-const cachedVideo = loadCache("videoViews");
-if (cachedVideo) animateNumber(videoEl, cachedVideo, "Video Views:");
-
-const cachedCycle = loadCache("cycleViews");
-if (cachedCycle) animateNumber(cycleEl, cachedCycle, "Cycle Views:");
+totalEl.innerHTML = "Site Visits: " + getFormattedCached("totalViews");
+videoEl.innerHTML = "Video Views: " + getFormattedCached("videoViews");
+cycleEl.innerHTML = "Cycle Views: " + getFormattedCached("cycleViews");
 
 /* ---------- MONTH ---------- */
 function getMonthLabel(offset) {
@@ -261,6 +200,11 @@ function getMonthLabel(offset) {
 
 const monthlyList = document.getElementById("monthlyList");
 
+const cachedMonthly = loadCache("monthlyTotals");
+if (cachedMonthly) {
+  renderMonthly(JSON.parse(cachedMonthly));
+}
+
 function renderMonthly(data) {
   let html = "";
 
@@ -270,7 +214,7 @@ function renderMonthly(data) {
     html += `
       <li>
         <span>${getMonthLabel(i)}</span>
-        <span class="value">${value}</span>
+        <span class="value">${formatViews(value)} ${bracket(value)}</span>
       </li>
     `;
   }
@@ -282,35 +226,34 @@ function renderMonthly(data) {
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val() || {};
 
-  let total = sumValues(data);
-
-  animateNumber(totalEl, total, "Site Visits:");
-  saveCache("totalViews", total);
-
   let monthlyTotals = new Array(12).fill(0);
-  monthlyTotals[0] = total;
+  monthlyTotals[0] = sumValues(data);
 
   renderMonthly(monthlyTotals);
+
   saveCache("monthlyTotals", JSON.stringify(monthlyTotals));
 });
 
-/* ---------- PAGE VIEWS ---------- */
+/* ---------- PAGE VIEWS (SORTED) ---------- */
 const pageList = document.getElementById("pageViews");
+
+const cachedPage = loadCache("pageViewsData");
+if (cachedPage) {
+  renderPages(JSON.parse(cachedPage));
+}
 
 function renderPages(data) {
   const items = Object.entries(data || {})
-    .map(([key, value]) => [key, value || 0])
+    .map(([key, value]) => [key, typeof value === "number" ? value : 0])
     .sort((a, b) => b[1] - a[1]);
 
   let html = "";
 
   items.forEach(([key, value]) => {
-    html += `
-      <li>
-        <span>${key}</span>
-        <span class="value">${value}</span>
-      </li>
-    `;
+    html += `<li>
+      <span>${key}</span>
+      <span class="value">${formatViews(value)} ${bracket(value)}</span>
+    </li>`;
   });
 
   pageList.innerHTML = html;
@@ -320,20 +263,28 @@ onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val() || {};
 
   renderPages(data);
+
   saveCache("pageViewsData", JSON.stringify(data));
+  saveCache("totalViews", sumValues(data));
 });
 
 /* ---------- VIDEO ---------- */
 onValue(videoViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val() || {});
-  animateNumber(videoEl, total, "Video Views:");
+  videoEl.innerHTML = `
+    Video Views: ${formatViews(total)} ${bracket(total)}
+  `;
+
   saveCache("videoViews", total);
 });
 
 /* ---------- CYCLE ---------- */
 onValue(cycleViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val() || {});
-  animateNumber(cycleEl, total, "Cycle Views:");
+  cycleEl.innerHTML = `
+    Cycle Views: ${formatViews(total)} ${bracket(total)}
+  `;
+
   saveCache("cycleViews", total);
 });
 
