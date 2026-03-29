@@ -30,7 +30,7 @@ h2 {
   padding-bottom: 5px;
 }
 
-/* 🚨 IMPORTANT FIX */
+/* IMPORTANT FIX */
 .folderBox {
   display: flex;
   align-items: center;
@@ -44,6 +44,8 @@ h2 {
 
   user-select: none;
   -webkit-user-select: none;
+
+  touch-action: pan-y; /* allow scrolling */
 }
 
 .folderBox:hover { transform: scale(1.02); }
@@ -203,7 +205,7 @@ function extractFolders(videos) {
   return folders;
 }
 
-/* Render folders */
+/* Render folders with proper tap detection */
 function renderFolders(container, folders, isVIP = false) {
   container.innerHTML = "";
 
@@ -225,9 +227,24 @@ function renderFolders(container, folders, isVIP = false) {
     box.appendChild(img);
     box.appendChild(title);
 
-    /* 🔥 FIX: use pointerdown */
+    let startX = 0;
+    let startY = 0;
+    let moved = false;
+
     box.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
+      startX = e.clientX;
+      startY = e.clientY;
+      moved = false;
+    });
+
+    box.addEventListener("pointermove", (e) => {
+      if (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10) {
+        moved = true;
+      }
+    });
+
+    box.addEventListener("pointerup", () => {
+      if (moved) return;
 
       if (isVIP) {
         window.open("https://fc-lc.xyz/al0L8qyP", "_blank");
