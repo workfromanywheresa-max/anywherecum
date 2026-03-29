@@ -33,9 +33,6 @@ async function sendToWorker(type) {
 
 /* ---------------- SUBSCRIBER ---------------- */
 window.saveSubscriber = function (id, subscribed) {
-
-  if (typeof subscribed !== "boolean") return;
-
   const lastState = localStorage.getItem("sub_" + id);
 
   if (lastState === String(subscribed)) return;
@@ -58,13 +55,13 @@ OneSignalDeferred.push(async function(OneSignal) {
     appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f",
   });
 
-  function handleSub() {
+  async function handleSub() {
     const id = OneSignal.User.PushSubscription.id;
     const optedIn = OneSignal.User.PushSubscription.optedIn;
 
     if (!id) return;
 
-    window.saveSubscriber(id, !!optedIn);
+    window.saveSubscriber(id, optedIn);
   }
 
   handleSub();
@@ -87,6 +84,31 @@ function trackPage(page) {
 
 trackPage(pageName);
 
+/* ---------------- UI ---------------- */
+let viewEl = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+  const container = document.getElementById("adminContainer");
+
+  if (!container) return;
+
+  container.innerHTML = `
+    <a id="adminLink" href="admin.html" style="
+      position: fixed;
+      top: 0px;
+      right: 0px;
+      color: yellow;
+      font-weight: bold;
+      font-size: 8px;
+      z-index: 9999;
+    ">
+      <span id="viewNumber">👁 0</span> | Admin
+    </a>
+  `;
+
+  viewEl = document.getElementById("viewNumber");
+});
+
 /* ---------------- FIREBASE VIEWS ---------------- */
 const pageRef = ref(db, "pageViews");
 
@@ -99,6 +121,5 @@ onValue(pageRef, (snapshot) => {
     if (typeof v === "number") total += v;
   });
 
-  const el = document.getElementById("viewNumber");
-  if (el) el.textContent = `👁 ${total}`;
+  if (viewEl) viewEl.textContent = `👁 ${total}`;
 });
