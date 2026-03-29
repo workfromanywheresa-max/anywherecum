@@ -10,11 +10,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ================= NEW: SUBSCRIBER WORKER ================= */
+/* ================= SUBSCRIBER WORKER ================= */
 const SUBSCRIBER_WORKER = "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscriber";
 
-async function saveSubscriber(userId, optedIn) {
+window.saveSubscriber = async function(userId, optedIn) {
   try {
+    console.log("Saving subscriber:", userId, optedIn);
+
     await fetch(SUBSCRIBER_WORKER, {
       method: "POST",
       headers: {
@@ -25,11 +27,12 @@ async function saveSubscriber(userId, optedIn) {
         subscribed: optedIn ? 1 : 0
       })
     });
+
   } catch (err) {
     console.error("Subscriber Worker failed:", err);
   }
-}
-/* ========================================================= */
+};
+/* ===================================================== */
 
 
 /* ---------------- Worker ---------------- */
@@ -189,29 +192,3 @@ document.addEventListener("DOMContentLoaded", () => {
     lastRenderedTotal = cachedTotal;
   }
 });
-
-/* ================= NEW: ONESIGNAL HOOK ================= */
-document.addEventListener("DOMContentLoaded", () => {
-
-  if (!window.OneSignal) return;
-
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-
-  OneSignalDeferred.push(async function(OneSignal) {
-
-    function handleSub() {
-      const id = OneSignal.User.PushSubscription.id;
-      const optedIn = OneSignal.User.PushSubscription.optedIn;
-
-      if (!id) return;
-
-      saveSubscriber(id, optedIn);
-    }
-
-    handleSub();
-    OneSignal.User.PushSubscription.addEventListener("change", handleSub);
-
-  });
-
-});
-/* ===================================================== */
