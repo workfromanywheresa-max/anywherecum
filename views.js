@@ -1,10 +1,41 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import {
-  getDatabase,
-  ref,
-  onValue,
-  set
-} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+
+/* ================= ONE SIGNAL ================= */
+const NOTIFICATION_WORKER = "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/";
+
+window.saveSubscriber = async function(userId, optedIn) {
+  try {
+    await fetch(NOTIFICATION_WORKER, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: "subscriber",
+        userId: userId,
+        subscribed: optedIn ? 1 : 0
+      })
+    });
+  } catch (err) {
+    console.error("Subscriber Worker failed:", err);
+  }
+};
+
+/* AUTO DETECT SUBSCRIBE / UNSUBSCRIBE */
+function initOneSignalTracking() {
+  if (!window.OneSignal) return;
+
+  OneSignal.User.PushSubscription.addEventListener("change", (event) => {
+    const userId = OneSignal.User.onesignalId;
+    const optedIn = event.current?.optedIn;
+
+    if (userId !== undefined) {
+      saveSubscriber(userId, optedIn);
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", initOneSignalTracking);
+/* ============================================== */
 
 /* ---------------- Firebase ---------------- */
 const firebaseConfig = {
@@ -15,68 +46,93 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ---------------- SUBSCRIBER ---------------- */
-window.saveSubscriber = function (id, subscribed) {
-  const lastState = localStorage.getItem("sub_" + id);
+/* ---------------- Worker ---------------- */
+const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
 
-  if (lastState === String(subscribed)) return;
-
-  localStorage.setItem("sub_" + id, subscribed);
-
-  // Save to Firebase
-  set(ref(db, "subscribers/" + id), subscribed ? 1 : 0)
-    .catch(err => console.error("Firebase error:", err));
-};
-
-/* ---------------- ONE SIGNAL ---------------- */
-window.OneSignalDeferred = window.OneSignalDeferred || [];
-
-OneSignalDeferred.push(async function(OneSignal) {
-
-  await OneSignal.init({
-    appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f",
-  });
-
-  async function handleSub() {
-    const id = OneSignal.User.PushSubscription.id;
-    const optedIn = OneSignal.User.PushSubscription.optedIn;
-
-    if (!id) return;
-
-    window.saveSubscriber(id, optedIn);
+/* ---------------- Send to Worker ---------------- */
+async function sendToWorker(type) {
+  try {
+    await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type })
+    });
+  } catch (err) {
+    console.error("Worker tracking failed:", err);
   }
+}
 
-  handleSub();
-
-  OneSignal.User.PushSubscription.addEventListener("change", handleSub);
-});
-
-/* ---------------- PAGE TRACKING ---------------- */
+/* ---------------- Page Detection ---------------- */
 let path = window.location.pathname.toLowerCase();
-let pageName = path === "/" ? "home" : path.split("/").pop().replace(".html", "");
 
+let pageName;
+
+if (path === "/" || path === "/index.html") {
+  pageName = "home";
+} else {
+  pageName = path.split("/").filter(Boolean).pop().replace(".html", "");
+}
+
+/* ---------------- Track Page ---------------- */
 function trackPage(page) {
   const key = "page_" + page;
 
   if (sessionStorage.getItem(key)) return;
 
   sessionStorage.setItem(key, "1");
-
-  const pageRef = ref(db, "pageViews/" + page);
-
-  onValue(pageRef, (snapshot) => {
-    let current = snapshot.val();
-
-    if (typeof current !== "number") current = 0;
-
-    set(pageRef, current + 1);
-  }, { onlyOnce: true });
+  sendToWorker(page);
 }
 
+/* ---------------- Preview Click Tracking ---------------- */
+function trackPreviewClick(folderName) {
+  const key = "preview_" + folderName;
+
+  if (sessionStorage.getItem(key)) return;
+
+  sessionStorage.setItem(key, "1");
+  sendToWorker(folderName);
+}
+
+window.trackPreviewClick = trackPreviewClick;
+
+/* ---------------- Detect Clicks ---------------- */
+document.addEventListener("click", function (e) {
+  const preview = e.target.closest(".folder-preview");
+
+  if (preview) {
+    const folderName = preview.getAttribute("data-folder");
+
+    if (folderName) {
+      trackPreviewClick(folderName);
+    }
+  }
+});
+
+/* ---------------- Run Page Tracking ---------------- */
 trackPage(pageName);
 
-/* ---------------- ADMIN UI ---------------- */
-let viewEl = null;
+/* ---------------- Format ---------------- */
+function formatViews(num) {
+  num = Number(num);
+  if (isNaN(num)) return "0";
+
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0", "") + "M";
+  if (num >= 1000) return (num / 1000).toFixed(1).replace(".0", "") + "K";
+
+  return num;
+}
+
+/* ---------------- Cache ---------------- */
+function saveCache(key, value) {
+  localStorage.setItem(key, value);
+}
+
+function getCache(key) {
+  return localStorage.getItem(key);
+}
+
+/* ---------------- Inject UI ---------------- */
+let el = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("adminContainer");
@@ -91,16 +147,30 @@ document.addEventListener("DOMContentLoaded", () => {
       color: yellow;
       font-weight: bold;
       font-size: 8px;
+      text-decoration: none;
       z-index: 9999;
     ">
       <span id="viewNumber">👁 0</span> | Admin
     </a>
   `;
 
-  viewEl = document.getElementById("viewNumber");
+  el = document.getElementById("viewNumber");
 });
 
-/* ---------------- FIREBASE TOTAL VIEWS ---------------- */
+/* ---------------- Cached Value ---------------- */
+const cachedRaw = getCache("totalViews");
+
+let cachedTotal = (!isNaN(cachedRaw) && cachedRaw !== null)
+  ? Number(cachedRaw)
+  : null;
+
+/* ---------------- FIRST LOAD ---------------- */
+let firstLoad = true;
+
+/* ---------------- LAST RENDERED VALUE ---------------- */
+let lastRenderedTotal = null;
+
+/* ---------------- Firebase ---------------- */
 const pageRef = ref(db, "pageViews");
 
 onValue(pageRef, (snapshot) => {
@@ -112,19 +182,27 @@ onValue(pageRef, (snapshot) => {
     if (typeof v === "number") total += v;
   });
 
-  if (viewEl) viewEl.textContent = `👁 ${total}`;
+  saveCache("totalViews", total);
+  saveCache("pageViewsData", JSON.stringify(data));
+
+  cachedTotal = total;
+
+  if (firstLoad) {
+    firstLoad = false;
+    lastRenderedTotal = total;
+    return;
+  }
+
+  if (total !== lastRenderedTotal && el) {
+    el.textContent = `👁 ${formatViews(total)}`;
+    lastRenderedTotal = total;
+  }
 });
 
-/* ---------------- REAL-TIME SUBSCRIBERS ---------------- */
-const subsRef = ref(db, "subscribers");
-
-onValue(subsRef, (snapshot) => {
-  const data = snapshot.val() || {};
-
-  const subs = Object.entries(data).map(([userId, value]) => ({
-    userId,
-    subscribed: value === 1
-  }));
-
-  console.log("Subscribers:", subs);
+/* ---------------- INITIAL UI ---------------- */
+document.addEventListener("DOMContentLoaded", () => {
+  if (cachedTotal !== null && el) {
+    el.textContent = `👁 ${formatViews(cachedTotal)}`;
+    lastRenderedTotal = cachedTotal;
+  }
 });
