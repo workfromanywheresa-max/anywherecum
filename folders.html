@@ -21,7 +21,11 @@ body {
   min-height: 100vh;
 }
 
-#pageWrapper { flex: 1; }
+/* ✅ FIX: give space so footer is NEVER covered */
+#pageWrapper {
+  flex: 1;
+  padding-bottom: 120px;
+}
 
 h2 {
   text-align: center;
@@ -153,8 +157,8 @@ background: #fff;
 
 </div>
 
-<!-- 🔥 FIXED BOTTOM AD (Skeleton + Ad in SAME SPACE) -->
-<div style="width:100%; display:flex; justify-content:center; margin-top:20px;">
+<!-- 🔥 FIXED BOTTOM AD (NO FOOTER OVERLAP) -->
+<div style="width:100%; display:flex; justify-content:center; margin-top:20px; margin-bottom:80px;">
   <div style="width:320px; height:250px; position:relative;">
 
     <div id="skeleton" class="skeleton"></div>
