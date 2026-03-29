@@ -30,7 +30,7 @@ h2 {
   padding-bottom: 5px;
 }
 
-/* IMPORTANT FIX */
+/* Folder */
 .folderBox {
   display: flex;
   align-items: center;
@@ -44,8 +44,7 @@ h2 {
 
   user-select: none;
   -webkit-user-select: none;
-
-  touch-action: pan-y; /* allow scrolling */
+  touch-action: pan-y;
 }
 
 .folderBox:hover { transform: scale(1.02); }
@@ -56,7 +55,6 @@ h2 {
   object-fit: cover;
   border-radius: 6px;
   background: #333;
-
   pointer-events: none;
 }
 
@@ -64,10 +62,10 @@ h2 {
   font-size: 16px;
   color: #ddd;
   margin: 0;
-
   pointer-events: none;
 }
 
+/* VIP */
 .vip-btn {
   display: block;
   text-align: center;
@@ -89,28 +87,6 @@ h2 {
 }
 
 /* Skeleton */
-.skeleton {
-  background: #2a2a2a;
-  border-radius: 8px;
-  overflow: hidden;
-  position: relative;
-}
-
-.skeleton::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -150px;
-  height: 100%;
-  width: 150px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
-  animation: shimmer 1.2s infinite;
-}
-
-@keyframes shimmer {
-  100% { transform: translateX(300px); }
-}
-
 .skeletonBox {
   display: flex;
   align-items: center;
@@ -134,6 +110,58 @@ h2 {
   border-radius: 4px;
 }
 
+.skeleton {
+  background: #2a2a2a;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150px;
+  height: 100%;
+  width: 150px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(300px); }
+}
+
+/* AD FIXED SPACE */
+#ad-space {
+  width: 320px;
+  height: 250px;   /* RESERVES SPACE */
+  margin: 20px auto;
+  position: relative;
+}
+
+#ad-container {
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+#container-c04c459f06eefec9d4eeedb2a131c1d2 {
+  width: 100%;
+  height: 100%;
+}
+
+.skeleton-ad {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 footer {
   margin-top: auto;
   text-align: center;
@@ -153,34 +181,21 @@ footer {
 
 <h2>Folders</h2>
 
-  <!-- AD 1 -->
-<div style="
-text-align: center;
-position: relative;
-width: 320px;
-height: 50px;
-margin: auto;
-border: 2px solid red;
-border-radius: 12px;
-overflow: hidden;
-background: #fff;
-">
-
-  <div id="adContainer" style="width:100%; height:100%;">
-    <script>
-      atOptions = {
-        'key' : '58e0d60dc3ec78d2ff8981481d093080',
-        'format' : 'iframe',
-        'height' : 50,
-        'width' : 320,
-        'params' : {}
-      };
-    </script>
-    <script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
-  </div>
+<!-- AD 1 -->
+<div style="text-align:center; width:320px; height:50px; margin:auto;">
+  <script>
+    atOptions = {
+      'key' : '58e0d60dc3ec78d2ff8981481d093080',
+      'format' : 'iframe',
+      'height' : 50,
+      'width' : 320,
+      'params' : {}
+    };
+  </script>
+  <script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
 </div>
 
-<!-- VIP CTA -->
+<!-- VIP -->
 <a href="https://fc-lc.xyz/al0L8qyP" target="_blank" class="vip-btn">
   ➤ Click & Watch how to unlock VIP Exclusive for Free ◀
 </a>
@@ -190,84 +205,26 @@ background: #fff;
 
 </div>
 
-  <!-- Skeleton Ad Loader -->
-<div id="skeleton" class="skeleton"></div>
-
-<div id="ad-container">
-  <script async="async" data-cfasync="false"
-    src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js">
-  </script>
-  <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
+<!-- AD 2 (FIXED SPACE) -->
+<div id="ad-space">
+  <div id="ad-container">
+    <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
+  </div>
+  <div id="skeleton" class="skeleton-ad"></div>
 </div>
 
-<style>
-.skeleton {
-  width: 100%;
-  height: 250px;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-#ad-container {
-  display: none;
-}
-</style>
-
-<script>
-const skeleton = document.getElementById("skeleton");
-const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
-const adWrapper = document.getElementById("ad-container");
-
-const observer = new MutationObserver((mutations, obs) => {
-  if (adContainer.children.length > 0) {
-    skeleton.style.display = "none";
-    adWrapper.style.display = "block";
-    obs.disconnect();
-  }
-});
-
-observer.observe(adContainer, { childList: true, subtree: true });
-</script>
-
-<footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
-© 2026 AnywhereCum – Legal content only. 18+<br>
-
-<div style="margin-top:8px; font-size:8px;">
-
-  <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank" style="margin:0 5px;">
-    <img src="https://www.facebook.com/images/fb_icon_325x325.png" style="width:14px;height:14px;">
-  </a><span>|</span>
-
-  <a href="contact.html" style="color:#ff4444; margin:0 5px;">📨Contact</a><span>|</span>
-
-  <a href="terms-privacy.html" style="color:#ff4444; margin:0 5px;">⚖️Terms & Privacy</a><span>|</span>
-
-  <a href="/" style="color:#ff4444; margin:0 5px;">🏠Home</a><span>|</span>
-
-  <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" style="color:#ff4444;">
-    ⬆️Back to Top
-  </a>
-
-</div>
+<footer>
+© 2026 AnywhereCum – Legal content only. 18+
 </footer>
 
 <script>
 const vipContainer = document.getElementById("vipContainer");
 const normalContainer = document.getElementById("normalContainer");
-
 const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
 /* Skeleton */
 function showSkeleton(container, count = 4) {
   container.innerHTML = "";
-
   for (let i = 0; i < count; i++) {
     const box = document.createElement("div");
     box.className = "skeletonBox";
@@ -289,19 +246,16 @@ function extractFolders(videos) {
   const folders = {};
   videos.forEach(video => {
     if (!video.folder) return;
-    if (!folders[video.folder]) {
-      folders[video.folder] = video;
-    }
+    if (!folders[video.folder]) folders[video.folder] = video;
   });
   return folders;
 }
 
-/* Render folders with proper tap detection */
+/* Render */
 function renderFolders(container, folders, isVIP = false) {
   container.innerHTML = "";
 
   Object.keys(folders).forEach(folderName => {
-
     const video = folders[folderName];
 
     const box = document.createElement("div");
@@ -318,17 +272,15 @@ function renderFolders(container, folders, isVIP = false) {
     box.appendChild(img);
     box.appendChild(title);
 
-    let startX = 0;
-    let startY = 0;
-    let moved = false;
+    let startX = 0, startY = 0, moved = false;
 
-    box.addEventListener("pointerdown", (e) => {
+    box.addEventListener("pointerdown", e => {
       startX = e.clientX;
       startY = e.clientY;
       moved = false;
     });
 
-    box.addEventListener("pointermove", (e) => {
+    box.addEventListener("pointermove", e => {
       if (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10) {
         moved = true;
       }
@@ -348,27 +300,34 @@ function renderFolders(container, folders, isVIP = false) {
   });
 }
 
-/* START */
+/* LOAD */
 showSkeleton(vipContainer, 2);
 showSkeleton(normalContainer, 6);
 
 Promise.all([
-  fetch("vip.json").then(res => res.json()).catch(() => []),
-  fetch("videos.json").then(res => res.json()).catch(() => [])
-])
-.then(([vipVideos, normalVideos]) => {
+  fetch("vip.json").then(r => r.json()).catch(() => []),
+  fetch("videos.json").then(r => r.json()).catch(() => [])
+]).then(([vipVideos, normalVideos]) => {
 
-  const vipFolders = extractFolders(vipVideos);
-  const normalFolders = extractFolders(normalVideos);
+  renderFolders(vipContainer, extractFolders(vipVideos), true);
+  renderFolders(normalContainer, extractFolders(normalVideos), false);
 
-  renderFolders(vipContainer, vipFolders, true);
-  renderFolders(normalContainer, normalFolders, false);
-
-})
-.catch(() => {
-  vipContainer.innerHTML = "<p>Failed to load</p>";
-  normalContainer.innerHTML = "<p>Failed to load</p>";
 });
+
+/* AD LOADER FIX */
+const skeleton = document.getElementById("skeleton");
+const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
+const adWrapper = document.getElementById("ad-container");
+
+const observer = new MutationObserver((mutations, obs) => {
+  if (adContainer.children.length > 0) {
+    skeleton.style.display = "none";
+    adWrapper.style.display = "block";
+    obs.disconnect();
+  }
+});
+
+observer.observe(adContainer, { childList: true, subtree: true });
 </script>
 
 </body>
