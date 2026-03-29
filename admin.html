@@ -60,41 +60,22 @@ li {
   cursor: pointer;
 }
 
-.monthly-box {
-  max-height: 120px;
-  min-height: 120px;
-  overflow-y: auto;
-  padding-right: 5px;
-}
-
-#pageViews {
-  max-height: 300px;
-  min-height: 300px;
+/* Subscribers */
+#subscriberList {
+  max-height: 220px;
   overflow-y: auto;
 }
 
-#subscribersList {
-  max-height: 250px;
-  overflow-y: auto;
+#subscriberList li {
+  flex-direction: column;
+  align-items: flex-start;
+  height: auto;
+  padding: 10px 0;
 }
 
-small {
-  display: block;
-  font-size: 0.7em;
-  color: #aaa;
-}
-
-.monthly-box::-webkit-scrollbar,
-#pageViews::-webkit-scrollbar,
-#subscribersList::-webkit-scrollbar {
-  width: 6px;
-}
-
-.monthly-box::-webkit-scrollbar-thumb,
-#pageViews::-webkit-scrollbar-thumb,
-#subscribersList::-webkit-scrollbar-thumb {
-  background: #444;
-  border-radius: 3px;
+.small-date {
+  font-size: 11px;
+  opacity: 0.6;
 }
 </style>
 </head>
@@ -128,18 +109,16 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="totalViews" class="value">Loading...</div>
   <div id="videoViewsTotal" class="value">Video Views: Loading...</div>
   <div id="cycleViewsTotal" class="value">Cycle Views: Loading...</div>
-</div>
 
-<!-- 👥 SUBSCRIBERS -->
-<div class="card">
-  <h2>👥 Subscribers</h2>
-  <div id="subscribersTotal" class="value">Loading...</div>
-  <ul id="subscribersList"></ul>
+  <br><br>
+
+  <h2>👥 Subscribers (Live)</h2>
+  <ul id="subscriberList"></ul>
 </div>
 
 <div class="card">
   <h2>📅 Monthly Visits</h2>
-  <ul id="monthlyList" class="monthly-box"></ul>
+  <ul id="monthlyList"></ul>
 </div>
 
 <div class="container">
@@ -153,13 +132,6 @@ if (!localStorage.getItem("adminLoggedIn")) {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-/* ---------- WORKER ---------- */
-const WORKER_URL = "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers";
-
-const subscribersEl = document.getElementById("subscribersTotal");
-const subscribersList = document.getElementById("subscribersList");
-
-/* ---------- FIREBASE ---------- */
 const firebaseConfig = {
   apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
@@ -168,18 +140,50 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+/* ---------- SUBSCRIBERS ---------- */
+const subscriberList = document.getElementById("subscriberList");
+
+const source = new EventSource("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers-stream");
+
+source.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  renderSubscribers(data);
+};
+
+function renderSubscribers(data) {
+  if (!Array.isArray(data)) return;
+
+  // 🔥 SORT BY DATE (NEWEST FIRST)
+  data.sort((a, b) => {
+    return new Date(b.updatedAt) - new Date(a.updatedAt);
+  });
+
+  let html = "";
+
+  data.forEach(sub => {
+    const shortId = sub.userId ? sub.userId.slice(0, 6) + "..." : "unknown";
+    const date = sub.updatedAt ? new Date(sub.updatedAt).toLocaleString() : "N/A";
+
+    html += `
+      <li>
+        <div>${shortId}</div>
+        <div class="small-date">${date}</div>
+        <div class="value">${sub.subscribed ? "Active" : "Inactive"}</div>
+      </li>
+    `;
+  });
+
+  subscriberList.innerHTML = html;
+}
+
+/* ---------- FIREBASE ---------- */
 const pageViewsRef = ref(db, "pageViews");
 const videoViewsRef = ref(db, "views");
 const cycleViewsRef = ref(db, "cycleViews");
 
-/* ---------- HELPERS ---------- */
-function loadCache(key) {
-  return localStorage.getItem(key);
-}
-
-function saveCache(key, value) {
-  localStorage.setItem(key, value);
-}
+const totalEl = document.getElementById("totalViews");
+const videoEl = document.getElementById("videoViewsTotal");
+const cycleEl = document.getElementById("cycleViewsTotal");
 
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
@@ -187,161 +191,30 @@ function formatViews(num) {
   return num;
 }
 
-function bracket(num) {
-  return `<span style="font-size:0.4em;opacity:0.5;">(${num})</span>`;
-}
-
-/* ---------- SUBSCRIBERS ---------- */
-function renderSubscribers(data) {
-
-  // 🔝 Newest first
-  data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-
-  let html = "";
-
-  data.forEach(sub => {
-    html += `
-      <li>
-        <span>
-          ${sub.userId}
-          <small>${sub.updatedAt || "N/A"}</small>
-        </span>
-
-        <span class="value">
-          ${sub.subscribed === 1 ? "Active" : "Inactive"}
-        </span>
-      </li>
-    `;
-  });
-
-  subscribersList.innerHTML = html;
-}
-
-/* ---------- LOAD SUBSCRIBERS ---------- */
-async function loadSubscribers() {
-  try {
-    const res = await fetch(WORKER_URL, { cache: "no-store" });
-    const data = await res.json();
-
-    if (!Array.isArray(data)) return;
-
-    subscribersEl.innerHTML = `
-      Subscribers: ${formatViews(data.length)} ${bracket(data.length)}
-    `;
-
-    renderSubscribers(data);
-
-  } catch (err) {
-    console.error("Subscribers error:", err);
+function sumValues(data) {
+  let total = 0;
+  if (data) {
+    Object.values(data).forEach(v => {
+      if (typeof v === "number") total += v;
+    });
   }
+  return total;
 }
 
-/* ---------- TOTAL ---------- */
-const totalEl = document.getElementById("totalViews");
-const videoEl = document.getElementById("videoViewsTotal");
-const cycleEl = document.getElementById("cycleViewsTotal");
-
-/* ---------- CACHE LOAD ---------- */
-totalEl.innerHTML = "Site Visits: " + (loadCache("totalViews") || "Loading...");
-videoEl.innerHTML = "Video Views: " + (loadCache("videoViews") || "Loading...");
-cycleEl.innerHTML = "Cycle Views: " + (loadCache("cycleViews") || "Loading...");
-
-/* ---------- FIREBASE ---------- */
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val() || {};
-
-  let total = 0;
-  Object.values(data).forEach(v => {
-    if (typeof v === "number") total += v;
-  });
-
-  totalEl.innerHTML = `
-    Site Visits: ${formatViews(total)} ${bracket(total)}
-  `;
-
-  saveCache("totalViews", total);
+  totalEl.innerHTML = "Site Visits: " + formatViews(sumValues(data));
 });
 
 onValue(videoViewsRef, (snapshot) => {
-  const total = Object.values(snapshot.val() || {}).reduce((a, b) => a + b, 0);
-
-  videoEl.innerHTML = `
-    Video Views: ${formatViews(total)} ${bracket(total)}
-  `;
-
-  saveCache("videoViews", total);
+  const total = sumValues(snapshot.val() || {});
+  videoEl.innerHTML = "Video Views: " + formatViews(total);
 });
 
 onValue(cycleViewsRef, (snapshot) => {
-  const total = Object.values(snapshot.val() || {}).reduce((a, b) => a + b, 0);
-
-  cycleEl.innerHTML = `
-    Cycle Views: ${formatViews(total)} ${bracket(total)}
-  `;
-
-  saveCache("cycleViews", total);
+  const total = sumValues(snapshot.val() || {});
+  cycleEl.innerHTML = "Cycle Views: " + formatViews(total);
 });
-
-/* ---------- MONTHLY ---------- */
-function getMonthLabel(offset) {
-  const now = new Date();
-  const d = new Date(now.getFullYear(), now.getMonth() - offset, 1);
-  return d.toLocaleString("default", { month: "long" });
-}
-
-const monthlyList = document.getElementById("monthlyList");
-
-function renderMonthly(data) {
-  let html = "";
-
-  for (let i = 0; i < 12; i++) {
-    const value = data[i] || 0;
-
-    html += `
-      <li>
-        <span>${getMonthLabel(i)}</span>
-        <span class="value">${formatViews(value)} ${bracket(value)}</span>
-      </li>
-    `;
-  }
-
-  monthlyList.innerHTML = html;
-}
-
-/* ---------- PAGE VIEWS ---------- */
-const pageList = document.getElementById("pageViews");
-
-function renderPages(data) {
-  const items = Object.entries(data || {})
-    .map(([k, v]) => [k, typeof v === "number" ? v : 0])
-    .sort((a, b) => b[1] - a[1]);
-
-  let html = "";
-
-  items.forEach(([key, value]) => {
-    html += `
-      <li>
-        <span>${key}</span>
-        <span class="value">${formatViews(value)} ${bracket(value)}</span>
-      </li>
-    `;
-  });
-
-  pageList.innerHTML = html;
-}
-
-onValue(pageViewsRef, (snapshot) => {
-  const data = snapshot.val() || {};
-
-  renderPages(data);
-  renderMonthly([Object.values(data).reduce((a, b) => a + b, 0)]);
-
-  saveCache("pageViewsData", JSON.stringify(data));
-});
-
-/* ---------- INIT ---------- */
-loadSubscribers();
-setInterval(loadSubscribers, 5000);
 
 /* ---------- LOGOUT ---------- */
 function logout() {
