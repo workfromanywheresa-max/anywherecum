@@ -18,6 +18,16 @@ body {
   padding: 15px;
 }
 
+/* TITLE */
+.pageTitle {
+  color: #ff4444;
+  text-align: center;
+  font-size: 22px;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #ff4444;
+}
+
 /* LIST */
 .list {
   display: grid;
@@ -87,6 +97,9 @@ footer {
 
 <body>
 
+<!-- TITLE -->
+<h2 class="pageTitle">Folders</h2>
+
 <!-- VIP (TOP) -->
 <div id="vipList" class="list"></div>
 
@@ -122,10 +135,8 @@ async function loadVIP() {
 
   if (!data.length) return;
 
-  // sort newest first
   data.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  // ONLY latest
   const vip = data[0];
 
   const card = document.createElement('div');
@@ -136,7 +147,6 @@ async function loadVIP() {
 
   const link = document.createElement('a');
 
-  // 🔥 SHORTLINK (VIP ALWAYS GOES HERE)
   const shortlink = "https://fc-lc.xyz/al0L8qyP";
 
   link.href = shortlink;
@@ -198,8 +208,8 @@ async function loadFolders() {
 
 /* ================= INIT ================= */
 window.addEventListener('load', () => {
-  loadVIP();      // VIP first (top)
-  loadFolders();  // then folders
+  loadVIP();
+  loadFolders();
 });
 
 </script>
