@@ -172,7 +172,14 @@ OneSignalDeferred.push(async function(OneSignal) {
     appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f",
   });
 
-  console.log("OneSignal initialized ✅");
+  OneSignal.User.PushSubscription.addEventListener("change", async () => {
+    const id = await OneSignal.User.PushSubscription.id;
+    const optedIn = await OneSignal.User.PushSubscription.optedIn;
+
+    if (id && typeof window.saveSubscriber === "function") {
+      window.saveSubscriber(id, optedIn);
+    }
+  });
 
 });
   </script>
