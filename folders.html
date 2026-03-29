@@ -30,6 +30,42 @@ h2 {
   padding-bottom: 5px;
 }
 
+/* 🚨 IMPORTANT FIX */
+.folderBox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #222;
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.folderBox:hover { transform: scale(1.02); }
+
+.thumbnail {
+  width: 100px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #333;
+
+  pointer-events: none;
+}
+
+.folderTitle {
+  font-size: 16px;
+  color: #ddd;
+  margin: 0;
+
+  pointer-events: none;
+}
+
 .vip-btn {
   display: block;
   text-align: center;
@@ -48,34 +84,6 @@ h2 {
   0% { transform: scale(1); }
   50% { transform: scale(1.03); }
   100% { transform: scale(1); }
-}
-
-.folderBox {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #222;
-  padding: 8px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.folderBox:hover { transform: scale(1.02); }
-
-.thumbnail {
-  width: 100px;
-  height: 70px;
-  object-fit: cover;
-  border-radius: 6px;
-  background: #333;
-}
-
-.folderTitle {
-  font-size: 16px;
-  color: #ddd;
-  margin: 0;
 }
 
 /* Skeleton */
@@ -166,6 +174,7 @@ const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 /* Skeleton */
 function showSkeleton(container, count = 4) {
   container.innerHTML = "";
+
   for (let i = 0; i < count; i++) {
     const box = document.createElement("div");
     box.className = "skeletonBox";
@@ -194,11 +203,12 @@ function extractFolders(videos) {
   return folders;
 }
 
-/* Render */
+/* Render folders */
 function renderFolders(container, folders, isVIP = false) {
   container.innerHTML = "";
 
   Object.keys(folders).forEach(folderName => {
+
     const video = folders[folderName];
 
     const box = document.createElement("div");
@@ -215,16 +225,15 @@ function renderFolders(container, folders, isVIP = false) {
     box.appendChild(img);
     box.appendChild(title);
 
-    box.addEventListener("click", () => {
+    /* 🔥 FIX: use pointerdown */
+    box.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
 
       if (isVIP) {
-        // 🔥 VIP redirects to your link
         window.open("https://fc-lc.xyz/al0L8qyP", "_blank");
       } else {
-        // Normal folder
         window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
       }
-
     });
 
     container.appendChild(box);
@@ -244,7 +253,7 @@ Promise.all([
   const vipFolders = extractFolders(vipVideos);
   const normalFolders = extractFolders(normalVideos);
 
-  renderFolders(vipContainer, vipFolders, true);   // VIP → locked link
+  renderFolders(vipContainer, vipFolders, true);
   renderFolders(normalContainer, normalFolders, false);
 
 })
