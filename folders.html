@@ -198,7 +198,7 @@ footer {
 </div>
 
 <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111;">
-© 2026 AnywhereCum – Legal content only. 18+<br>
+© 2026 AnywhereCum – Legal content only. 18+
 </footer>
 
 <script>
@@ -264,6 +264,17 @@ function renderFolders(container, folders) {
 
     box.appendChild(img);
     box.appendChild(title);
+
+    /* CONTROL CLICK (prevents accidental navigation issues) */
+    box.addEventListener("click", () => {
+      console.log("Clicked folder:", folderName);
+
+      // CHANGE THIS to whatever you want:
+      alert("Folder clicked: " + folderName);
+
+      // Example navigation (uncomment if needed):
+      // window.location.href = "folder.html?name=" + encodeURIComponent(folderName);
+    });
 
     container.appendChild(box);
   });
