@@ -14,13 +14,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ---------------- Worker ---------------- */
+/* ---------------- Workers ---------------- */
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
-
-/* ---------------- Subscriber Worker ---------------- */
 const SUB_WORKER_URL = "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscriber";
 
-/* ---------------- Send to Worker ---------------- */
+/* ---------------- Worker Calls ---------------- */
 async function sendToWorker(type) {
   try {
     await fetch(WORKER_URL, {
@@ -33,7 +31,7 @@ async function sendToWorker(type) {
   }
 }
 
-/* ---------------- Subscriber (SUBSCRIBE / UNSUBSCRIBE) ---------------- */
+/* ---------------- Subscriber ---------------- */
 async function sendSubToWorker(subscribed) {
   let userId = localStorage.getItem("userId");
 
@@ -47,8 +45,9 @@ async function sendSubToWorker(subscribed) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId,
-        subscribed: subscribed
+        id: userId,
+        subscribed: subscribed,
+        timestamp: Date.now()
       })
     });
   } catch (err) {
@@ -56,13 +55,34 @@ async function sendSubToWorker(subscribed) {
   }
 }
 
-/* ---------------- Toggle Subscribe ---------------- */
+/* ---------------- Save Subscriber ---------------- */
 window.saveSubscriber = function (subscribed) {
   localStorage.setItem("subscribed", subscribed);
   sendSubToWorker(subscribed);
 };
 
-/* ---------------- Page Detection ---------------- */
+/* ---------------- OneSignal ---------------- */
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+
+OneSignalDeferred.push(async function (OneSignal) {
+
+  await OneSignal.init({
+    appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f",
+  });
+
+  // Initial check
+  const optedIn = OneSignal.User.PushSubscription.optedIn;
+  window.saveSubscriber(optedIn);
+
+  // Change detection
+  OneSignal.User.PushSubscription.addEventListener("change", () => {
+    const optedIn = OneSignal.User.PushSubscription.optedIn;
+    window.saveSubscriber(optedIn);
+  });
+
+});
+
+/* ---------------- Page Tracking ---------------- */
 let path = window.location.pathname.toLowerCase();
 
 let pageName;
@@ -73,7 +93,6 @@ if (path === "/" || path === "/index.html") {
   pageName = path.split("/").filter(Boolean).pop().replace(".html", "");
 }
 
-/* ---------------- Track Page ---------------- */
 function trackPage(page) {
   const key = "page_" + page;
 
@@ -83,19 +102,9 @@ function trackPage(page) {
   sendToWorker(page);
 }
 
-/* ---------------- Preview Click Tracking ---------------- */
-function trackPreviewClick(folderName) {
-  const key = "preview_" + folderName;
+trackPage(pageName);
 
-  if (sessionStorage.getItem(key)) return;
-
-  sessionStorage.setItem(key, "1");
-  sendToWorker(folderName);
-}
-
-window.trackPreviewClick = trackPreviewClick;
-
-/* ---------------- Detect Clicks ---------------- */
+/* ---------------- Click Tracking ---------------- */
 document.addEventListener("click", function (e) {
   const preview = e.target.closest(".folder-preview");
 
@@ -103,35 +112,17 @@ document.addEventListener("click", function (e) {
     const folderName = preview.getAttribute("data-folder");
 
     if (folderName) {
-      trackPreviewClick(folderName);
+      const key = "preview_" + folderName;
+
+      if (sessionStorage.getItem(key)) return;
+
+      sessionStorage.setItem(key, "1");
+      sendToWorker(folderName);
     }
   }
 });
 
-/* ---------------- Run Page Tracking ---------------- */
-trackPage(pageName);
-
-/* ---------------- Format ---------------- */
-function formatViews(num) {
-  num = Number(num);
-  if (isNaN(num)) return "0";
-
-  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0", "") + "M";
-  if (num >= 1000) return (num / 1000).toFixed(1).replace(".0", "") + "K";
-
-  return num;
-}
-
-/* ---------------- Cache ---------------- */
-function saveCache(key, value) {
-  localStorage.setItem(key, value);
-}
-
-function getCache(key) {
-  return localStorage.getItem(key);
-}
-
-/* ---------------- UI ---------------- */
+/* ---------------- Views UI ---------------- */
 let viewEl = null;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -140,14 +131,13 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!container) return;
 
   container.innerHTML = `
-    <a id="adminLink" href="admin.html" style="
+    <a href="admin.html" style="
       position: fixed;
       top: 0px;
       right: 0px;
       color: yellow;
-      font-weight: bold;
       font-size: 8px;
-      text-decoration: none;
+      font-weight: bold;
       z-index: 9999;
     ">
       <span id="viewNumber">👁 0</span> | Admin
@@ -157,17 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
   viewEl = document.getElementById("viewNumber");
 });
 
-/* ---------------- Views Cache ---------------- */
-const cachedRaw = getCache("totalViews");
-
-let cachedTotal = (!isNaN(cachedRaw) && cachedRaw !== null)
-  ? Number(cachedRaw)
-  : null;
-
-/* ---------------- FIRST LOAD ---------------- */
-let firstLoad = true;
-
-/* ---------------- Firebase (Views) ---------------- */
+/* ---------------- Firebase Views ---------------- */
 const pageRef = ref(db, "pageViews");
 
 onValue(pageRef, (snapshot) => {
@@ -179,23 +159,7 @@ onValue(pageRef, (snapshot) => {
     if (typeof v === "number") total += v;
   });
 
-  saveCache("totalViews", total);
-
-  cachedTotal = total;
-
-  if (firstLoad) {
-    firstLoad = false;
-    return;
-  }
-
   if (viewEl) {
-    viewEl.textContent = `👁 ${formatViews(total)}`;
-  }
-});
-
-/* ---------------- Load Cached Views ---------------- */
-document.addEventListener("DOMContentLoaded", () => {
-  if (cachedTotal !== null && viewEl) {
-    viewEl.textContent = `👁 ${formatViews(cachedTotal)}`;
+    viewEl.textContent = `👁 ${total}`;
   }
 });
