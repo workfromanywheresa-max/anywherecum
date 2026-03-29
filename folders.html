@@ -25,82 +25,28 @@ body {
   flex: 1;
 }
 
-h2 {
-  text-align: center;
-  color: #ff4444;
-  border-bottom: 2px solid #ff4444;
-  padding-bottom: 5px;
-}
-
-.folderBox {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #222;
-  padding: 8px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  transition: 0.2s;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: pan-y;
-}
-
-.folderBox:hover { transform: scale(1.02); }
-
-.thumbnail {
-  width: 100px;
-  height: 70px;
-  object-fit: cover;
-  border-radius: 6px;
-  background: #333;
-  pointer-events: none;
-}
-
-.folderTitle {
-  font-size: 16px;
-  color: #ddd;
-  margin: 0;
-  pointer-events: none;
-}
-
-.vip-btn {
-  display: block;
-  text-align: center;
-  background: linear-gradient(45deg, #ff4444, #ff0000);
-  color: #fff;
-  padding: 12px;
-  margin: 10px 0;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: bold;
-  animation: pulse 1.5s infinite;
-  font-size: 10px;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.03); }
-  100% { transform: scale(1); }
-}
-
-@keyframes blink {
-  50% { opacity: 0.4; }
-}
-
-.skeleton {
+/* LOCKED AD SPACE */
+.ad-space {
   width: 100%;
-  height: 100%;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+.ad-lock {
+  width: 300px;
+  height: 112px;              /* 🔒 FIXED HEIGHT = NO SHIFT */
+  overflow: hidden;
+  position: relative;
+  border: 2px solid red;
+  border-radius: 8px;
+  background: #fff;
+}
+
+/* Prevent ad script from expanding layout */
+.ad-lock * {
+  max-width: 300px !important;
+  max-height: 112px !important;
 }
 
 footer {
@@ -111,14 +57,6 @@ footer {
   color: #aaa;
   background: #111;
 }
-
-/* 🔥 Reserve space for ad (prevents layout shift) */
-.ad-space {
-  min-height: 112px;
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
 </style>
 </head>
 
@@ -126,43 +64,18 @@ footer {
 
 <div id="pageWrapper">
 
-<button onclick="history.back()">← Back</button>
+<h2 style="text-align:center; color:#ff4444;">Folders</h2>
 
-<h2>Folders</h2>
-
-<!-- TOP AD -->
-<div style="text-align:center; width:320px; height:50px; margin:auto; border:2px solid red; border-radius:12px; overflow:hidden; background:#fff;">
-  <script>
-    atOptions = {
-      'key' : '58e0d60dc3ec78d2ff8981481d093080',
-      'format' : 'iframe',
-      'height' : 50,
-      'width' : 320,
-      'params' : {}
-    };
-  </script>
-  <script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
+<!-- CONTENT ABOVE -->
+<div style="height:600px;">
+  <!-- your folders load here -->
 </div>
 
-<a href="https://fc-lc.xyz/al0L8qyP" target="_blank" class="vip-btn">
-  ➤ Click & Watch how to unlock VIP Exclusive for Free ◀
-</a>
-
-<div id="vipContainer"></div>
-<div id="normalContainer"></div>
-
-<!-- 🔥 BOTTOM AD (NO JUMP, NO FLASH) -->
+<!-- 🔒 LOCKED BOTTOM AD -->
 <div class="ad-space">
-  <div style="
-    width: 300px;
-    height: 112px;
-    border: 2px solid red;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #fff;
-    position: relative;
-  ">
+  <div class="ad-lock">
 
+    <!-- JuicyAds -->
     <script async src="https://poweredby.jads.co/js/jads.js"></script>
     <ins id="1113665" style="display:block; width:300px; height:112px;"></ins>
     <script>
@@ -181,8 +94,7 @@ footer {
       font-size:11px;
       padding:1px 6px;
       border-radius:4px;
-      z-index:1000;
-      animation: blink 1s infinite;
+      z-index:999;
     ">
       🔴 Live
     </div>
@@ -192,118 +104,8 @@ footer {
 
 </div>
 
-<script>
-const vipContainer = document.getElementById("vipContainer");
-const normalContainer = document.getElementById("normalContainer");
-
-const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
-
-function showSkeleton(container, count = 4) {
-  container.innerHTML = "";
-  for (let i = 0; i < count; i++) {
-    const box = document.createElement("div");
-    box.className = "skeleton";
-    container.appendChild(box);
-  }
-}
-
-function extractFolders(videos) {
-  const folders = {};
-  videos.forEach(video => {
-    if (!video.folder) return;
-    if (!folders[video.folder]) {
-      folders[video.folder] = video;
-    }
-  });
-  return folders;
-}
-
-function renderFolders(container, folders, isVIP = false) {
-  container.innerHTML = "";
-
-  Object.keys(folders).forEach(folderName => {
-    const video = folders[folderName];
-
-    const box = document.createElement("div");
-    box.className = "folderBox";
-
-    const img = document.createElement("img");
-    img.className = "thumbnail";
-    img.src = IMAGE_BASE + (video.thumbnail || "");
-
-    const title = document.createElement("h3");
-    title.className = "folderTitle";
-    title.textContent = folderName;
-
-    box.appendChild(img);
-    box.appendChild(title);
-
-    let startX = 0;
-    let startY = 0;
-    let moved = false;
-
-    box.addEventListener("pointerdown", (e) => {
-      startX = e.clientX;
-      startY = e.clientY;
-      moved = false;
-    });
-
-    box.addEventListener("pointermove", (e) => {
-      if (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10) {
-        moved = true;
-      }
-    });
-
-    box.addEventListener("pointerup", () => {
-      if (moved) return;
-
-      if (isVIP) {
-        window.open("https://fc-lc.xyz/al0L8qyP", "_blank");
-      } else {
-        window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
-      }
-    });
-
-    container.appendChild(box);
-  });
-}
-
-showSkeleton(vipContainer, 2);
-showSkeleton(normalContainer, 6);
-
-Promise.all([
-  fetch("vip.json").then(res => res.json()).catch(() => []),
-  fetch("videos.json").then(res => res.json()).catch(() => [])
-])
-.then(([vipVideos, normalVideos]) => {
-  renderFolders(vipContainer, extractFolders(vipVideos), true);
-  renderFolders(normalContainer, extractFolders(normalVideos), false);
-})
-.catch(() => {
-  vipContainer.innerHTML = "<p>Failed to load</p>";
-  normalContainer.innerHTML = "<p>Failed to load</p>";
-});
-</script>
-
 <footer>
-© 2026 AnywhereCum – Legal content only. 18+<br>
-
-<div style="margin-top:8px; font-size:8px;">
-  <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank">
-    <img src="https://www.facebook.com/images/fb_icon_325x325.png" style="width:14px;height:14px;">
-  </a> |
-
-  <a href="contact.html" style="color:#ff4444;">📨Contact</a> |
-
-  <a href="terms-privacy.html" style="color:#ff4444;">⚖️Terms & Privacy</a> |
-
-  <a href="/" style="color:#ff4444;">🏠Home</a> |
-
-  <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" style="color:#ff4444;">
-    ⬆️Back to Top
-  </a>
-</div>
-
+© 2026 AnywhereCum – Legal content only. 18+
 </footer>
 
 </body>
