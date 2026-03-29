@@ -180,14 +180,13 @@ OneSignalDeferred.push(async function(OneSignal) {
 
     if (!id) return;
 
-    // Save locally so we don’t resend duplicates
     const lastState = localStorage.getItem("sub_" + id);
 
     if (lastState === String(optedIn)) return;
 
     localStorage.setItem("sub_" + id, optedIn);
 
-    if (typeof window.saveSubscriber === "function") {
+    if (window.saveSubscriber) {
       window.saveSubscriber(id, optedIn);
     }
 
@@ -195,7 +194,7 @@ OneSignalDeferred.push(async function(OneSignal) {
 
 });
 </script>
-
+  
 </head>
 <body>
 
