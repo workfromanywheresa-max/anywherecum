@@ -34,13 +34,18 @@ li {
   padding: 8px;
   border-bottom: 1px solid #333;
   display: flex;
-  justify-content: space-between;
-  height: 32px;
+  flex-direction: column;   /* stack items */
+  gap: 2px;
 }
 
 .value {
   color: #00ffcc;
   font-weight: bold;
+}
+
+.sub-date {
+  color: #888;
+  font-size: 0.7em; /* reduced font */
 }
 
 .total-card {
@@ -147,15 +152,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const pageViewsRef = ref(db, "pageViews");
-const videoViewsRef = ref(db, "views");
-const cycleViewsRef = ref(db, "cycleViews");
-
-const totalEl = document.getElementById("totalViews");
-const videoEl = document.getElementById("videoViewsTotal");
-const cycleEl = document.getElementById("cycleViewsTotal");
-
-/* ---------- FIXED SUBSCRIBERS ---------- */
+/* ---------- SUBSCRIBERS ---------- */
 const subscribersList = document.getElementById("subscribersList");
 
 async function loadSubscribers() {
@@ -180,7 +177,8 @@ function renderSubscribers(data) {
     html += `
       <li>
         <span>${sub.userId || "Unknown"}</span>
-        <span><div class="value">${sub.updatedAt || "N/A"}</div></span>
+        <span class="value"></span>
+        <span class="sub-date">${sub.updatedAt || "N/A"}</span>
       </li>
     `;
   });
@@ -228,6 +226,10 @@ function getFormattedCached(key) {
 }
 
 /* ---------- TOTAL ---------- */
+const totalEl = document.getElementById("totalViews");
+const videoEl = document.getElementById("videoViewsTotal");
+const cycleEl = document.getElementById("cycleViewsTotal");
+
 totalEl.innerHTML = "Site Visits: " + getFormattedCached("totalViews");
 videoEl.innerHTML = "Video Views: " + getFormattedCached("videoViews");
 cycleEl.innerHTML = "Cycle Views: " + getFormattedCached("cycleViews");
@@ -240,11 +242,6 @@ function getMonthLabel(offset) {
 }
 
 const monthlyList = document.getElementById("monthlyList");
-
-const cachedMonthly = loadCache("monthlyTotals");
-if (cachedMonthly) {
-  renderMonthly(JSON.parse(cachedMonthly));
-}
 
 function renderMonthly(data) {
   let html = "";
@@ -264,16 +261,9 @@ function renderMonthly(data) {
 }
 
 /* ---------- FIREBASE ---------- */
-onValue(pageViewsRef, (snapshot) => {
-  const data = snapshot.val() || {};
-
-  let monthlyTotals = new Array(12).fill(0);
-  monthlyTotals[0] = sumValues(data);
-
-  renderMonthly(monthlyTotals);
-
-  saveCache("monthlyTotals", JSON.stringify(monthlyTotals));
-});
+const pageViewsRef = ref(db, "pageViews");
+const videoViewsRef = ref(db, "views");
+const cycleViewsRef = ref(db, "cycleViews");
 
 const pageList = document.getElementById("pageViews");
 
@@ -297,8 +287,14 @@ function renderPages(data) {
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val() || {};
 
+  let monthlyTotals = new Array(12).fill(0);
+  monthlyTotals[0] = sumValues(data);
+
+  renderMonthly(monthlyTotals);
+
   renderPages(data);
 
+  saveCache("monthlyTotals", JSON.stringify(monthlyTotals));
   saveCache("pageViewsData", JSON.stringify(data));
   saveCache("totalViews", sumValues(data));
 });
