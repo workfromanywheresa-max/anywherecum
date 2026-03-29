@@ -21,10 +21,10 @@ body {
   min-height: 100vh;
 }
 
-/* ✅ FIX: give space so footer is NEVER covered */
+/* Reduced padding so less gap */
 #pageWrapper {
   flex: 1;
-  padding-bottom: 120px;
+  padding-bottom: 40px; /* was 120px */
 }
 
 h2 {
@@ -73,7 +73,7 @@ h2 {
   background: linear-gradient(45deg, #ff4444, #ff0000);
   color: #fff;
   padding: 12px;
-  margin: 15px 0;
+  margin: 10px 0; /* reduced */
   border-radius: 8px;
   text-decoration: none;
   font-weight: bold;
@@ -121,7 +121,7 @@ footer {
 
 <h2>Folders</h2>
 
-<!-- TOP AD (UNCHANGED) -->
+<!-- TOP AD -->
 <div style="
 text-align: center;
 position: relative;
@@ -157,8 +157,8 @@ background: #fff;
 
 </div>
 
-<!-- 🔥 FIXED BOTTOM AD (NO FOOTER OVERLAP) -->
-<div style="width:100%; display:flex; justify-content:center; margin-top:20px; margin-bottom:80px;">
+<!-- 🔥 BOTTOM AD (TIGHTER SPACING) -->
+<div style="width:100%; display:flex; justify-content:center; margin-top:10px; margin-bottom:20px;">
   <div style="width:320px; height:250px; position:relative;">
 
     <div id="skeleton" class="skeleton"></div>
