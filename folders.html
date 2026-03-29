@@ -6,11 +6,7 @@
 <title>Folders</title>
 
 <style>
-html {
-  overflow-y: scroll;
-}
-
-*, *::before, *::after {
+* {
   box-sizing: border-box;
 }
 
@@ -20,38 +16,79 @@ body {
   color: #fff;
   margin: 0;
   padding: 15px;
-  min-height: 100vh;
 }
 
+/* HEADER */
 h2 {
   text-align: center;
   color: #ff4444;
   border-bottom: 2px solid #ff4444;
-  padding-bottom: 5px;
+  padding-bottom: 8px;
+  margin-bottom: 20px;
 }
 
-/* RESERVED SPACE */
-#vipContainer {
-  min-height: 120px;
+/* CONTAINERS */
+.container {
+  max-width: 700px;
+  margin: 0 auto;
 }
 
-#normalContainer {
-  min-height: 300px;
+/* CTA */
+.vip-wrapper {
+  text-align: center;
+  margin: 20px 0;
 }
 
-/* Folder styles */
+.vip-btn {
+  color: #fff;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 13px;
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 8px;
+  background: linear-gradient(45deg, #ff4444, #ff7777);
+  animation: glowPulse 2s infinite alternate;
+  position: relative;
+}
+
+.vip-btn .arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  animation: arrowMove 1s infinite alternate;
+}
+
+.vip-btn .left { left: 8px; }
+.vip-btn .right { right: 8px; }
+
+.vip-btn:hover {
+  transform: scale(1.05);
+}
+
+/* GLOW */
+@keyframes glowPulse {
+  0% { box-shadow: 0 0 5px #ff4444; }
+  100% { box-shadow: 0 0 20px #ff4444; }
+}
+
+/* ARROW */
+@keyframes arrowMove {
+  0% { transform: translateY(-50%) translateX(0); }
+  100% { transform: translateY(-50%) translateX(5px); }
+}
+
+/* FOLDER BOX */
 .folderBox {
   display: flex;
   align-items: center;
   gap: 12px;
   background: #222;
-  padding: 8px;
+  padding: 10px;
   border-radius: 8px;
   margin-bottom: 10px;
   cursor: pointer;
   transition: 0.2s;
-  user-select: none;
-
   opacity: 0;
   animation: fadeIn 0.3s forwards;
 }
@@ -61,29 +98,40 @@ h2 {
 }
 
 .thumbnail {
-  width: 100px;
-  height: 70px;
+  width: 90px;
+  height: 65px;
   object-fit: cover;
   border-radius: 6px;
   background: #333;
 }
 
 .folderTitle {
-  font-size: 16px;
+  font-size: 15px;
   color: #ddd;
   margin: 0;
 }
 
+/* FADE IN */
 @keyframes fadeIn {
   to { opacity: 1; }
 }
 
-/* SHIMMER */
+/* SKELETON */
+.skeletonBox {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #222;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
 .skeleton {
   position: relative;
   overflow: hidden;
   background: #2a2a2a;
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 .skeleton::after {
@@ -93,12 +141,7 @@ h2 {
   left: -150px;
   height: 100%;
   width: 150px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255,255,255,0.08),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
   animation: shimmer 1.2s infinite;
 }
 
@@ -108,85 +151,21 @@ h2 {
   }
 }
 
-.skeletonBox {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #222;
-  padding: 8px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
-
 .skeletonThumb {
-  width: 100px;
-  height: 70px;
-  border-radius: 6px;
+  width: 90px;
+  height: 65px;
 }
 
 .skeletonText {
-  height: 14px;
   width: 120px;
-  border-radius: 4px;
+  height: 14px;
 }
-
-/* CTA WRAPPER (FIXED POSITIONING) */
-.vip-wrapper {
-  text-align: center;
-  margin-top: -20px;   /* move up safely */
-  margin-bottom: 25px;
-}
-
-.vip-btn {
-  color:#fff;
-  font-weight:bold;
-  text-decoration:none;
-  font-size:12px;
-  display:inline-block;
-  position:relative;
-  padding:6px 25px;
-  border-radius:6px;
-  transition: all 0.3s ease;
-
-  animation: glowPulse 2s infinite alternate;
-}
-
-/* arrows */
-.vip-btn .arrow {
-  position:absolute;
-  animation: arrowMove 1s infinite alternate;
-}
-
-.vip-btn .left {
-  left:5px;
-}
-
-.vip-btn .right {
-  right:5px;
-}
-
-/* hover */
-.vip-btn:hover {
-  transform: scale(1.1);
-  text-shadow: 0 0 20px #ff4444, 0 0 30px #ff8888;
-}
-
-/* glow */
-@keyframes glowPulse {
-  0% { text-shadow: 0 0 5px #ff4444; }
-  100% { text-shadow: 0 0 15px #ff4444, 0 0 25px #ff8888; }
-}
-
-/* arrow move */
-@keyframes arrowMove {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(5px); }
-}
-
 </style>
 </head>
 
 <body>
+
+<div class="container">
 
 <button onclick="history.back()">← Back</button>
 
@@ -194,20 +173,19 @@ h2 {
 
 <div id="vipContainer"></div>
 
-<!-- CTA -->
 <div class="vip-wrapper">
   <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4"
      target="_blank"
      class="vip-btn">
-
     <span class="arrow left">➤</span>
-    Click & Watch how to unlock VIP Exclusive for Free
+    Click & Watch VIP Exclusive
     <span class="arrow right">◀</span>
-
   </a>
 </div>
 
 <div id="normalContainer"></div>
+
+</div>
 
 <script>
 const vipContainer = document.getElementById("vipContainer");
@@ -215,7 +193,6 @@ const normalContainer = document.getElementById("normalContainer");
 
 const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
-/* SHIMMER */
 function showSkeleton(container, count = 4) {
   container.innerHTML = "";
   for (let i = 0; i < count; i++) {
@@ -307,8 +284,8 @@ Promise.all([
 });
 </script>
 
-<footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
-© 2026 AnywhereCum – Legal content only. 18+<br>
+<footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:20px;">
+© 2026 AnywhereCum – Legal content only. 18+
 </footer>
 
 <script type="module" src="views.js"></script>
