@@ -30,7 +30,7 @@ h2 {
   padding-bottom: 5px;
 }
 
-/* ✅ RESERVED SPACE = NO SHIFT */
+/* RESERVED SPACE */
 #vipContainer {
   min-height: 120px;
 }
@@ -78,7 +78,7 @@ h2 {
   to { opacity: 1; }
 }
 
-/* 🔥 SHIMMER SKELETON */
+/* SHIMMER */
 .skeleton {
   position: relative;
   overflow: hidden;
@@ -130,63 +130,13 @@ h2 {
   border-radius: 4px;
 }
 
-/* CTA */
-.ctaCard {
-  background: #2a2a2a;
-  border: 1px solid #ff4444;
-  border-radius: 8px;
-  padding: 10px;
-  margin: 20px 0;
+/* CTA WRAPPER (FIXED POSITIONING) */
+.vip-wrapper {
   text-align: center;
+  margin-top: -20px;   /* move up safely */
+  margin-bottom: 25px;
 }
 
-.ctaContent {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.ctaContent a {
-  color: #00ffcc;
-  text-decoration: none;
-  font-size: 10px;
-  font-weight: bold;
-}
-
-.arrow {
-  font-size: 18px;
-  color: #ff4444;
-}
-</style>
-
-</head>
-
-<body>
-
-<button onclick="history.back()">← Back</button>
-
-<h2>Folders</h2>
-
-<div id="vipContainer"></div>
-
-  <div style="text-align:center; margin-bottom:25px;">
-
-  <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4"
-     target="_blank"
-     class="vip-btn">
-
-    <span class="arrow left">➤</span>
-
-    Click & Watch how to unlock VIP Exclusive for Free
-
-    <span class="arrow right">◀</span>
-
-  </a>
-
-</div>
-
-<style>
 .vip-btn {
   color:#fff;
   font-weight:bold;
@@ -194,12 +144,10 @@ h2 {
   font-size:12px;
   display:inline-block;
   position:relative;
-  top: -30px;
   padding:6px 25px;
   border-radius:6px;
   transition: all 0.3s ease;
-  
-  /* glow animation */
+
   animation: glowPulse 2s infinite alternate;
 }
 
@@ -223,27 +171,42 @@ h2 {
   text-shadow: 0 0 20px #ff4444, 0 0 30px #ff8888;
 }
 
-/* glow effect */
+/* glow */
 @keyframes glowPulse {
-  0% {
-    text-shadow: 0 0 5px #ff4444;
-  }
-  100% {
-    text-shadow: 0 0 15px #ff4444, 0 0 25px #ff8888;
-  }
+  0% { text-shadow: 0 0 5px #ff4444; }
+  100% { text-shadow: 0 0 15px #ff4444, 0 0 25px #ff8888; }
 }
 
-/* arrow animation */
+/* arrow move */
 @keyframes arrowMove {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(5px);
-  }
+  0% { transform: translateX(0); }
+  100% { transform: translateX(5px); }
 }
+
 </style>
-  
+</head>
+
+<body>
+
+<button onclick="history.back()">← Back</button>
+
+<h2>Folders</h2>
+
+<div id="vipContainer"></div>
+
+<!-- CTA -->
+<div class="vip-wrapper">
+  <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4"
+     target="_blank"
+     class="vip-btn">
+
+    <span class="arrow left">➤</span>
+    Click & Watch how to unlock VIP Exclusive for Free
+    <span class="arrow right">◀</span>
+
+  </a>
+</div>
+
 <div id="normalContainer"></div>
 
 <script>
@@ -252,10 +215,9 @@ const normalContainer = document.getElementById("normalContainer");
 
 const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
-/* 🔥 SHOW SHIMMER */
+/* SHIMMER */
 function showSkeleton(container, count = 4) {
   container.innerHTML = "";
-
   for (let i = 0; i < count; i++) {
     const box = document.createElement("div");
     box.className = "skeletonBox";
@@ -268,12 +230,10 @@ function showSkeleton(container, count = 4) {
 
     box.appendChild(thumb);
     box.appendChild(text);
-
     container.appendChild(box);
   }
 }
 
-/* Extract folders */
 function extractFolders(videos) {
   const folders = {};
   videos.forEach(video => {
@@ -285,12 +245,10 @@ function extractFolders(videos) {
   return folders;
 }
 
-/* Render folders */
 function renderFolders(container, folders, isVip = false) {
   container.innerHTML = "";
 
   Object.keys(folders).forEach(folderName => {
-
     const video = folders[folderName];
 
     const box = document.createElement("div");
@@ -314,16 +272,13 @@ function renderFolders(container, folders, isVip = false) {
 
     box.appendChild(img);
     box.appendChild(title);
-
     container.appendChild(box);
   });
 }
 
-/* 🚀 Start shimmer immediately */
 showSkeleton(vipContainer, 2);
 showSkeleton(normalContainer, 6);
 
-/* Load data */
 Promise.all([
   fetch("vip.json").then(res => res.json()).catch(() => []),
   fetch("videos.json").then(res => res.json()).catch(() => [])
@@ -334,49 +289,29 @@ Promise.all([
   const normalFolders = extractFolders(normalVideos);
 
   if (Object.keys(vipFolders).length === 0) {
-    vipContainer.innerHTML = "<p class='loading'>No VIP folders</p>";
+    vipContainer.innerHTML = "<p>No VIP folders</p>";
   } else {
     renderFolders(vipContainer, vipFolders, true);
   }
 
   if (Object.keys(normalFolders).length === 0) {
-    normalContainer.innerHTML = "<p class='loading'>No folders</p>";
+    normalContainer.innerHTML = "<p>No folders</p>";
   } else {
     renderFolders(normalContainer, normalFolders, false);
   }
 
 })
-.catch(err => {
-  console.error(err);
-  vipContainer.innerHTML = "<p class='loading'>Failed to load</p>";
-  normalContainer.innerHTML = "<p class='loading'>Failed to load</p>";
+.catch(() => {
+  vipContainer.innerHTML = "<p>Failed to load</p>";
+  normalContainer.innerHTML = "<p>Failed to load</p>";
 });
 </script>
 
-  <!-- FOOTER -->
 <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
 © 2026 AnywhereCum – Legal content only. 18+<br>
-
-<div style="margin-top:8px; font-size:8px;">
-
-  <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank" style="margin:0 5px;">
-    <img src="https://www.facebook.com/images/fb_icon_325x325.png" style="width:14px;height:14px;">
-  </a><span>|</span>
-
-  <a href="contact.html" style="color:#ff4444; margin:0 5px;">📨Contact</a><span>|</span>
-
-  <a href="terms-privacy.html" style="color:#ff4444; margin:0 5px;">⚖️Terms & Privacy</a><span>|</span>
-
-  <a href="/" style="color:#ff4444; margin:0 5px;">🏠Home</a><span>|</span>
-
-  <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" style="color:#ff4444;">
-    ⬆️Back to Top
-  </a>
-
-</div>
 </footer>
 
-  <script type="module" src="views.js"></script>
+<script type="module" src="views.js"></script>
 
 </body>
 </html>
