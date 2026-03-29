@@ -86,9 +86,6 @@ function formatViews(num) {
   return num;
 }
 
-/* ---------------- DOM ---------------- */
-const el = document.getElementById("adminViews");
-
 /* ---------------- Cache ---------------- */
 function saveCache(key, value) {
   localStorage.setItem(key, value);
@@ -97,6 +94,31 @@ function saveCache(key, value) {
 function getCache(key) {
   return localStorage.getItem(key);
 }
+
+/* ---------------- Inject UI ---------------- */
+document.addEventListener("DOMContentLoaded", () => {
+  const container = document.getElementById("adminContainer");
+
+  if (!container) return;
+
+  container.innerHTML = `
+    <a id="adminLink" href="admin.html" style="
+      position: fixed;
+      top: 0px;
+      right: 0px;
+      color: yellow;
+      font-weight: bold;
+      font-size: 8px;
+      text-decoration: none;
+      z-index: 9999;
+    ">
+      <span id="viewNumber">👁 0</span> | Admin
+    </a>
+  `;
+});
+
+/* ---------------- DOM ---------------- */
+const el = document.getElementById("viewNumber");
 
 /* ---------------- Cached Value ---------------- */
 const cachedRaw = getCache("totalViews");
@@ -108,21 +130,16 @@ let cachedTotal = (!isNaN(cachedRaw) && cachedRaw !== null)
 /* ---------------- FIRST LOAD ---------------- */
 let firstLoad = true;
 
-/* ---------------- UI UPDATE (NO FLICKER) ---------------- */
+/* ---------------- UI UPDATE ---------------- */
 function updateUI(total) {
-  const formatted = formatViews(total);
-
   if (!el) return;
 
-  const newText = `👁 ${formatted} | Admin`;
-
-  if (el.textContent !== newText) {
-    el.textContent = newText;
-  }
+  const formatted = formatViews(total);
+  el.textContent = `👁 ${formatted}`;
 }
 
 /* ---------------- Initial UI ---------------- */
-if (el && cachedTotal !== null) {
+if (cachedTotal !== null) {
   updateUI(cachedTotal);
 }
 
