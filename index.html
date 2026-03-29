@@ -167,6 +167,28 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 <script>
 window.OneSignalDeferred = window.OneSignalDeferred || [];
 
+/* ================= ADD THIS ================= */
+const NOTIFICATION_WORKER = "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/";
+
+window.saveSubscriber = async function(userId, optedIn) {
+  try {
+    await fetch(NOTIFICATION_WORKER, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        type: "subscriber",
+        userId: userId,
+        subscribed: optedIn ? 1 : 0
+      })
+    });
+  } catch (err) {
+    console.error("Subscriber Worker failed:", err);
+  }
+};
+/* ========================================== */
+
 OneSignalDeferred.push(async function(OneSignal) {
 
   await OneSignal.init({
@@ -190,10 +212,8 @@ OneSignalDeferred.push(async function(OneSignal) {
     }
   }
 
-  // ✅ Run once on load
   handleSub();
 
-  // ✅ Listen for changes
   OneSignal.User.PushSubscription.addEventListener("change", handleSub);
 
 });
