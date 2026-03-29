@@ -16,63 +16,39 @@ body {
   color: #fff;
   margin: 0;
   padding: 15px;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
 }
 
-#pageWrapper {
-  flex: 1;
-}
-
-/* 🔥 TITLE ON TOP */
-.page-title {
-  text-align: center;
-  font-size: 22px;
-  font-weight: bold;
-  margin-bottom: 15px;
-}
-
-/* LIST */
-ul {
-  list-style: none;
-  padding: 0;
-}
-
-/* 🟢 SMALL CARDS */
-li {
-  margin-bottom: 12px;
-}
-
-/* SMALL THUMBNAIL */
-img {
-  width: 140px;        /* 🔥 SMALL */
-  height: 90px;        /* 🔥 SMALL */
-  object-fit: cover;
-  border-radius: 6px;
-  display: block;
-}
-
-/* FLEX CARD LAYOUT */
-li {
-  display: flex;
-  align-items: center;
+/* GRID */
+.list {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 10px;
 }
 
-/* LINK TEXT */
-.folder-link {
+/* CARD */
+.card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #222;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+/* 🔥 VERY SMALL THUMBNAIL */
+.card img {
+  width: 80px;
+  height: 55px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+/* TEXT */
+.card a {
   color: #fff;
   text-decoration: none;
   font-weight: bold;
-  font-size: 14px;
-}
-
-/* VIP TITLE */
-.vip-title {
-  color: gold;
-  text-align: center;
-  margin-top: 20px;
+  font-size: 13px;
 }
 
 /* AD */
@@ -111,18 +87,11 @@ footer {
 
 <body>
 
-<div id="pageWrapper">
-
-<!-- 🔥 TOP TITLE -->
-<div class="page-title">Folders</div>
-
-<!-- VIP -->
-<h2 class="vip-title">🔥 VIP</h2>
-<ul id="vipList"></ul>
+<!-- VIP LIST -->
+<div id="vipList" class="list"></div>
 
 <!-- NORMAL FOLDERS -->
-<h2 class="page-title">Folders</h2>
-<ul id="folderList"></ul>
+<div id="folderList" class="list" style="margin-top:15px;"></div>
 
 <!-- AD -->
 <div class="ad-space">
@@ -134,23 +103,7 @@ footer {
       (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113665});
     </script>
 
-    <div style="
-      position:absolute;
-      top:2px;
-      left:50%;
-      transform:translateX(-50%);
-      background:red;
-      color:#fff;
-      font-size:11px;
-      padding:2px 6px;
-      border-radius:4px;
-    ">
-      🔴 Live
-    </div>
-
   </div>
-</div>
-
 </div>
 
 <footer>
@@ -170,22 +123,21 @@ async function loadVIP() {
   data.sort((a,b)=>new Date(b.date)-new Date(a.date));
 
   data.forEach(vip => {
-    const li = document.createElement('li');
+    const card = document.createElement('div');
+    card.className = 'card';
 
     const img = document.createElement('img');
     img.src = "https://anywherecum.pages.dev/images/" + vip.thumbnail;
 
     const link = document.createElement('a');
-    link.className = "folder-link";
     link.href = "folder.html?folder=" + encodeURIComponent(vip.folder);
     link.textContent = vip.folder;
 
     img.onclick = () => link.click();
 
-    li.appendChild(img);
-    li.appendChild(link);
-
-    container.appendChild(li);
+    card.appendChild(img);
+    card.appendChild(link);
+    container.appendChild(card);
   });
 }
 
@@ -213,22 +165,21 @@ async function loadFolders() {
 
       const latest = vids[0];
 
-      const li = document.createElement('li');
+      const card = document.createElement('div');
+      card.className = 'card';
 
       const img = document.createElement('img');
       img.src = "https://anywherecum.pages.dev/images/" + latest.thumbnail;
 
       const link = document.createElement('a');
-      link.className = "folder-link";
       link.href = "folder.html?folder=" + encodeURIComponent(name);
       link.textContent = name;
 
       img.onclick = () => link.click();
 
-      li.appendChild(img);
-      li.appendChild(link);
-
-      container.appendChild(li);
+      card.appendChild(img);
+      card.appendChild(link);
+      container.appendChild(card);
     });
 }
 
