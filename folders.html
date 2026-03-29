@@ -21,10 +21,9 @@ body {
   min-height: 100vh;
 }
 
-/* Reduced padding so less gap */
 #pageWrapper {
   flex: 1;
-  padding-bottom: 40px; /* was 120px */
+  padding-bottom: 40px;
 }
 
 h2 {
@@ -73,7 +72,7 @@ h2 {
   background: linear-gradient(45deg, #ff4444, #ff0000);
   color: #fff;
   padding: 12px;
-  margin: 10px 0; /* reduced */
+  margin: 10px 0;
   border-radius: 8px;
   text-decoration: none;
   font-weight: bold;
@@ -87,7 +86,6 @@ h2 {
   100% { transform: scale(1); }
 }
 
-/* Skeleton */
 .skeleton {
   width: 100%;
   height: 100%;
@@ -157,58 +155,55 @@ background: #fff;
 
 </div>
 
-<!-- 🔥 BOTTOM AD (TIGHTER SPACING) -->
+<!-- 🔥 BOTTOM AD (NEW) -->
 <div style="width:100%; display:flex; justify-content:center; margin-top:10px; margin-bottom:20px;">
-  <div style="width:320px; height:250px; position:relative;">
+  <div style="
+    width:300px;
+    height:62px;
+    position:relative;
+    border:2px solid red;
+    border-radius:8px;
+    overflow:hidden;
+    background:#fff;
+  ">
 
-    <div id="skeleton" class="skeleton"></div>
+    <style>
+      @keyframes blink {
+        0% { opacity: 1; }
+        50% { opacity: 0; }
+        100% { opacity: 1; }
+      }
+    </style>
 
-    <div id="ad-container" style="width:100%; height:100%; display:none;">
-      <script async="async" data-cfasync="false"
-        src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js">
+    <!-- Ad -->
+    <div style="position:absolute; width:100%; height:100%; top:0; left:0;">
+      <script async src="https://poweredby.jads.co/js/jads.js"></script>
+      <ins id="1113670-bottom" data-width="300" data-height="62"></ins>
+      <script>
+        (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});
       </script>
-      <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
+    </div>
+
+    <!-- 🔴 Live -->
+    <div style="
+      position:absolute;
+      top:2px;
+      left:50%;
+      transform:translateX(-50%);
+      background:red;
+      color:#fff;
+      font-weight:bold;
+      font-size:11px;
+      padding:1px 6px;
+      border-radius:4px;
+      z-index:1000;
+      animation: blink 1s infinite;
+    ">
+      🔴 Live
     </div>
 
   </div>
 </div>
-
-<script>
-const skeleton = document.getElementById("skeleton");
-const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
-const adWrapper = document.getElementById("ad-container");
-
-const observer = new MutationObserver((mutations, obs) => {
-  if (adContainer.children.length > 0) {
-    skeleton.style.display = "none";
-    adWrapper.style.display = "block";
-    obs.disconnect();
-  }
-});
-
-observer.observe(adContainer, { childList: true, subtree: true });
-</script>
-
-<footer>
-© 2026 AnywhereCum – Legal content only. 18+<br>
-
-<div style="margin-top:8px; font-size:8px;">
-  <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank">
-    <img src="https://www.facebook.com/images/fb_icon_325x325.png" style="width:14px;height:14px;">
-  </a> |
-
-  <a href="contact.html" style="color:#ff4444;">📨Contact</a> |
-
-  <a href="terms-privacy.html" style="color:#ff4444;">⚖️Terms & Privacy</a> |
-
-  <a href="/" style="color:#ff4444;">🏠Home</a> |
-
-  <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" style="color:#ff4444;">
-    ⬆️Back to Top
-  </a>
-</div>
-
-</footer>
 
 <script>
 const vipContainer = document.getElementById("vipContainer");
@@ -220,16 +215,7 @@ function showSkeleton(container, count = 4) {
   container.innerHTML = "";
   for (let i = 0; i < count; i++) {
     const box = document.createElement("div");
-    box.className = "skeletonBox";
-
-    const thumb = document.createElement("div");
-    thumb.className = "skeleton skeletonThumb";
-
-    const text = document.createElement("div");
-    text.className = "skeleton skeletonText";
-
-    box.appendChild(thumb);
-    box.appendChild(text);
+    box.className = "skeleton";
     container.appendChild(box);
   }
 }
@@ -311,6 +297,27 @@ Promise.all([
   normalContainer.innerHTML = "<p>Failed to load</p>";
 });
 </script>
+
+<footer>
+© 2026 AnywhereCum – Legal content only. 18+<br>
+
+<div style="margin-top:8px; font-size:8px;">
+  <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank">
+    <img src="https://www.facebook.com/images/fb_icon_325x325.png" style="width:14px;height:14px;">
+  </a> |
+
+  <a href="contact.html" style="color:#ff4444;">📨Contact</a> |
+
+  <a href="terms-privacy.html" style="color:#ff4444;">⚖️Terms & Privacy</a> |
+
+  <a href="/" style="color:#ff4444;">🏠Home</a> |
+
+  <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" style="color:#ff4444;">
+    ⬆️Back to Top
+  </a>
+</div>
+
+</footer>
 
 </body>
 </html>
