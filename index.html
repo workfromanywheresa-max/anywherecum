@@ -163,7 +163,8 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   </style>
 
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-  <script>
+
+<script>
 window.OneSignalDeferred = window.OneSignalDeferred || [];
 
 OneSignalDeferred.push(async function(OneSignal) {
@@ -173,16 +174,27 @@ OneSignalDeferred.push(async function(OneSignal) {
   });
 
   OneSignal.User.PushSubscription.addEventListener("change", async () => {
-    const id = await OneSignal.User.PushSubscription.id;
-    const optedIn = await OneSignal.User.PushSubscription.optedIn;
 
-    if (id && typeof window.saveSubscriber === "function") {
+    const id = OneSignal.User.PushSubscription.id;
+    const optedIn = OneSignal.User.PushSubscription.optedIn;
+
+    if (!id) return;
+
+    // Save locally so we don’t resend duplicates
+    const lastState = localStorage.getItem("sub_" + id);
+
+    if (lastState === String(optedIn)) return;
+
+    localStorage.setItem("sub_" + id, optedIn);
+
+    if (typeof window.saveSubscriber === "function") {
       window.saveSubscriber(id, optedIn);
     }
+
   });
 
 });
-  </script>
+</script>
 
 </head>
 <body>
