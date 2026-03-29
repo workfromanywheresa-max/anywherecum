@@ -170,6 +170,17 @@ const totalEl = document.getElementById("totalViews");
 const videoEl = document.getElementById("videoViewsTotal");
 const cycleEl = document.getElementById("cycleViewsTotal");
 
+/* ---------- FORMAT ---------- */
+function formatViews(num) {
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
+  if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + "K";
+  return num;
+}
+
+function bracket(num) {
+  return `<span style="font-size:0.4em;opacity:0.5;">(${num})</span>`;
+}
+
 /* ---------- SUBSCRIBERS ---------- */
 async function loadSubscribers() {
   try {
@@ -199,33 +210,12 @@ function renderSubscribers(data) {
 
   subscribersList.innerHTML = html;
 
-  // ✅ TOTAL SUBSCRIBERS
-  subscribersTotalEl.innerHTML = "Subscribers: " + formatViews(data.length);
+  const totalSubs = data.length;
+  subscribersTotalEl.innerHTML = `Subscribers: ${formatViews(totalSubs)} ${bracket(totalSubs)}`;
 }
 
 loadSubscribers();
 setInterval(loadSubscribers, 10000);
-
-/* ---------- FORMAT ---------- */
-function formatViews(num) {
-  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
-  if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + "K";
-  return num;
-}
-
-function sumValues(data) {
-  let total = 0;
-  if (data) {
-    Object.values(data).forEach(v => {
-      if (typeof v === "number") total += v;
-    });
-  }
-  return total;
-}
-
-function bracket(num) {
-  return `<span style="font-size:0.4em;opacity:0.5;">(${num})</span>`;
-}
 
 /* ---------- TOTALS ---------- */
 function getCachedNumber(key) {
@@ -233,9 +223,13 @@ function getCachedNumber(key) {
   return val ? Number(val) : 0;
 }
 
-totalEl.innerHTML = "Site Visits: " + formatViews(getCachedNumber("totalViews"));
-videoEl.innerHTML = "Video Views: " + formatViews(getCachedNumber("videoViews"));
-cycleEl.innerHTML = "Cycle Views: " + formatViews(getCachedNumber("cycleViews"));
+const totalViews = getCachedNumber("totalViews");
+const videoViews = getCachedNumber("videoViews");
+const cycleViews = getCachedNumber("cycleViews");
+
+totalEl.innerHTML = `Site Visits: ${formatViews(totalViews)} ${bracket(totalViews)}`;
+videoEl.innerHTML = `Video Views: ${formatViews(videoViews)} ${bracket(videoViews)}`;
+cycleEl.innerHTML = `Cycle Views: ${formatViews(cycleViews)} ${bracket(cycleViews)}`;
 
 /* ---------- MONTH ---------- */
 function getMonthLabel(offset) {
@@ -306,30 +300,26 @@ function hash(data) {
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val() || {};
 
-  const newHash = hash(data);
-  if (newHash === lastHash) return;
-
-  lastHash = newHash;
+  renderPages(data);
 
   let monthlyTotals = new Array(12).fill(0);
-  monthlyTotals[0] = sumValues(data);
+  monthlyTotals[0] = Object.values(data).reduce((a, b) => a + (typeof b === "number" ? b : 0), 0);
 
-  renderPages(data);
   renderMonthly(monthlyTotals);
 
   saveCache("pageViewsData", JSON.stringify(data));
   saveCache("monthlyTotals", JSON.stringify(monthlyTotals));
-  saveCache("totalViews", sumValues(data));
+  saveCache("totalViews", monthlyTotals[0]);
 });
 
 onValue(videoViewsRef, (snapshot) => {
-  const total = sumValues(snapshot.val() || {});
+  const total = Object.values(snapshot.val() || {}).reduce((a, b) => a + (typeof b === "number" ? b : 0), 0);
   videoEl.innerHTML = `Video Views: ${formatViews(total)} ${bracket(total)}`;
   saveCache("videoViews", total);
 });
 
 onValue(cycleViewsRef, (snapshot) => {
-  const total = sumValues(snapshot.val() || {});
+  const total = Object.values(snapshot.val() || {}).reduce((a, b) => a + (typeof b === "number" ? b : 0), 0);
   cycleEl.innerHTML = `Cycle Views: ${formatViews(total)} ${bracket(total)}`;
   saveCache("cycleViews", total);
 });
