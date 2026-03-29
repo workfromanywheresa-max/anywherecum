@@ -205,11 +205,48 @@ animation:moveArrows 1s linear infinite;
 <div class="ad-space">
   <div class="ad-lock">
 
-    <script async src="https://poweredby.jads.co/js/jads.js"></script>
-    <ins id="1113665" style="display:block; width:300px; height:112px;"></ins>
-    <script>
-      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113665});
-    </script>
+    <!-- JuicyAds v3.0 -->
+<div style="
+  position: relative;
+  display: inline-block;
+  border: 2px solid red;
+  border-radius: 12px;
+  padding: 8px;
+">
+
+  <!-- 🔴 LIVE badge -->
+  <div style="
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: red;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 10px;
+    animation: blink 1s infinite;
+  ">
+    🔴 Live
+  </div>
+
+  <!-- Ad -->
+  <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+  <ins id="1113665" data-width="300" data-height="112"></ins>
+  <script type="text/javascript" data-cfasync="false" async>
+    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113665});
+  </script>
+
+</div>
+
+<!-- Blink animation -->
+<style>
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+</style>
 
   </div>
 </div>
