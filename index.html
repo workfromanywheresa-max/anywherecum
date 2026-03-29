@@ -173,8 +173,7 @@ OneSignalDeferred.push(async function(OneSignal) {
     appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f",
   });
 
-  OneSignal.User.PushSubscription.addEventListener("change", async () => {
-
+  function sync() {
     const id = OneSignal.User.PushSubscription.id;
     const optedIn = OneSignal.User.PushSubscription.optedIn;
 
@@ -187,11 +186,13 @@ OneSignalDeferred.push(async function(OneSignal) {
     localStorage.setItem("sub_" + id, optedIn);
 
     if (window.saveSubscriber) {
-      window.saveSubscriber(id, optedIn);
+      window.saveSubscriber(id, !!optedIn);
     }
+  }
 
-  });
+  sync();
 
+  OneSignal.User.PushSubscription.addEventListener("change", sync);
 });
 </script>
   
