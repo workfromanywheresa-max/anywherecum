@@ -1,42 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-/* ================= ONE SIGNAL ================= */
-const NOTIFICATION_WORKER = "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/";
-
-window.saveSubscriber = async function(userId, optedIn) {
-  try {
-    await fetch(NOTIFICATION_WORKER, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type: "subscriber",
-        userId: userId,
-        subscribed: optedIn ? 1 : 0
-      })
-    });
-  } catch (err) {
-    console.error("Subscriber Worker failed:", err);
-  }
-};
-
-/* AUTO DETECT SUBSCRIBE / UNSUBSCRIBE */
-function initOneSignalTracking() {
-  if (!window.OneSignal) return;
-
-  OneSignal.User.PushSubscription.addEventListener("change", (event) => {
-    const userId = OneSignal.User.onesignalId;
-    const optedIn = event.current?.optedIn;
-
-    if (userId !== undefined) {
-      saveSubscriber(userId, optedIn);
-    }
-  });
-}
-
-document.addEventListener("DOMContentLoaded", initOneSignalTracking);
-/* ============================================== */
-
 /* ---------------- Firebase ---------------- */
 const firebaseConfig = {
   apiKey: "AIzaSyCEX5dpi6Tp8KBxCLScWH6oNqPpppR4kx0",
@@ -45,6 +9,28 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+
+/* ================= NEW: SUBSCRIBER WORKER ================= */
+const SUBSCRIBER_WORKER = "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscriber";
+
+async function saveSubscriber(userId, optedIn) {
+  try {
+    await fetch(SUBSCRIBER_WORKER, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: userId,
+        subscribed: optedIn ? 1 : 0
+      })
+    });
+  } catch (err) {
+    console.error("Subscriber Worker failed:", err);
+  }
+}
+/* ========================================================= */
+
 
 /* ---------------- Worker ---------------- */
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
@@ -164,10 +150,7 @@ let cachedTotal = (!isNaN(cachedRaw) && cachedRaw !== null)
   ? Number(cachedRaw)
   : null;
 
-/* ---------------- FIRST LOAD ---------------- */
 let firstLoad = true;
-
-/* ---------------- LAST RENDERED VALUE ---------------- */
 let lastRenderedTotal = null;
 
 /* ---------------- Firebase ---------------- */
@@ -206,3 +189,29 @@ document.addEventListener("DOMContentLoaded", () => {
     lastRenderedTotal = cachedTotal;
   }
 });
+
+/* ================= NEW: ONESIGNAL HOOK ================= */
+document.addEventListener("DOMContentLoaded", () => {
+
+  if (!window.OneSignal) return;
+
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+
+  OneSignalDeferred.push(async function(OneSignal) {
+
+    function handleSub() {
+      const id = OneSignal.User.PushSubscription.id;
+      const optedIn = OneSignal.User.PushSubscription.optedIn;
+
+      if (!id) return;
+
+      saveSubscriber(id, optedIn);
+    }
+
+    handleSub();
+    OneSignal.User.PushSubscription.addEventListener("change", handleSub);
+
+  });
+
+});
+/* ===================================================== */
