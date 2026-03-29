@@ -167,15 +167,61 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 <script>
 window.OneSignalDeferred = window.OneSignalDeferred || [];
 
+/* ================= ADD THIS ================= */
+const NOTIFICATION_WORKER = "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/";
+
+window.saveSubscriber = async function(userId, optedIn) {
+  try {
+    await fetch(NOTIFICATION_WORKER, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        type: "subscriber",
+        userId: userId,
+        subscribed: optedIn ? 1 : 0
+      })
+    });
+  } catch (err) {
+    console.error("Subscriber Worker failed:", err);
+  }
+};
+/* ========================================== */
+
 OneSignalDeferred.push(async function(OneSignal) {
+
   await OneSignal.init({
     appId: "bcaae907-ef3f-4f37-93b1-5c86a6f811ae",
+    safari_web_id: "web.onesignal.auto.597eddd1-7088-4460-8312-f4c61675b8f7",
 
     notifyButton: {
       enable: true,
       position: "bottom-left"
     }
   });
+
+  async function handleSub() {
+    const id = OneSignal.User.PushSubscription.id;
+    const optedIn = OneSignal.User.PushSubscription.optedIn;
+
+    if (!id) return;
+
+    const lastState = localStorage.getItem("sub_" + id);
+
+    if (lastState === String(optedIn)) return;
+
+    localStorage.setItem("sub_" + id, optedIn);
+
+    if (window.saveSubscriber) {
+      window.saveSubscriber(id, optedIn);
+    }
+  }
+
+  handleSub();
+
+  OneSignal.User.PushSubscription.addEventListener("change", handleSub);
+
 });
 </script>
   
