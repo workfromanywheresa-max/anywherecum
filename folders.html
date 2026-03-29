@@ -18,7 +18,7 @@ body {
   padding: 15px;
 }
 
-/* GRID */
+/* LIST */
 .list {
   display: grid;
   grid-template-columns: 1fr;
@@ -35,7 +35,7 @@ body {
   border-radius: 8px;
 }
 
-/* 🔥 VERY SMALL THUMBNAIL */
+/* SMALL THUMBNAIL */
 .card img {
   width: 80px;
   height: 55px;
@@ -87,10 +87,10 @@ footer {
 
 <body>
 
-<!-- VIP LIST -->
+<!-- VIP (TOP) -->
 <div id="vipList" class="list"></div>
 
-<!-- NORMAL FOLDERS -->
+<!-- FOLDERS -->
 <div id="folderList" class="list" style="margin-top:15px;"></div>
 
 <!-- AD -->
@@ -112,7 +112,7 @@ footer {
 
 <script>
 
-/* ================= VIP ================= */
+/* ================= VIP (LATEST ONLY) ================= */
 async function loadVIP() {
   const res = await fetch('./vip.json');
   const data = await res.json();
@@ -120,25 +120,30 @@ async function loadVIP() {
   const container = document.getElementById('vipList');
   container.innerHTML = '';
 
-  data.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if (!data.length) return;
 
-  data.forEach(vip => {
-    const card = document.createElement('div');
-    card.className = 'card';
+  // sort newest first
+  data.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    const img = document.createElement('img');
-    img.src = "https://anywherecum.pages.dev/images/" + vip.thumbnail;
+  // ONLY latest
+  const vip = data[0];
 
-    const link = document.createElement('a');
-    link.href = "folder.html?folder=" + encodeURIComponent(vip.folder);
-    link.textContent = vip.folder;
+  const card = document.createElement('div');
+  card.className = 'card';
 
-    img.onclick = () => link.click();
+  const img = document.createElement('img');
+  img.src = "https://anywherecum.pages.dev/images/" + vip.thumbnail;
 
-    card.appendChild(img);
-    card.appendChild(link);
-    container.appendChild(card);
-  });
+  const link = document.createElement('a');
+  link.href = "folder.html?folder=" + encodeURIComponent(vip.folder);
+  link.textContent = vip.folder;
+
+  img.onclick = () => link.click();
+
+  card.appendChild(img);
+  card.appendChild(link);
+
+  container.appendChild(card);
 }
 
 /* ================= FOLDERS ================= */
@@ -179,14 +184,15 @@ async function loadFolders() {
 
       card.appendChild(img);
       card.appendChild(link);
+
       container.appendChild(card);
     });
 }
 
 /* ================= INIT ================= */
 window.addEventListener('load', () => {
-  loadVIP();
-  loadFolders();
+  loadVIP();      // VIP first (top)
+  loadFolders();  // then folders
 });
 
 </script>
