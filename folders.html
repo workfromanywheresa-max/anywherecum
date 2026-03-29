@@ -6,13 +6,9 @@
 <title>Folders</title>
 
 <style>
-html {
-  overflow-y: scroll;
-}
+html { overflow-y: scroll; }
 
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
   font-family: Arial, sans-serif;
@@ -20,15 +16,12 @@ body {
   color: #fff;
   margin: 0;
   padding: 15px;
-
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-#pageWrapper {
-  flex: 1;
-}
+#pageWrapper { flex: 1; }
 
 h2 {
   text-align: center;
@@ -37,13 +30,6 @@ h2 {
   padding-bottom: 5px;
 }
 
-/* LOCK CONTAINERS */
-#vipContainer,
-#normalContainer {
-  overflow: hidden;
-}
-
-/* CTA BUTTON */
 .vip-btn {
   display: block;
   text-align: center;
@@ -54,28 +40,16 @@ h2 {
   border-radius: 8px;
   text-decoration: none;
   font-weight: bold;
-  position: relative;
-  overflow: hidden;
   animation: pulse 1.5s infinite;
   font-size: 10px;
 }
 
-.vip-btn:hover {
-  background: linear-gradient(45deg, #ff2222, #cc0000);
-}
-
-.vip-btn .arrow {
-  margin: 0 6px;
-}
-
-/* Pulse animation */
 @keyframes pulse {
   0% { transform: scale(1); }
   50% { transform: scale(1.03); }
   100% { transform: scale(1); }
 }
 
-/* Folder styles */
 .folderBox {
   display: flex;
   align-items: center;
@@ -86,15 +60,9 @@ h2 {
   margin-bottom: 10px;
   cursor: pointer;
   transition: 0.2s;
-  user-select: none;
-
-  opacity: 0;
-  animation: fadeIn 0.3s forwards;
 }
 
-.folderBox:hover {
-  transform: scale(1.02);
-}
+.folderBox:hover { transform: scale(1.02); }
 
 .thumbnail {
   width: 100px;
@@ -110,16 +78,12 @@ h2 {
   margin: 0;
 }
 
-@keyframes fadeIn {
-  to { opacity: 1; }
-}
-
-/* SHIMMER */
+/* Skeleton */
 .skeleton {
-  position: relative;
-  overflow: hidden;
   background: #2a2a2a;
   border-radius: 8px;
+  overflow: hidden;
+  position: relative;
 }
 
 .skeleton::after {
@@ -129,19 +93,12 @@ h2 {
   left: -150px;
   height: 100%;
   width: 150px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255,255,255,0.08),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
   animation: shimmer 1.2s infinite;
 }
 
 @keyframes shimmer {
-  100% {
-    transform: translateX(300px);
-  }
+  100% { transform: translateX(300px); }
 }
 
 .skeletonBox {
@@ -167,12 +124,15 @@ h2 {
   border-radius: 4px;
 }
 
-/* FOOTER */
 footer {
   margin-top: auto;
+  text-align: center;
+  padding: 20px;
+  font-size: 12px;
+  color: #aaa;
+  background: #111;
 }
 </style>
-
 </head>
 
 <body>
@@ -183,13 +143,9 @@ footer {
 
 <h2>Folders</h2>
 
-<!-- CTA -->
-<a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4"
-   target="_blank"
-   class="vip-btn">
-  <span class="arrow">➤</span>
-  Click & Watch how to unlock VIP Exclusive for Free
-  <span class="arrow">◀</span>
+<!-- VIP CTA -->
+<a href="https://fc-lc.xyz/al0L8qyP" target="_blank" class="vip-btn">
+  ➤ Click & Watch how to unlock VIP Exclusive for Free ◀
 </a>
 
 <div id="vipContainer"></div>
@@ -197,7 +153,7 @@ footer {
 
 </div>
 
-<footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111;">
+<footer>
 © 2026 AnywhereCum – Legal content only. 18+
 </footer>
 
@@ -210,7 +166,6 @@ const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 /* Skeleton */
 function showSkeleton(container, count = 4) {
   container.innerHTML = "";
-
   for (let i = 0; i < count; i++) {
     const box = document.createElement("div");
     box.className = "skeletonBox";
@@ -225,13 +180,9 @@ function showSkeleton(container, count = 4) {
     box.appendChild(text);
     container.appendChild(box);
   }
-
-  requestAnimationFrame(() => {
-    container.style.height = container.scrollHeight + "px";
-  });
 }
 
-/* Extract */
+/* Extract folders */
 function extractFolders(videos) {
   const folders = {};
   videos.forEach(video => {
@@ -244,11 +195,10 @@ function extractFolders(videos) {
 }
 
 /* Render */
-function renderFolders(container, folders) {
+function renderFolders(container, folders, isVIP = false) {
   container.innerHTML = "";
 
   Object.keys(folders).forEach(folderName => {
-
     const video = folders[folderName];
 
     const box = document.createElement("div");
@@ -265,9 +215,16 @@ function renderFolders(container, folders) {
     box.appendChild(img);
     box.appendChild(title);
 
-    /* ✅ OPEN FOLDER PAGE */
     box.addEventListener("click", () => {
-      window.location.href = "folder.html?name=" + encodeURIComponent(folderName);
+
+      if (isVIP) {
+        // 🔥 VIP redirects to your link
+        window.open("https://fc-lc.xyz/al0L8qyP", "_blank");
+      } else {
+        // Normal folder
+        window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
+      }
+
     });
 
     container.appendChild(box);
@@ -287,11 +244,8 @@ Promise.all([
   const vipFolders = extractFolders(vipVideos);
   const normalFolders = extractFolders(normalVideos);
 
-  renderFolders(vipContainer, vipFolders);
-  renderFolders(normalContainer, normalFolders);
-
-  vipContainer.style.height = "auto";
-  normalContainer.style.height = "auto";
+  renderFolders(vipContainer, vipFolders, true);   // VIP → locked link
+  renderFolders(normalContainer, normalFolders, false);
 
 })
 .catch(() => {
