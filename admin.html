@@ -34,13 +34,18 @@ li {
   padding: 8px;
   border-bottom: 1px solid #333;
   display: flex;
-  justify-content: space-between;
-  height: 32px;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .value {
   color: #00ffcc;
   font-weight: bold;
+}
+
+.sub-date {
+  color: #888;
+  font-size: 0.7em;
 }
 
 .total-card {
@@ -115,13 +120,12 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="totalViews" class="value">Loading...</div>
   <div id="videoViewsTotal" class="value">Video Views: Loading...</div>
   <div id="cycleViewsTotal" class="value">Cycle Views: Loading...</div>
-  <div id="subscribersTotal" class="value">Subscribers: Loading...</div>
 </div>
 
-<!-- Subscribers moved ABOVE monthly -->
+<!-- 👥 Subscribers -->
 <div class="card">
   <h2>👥 Subscribers</h2>
-  <ul id="subscribersList"></ul>
+  <ul id="subscribersList" class="monthly-box"></ul>
 </div>
 
 <div class="card">
@@ -148,19 +152,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ---------- REFS ---------- */
-const pageViewsRef = ref(db, "pageViews");
-const videoViewsRef = ref(db, "views");
-const cycleViewsRef = ref(db, "cycleViews");
-const subscribersRef = ref(db, "subscribers");
-
-/* ---------- ELEMENTS ---------- */
-const totalEl = document.getElementById("totalViews");
-const videoEl = document.getElementById("videoViewsTotal");
-const cycleEl = document.getElementById("cycleViewsTotal");
-const subsEl = document.getElementById("subscribersTotal");
-const subsList = document.getElementById("subscribersList");
-
 /* ---------- CACHE ---------- */
 function loadCache(key) {
   return localStorage.getItem(key);
@@ -170,14 +161,46 @@ function saveCache(key, value) {
   localStorage.setItem(key, value);
 }
 
+/* ---------- SUBSCRIBERS ---------- */
+const subscribersList = document.getElementById("subscribersList");
+
+async function loadSubscribers() {
+  try {
+    const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers");
+    const data = await res.json();
+    renderSubscribers(data);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+function renderSubscribers(data) {
+  if (!Array.isArray(data)) return;
+
+  data.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
+
+  let html = "";
+
+  data.forEach(sub => {
+    html += `
+      <li>
+        <span>${sub.userId || "Unknown"}</span>
+        <span class="sub-date">${sub.updatedAt || "N/A"}</span>
+      </li>
+    `;
+  });
+
+  subscribersList.innerHTML = html;
+}
+
+loadSubscribers();
+setInterval(loadSubscribers, 10000);
+
+/* ---------- FORMAT ---------- */
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + "K";
   return num;
-}
-
-function bracket(num) {
-  return `<span style="font-size: 0.4em; opacity: 0.5;">(${num})</span>`;
 }
 
 function sumValues(data) {
@@ -190,98 +213,123 @@ function sumValues(data) {
   return total;
 }
 
-/* ---------- SUBSCRIBERS ---------- */
-const cachedSubs = loadCache("subscribersData");
-
-if (cachedSubs) {
-  renderSubscribers(JSON.parse(cachedSubs));
-  subsEl.innerHTML = "Subscribers: " + getFormattedCached("subscribersTotal");
+function bracket(num) {
+  return `<span style="font-size:0.4em;opacity:0.5;">(${num})</span>`;
 }
 
-function renderSubscribers(data) {
-  let html = "";
-  let count = 0;
+/* ---------- TOTAL ---------- */
+const totalEl = document.getElementById("totalViews");
+const videoEl = document.getElementById("videoViewsTotal");
+const cycleEl = document.getElementById("cycleViewsTotal");
 
-  Object.entries(data || {}).forEach(([key, value]) => {
-    count++;
-    html += `<li><span>${key}</span></li>`;
-  });
-
-  subsList.innerHTML = html;
-  subsEl.innerHTML = `Subscribers: ${formatViews(count)} ${bracket(count)}`;
-
-  saveCache("subscribersData", JSON.stringify(data));
-  saveCache("subscribersTotal", count);
-}
-
-/* ---------- CACHE DISPLAY ---------- */
-function getFormattedCached(key) {
+function getCachedNumber(key) {
   const val = loadCache(key);
-  if (!val) return "Loading...";
-  const num = Number(val);
-  return `${formatViews(num)} ${bracket(num)}`;
+  if (!val) return 0;
+  return Number(val);
 }
 
-/* ---------- INITIAL DISPLAY ---------- */
-totalEl.innerHTML = "Site Visits: " + getFormattedCached("totalViews");
-videoEl.innerHTML = "Video Views: " + getFormattedCached("videoViewsTotal");
-cycleEl.innerHTML = "Cycle Views: " + getFormattedCached("cycleViewsTotal");
-subsEl.innerHTML = "Subscribers: " + getFormattedCached("subscribersTotal");
+totalEl.innerHTML = "Site Visits: " + formatViews(getCachedNumber("totalViews"));
+videoEl.innerHTML = "Video Views: " + formatViews(getCachedNumber("videoViews"));
+cycleEl.innerHTML = "Cycle Views: " + formatViews(getCachedNumber("cycleViews"));
+
+/* ---------- MONTH ---------- */
+function getMonthLabel(offset) {
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+  return d.toLocaleString("default", { month: "long" });
+}
+
+const monthlyList = document.getElementById("monthlyList");
+
+function renderMonthly(data) {
+  let html = "";
+
+  for (let i = 0; i < 12; i++) {
+    const value = data[i] || 0;
+
+    html += `
+      <li>
+        <span>${getMonthLabel(i)}</span>
+        <span class="value">${formatViews(value)} ${bracket(value)}</span>
+      </li>
+    `;
+  }
+
+  monthlyList.innerHTML = html;
+}
 
 /* ---------- PAGE VIEWS ---------- */
 const pageList = document.getElementById("pageViews");
 
-const cachedPage = loadCache("pageViewsData");
-if (cachedPage) renderPages(JSON.parse(cachedPage));
-
 function renderPages(data) {
   const items = Object.entries(data || {})
-    .map(([key, value]) => [key, typeof value === "number" ? value : 0])
+    .map(([k, v]) => [k, typeof v === "number" ? v : 0])
     .sort((a, b) => b[1] - a[1]);
 
   let html = "";
 
   items.forEach(([key, value]) => {
-    html += `<li>
-      <span>${key}</span>
-      <span class="value">${formatViews(value)} ${bracket(value)}</span>
-    </li>`;
+    html += `
+      <li>
+        <span>${key}</span>
+        <span class="value">${formatViews(value)} ${bracket(value)}</span>
+      </li>
+    `;
   });
 
   pageList.innerHTML = html;
 }
 
+/* ---------- CACHE INIT (NO BLINK) ---------- */
+const cachedPages = loadCache("pageViewsData");
+const cachedMonthly = loadCache("monthlyTotals");
+
+if (cachedPages) renderPages(JSON.parse(cachedPages));
+if (cachedMonthly) renderMonthly(JSON.parse(cachedMonthly));
+
 /* ---------- FIREBASE ---------- */
+const pageViewsRef = ref(db, "pageViews");
+const videoViewsRef = ref(db, "views");
+const cycleViewsRef = ref(db, "cycleViews");
+
+let lastHash = "";
+
+function hash(data) {
+  return JSON.stringify(data || {});
+}
+
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val() || {};
 
+  const newHash = hash(data);
+
+  if (newHash === lastHash) return; // 🔥 prevent blinking
+
+  lastHash = newHash;
+
+  let monthlyTotals = new Array(12).fill(0);
+  monthlyTotals[0] = sumValues(data);
+
   renderPages(data);
+  renderMonthly(monthlyTotals);
 
   saveCache("pageViewsData", JSON.stringify(data));
+  saveCache("monthlyTotals", JSON.stringify(monthlyTotals));
   saveCache("totalViews", sumValues(data));
 });
 
 /* ---------- VIDEO ---------- */
 onValue(videoViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val() || {});
-
   videoEl.innerHTML = `Video Views: ${formatViews(total)} ${bracket(total)}`;
-  saveCache("videoViewsTotal", total);
+  saveCache("videoViews", total);
 });
 
 /* ---------- CYCLE ---------- */
 onValue(cycleViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val() || {});
-
   cycleEl.innerHTML = `Cycle Views: ${formatViews(total)} ${bracket(total)}`;
-  saveCache("cycleViewsTotal", total);
-});
-
-/* ---------- SUBSCRIBERS LIVE ---------- */
-onValue(subscribersRef, (snapshot) => {
-  const data = snapshot.val() || {};
-
-  renderSubscribers(data);
+  saveCache("cycleViews", total);
 });
 
 /* ---------- LOGOUT ---------- */
