@@ -17,6 +17,8 @@ window.saveSubscriber = async function(userId, optedIn) {
   try {
     console.log("Saving subscriber:", userId, optedIn);
 
+    if (!userId) return;
+
     const res = await fetch(SUBSCRIBER_WORKER, {
       method: "POST",
       headers: {
@@ -28,7 +30,6 @@ window.saveSubscriber = async function(userId, optedIn) {
       })
     });
 
-    // ✅ DEBUG (IMPORTANT)
     const text = await res.text();
     console.log("Worker response:", text);
 
@@ -38,7 +39,6 @@ window.saveSubscriber = async function(userId, optedIn) {
 };
 
 /* ===================================================== */
-
 
 /* ---------------- Worker ---------------- */
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
@@ -161,7 +161,7 @@ let cachedTotal = (!isNaN(cachedRaw) && cachedRaw !== null)
 let firstLoad = true;
 let lastRenderedTotal = null;
 
-/* ---------------- Firebase ---------------- */
+/* ---------------- Firebase (VIEWS ONLY) ---------------- */
 const pageRef = ref(db, "pageViews");
 
 onValue(pageRef, (snapshot) => {
