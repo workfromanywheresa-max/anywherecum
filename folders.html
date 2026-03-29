@@ -23,7 +23,6 @@ body {
 
 #pageWrapper {
   flex: 1;
-  padding-bottom: 40px;
 }
 
 h2 {
@@ -105,12 +104,20 @@ h2 {
 }
 
 footer {
-  margin-top: auto;
+  margin-top: 20px;
   text-align: center;
   padding: 20px;
   font-size: 12px;
   color: #aaa;
   background: #111;
+}
+
+/* 🔥 Reserve space for ad (prevents layout shift) */
+.ad-space {
+  min-height: 112px;
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 </style>
 </head>
@@ -144,14 +151,8 @@ footer {
 <div id="vipContainer"></div>
 <div id="normalContainer"></div>
 
-<!-- 🔥 BOTTOM AD (ABOVE FOOTER) -->
-<div style="
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin: 20px 0 0 0;
-">
-
+<!-- 🔥 BOTTOM AD (NO JUMP, NO FLASH) -->
+<div class="ad-space">
   <div style="
     width: 300px;
     height: 112px;
@@ -162,7 +163,6 @@ footer {
     position: relative;
   ">
 
-    <!-- JuicyAds -->
     <script async src="https://poweredby.jads.co/js/jads.js"></script>
     <ins id="1113665" style="display:block; width:300px; height:112px;"></ins>
     <script>
