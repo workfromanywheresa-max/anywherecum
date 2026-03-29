@@ -172,12 +172,11 @@ OneSignalDeferred.push(async function(OneSignal) {
   });
 
   try {
-    const subscription = OneSignal.User.PushSubscription;
+    // ✅ Get subscription properly
+    const isSubscribed = await OneSignal.User.PushSubscription.optedIn;
+    const userId = await OneSignal.User.PushSubscription.id;
 
     function syncSubscriber() {
-      const userId = subscription.id;
-      const isSubscribed = subscription.optedIn;
-
       if (userId && typeof window.saveSubscriber === "function") {
         window.saveSubscriber(userId, isSubscribed);
       }
@@ -185,7 +184,8 @@ OneSignalDeferred.push(async function(OneSignal) {
 
     syncSubscriber();
 
-    subscription.addEventListener("change", () => {
+    // ✅ Listen for changes correctly
+    OneSignal.User.PushSubscription.addEventListener("change", () => {
       syncSubscriber();
     });
 
