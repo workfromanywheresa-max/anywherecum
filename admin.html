@@ -160,7 +160,7 @@ const subscribersList = document.getElementById("subscribersList");
 
 async function loadSubscribers() {
   try {
-    const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/");
+    const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subcribers");
     const data = await res.json();
 
     renderSubscribers(data);
