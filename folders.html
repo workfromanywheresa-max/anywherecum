@@ -39,14 +39,86 @@ h2 {
   min-height: 300px;
 }
 
-/* 🔒 VIP CTA RESERVED SPACE */
+/* VIP CTA AREA */
 #vipCtaContainer {
-  min-height: 70px;
+  min-height: 90px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: -15px; /* 👈 closer to VIP */
+  margin-top: -10px;
   margin-bottom: 20px;
+}
+
+/* VIP CARD */
+.vip-card {
+  position: relative;
+  background: linear-gradient(145deg, #1f1f1f, #151515);
+  padding: 16px 18px;
+  border-radius: 12px;
+  text-align: center;
+  width: 90%;
+  max-width: 320px;
+  border: 1px solid #ff4444;
+  box-shadow: 0 0 12px rgba(255, 68, 68, 0.25);
+  overflow: hidden;
+}
+
+/* glow animation */
+.vip-glow {
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(90deg, #ff4444, #ff8888, #ff4444);
+  filter: blur(10px);
+  opacity: 0.4;
+  z-index: 0;
+  animation: glowMove 3s linear infinite;
+}
+
+@keyframes glowMove {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(50%); }
+}
+
+.vip-title {
+  margin: 0;
+  font-size: 15px;
+  color: #ff4444;
+  position: relative;
+  z-index: 1;
+}
+
+.vip-text {
+  font-size: 12px;
+  color: #ccc;
+  margin: 8px 0 12px;
+  position: relative;
+  z-index: 1;
+}
+
+/* CTA BUTTON */
+.vip-btn-card {
+  color:#fff;
+  font-weight:bold;
+  text-decoration:none;
+  font-size:12px;
+  display:inline-block;
+  padding:7px 20px;
+  border-radius:6px;
+  background: #ff4444;
+  position: relative;
+  z-index: 1;
+  animation: pulseBtn 1.8s infinite;
+}
+
+.vip-btn-card:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 15px #ff4444;
+}
+
+@keyframes pulseBtn {
+  0% { box-shadow: 0 0 5px #ff4444; }
+  50% { box-shadow: 0 0 15px #ff4444; }
+  100% { box-shadow: 0 0 5px #ff4444; }
 }
 
 /* Folder styles */
@@ -88,7 +160,7 @@ h2 {
   to { opacity: 1; }
 }
 
-/* 🔥 SHIMMER */
+/* SHIMMER */
 .skeleton {
   position: relative;
   overflow: hidden;
@@ -140,33 +212,6 @@ h2 {
   border-radius: 4px;
 }
 
-/* CTA BUTTON */
-.vip-btn {
-  color:#fff;
-  font-weight:bold;
-  text-decoration:none;
-  font-size:12px;
-  display:inline-block;
-  position:relative;
-  padding:6px 25px;
-  border-radius:6px;
-  animation: glowPulse 2s infinite alternate;
-}
-
-.vip-btn:hover {
-  transform: scale(1.1);
-  text-shadow: 0 0 20px #ff4444, 0 0 30px #ff8888;
-}
-
-/* glow */
-@keyframes glowPulse {
-  0% {
-    text-shadow: 0 0 5px #ff4444;
-  }
-  100% {
-    text-shadow: 0 0 15px #ff4444, 0 0 25px #ff8888;
-  }
-}
 </style>
 
 </head>
@@ -179,13 +224,23 @@ h2 {
 
 <div id="vipContainer"></div>
 
-<!-- 🔥 VIP CTA (NOW CLOSE TO VIP) -->
+<!-- VIP CTA CARD -->
 <div id="vipCtaContainer">
-  <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4"
-     target="_blank"
-     class="vip-btn">
-    Click & Watch how to unlock VIP Exclusive for Free
-  </a>
+  <div class="vip-card">
+    <div class="vip-glow"></div>
+
+    <h3 class="vip-title">🔓 VIP Access</h3>
+
+    <p class="vip-text">
+      Click below to unlock VIP Exclusive content for FREE
+    </p>
+
+    <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4"
+       target="_blank"
+       class="vip-btn-card">
+      Watch Now
+    </a>
+  </div>
 </div>
 
 <div id="normalContainer"></div>
@@ -259,7 +314,7 @@ function renderFolders(container, folders, isVip = false) {
   });
 }
 
-/* Start skeleton */
+/* Skeleton loading */
 showSkeleton(vipContainer, 2);
 showSkeleton(normalContainer, 6);
 
