@@ -128,11 +128,13 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <ul id="subscribersList" class="monthly-box"></ul>
 </div>
 
+<!-- 📅 Monthly -->
 <div class="card">
   <h2>📅 Monthly Visits</h2>
   <ul id="monthlyList" class="monthly-box"></ul>
 </div>
 
+<!-- 📊 Page Views -->
 <div class="container">
   <div class="card">
     <h2>📊 Page Views</h2>
@@ -161,9 +163,45 @@ function saveCache(key, value) {
   localStorage.setItem(key, value);
 }
 
-/* ---------- SUBSCRIBERS ---------- */
+function formatViews(num) {
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
+  if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + "K";
+  return num;
+}
+
+function sumValues(data) {
+  let total = 0;
+  if (data) {
+    Object.values(data).forEach(v => {
+      if (typeof v === "number") total += v;
+    });
+  }
+  return total;
+}
+
+function bracket(num) {
+  return `<span style="font-size:0.4em;opacity:0.5;">(${num})</span>`;
+}
+
+/* ---------- ELEMENTS ---------- */
+const totalEl = document.getElementById("totalViews");
+const videoEl = document.getElementById("videoViewsTotal");
+const cycleEl = document.getElementById("cycleViewsTotal");
+
+const pageList = document.getElementById("pageViews");
+const monthlyList = document.getElementById("monthlyList");
 const subscribersList = document.getElementById("subscribersList");
 
+/* ---------- CACHE LOAD (NO BLINK) ---------- */
+if (loadCache("pageViewsData")) {
+  renderPages(JSON.parse(loadCache("pageViewsData")));
+}
+
+if (loadCache("monthlyTotals")) {
+  renderMonthly(JSON.parse(loadCache("monthlyTotals")));
+}
+
+/* ---------- SUBSCRIBERS ---------- */
 async function loadSubscribers() {
   try {
     const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers");
@@ -196,50 +234,12 @@ function renderSubscribers(data) {
 loadSubscribers();
 setInterval(loadSubscribers, 10000);
 
-/* ---------- FORMAT ---------- */
-function formatViews(num) {
-  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
-  if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + "K";
-  return num;
-}
-
-function sumValues(data) {
-  let total = 0;
-  if (data) {
-    Object.values(data).forEach(v => {
-      if (typeof v === "number") total += v;
-    });
-  }
-  return total;
-}
-
-function bracket(num) {
-  return `<span style="font-size:0.4em;opacity:0.5;">(${num})</span>`;
-}
-
-/* ---------- TOTAL ---------- */
-const totalEl = document.getElementById("totalViews");
-const videoEl = document.getElementById("videoViewsTotal");
-const cycleEl = document.getElementById("cycleViewsTotal");
-
-function getCachedNumber(key) {
-  const val = loadCache(key);
-  if (!val) return 0;
-  return Number(val);
-}
-
-totalEl.innerHTML = "Site Visits: " + formatViews(getCachedNumber("totalViews"));
-videoEl.innerHTML = "Video Views: " + formatViews(getCachedNumber("videoViews"));
-cycleEl.innerHTML = "Cycle Views: " + formatViews(getCachedNumber("cycleViews"));
-
 /* ---------- MONTH ---------- */
 function getMonthLabel(offset) {
   const now = new Date();
   const d = new Date(now.getFullYear(), now.getMonth() - offset, 1);
   return d.toLocaleString("default", { month: "long" });
 }
-
-const monthlyList = document.getElementById("monthlyList");
 
 function renderMonthly(data) {
   let html = "";
@@ -259,8 +259,6 @@ function renderMonthly(data) {
 }
 
 /* ---------- PAGE VIEWS ---------- */
-const pageList = document.getElementById("pageViews");
-
 function renderPages(data) {
   const items = Object.entries(data || {})
     .map(([k, v]) => [k, typeof v === "number" ? v : 0])
@@ -280,40 +278,30 @@ function renderPages(data) {
   pageList.innerHTML = html;
 }
 
-/* ---------- CACHE INIT (NO BLINK) ---------- */
-const cachedPages = loadCache("pageViewsData");
-const cachedMonthly = loadCache("monthlyTotals");
+/* ---------- SINGLE LISTENER (NO BLINK) ---------- */
+let lastData = "";
 
-if (cachedPages) renderPages(JSON.parse(cachedPages));
-if (cachedMonthly) renderMonthly(JSON.parse(cachedMonthly));
-
-/* ---------- FIREBASE ---------- */
 const pageViewsRef = ref(db, "pageViews");
 const videoViewsRef = ref(db, "views");
 const cycleViewsRef = ref(db, "cycleViews");
 
-let lastHash = "";
-
-function hash(data) {
-  return JSON.stringify(data || {});
-}
-
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val() || {};
+  const str = JSON.stringify(data);
 
-  const newHash = hash(data);
+  if (str === lastData) return; // 🚫 stop blinking
 
-  if (newHash === lastHash) return; // 🔥 prevent blinking
+  lastData = str;
 
-  lastHash = newHash;
+  /* render */
+  renderPages(data);
 
   let monthlyTotals = new Array(12).fill(0);
   monthlyTotals[0] = sumValues(data);
-
-  renderPages(data);
   renderMonthly(monthlyTotals);
 
-  saveCache("pageViewsData", JSON.stringify(data));
+  /* cache */
+  saveCache("pageViewsData", str);
   saveCache("monthlyTotals", JSON.stringify(monthlyTotals));
   saveCache("totalViews", sumValues(data));
 });
@@ -331,6 +319,9 @@ onValue(cycleViewsRef, (snapshot) => {
   cycleEl.innerHTML = `Cycle Views: ${formatViews(total)} ${bracket(total)}`;
   saveCache("cycleViews", total);
 });
+
+/* ---------- TOTAL (INIT) ---------- */
+totalEl.innerHTML = "Site Visits: " + (loadCache("totalViews") ? formatViews(Number(loadCache("totalViews"))) : "Loading...");
 
 /* ---------- LOGOUT ---------- */
 function logout() {
