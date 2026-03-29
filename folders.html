@@ -183,7 +183,7 @@ footer {
 
 <h2>Folders</h2>
 
-<!-- CTA (ABOVE VIP) -->
+<!-- CTA -->
 <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4"
    target="_blank"
    class="vip-btn">
@@ -265,15 +265,9 @@ function renderFolders(container, folders) {
     box.appendChild(img);
     box.appendChild(title);
 
-    /* CONTROL CLICK (prevents accidental navigation issues) */
+    /* ✅ OPEN FOLDER PAGE */
     box.addEventListener("click", () => {
-      console.log("Clicked folder:", folderName);
-
-      // CHANGE THIS to whatever you want:
-      alert("Folder clicked: " + folderName);
-
-      // Example navigation (uncomment if needed):
-      // window.location.href = "folder.html?name=" + encodeURIComponent(folderName);
+      window.location.href = "folder.html?name=" + encodeURIComponent(folderName);
     });
 
     container.appendChild(box);
