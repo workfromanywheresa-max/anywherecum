@@ -96,6 +96,8 @@ function getCache(key) {
 }
 
 /* ---------------- Inject UI ---------------- */
+let el = null;
+
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("adminContainer");
 
@@ -115,10 +117,9 @@ document.addEventListener("DOMContentLoaded", () => {
       <span id="viewNumber">👁 0</span> | Admin
     </a>
   `;
-});
 
-/* ---------------- DOM ---------------- */
-const el = document.getElementById("viewNumber");
+  el = document.getElementById("viewNumber");
+});
 
 /* ---------------- Cached Value ---------------- */
 const cachedRaw = getCache("totalViews");
@@ -130,18 +131,8 @@ let cachedTotal = (!isNaN(cachedRaw) && cachedRaw !== null)
 /* ---------------- FIRST LOAD ---------------- */
 let firstLoad = true;
 
-/* ---------------- UI UPDATE ---------------- */
-function updateUI(total) {
-  if (!el) return;
-
-  const formatted = formatViews(total);
-  el.textContent = `👁 ${formatted}`;
-}
-
-/* ---------------- Initial UI ---------------- */
-if (cachedTotal !== null) {
-  updateUI(cachedTotal);
-}
+/* ---------------- LAST RENDERED VALUE ---------------- */
+let lastRenderedTotal = null;
 
 /* ---------------- Firebase ---------------- */
 const pageRef = ref(db, "pageViews");
@@ -155,26 +146,30 @@ onValue(pageRef, (snapshot) => {
     if (typeof v === "number") total += v;
   });
 
-  /* -------- FIRST LOAD -------- */
+  /* -------- CACHE -------- */
+  saveCache("totalViews", total);
+  saveCache("pageViewsData", JSON.stringify(data));
+
+  cachedTotal = total;
+
+  /* -------- INITIAL LOAD -------- */
   if (firstLoad) {
     firstLoad = false;
-
-    if (cachedTotal !== total) {
-      saveCache("totalViews", total);
-      saveCache("pageViewsData", JSON.stringify(data));
-      cachedTotal = total;
-    }
-
+    lastRenderedTotal = total;
     return;
   }
 
-  /* -------- NORMAL UPDATE -------- */
-  if (cachedTotal !== total) {
-    updateUI(total);
+  /* -------- UPDATE ONLY WHEN CHANGED -------- */
+  if (total !== lastRenderedTotal && el) {
+    el.textContent = `👁 ${formatViews(total)}`;
+    lastRenderedTotal = total;
+  }
+});
 
-    saveCache("totalViews", total);
-    saveCache("pageViewsData", JSON.stringify(data));
-
-    cachedTotal = total;
+/* ---------------- INITIAL UI ---------------- */
+document.addEventListener("DOMContentLoaded", () => {
+  if (cachedTotal !== null && el) {
+    el.textContent = `👁 ${formatViews(cachedTotal)}`;
+    lastRenderedTotal = cachedTotal;
   }
 });
