@@ -120,6 +120,7 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="totalViews" class="value">Loading...</div>
   <div id="videoViewsTotal" class="value">Video Views: Loading...</div>
   <div id="cycleViewsTotal" class="value">Cycle Views: Loading...</div>
+  <div id="totalSubscribers" class="value">Subscribers: Loading...</div>
 </div>
 
 <!-- 👥 Subscribers -->
@@ -161,9 +162,15 @@ function saveCache(key, value) {
   localStorage.setItem(key, value);
 }
 
-/* ---------- SUBSCRIBERS ---------- */
+/* ---------- ELEMENTS ---------- */
 const subscribersList = document.getElementById("subscribersList");
+const subscribersTotalEl = document.getElementById("totalSubscribers");
 
+const totalEl = document.getElementById("totalViews");
+const videoEl = document.getElementById("videoViewsTotal");
+const cycleEl = document.getElementById("cycleViewsTotal");
+
+/* ---------- SUBSCRIBERS ---------- */
 async function loadSubscribers() {
   try {
     const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers");
@@ -191,6 +198,9 @@ function renderSubscribers(data) {
   });
 
   subscribersList.innerHTML = html;
+
+  // ✅ TOTAL SUBSCRIBERS
+  subscribersTotalEl.innerHTML = "Subscribers: " + formatViews(data.length);
 }
 
 loadSubscribers();
@@ -217,15 +227,10 @@ function bracket(num) {
   return `<span style="font-size:0.4em;opacity:0.5;">(${num})</span>`;
 }
 
-/* ---------- TOTAL ---------- */
-const totalEl = document.getElementById("totalViews");
-const videoEl = document.getElementById("videoViewsTotal");
-const cycleEl = document.getElementById("cycleViewsTotal");
-
+/* ---------- TOTALS ---------- */
 function getCachedNumber(key) {
   const val = loadCache(key);
-  if (!val) return 0;
-  return Number(val);
+  return val ? Number(val) : 0;
 }
 
 totalEl.innerHTML = "Site Visits: " + formatViews(getCachedNumber("totalViews"));
@@ -280,7 +285,7 @@ function renderPages(data) {
   pageList.innerHTML = html;
 }
 
-/* ---------- CACHE INIT (NO BLINK) ---------- */
+/* ---------- CACHE ---------- */
 const cachedPages = loadCache("pageViewsData");
 const cachedMonthly = loadCache("monthlyTotals");
 
@@ -302,8 +307,7 @@ onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val() || {};
 
   const newHash = hash(data);
-
-  if (newHash === lastHash) return; // 🔥 prevent blinking
+  if (newHash === lastHash) return;
 
   lastHash = newHash;
 
@@ -318,14 +322,12 @@ onValue(pageViewsRef, (snapshot) => {
   saveCache("totalViews", sumValues(data));
 });
 
-/* ---------- VIDEO ---------- */
 onValue(videoViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val() || {});
   videoEl.innerHTML = `Video Views: ${formatViews(total)} ${bracket(total)}`;
   saveCache("videoViews", total);
 });
 
-/* ---------- CYCLE ---------- */
 onValue(cycleViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val() || {});
   cycleEl.innerHTML = `Cycle Views: ${formatViews(total)} ${bracket(total)}`;
