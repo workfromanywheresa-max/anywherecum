@@ -1,9 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { 
-  getDatabase, 
-  ref, 
-  onValue, 
-  set 
+import {
+  getDatabase,
+  ref,
+  onValue
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 /* ---------------- Firebase ---------------- */
@@ -18,8 +17,8 @@ const db = getDatabase(app);
 /* ---------------- Worker ---------------- */
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
 
-/* ---------------- NEW: Subscriber Worker ---------------- */
-const SUB_WORKER_URL = "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/";
+/* ---------------- Subscriber Worker ---------------- */
+const SUB_WORKER_URL = "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscriber";
 
 /* ---------------- Send to Worker ---------------- */
 async function sendToWorker(type) {
@@ -34,20 +33,34 @@ async function sendToWorker(type) {
   }
 }
 
-/* ---------------- Send Subscriber to Worker ---------------- */
-async function sendSubToWorker(status) {
+/* ---------------- Subscriber (SUBSCRIBE / UNSUBSCRIBE) ---------------- */
+async function sendSubToWorker(subscribed) {
+  let userId = localStorage.getItem("userId");
+
+  if (!userId) {
+    userId = crypto.randomUUID();
+    localStorage.setItem("userId", userId);
+  }
+
   try {
     await fetch(SUB_WORKER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        type: status ? "subscribe" : "unsubscribe"
+        userId,
+        subscribed: subscribed
       })
     });
   } catch (err) {
     console.error("Subscriber worker failed:", err);
   }
 }
+
+/* ---------------- Toggle Subscribe ---------------- */
+window.saveSubscriber = function (subscribed) {
+  localStorage.setItem("subscribed", subscribed);
+  sendSubToWorker(subscribed);
+};
 
 /* ---------------- Page Detection ---------------- */
 let path = window.location.pathname.toLowerCase();
@@ -118,7 +131,7 @@ function getCache(key) {
   return localStorage.getItem(key);
 }
 
-/* ---------------- Inject UI (ONLY VIEWS NOW) ---------------- */
+/* ---------------- UI ---------------- */
 let viewEl = null;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -144,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
   viewEl = document.getElementById("viewNumber");
 });
 
-/* ---------------- Cached Views ---------------- */
+/* ---------------- Views Cache ---------------- */
 const cachedRaw = getCache("totalViews");
 
 let cachedTotal = (!isNaN(cachedRaw) && cachedRaw !== null)
@@ -153,9 +166,6 @@ let cachedTotal = (!isNaN(cachedRaw) && cachedRaw !== null)
 
 /* ---------------- FIRST LOAD ---------------- */
 let firstLoad = true;
-
-/* ---------------- LAST RENDERED VALUE ---------------- */
-let lastRenderedTotal = null;
 
 /* ---------------- Firebase (Views) ---------------- */
 const pageRef = ref(db, "pageViews");
@@ -169,48 +179,23 @@ onValue(pageRef, (snapshot) => {
     if (typeof v === "number") total += v;
   });
 
-  /* CACHE */
   saveCache("totalViews", total);
-  saveCache("pageViewsData", JSON.stringify(data));
 
   cachedTotal = total;
 
   if (firstLoad) {
     firstLoad = false;
-    lastRenderedTotal = total;
     return;
   }
 
-  if (total !== lastRenderedTotal && viewEl) {
+  if (viewEl) {
     viewEl.textContent = `👁 ${formatViews(total)}`;
-    lastRenderedTotal = total;
   }
 });
 
-/* ---------------- INITIAL UI ---------------- */
+/* ---------------- Load Cached Views ---------------- */
 document.addEventListener("DOMContentLoaded", () => {
   if (cachedTotal !== null && viewEl) {
     viewEl.textContent = `👁 ${formatViews(cachedTotal)}`;
-    lastRenderedTotal = cachedTotal;
   }
 });
-
-/* ========================================================= */
-/* 🔔 SUBSCRIBER TRACKING (NO UI, ONLY SAVE) */
-/* ========================================================= */
-
-window.saveSubscriber = function(userId, subscribed) {
-  if (!userId) return;
-
-  const subscriberRef = ref(db, "subscribers/" + userId);
-
-  set(subscriberRef, {
-    id: userId,
-    subscribed: subscribed
-  }).catch(err => {
-    console.error("Subscriber save failed:", err);
-  });
-
-  /* 🔥 SEND TO WORKER */
-  sendSubToWorker(subscribed);
-};
