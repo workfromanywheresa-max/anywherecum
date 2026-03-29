@@ -30,23 +30,23 @@ h2 {
   padding-bottom: 5px;
 }
 
-/* ✅ RESERVED SPACE = NO SHIFT */
+/* RESERVED SPACE = NO SHIFT */
 #vipContainer {
-  min-height: 180px; /* enough space for CTA + content */
+  min-height: 120px;
+}
+
+#normalContainer {
+  min-height: 300px;
+}
+
+/* 🔒 VIP CTA RESERVED SPACE */
+#vipCtaContainer {
+  min-height: 70px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-}
-
-#vipCTAWrapper {
-  min-height: 60px;
-  width: 100%;
-}
-
-/* Folder containers */
-#normalContainer {
-  min-height: 300px;
+  margin-top: -15px; /* 👈 closer to VIP */
+  margin-bottom: 20px;
 }
 
 /* Folder styles */
@@ -88,7 +88,7 @@ h2 {
   to { opacity: 1; }
 }
 
-/* 🔥 SHIMMER SKELETON */
+/* 🔥 SHIMMER */
 .skeleton {
   position: relative;
   overflow: hidden;
@@ -140,45 +140,16 @@ h2 {
   border-radius: 4px;
 }
 
-/* CTA */
-.ctaCard {
-  background: #2a2a2a;
-  border: 1px solid #ff4444;
-  border-radius: 8px;
-  padding: 10px;
-  margin: 20px 0;
-  text-align: center;
-}
-
-.ctaContent {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.ctaContent a {
-  color: #00ffcc;
-  text-decoration: none;
-  font-size: 10px;
-  font-weight: bold;
-}
-
-.arrow {
-  font-size: 18px;
-  color: #ff4444;
-}
-
-/* VIP BUTTON */
+/* CTA BUTTON */
 .vip-btn {
   color:#fff;
   font-weight:bold;
   text-decoration:none;
   font-size:12px;
   display:inline-block;
+  position:relative;
   padding:6px 25px;
   border-radius:6px;
-  transition: all 0.3s ease;
   animation: glowPulse 2s infinite alternate;
 }
 
@@ -187,16 +158,15 @@ h2 {
   text-shadow: 0 0 20px #ff4444, 0 0 30px #ff8888;
 }
 
+/* glow */
 @keyframes glowPulse {
-  0% { text-shadow: 0 0 5px #ff4444; }
-  100% { text-shadow: 0 0 15px #ff4444, 0 0 25px #ff8888; }
+  0% {
+    text-shadow: 0 0 5px #ff4444;
+  }
+  100% {
+    text-shadow: 0 0 15px #ff4444, 0 0 25px #ff8888;
+  }
 }
-
-@keyframes arrowMove {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(5px); }
-}
-
 </style>
 
 </head>
@@ -207,27 +177,15 @@ h2 {
 
 <h2>Folders</h2>
 
-<!-- VIP CONTAINER (RESERVED SPACE) -->
-<div id="vipContainer">
+<div id="vipContainer"></div>
 
-  <div id="vipCTAWrapper">
-
-    <div style="text-align:center; margin-bottom:25px;">
-      <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4"
-         target="_blank"
-         class="vip-btn">
-
-        <span class="arrow">➤</span>
-
-        Click & Watch how to unlock VIP Exclusive for Free
-
-        <span class="arrow">◀</span>
-
-      </a>
-    </div>
-
-  </div>
-
+<!-- 🔥 VIP CTA (NOW CLOSE TO VIP) -->
+<div id="vipCtaContainer">
+  <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4"
+     target="_blank"
+     class="vip-btn">
+    Click & Watch how to unlock VIP Exclusive for Free
+  </a>
 </div>
 
 <div id="normalContainer"></div>
@@ -238,7 +196,6 @@ const normalContainer = document.getElementById("normalContainer");
 
 const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
-/* SHIMMER */
 function showSkeleton(container, count = 4) {
   container.innerHTML = "";
 
@@ -254,12 +211,10 @@ function showSkeleton(container, count = 4) {
 
     box.appendChild(thumb);
     box.appendChild(text);
-
     container.appendChild(box);
   }
 }
 
-/* Extract folders */
 function extractFolders(videos) {
   const folders = {};
   videos.forEach(video => {
@@ -271,7 +226,6 @@ function extractFolders(videos) {
   return folders;
 }
 
-/* Render folders */
 function renderFolders(container, folders, isVip = false) {
   container.innerHTML = "";
 
@@ -305,10 +259,10 @@ function renderFolders(container, folders, isVip = false) {
   });
 }
 
-/* Skeleton loading */
+/* Start skeleton */
+showSkeleton(vipContainer, 2);
 showSkeleton(normalContainer, 6);
 
-/* Load data */
 Promise.all([
   fetch("vip.json").then(res => res.json()).catch(() => []),
   fetch("videos.json").then(res => res.json()).catch(() => [])
@@ -318,8 +272,10 @@ Promise.all([
   const vipFolders = extractFolders(vipVideos);
   const normalFolders = extractFolders(normalVideos);
 
-  if (Object.keys(vipFolders).length > 0) {
-    // VIP content can be rendered if needed later
+  if (Object.keys(vipFolders).length === 0) {
+    vipContainer.innerHTML = "<p>No VIP folders</p>";
+  } else {
+    renderFolders(vipContainer, vipFolders, true);
   }
 
   if (Object.keys(normalFolders).length === 0) {
@@ -331,6 +287,7 @@ Promise.all([
 })
 .catch(err => {
   console.error(err);
+  vipContainer.innerHTML = "<p>Failed to load</p>";
   normalContainer.innerHTML = "<p>Failed to load</p>";
 });
 </script>
@@ -340,30 +297,14 @@ Promise.all([
 © 2026 AnywhereCum – Legal content only. 18+<br>
 
 <div style="margin-top:8px; font-size:8px;">
-
-  <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank">
-    <img src="https://www.facebook.com/images/fb_icon_325x325.png" style="width:14px;height:14px;">
-  </a>
-
-  <span>|</span>
-
-  <a href="contact.html" style="color:#ff4444;">📨Contact</a>
-  <span>|</span>
-
-  <a href="terms-privacy.html" style="color:#ff4444;">⚖️Terms & Privacy</a>
-  <span>|</span>
-
-  <a href="/" style="color:#ff4444;">🏠Home</a>
-  <span>|</span>
-
+  <a href="contact.html" style="color:#ff4444; margin:0 5px;">📨Contact</a><span>|</span>
+  <a href="terms-privacy.html" style="color:#ff4444; margin:0 5px;">⚖️Terms & Privacy</a><span>|</span>
+  <a href="/" style="color:#ff4444; margin:0 5px;">🏠Home</a><span>|</span>
   <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" style="color:#ff4444;">
     ⬆️Back to Top
   </a>
-
 </div>
 </footer>
-
-<script type="module" src="views.js"></script>
 
 </body>
 </html>
