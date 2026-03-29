@@ -37,10 +37,41 @@ h2 {
   padding-bottom: 5px;
 }
 
-/* 🔥 LOCK CONTAINERS */
+/* LOCK CONTAINERS */
 #vipContainer,
 #normalContainer {
   overflow: hidden;
+}
+
+/* CTA BUTTON */
+.vip-btn {
+  display: block;
+  text-align: center;
+  background: linear-gradient(45deg, #ff4444, #ff0000);
+  color: #fff;
+  padding: 12px;
+  margin: 15px 0;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  position: relative;
+  overflow: hidden;
+  animation: pulse 1.5s infinite;
+}
+
+.vip-btn:hover {
+  background: linear-gradient(45deg, #ff2222, #cc0000);
+}
+
+.vip-btn .arrow {
+  margin: 0 6px;
+}
+
+/* Pulse animation */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+  100% { transform: scale(1); }
 }
 
 /* Folder styles */
@@ -70,8 +101,6 @@ h2 {
   object-fit: cover;
   border-radius: 6px;
   background: #333;
-  display: block;
-  aspect-ratio: 100 / 70;
 }
 
 .folderTitle {
@@ -84,7 +113,7 @@ h2 {
   to { opacity: 1; }
 }
 
-/* 🔥 SHIMMER */
+/* SHIMMER */
 .skeleton {
   position: relative;
   overflow: hidden;
@@ -122,7 +151,7 @@ h2 {
   padding: 8px;
   border-radius: 8px;
   margin-bottom: 10px;
-  height: 86px; /* 🔥 FIX HEIGHT */
+  height: 86px;
 }
 
 .skeletonThumb {
@@ -137,36 +166,7 @@ h2 {
   border-radius: 4px;
 }
 
-/* CTA */
-.ctaCard {
-  background: #2a2a2a;
-  border: 1px solid #ff4444;
-  border-radius: 8px;
-  padding: 10px;
-  margin: 20px 0;
-  text-align: center;
-}
-
-.ctaContent {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.ctaContent a {
-  color: #00ffcc;
-  text-decoration: none;
-  font-size: 10px;
-  font-weight: bold;
-}
-
-.arrow {
-  font-size: 18px;
-  color: #ff4444;
-}
-
-/* FOOTER FIX */
+/* FOOTER */
 footer {
   margin-top: auto;
 }
@@ -182,6 +182,15 @@ footer {
 
 <h2>Folders</h2>
 
+<!-- CTA (ABOVE VIP) -->
+<a href="#"
+   target="_blank"
+   class="vip-btn">
+  <span class="arrow">➤</span>
+  Your CTA Message Here
+  <span class="arrow">◀</span>
+</a>
+
 <div id="vipContainer"></div>
 <div id="normalContainer"></div>
 
@@ -189,24 +198,6 @@ footer {
 
 <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111;">
 © 2026 AnywhereCum – Legal content only. 18+<br>
-
-<div style="margin-top:8px; font-size:8px;">
-
-  <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank" style="margin:0 5px;">
-    <img src="https://www.facebook.com/images/fb_icon_325x325.png" style="width:14px;height:14px;">
-  </a><span>|</span>
-
-  <a href="contact.html" style="color:#ff4444; margin:0 5px;">📨Contact</a><span>|</span>
-
-  <a href="terms-privacy.html" style="color:#ff4444; margin:0 5px;">⚖️Terms & Privacy</a><span>|</span>
-
-  <a href="/" style="color:#ff4444; margin:0 5px;">🏠Home</a><span>|</span>
-
-  <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" style="color:#ff4444;">
-    ⬆️Back to Top
-  </a>
-
-</div>
 </footer>
 
 <script>
@@ -215,7 +206,7 @@ const normalContainer = document.getElementById("normalContainer");
 
 const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
-/* SHIMMER + HEIGHT LOCK */
+/* Skeleton */
 function showSkeleton(container, count = 4) {
   container.innerHTML = "";
 
@@ -234,13 +225,12 @@ function showSkeleton(container, count = 4) {
     container.appendChild(box);
   }
 
-  // 🔥 LOCK HEIGHT
   requestAnimationFrame(() => {
     container.style.height = container.scrollHeight + "px";
   });
 }
 
-/* Extract folders */
+/* Extract */
 function extractFolders(videos) {
   const folders = {};
   videos.forEach(video => {
@@ -252,8 +242,8 @@ function extractFolders(videos) {
   return folders;
 }
 
-/* Render folders */
-function renderFolders(container, folders, isVip = false) {
+/* Render */
+function renderFolders(container, folders) {
   container.innerHTML = "";
 
   Object.keys(folders).forEach(folderName => {
@@ -262,14 +252,6 @@ function renderFolders(container, folders, isVip = false) {
 
     const box = document.createElement("div");
     box.className = "folderBox";
-
-    box.onclick = () => {
-      if (isVip) {
-        window.location.href = "https://fc-lc.xyz/al0L8qyP";
-      } else {
-        window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
-      }
-    };
 
     const img = document.createElement("img");
     img.className = "thumbnail";
@@ -290,7 +272,6 @@ function renderFolders(container, folders, isVip = false) {
 showSkeleton(vipContainer, 2);
 showSkeleton(normalContainer, 6);
 
-/* LOAD DATA */
 Promise.all([
   fetch("vip.json").then(res => res.json()).catch(() => []),
   fetch("videos.json").then(res => res.json()).catch(() => [])
@@ -300,31 +281,18 @@ Promise.all([
   const vipFolders = extractFolders(vipVideos);
   const normalFolders = extractFolders(normalVideos);
 
-  if (Object.keys(vipFolders).length === 0) {
-    vipContainer.innerHTML = "<p>No VIP folders</p>";
-  } else {
-    renderFolders(vipContainer, vipFolders, true);
-  }
+  renderFolders(vipContainer, vipFolders);
+  renderFolders(normalContainer, normalFolders);
 
-  if (Object.keys(normalFolders).length === 0) {
-    normalContainer.innerHTML = "<p>No folders</p>";
-  } else {
-    renderFolders(normalContainer, normalFolders, false);
-  }
-
-  // 🔥 UNLOCK HEIGHT (after render)
   vipContainer.style.height = "auto";
   normalContainer.style.height = "auto";
 
 })
-.catch(err => {
-  console.error(err);
+.catch(() => {
   vipContainer.innerHTML = "<p>Failed to load</p>";
   normalContainer.innerHTML = "<p>Failed to load</p>";
 });
 </script>
-
-<script type="module" src="views.js"></script>
 
 </body>
 </html>
