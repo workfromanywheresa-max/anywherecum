@@ -1,9 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import {
-  getDatabase,
-  ref,
-  onValue
-} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 /* ---------------- Firebase ---------------- */
 const firebaseConfig = {
@@ -16,9 +12,8 @@ const db = getDatabase(app);
 
 /* ---------------- Worker ---------------- */
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
-const SUB_WORKER_URL = "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscriber";
 
-/* ---------------- Send Views ---------------- */
+/* ---------------- Send to Worker ---------------- */
 async function sendToWorker(type) {
   try {
     await fetch(WORKER_URL, {
@@ -31,48 +26,18 @@ async function sendToWorker(type) {
   }
 }
 
-/* ---------------- SUBSCRIBER ---------------- */
-window.saveSubscriber = function (id, subscribed) {
-  const lastState = localStorage.getItem("sub_" + id);
-
-  if (lastState === String(subscribed)) return;
-
-  localStorage.setItem("sub_" + id, subscribed);
-
-  fetch(SUB_WORKER_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId: id, subscribed })
-  }).catch(err => console.error(err));
-};
-
-/* ---------------- ONE SIGNAL ---------------- */
-window.OneSignalDeferred = window.OneSignalDeferred || [];
-
-OneSignalDeferred.push(async function(OneSignal) {
-
-  await OneSignal.init({
-    appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f",
-  });
-
-  async function handleSub() {
-    const id = OneSignal.User.PushSubscription.id;
-    const optedIn = OneSignal.User.PushSubscription.optedIn;
-
-    if (!id) return;
-
-    window.saveSubscriber(id, optedIn);
-  }
-
-  handleSub();
-
-  OneSignal.User.PushSubscription.addEventListener("change", handleSub);
-});
-
-/* ---------------- PAGE TRACK ---------------- */
+/* ---------------- Page Detection ---------------- */
 let path = window.location.pathname.toLowerCase();
-let pageName = path === "/" ? "home" : path.split("/").pop().replace(".html", "");
 
+let pageName;
+
+if (path === "/" || path === "/index.html") {
+  pageName = "home";
+} else {
+  pageName = path.split("/").filter(Boolean).pop().replace(".html", "");
+}
+
+/* ---------------- Track Page ---------------- */
 function trackPage(page) {
   const key = "page_" + page;
 
@@ -82,10 +47,56 @@ function trackPage(page) {
   sendToWorker(page);
 }
 
+/* ---------------- Preview Click Tracking ---------------- */
+function trackPreviewClick(folderName) {
+  const key = "preview_" + folderName;
+
+  if (sessionStorage.getItem(key)) return;
+
+  sessionStorage.setItem(key, "1");
+  sendToWorker(folderName);
+}
+
+window.trackPreviewClick = trackPreviewClick;
+
+/* ---------------- Detect Clicks ---------------- */
+document.addEventListener("click", function (e) {
+  const preview = e.target.closest(".folder-preview");
+
+  if (preview) {
+    const folderName = preview.getAttribute("data-folder");
+
+    if (folderName) {
+      trackPreviewClick(folderName);
+    }
+  }
+});
+
+/* ---------------- Run Page Tracking ---------------- */
 trackPage(pageName);
 
-/* ---------------- UI ---------------- */
-let viewEl = null;
+/* ---------------- Format ---------------- */
+function formatViews(num) {
+  num = Number(num);
+  if (isNaN(num)) return "0";
+
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0", "") + "M";
+  if (num >= 1000) return (num / 1000).toFixed(1).replace(".0", "") + "K";
+
+  return num;
+}
+
+/* ---------------- Cache ---------------- */
+function saveCache(key, value) {
+  localStorage.setItem(key, value);
+}
+
+function getCache(key) {
+  return localStorage.getItem(key);
+}
+
+/* ---------------- Inject UI ---------------- */
+let el = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("adminContainer");
@@ -100,16 +111,30 @@ document.addEventListener("DOMContentLoaded", () => {
       color: yellow;
       font-weight: bold;
       font-size: 8px;
+      text-decoration: none;
       z-index: 9999;
     ">
       <span id="viewNumber">👁 0</span> | Admin
     </a>
   `;
 
-  viewEl = document.getElementById("viewNumber");
+  el = document.getElementById("viewNumber");
 });
 
-/* ---------------- FIREBASE VIEWS ---------------- */
+/* ---------------- Cached Value ---------------- */
+const cachedRaw = getCache("totalViews");
+
+let cachedTotal = (!isNaN(cachedRaw) && cachedRaw !== null)
+  ? Number(cachedRaw)
+  : null;
+
+/* ---------------- FIRST LOAD ---------------- */
+let firstLoad = true;
+
+/* ---------------- LAST RENDERED VALUE ---------------- */
+let lastRenderedTotal = null;
+
+/* ---------------- Firebase ---------------- */
 const pageRef = ref(db, "pageViews");
 
 onValue(pageRef, (snapshot) => {
@@ -121,5 +146,30 @@ onValue(pageRef, (snapshot) => {
     if (typeof v === "number") total += v;
   });
 
-  if (viewEl) viewEl.textContent = `👁 ${total}`;
+  /* -------- CACHE -------- */
+  saveCache("totalViews", total);
+  saveCache("pageViewsData", JSON.stringify(data));
+
+  cachedTotal = total;
+
+  /* -------- INITIAL LOAD -------- */
+  if (firstLoad) {
+    firstLoad = false;
+    lastRenderedTotal = total;
+    return;
+  }
+
+  /* -------- UPDATE ONLY WHEN CHANGED -------- */
+  if (total !== lastRenderedTotal && el) {
+    el.textContent = `👁 ${formatViews(total)}`;
+    lastRenderedTotal = total;
+  }
+});
+
+/* ---------------- INITIAL UI ---------------- */
+document.addEventListener("DOMContentLoaded", () => {
+  if (cachedTotal !== null && el) {
+    el.textContent = `👁 ${formatViews(cachedTotal)}`;
+    lastRenderedTotal = cachedTotal;
+  }
 });
