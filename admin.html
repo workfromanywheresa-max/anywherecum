@@ -117,15 +117,15 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="cycleViewsTotal" class="value">Cycle Views: Loading...</div>
 </div>
 
-<div class="card">
-  <h2>📅 Monthly Visits</h2>
-  <ul id="monthlyList" class="monthly-box"></ul>
-</div>
-
-<!-- ✅ ADDED SUBSCRIBERS -->
+<!-- 👥 Subscribers moved UP -->
 <div class="card">
   <h2>👥 Subscribers</h2>
   <ul id="subscribersList" class="monthly-box"></ul>
+</div>
+
+<div class="card">
+  <h2>📅 Monthly Visits</h2>
+  <ul id="monthlyList" class="monthly-box"></ul>
 </div>
 
 <div class="container">
@@ -155,12 +155,12 @@ const totalEl = document.getElementById("totalViews");
 const videoEl = document.getElementById("videoViewsTotal");
 const cycleEl = document.getElementById("cycleViewsTotal");
 
-/* ---------- SUBSCRIBERS (WORKER) ---------- */
+/* ---------- SUBSCRIBERS ---------- */
 const subscribersList = document.getElementById("subscribersList");
 
 async function loadSubscribers() {
   try {
-    const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers");
+    const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/");
     const data = await res.json();
 
     renderSubscribers(data);
@@ -181,7 +181,9 @@ function renderSubscribers(data) {
     html += `
       <li>
         <span>${sub.userId || sub.key || "Unknown"}</span>
-        <span class="value">${sub.updatedAt || "N/A"}</span>
+        <span>
+          <div class="value">${sub.updatedAt || "N/A"}</div>
+        </span>
       </li>
     `;
   });
