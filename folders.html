@@ -35,7 +35,7 @@ body {
   gap: 10px;
 }
 
-/* CARD */
+/* CARD (CLICKABLE) */
 .card {
   display: flex;
   align-items: center;
@@ -43,6 +43,7 @@ body {
   background: #222;
   padding: 8px;
   border-radius: 8px;
+  cursor: pointer;
 }
 
 /* THUMB */
@@ -61,7 +62,7 @@ body {
   font-size: 13px;
 }
 
-/* SKELETON CARD */
+/* SKELETON */
 .skeleton-card {
   display: flex;
   align-items: center;
@@ -71,7 +72,6 @@ body {
   border-radius: 8px;
 }
 
-/* SKELETON THUMB */
 .skeleton-thumb {
   width: 80px;
   height: 55px;
@@ -81,7 +81,6 @@ body {
   animation: shimmer 1.2s infinite;
 }
 
-/* SKELETON TEXT */
 .skeleton-text {
   flex: 1;
   height: 14px;
@@ -91,7 +90,6 @@ body {
   animation: shimmer 1.2s infinite;
 }
 
-/* SHIMMER */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -136,7 +134,7 @@ footer {
 <!-- TITLE -->
 <h2 class="pageTitle">Folders</h2>
 
-<!-- VIP (WITH LOADER) -->
+<!-- VIP (LOADER) -->
 <div id="vipList" class="list">
   <div class="skeleton-card">
     <div class="skeleton-thumb"></div>
@@ -147,7 +145,6 @@ footer {
 <!-- FOLDERS (8 LOADERS) -->
 <div id="folderList" class="list" style="margin-top:15px;">
 
-  <!-- 8 skeleton loaders -->
   <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
   <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
   <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
@@ -206,7 +203,9 @@ async function loadVIP() {
   link.target = "_blank";
   link.textContent = vip.folder;
 
-  img.onclick = () => window.open(shortlink, "_blank");
+  card.onclick = () => {
+    window.open(shortlink, "_blank");
+  };
 
   card.appendChild(img);
   card.appendChild(link);
@@ -248,7 +247,7 @@ async function loadFolders() {
       link.href = "folder.html?folder=" + encodeURIComponent(name);
       link.textContent = name;
 
-      img.onclick = () => {
+      card.onclick = () => {
         window.location.href = link.href;
       };
 
