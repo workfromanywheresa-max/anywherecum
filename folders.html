@@ -25,70 +25,20 @@ body {
   flex: 1;
 }
 
-h2 {
-  text-align: center;
-  color: #ff4444;
-  border-bottom: 2px solid #ff4444;
-  padding-bottom: 5px;
-}
-
-.folderBox {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #222;
-  padding: 8px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  cursor: pointer;
-}
-
-.thumbnail {
-  width: 100px;
-  height: 70px;
-  object-fit: cover;
-  border-radius: 6px;
-  background: #333;
-}
-
-.folderTitle {
-  font-size: 16px;
-  color: #ddd;
-  margin: 0;
-}
-
-.vip-btn {
-  display: block;
-  text-align: center;
-  background: linear-gradient(45deg, #ff4444, #ff0000);
-  color: #fff;
-  padding: 12px;
-  margin: 10px 0;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 10px;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.03); }
-  100% { transform: scale(1); }
-}
-
-@keyframes blink {
-  50% { opacity: 0.4; }
-}
-
-/* 🔒 AD LOCK */
+/* LOCKED AD SPACE */
 .ad-space {
   width: 100%;
   display: flex;
   justify-content: center;
   margin-top: 20px;
+  opacity: 0;                /* hidden initially */
+  transition: opacity 0.5s ease;
 }
 
-/* FIXED SIZE = NO SHIFT */
+.ad-space.show {
+  opacity: 1;                /* fade in */
+}
+
 .ad-lock {
   width: 300px;
   height: 112px;
@@ -97,10 +47,8 @@ h2 {
   border: 2px solid red;
   border-radius: 8px;
   background: #fff;
-  visibility: hidden; /* hidden until loaded */
 }
 
-/* Prevent expansion */
 .ad-lock * {
   max-width: 300px !important;
   max-height: 112px !important;
@@ -121,21 +69,18 @@ footer {
 
 <div id="pageWrapper">
 
-<button onclick="history.back()">← Back</button>
+<h2 style="text-align:center; color:#ff4444;">Folders</h2>
 
-<h2>Folders</h2>
+<!-- CONTENT ABOVE -->
+<div style="height:600px;">
+  <!-- your folders load here -->
+</div>
 
-<a href="https://fc-lc.xyz/al0L8qyP" target="_blank" class="vip-btn">
-  ➤ Click & Watch how to unlock VIP Exclusive for Free ◀
-</a>
+<!-- 🔒 LOCKED BOTTOM AD -->
+<div class="ad-space" id="bottomAd">
+  <div class="ad-lock">
 
-<div id="vipContainer"></div>
-<div id="normalContainer"></div>
-
-<!-- 🔒 LOCKED BOTTOM AD (NO BLINK / NO SHIFT) -->
-<div class="ad-space">
-  <div class="ad-lock" id="adBox">
-
+    <!-- JuicyAds -->
     <script async src="https://poweredby.jads.co/js/jads.js"></script>
     <ins id="1113665" style="display:block; width:300px; height:112px;"></ins>
     <script>
@@ -164,18 +109,18 @@ footer {
 
 </div>
 
-<script>
-// Show ad AFTER page load to prevent flicker
-window.addEventListener("load", () => {
-  setTimeout(() => {
-    document.getElementById("adBox").style.visibility = "visible";
-  }, 500);
-});
-</script>
-
 <footer>
 © 2026 AnywhereCum – Legal content only. 18+
 </footer>
+
+<script>
+  // Show ad after 5 seconds
+  window.addEventListener("load", function () {
+    setTimeout(function () {
+      document.getElementById("bottomAd").classList.add("show");
+    }, 5000);
+  });
+</script>
 
 </body>
 </html>
