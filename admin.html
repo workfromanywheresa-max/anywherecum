@@ -115,6 +115,13 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="totalViews" class="value">Loading...</div>
   <div id="videoViewsTotal" class="value">Video Views: Loading...</div>
   <div id="cycleViewsTotal" class="value">Cycle Views: Loading...</div>
+  <div id="subscribersTotal" class="value">Subscribers: Loading...</div>
+</div>
+
+<!-- Subscribers moved ABOVE monthly -->
+<div class="card">
+  <h2>👥 Subscribers</h2>
+  <ul id="subscribersList"></ul>
 </div>
 
 <div class="card">
@@ -141,13 +148,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+/* ---------- REFS ---------- */
 const pageViewsRef = ref(db, "pageViews");
 const videoViewsRef = ref(db, "views");
 const cycleViewsRef = ref(db, "cycleViews");
+const subscribersRef = ref(db, "subscribers");
 
+/* ---------- ELEMENTS ---------- */
 const totalEl = document.getElementById("totalViews");
 const videoEl = document.getElementById("videoViewsTotal");
 const cycleEl = document.getElementById("cycleViewsTotal");
+const subsEl = document.getElementById("subscribersTotal");
+const subsList = document.getElementById("subscribersList");
 
 /* ---------- CACHE ---------- */
 function loadCache(key) {
@@ -164,6 +176,10 @@ function formatViews(num) {
   return num;
 }
 
+function bracket(num) {
+  return `<span style="font-size: 0.4em; opacity: 0.5;">(${num})</span>`;
+}
+
 function sumValues(data) {
   let total = 0;
   if (data) {
@@ -174,11 +190,31 @@ function sumValues(data) {
   return total;
 }
 
-function bracket(num) {
-  return `<span style="font-size: 0.4em; opacity: 0.5;">(${num})</span>`;
+/* ---------- SUBSCRIBERS ---------- */
+const cachedSubs = loadCache("subscribersData");
+
+if (cachedSubs) {
+  renderSubscribers(JSON.parse(cachedSubs));
+  subsEl.innerHTML = "Subscribers: " + getFormattedCached("subscribersTotal");
 }
 
-/* ---------- CACHE DISPLAY (FIXED) ---------- */
+function renderSubscribers(data) {
+  let html = "";
+  let count = 0;
+
+  Object.entries(data || {}).forEach(([key, value]) => {
+    count++;
+    html += `<li><span>${key}</span></li>`;
+  });
+
+  subsList.innerHTML = html;
+  subsEl.innerHTML = `Subscribers: ${formatViews(count)} ${bracket(count)}`;
+
+  saveCache("subscribersData", JSON.stringify(data));
+  saveCache("subscribersTotal", count);
+}
+
+/* ---------- CACHE DISPLAY ---------- */
 function getFormattedCached(key) {
   const val = loadCache(key);
   if (!val) return "Loading...";
@@ -186,39 +222,11 @@ function getFormattedCached(key) {
   return `${formatViews(num)} ${bracket(num)}`;
 }
 
-/* 🔥 FIXED: correct keys used */
+/* ---------- INITIAL DISPLAY ---------- */
 totalEl.innerHTML = "Site Visits: " + getFormattedCached("totalViews");
 videoEl.innerHTML = "Video Views: " + getFormattedCached("videoViewsTotal");
 cycleEl.innerHTML = "Cycle Views: " + getFormattedCached("cycleViewsTotal");
-
-/* ---------- MONTH ---------- */
-function getMonthLabel(offset) {
-  const now = new Date();
-  const d = new Date(now.getFullYear(), now.getMonth() - offset, 1);
-  return d.toLocaleString("default", { month: "long" });
-}
-
-const monthlyList = document.getElementById("monthlyList");
-
-const cachedMonthly = loadCache("monthlyTotals");
-if (cachedMonthly) renderMonthly(JSON.parse(cachedMonthly));
-
-function renderMonthly(data) {
-  let html = "";
-
-  for (let i = 0; i < 12; i++) {
-    const value = data[i] || 0;
-
-    html += `
-      <li>
-        <span>${getMonthLabel(i)}</span>
-        <span class="value">${formatViews(value)} ${bracket(value)}</span>
-      </li>
-    `;
-  }
-
-  monthlyList.innerHTML = html;
-}
+subsEl.innerHTML = "Subscribers: " + getFormattedCached("subscribersTotal");
 
 /* ---------- PAGE VIEWS ---------- */
 const pageList = document.getElementById("pageViews");
@@ -247,17 +255,6 @@ function renderPages(data) {
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val() || {};
 
-  let monthlyTotals = new Array(12).fill(0);
-  monthlyTotals[0] = sumValues(data);
-
-  renderMonthly(monthlyTotals);
-
-  saveCache("monthlyTotals", JSON.stringify(monthlyTotals));
-});
-
-onValue(pageViewsRef, (snapshot) => {
-  const data = snapshot.val() || {};
-
   renderPages(data);
 
   saveCache("pageViewsData", JSON.stringify(data));
@@ -268,22 +265,23 @@ onValue(pageViewsRef, (snapshot) => {
 onValue(videoViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val() || {});
 
-  videoEl.innerHTML = `
-    Video Views: ${formatViews(total)} ${bracket(total)}
-  `;
-
-  saveCache("videoViewsTotal", total); /* ✅ FIXED KEY */
+  videoEl.innerHTML = `Video Views: ${formatViews(total)} ${bracket(total)}`;
+  saveCache("videoViewsTotal", total);
 });
 
 /* ---------- CYCLE ---------- */
 onValue(cycleViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val() || {});
 
-  cycleEl.innerHTML = `
-    Cycle Views: ${formatViews(total)} ${bracket(total)}
-  `;
+  cycleEl.innerHTML = `Cycle Views: ${formatViews(total)} ${bracket(total)}`;
+  saveCache("cycleViewsTotal", total);
+});
 
-  saveCache("cycleViewsTotal", total); /* ✅ FIXED KEY */
+/* ---------- SUBSCRIBERS LIVE ---------- */
+onValue(subscribersRef, (snapshot) => {
+  const data = snapshot.val() || {};
+
+  renderSubscribers(data);
 });
 
 /* ---------- LOGOUT ---------- */
