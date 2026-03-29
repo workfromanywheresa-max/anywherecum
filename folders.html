@@ -211,14 +211,15 @@ animation:moveArrows 1s linear infinite;
   display: inline-block;
   border: 2px solid red;
   border-radius: 12px;
-  padding: 6px;
+  padding: 14px 6px 6px 6px; /* extra top space */
   line-height: 0;
+  background: #1a1a1a;
 ">
 
-  <!-- 🔴 LIVE badge (slightly inside, pushed down) -->
+  <!-- 🔴 LIVE badge -->
   <div style="
     position: absolute;
-    top: 4px;
+    top: -10px;
     left: 50%;
     transform: translateX(-50%);
     background: red;
@@ -228,6 +229,7 @@ animation:moveArrows 1s linear infinite;
     padding: 2px 8px;
     border-radius: 10px;
     animation: blink 1s infinite;
+    z-index: 2;
   ">
     🔴 Live
   </div>
@@ -240,17 +242,14 @@ animation:moveArrows 1s linear infinite;
   </script>
 
 </div>
+  </div>
 
-<!-- Blink animation -->
 <style>
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
 </style>
-
-  </div>
-</div>
 
 <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
 © 2026 AnywhereCum – Legal content only. 18+<br>
