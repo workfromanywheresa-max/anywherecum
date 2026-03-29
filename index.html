@@ -182,9 +182,16 @@ OneSignalDeferred.push(async function(OneSignal) {
   async function handleSub() {
     const sub = OneSignal.User.PushSubscription;
 
-    if (!sub || !sub.id) return;
+    if (!sub) return;
 
-    const id = sub.id;
+    // ✅ FIX HERE
+    const id = sub.token || sub.id;
+
+    if (!id) {
+      console.log("Waiting for subscription...", sub);
+      return;
+    }
+
     const optedIn = sub.optedIn;
 
     const lastState = localStorage.getItem("sub_" + id);
@@ -199,7 +206,12 @@ OneSignalDeferred.push(async function(OneSignal) {
     }
   }
 
+  // ✅ IMPORTANT: OneSignal loads late
+  setTimeout(handleSub, 2000);
+  setTimeout(handleSub, 5000);
+
   handleSub();
+
   OneSignal.User.PushSubscription.addEventListener("change", handleSub);
 
 });
