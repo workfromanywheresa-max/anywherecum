@@ -1,5 +1,10 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { 
+  getDatabase, 
+  ref, 
+  onValue, 
+  set 
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 /* ---------------- Firebase ---------------- */
 const firebaseConfig = {
@@ -13,6 +18,9 @@ const db = getDatabase(app);
 /* ---------------- Worker ---------------- */
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
 
+/* ---------------- NEW: Subscriber Worker ---------------- */
+const SUB_WORKER_URL = "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/";
+
 /* ---------------- Send to Worker ---------------- */
 async function sendToWorker(type) {
   try {
@@ -23,6 +31,21 @@ async function sendToWorker(type) {
     });
   } catch (err) {
     console.error("Worker tracking failed:", err);
+  }
+}
+
+/* ---------------- Send Subscriber to Worker ---------------- */
+async function sendSubToWorker(status) {
+  try {
+    await fetch(SUB_WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        type: status ? "subscribe" : "unsubscribe"
+      })
+    });
+  } catch (err) {
+    console.error("Subscriber worker failed:", err);
   }
 }
 
@@ -95,8 +118,8 @@ function getCache(key) {
   return localStorage.getItem(key);
 }
 
-/* ---------------- Inject UI ---------------- */
-let el = null;
+/* ---------------- Inject UI (ONLY VIEWS NOW) ---------------- */
+let viewEl = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("adminContainer");
@@ -118,10 +141,10 @@ document.addEventListener("DOMContentLoaded", () => {
     </a>
   `;
 
-  el = document.getElementById("viewNumber");
+  viewEl = document.getElementById("viewNumber");
 });
 
-/* ---------------- Cached Value ---------------- */
+/* ---------------- Cached Views ---------------- */
 const cachedRaw = getCache("totalViews");
 
 let cachedTotal = (!isNaN(cachedRaw) && cachedRaw !== null)
@@ -134,7 +157,7 @@ let firstLoad = true;
 /* ---------------- LAST RENDERED VALUE ---------------- */
 let lastRenderedTotal = null;
 
-/* ---------------- Firebase ---------------- */
+/* ---------------- Firebase (Views) ---------------- */
 const pageRef = ref(db, "pageViews");
 
 onValue(pageRef, (snapshot) => {
@@ -146,30 +169,48 @@ onValue(pageRef, (snapshot) => {
     if (typeof v === "number") total += v;
   });
 
-  /* -------- CACHE -------- */
+  /* CACHE */
   saveCache("totalViews", total);
   saveCache("pageViewsData", JSON.stringify(data));
 
   cachedTotal = total;
 
-  /* -------- INITIAL LOAD -------- */
   if (firstLoad) {
     firstLoad = false;
     lastRenderedTotal = total;
     return;
   }
 
-  /* -------- UPDATE ONLY WHEN CHANGED -------- */
-  if (total !== lastRenderedTotal && el) {
-    el.textContent = `👁 ${formatViews(total)}`;
+  if (total !== lastRenderedTotal && viewEl) {
+    viewEl.textContent = `👁 ${formatViews(total)}`;
     lastRenderedTotal = total;
   }
 });
 
 /* ---------------- INITIAL UI ---------------- */
 document.addEventListener("DOMContentLoaded", () => {
-  if (cachedTotal !== null && el) {
-    el.textContent = `👁 ${formatViews(cachedTotal)}`;
+  if (cachedTotal !== null && viewEl) {
+    viewEl.textContent = `👁 ${formatViews(cachedTotal)}`;
     lastRenderedTotal = cachedTotal;
   }
 });
+
+/* ========================================================= */
+/* 🔔 SUBSCRIBER TRACKING (NO UI, ONLY SAVE) */
+/* ========================================================= */
+
+window.saveSubscriber = function(userId, subscribed) {
+  if (!userId) return;
+
+  const subscriberRef = ref(db, "subscribers/" + userId);
+
+  set(subscriberRef, {
+    id: userId,
+    subscribed: subscribed
+  }).catch(err => {
+    console.error("Subscriber save failed:", err);
+  });
+
+  /* 🔥 SEND TO WORKER */
+  sendSubToWorker(subscribed);
+};
