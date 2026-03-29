@@ -45,7 +45,7 @@ body {
   border-radius: 8px;
 }
 
-/* SMALL THUMBNAIL */
+/* THUMB */
 .card img {
   width: 80px;
   height: 55px;
@@ -59,6 +59,42 @@ body {
   text-decoration: none;
   font-weight: bold;
   font-size: 13px;
+}
+
+/* SKELETON CARD */
+.skeleton-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #222;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+/* SKELETON THUMB */
+.skeleton-thumb {
+  width: 80px;
+  height: 55px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+/* SKELETON TEXT */
+.skeleton-text {
+  flex: 1;
+  height: 14px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+/* SHIMMER */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 /* AD */
@@ -100,11 +136,31 @@ footer {
 <!-- TITLE -->
 <h2 class="pageTitle">Folders</h2>
 
-<!-- VIP (TOP) -->
-<div id="vipList" class="list"></div>
+<!-- VIP (WITH LOADER) -->
+<div id="vipList" class="list">
+  <div class="skeleton-card">
+    <div class="skeleton-thumb"></div>
+    <div class="skeleton-text"></div>
+  </div>
+</div>
 
-<!-- FOLDERS -->
-<div id="folderList" class="list" style="margin-top:15px;"></div>
+<!-- FOLDERS (WITH LOADERS) -->
+<div id="folderList" class="list" style="margin-top:15px;">
+  <div class="skeleton-card">
+    <div class="skeleton-thumb"></div>
+    <div class="skeleton-text"></div>
+  </div>
+
+  <div class="skeleton-card">
+    <div class="skeleton-thumb"></div>
+    <div class="skeleton-text"></div>
+  </div>
+
+  <div class="skeleton-card">
+    <div class="skeleton-thumb"></div>
+    <div class="skeleton-text"></div>
+  </div>
+</div>
 
 <!-- AD -->
 <div class="ad-space">
@@ -125,7 +181,7 @@ footer {
 
 <script>
 
-/* ================= VIP (LATEST ONLY + SHORTLINK) ================= */
+/* ================= VIP ================= */
 async function loadVIP() {
   const res = await fetch('./vip.json');
   const data = await res.json();
