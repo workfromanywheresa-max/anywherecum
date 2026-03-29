@@ -112,7 +112,7 @@ footer {
 
 <script>
 
-/* ================= VIP (LATEST ONLY) ================= */
+/* ================= VIP (LATEST ONLY + SHORTLINK) ================= */
 async function loadVIP() {
   const res = await fetch('./vip.json');
   const data = await res.json();
@@ -135,10 +135,15 @@ async function loadVIP() {
   img.src = "https://anywherecum.pages.dev/images/" + vip.thumbnail;
 
   const link = document.createElement('a');
-  link.href = "folder.html?folder=" + encodeURIComponent(vip.folder);
+
+  // 🔥 SHORTLINK (VIP ALWAYS GOES HERE)
+  const shortlink = "https://fc-lc.xyz/al0L8qyP";
+
+  link.href = shortlink;
+  link.target = "_blank";
   link.textContent = vip.folder;
 
-  img.onclick = () => link.click();
+  img.onclick = () => window.open(shortlink, "_blank");
 
   card.appendChild(img);
   card.appendChild(link);
@@ -180,7 +185,9 @@ async function loadFolders() {
       link.href = "folder.html?folder=" + encodeURIComponent(name);
       link.textContent = name;
 
-      img.onclick = () => link.click();
+      img.onclick = () => {
+        window.location.href = link.href;
+      };
 
       card.appendChild(img);
       card.appendChild(link);
