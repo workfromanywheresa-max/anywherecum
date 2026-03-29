@@ -1,66 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AnywhereCum - Folders</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Folders</title>
 
 <style>
+html { overflow-y: scroll; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
 body {
   font-family: Arial, sans-serif;
   background: #1a1a1a;
   color: #fff;
   margin: 0;
   padding: 15px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+#pageWrapper {
+  flex: 1;
 }
 
 h2 {
   text-align: center;
   color: #ff4444;
-  border-bottom: 2px solid #ff4444;
-  padding-bottom: 5px;
 }
 
-/* GRID LIST */
+/* FOLDERS */
 ul {
   list-style: none;
   padding: 0;
-  display: grid;
-  grid-template-columns: repeat(2,1fr);
-  gap: 15px;
 }
 
 li {
-  background: #222;
-  padding: 10px;
-  border-radius: 8px;
-  text-align: center;
-  cursor: pointer;
+  margin-bottom: 15px;
 }
 
-li:hover {
-  background: #333;
-}
-
-img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 6px;
-  margin-bottom: 5px;
-}
-
-a.folder-link {
+.folder-link {
+  display: block;
+  margin-top: 5px;
   color: #fff;
   text-decoration: none;
   font-weight: bold;
 }
 
-a.folder-link:hover {
-  color: #ff4444;
+img {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 6px;
+  display: block;
 }
 
-/* AD */
+/* LOCKED AD SPACE */
 .ad-space {
   width: 100%;
   display: flex;
@@ -72,39 +67,68 @@ a.folder-link:hover {
   width: 300px;
   height: 112px;
   overflow: hidden;
-  border: 2px solid red;
+  position: relative;
   border-radius: 8px;
   background: #fff;
 }
 
+/* Prevent layout shift */
+.ad-lock * {
+  max-width: 300px !important;
+  max-height: 112px !important;
+}
+
+/* Footer */
 footer {
+  margin-top: 20px;
   text-align: center;
   padding: 20px;
   font-size: 12px;
   color: #aaa;
   background: #111;
-  margin-top: 20px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>⭐ VIP Folders</h2>
-<ul id="vipList"></ul>
+<div id="pageWrapper">
 
-<h2>📂 Content Folders</h2>
+<h2>Folders</h2>
+
 <ul id="folderList"></ul>
+
+<!-- VIP -->
+<h2 style="color: gold;">VIP</h2>
+<ul id="vipList"></ul>
 
 <!-- AD -->
 <div class="ad-space">
   <div class="ad-lock">
+
     <script async src="https://poweredby.jads.co/js/jads.js"></script>
     <ins id="1113665" style="display:block; width:300px; height:112px;"></ins>
     <script>
       (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113665});
     </script>
+
+    <div style="
+      position:absolute;
+      top:2px;
+      left:50%;
+      transform:translateX(-50%);
+      background:red;
+      color:#fff;
+      font-size:11px;
+      padding:2px 6px;
+      border-radius:4px;
+    ">
+      🔴 Live
+    </div>
+
   </div>
+</div>
+
 </div>
 
 <footer>
@@ -112,89 +136,101 @@ footer {
 </footer>
 
 <script>
-const BASE_URL = "https://anywherecum.pages.dev/images/";
+/* ================= FOLDERS ================= */
+async function loadFolders() {
+  try {
+    const res = await fetch('./videos.json');
+    const videos = await res.json();
 
-/* ================= VIP FOLDERS ================= */
-fetch('./vip.json')
-.then(res => res.json())
-.then(data => {
-  const vipList = document.getElementById("vipList");
-  vipList.innerHTML = "";
+    const folders = {};
 
-  data.forEach(vip => {
-    const li = document.createElement("li");
+    videos.forEach(v => {
+      if (!folders[v.folder]) folders[v.folder] = [];
+      folders[v.folder].push(v);
+    });
 
-    const img = document.createElement("img");
-    img.src = BASE_URL + vip.thumbnail;
+    const folderList = document.getElementById('folderList');
+    folderList.innerHTML = '';
 
-    const link = document.createElement("a");
-    link.className = "folder-link";
-    link.href = "folder.html?folder=" + encodeURIComponent(vip.folder);
-    link.textContent = vip.folder;
+    Object.keys(folders).sort().forEach(folderName => {
 
-    img.onclick = () => link.click();
-    link.onclick = (e) => {
-      e.preventDefault();
-      window.location.href = link.href;
-    };
+      const vids = folders[folderName].sort(
+        (a,b)=> new Date(b.date) - new Date(a.date)
+      );
 
-    li.appendChild(img);
-    li.appendChild(link);
-    vipList.appendChild(li);
-  });
-})
-.catch(err => console.error("VIP load error:", err));
+      const latest = vids[0];
 
+      const li = document.createElement('li');
 
-/* ================= NORMAL FOLDERS ================= */
-fetch('./videos.json')
-.then(res => res.json())
-.then(videos => {
+      const img = document.createElement('img');
+      img.src = "https://anywherecum.pages.dev/images/" + latest.thumbnail;
 
-  const folders = {};
+      const link = document.createElement('a');
+      link.className = "folder-link";
+      link.href = "folder.html?folder=" + encodeURIComponent(folderName);
+      link.textContent = folderName;
 
-  // Group videos into folders
-  videos.forEach(v => {
-    if (!folders[v.folder]) folders[v.folder] = [];
-    folders[v.folder].push(v);
-  });
+      img.onclick = () => link.click();
+      link.onclick = (e) => {
+        e.preventDefault();
+        window.location.href = link.href;
+      };
 
-  const folderList = document.getElementById("folderList");
-  folderList.innerHTML = "";
+      li.appendChild(img);
+      li.appendChild(link);
 
-  Object.keys(folders)
-  .sort()
-  .forEach(folderName => {
+      folderList.appendChild(li);
+    });
 
-    const folderVideos = folders[folderName];
+  } catch (err) {
+    console.error("Folder load error:", err);
+  }
+}
 
-    // Get latest video
-    folderVideos.sort((a,b) => new Date(b.date) - new Date(a.date));
-    const latest = folderVideos[0];
+/* ================= VIP ================= */
+async function loadVIP() {
+  try {
+    const res = await fetch('./vip.json');
+    const videos = await res.json();
 
-    const li = document.createElement("li");
+    const container = document.getElementById('vipList');
+    container.innerHTML = '';
 
-    const img = document.createElement("img");
-    img.src = BASE_URL + latest.thumbnail;
+    videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
 
-    const link = document.createElement("a");
-    link.className = "folder-link";
-    link.href = "folder.html?folder=" + encodeURIComponent(folderName);
-    link.textContent = folderName;
+    videos.forEach(vip => {
+      const li = document.createElement('li');
 
-    img.onclick = () => link.click();
-    link.onclick = (e) => {
-      e.preventDefault();
-      window.location.href = link.href;
-    };
+      const img = document.createElement('img');
+      img.src = "https://anywherecum.pages.dev/images/" + vip.thumbnail;
 
-    li.appendChild(img);
-    li.appendChild(link);
-    folderList.appendChild(li);
-  });
+      const link = document.createElement('a');
+      link.className = "folder-link";
+      link.href = "folder.html?folder=" + encodeURIComponent(vip.folder);
+      link.textContent = vip.folder;
 
-})
-.catch(err => console.error("Folder load error:", err));
+      img.onclick = () => link.click();
+      link.onclick = (e) => {
+        e.preventDefault();
+        window.location.href = link.href;
+      };
+
+      li.appendChild(img);
+      li.appendChild(link);
+
+      container.appendChild(li);
+    });
+
+  } catch (err) {
+    console.error("VIP load error:", err);
+  }
+}
+
+/* ================= INIT ================= */
+window.addEventListener('load', () => {
+  loadFolders();
+  loadVIP();
+});
 </script>
 
 </body>
