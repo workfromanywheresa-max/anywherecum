@@ -23,7 +23,7 @@ body {
 
 #pageWrapper {
   flex: 1;
-  padding-bottom: 140px; /* space for fixed bottom ad */
+  padding-bottom: 40px;
 }
 
 h2 {
@@ -86,6 +86,10 @@ h2 {
   100% { transform: scale(1); }
 }
 
+@keyframes blink {
+  50% { opacity: 0.4; }
+}
+
 .skeleton {
   width: 100%;
   height: 100%;
@@ -107,11 +111,6 @@ footer {
   font-size: 12px;
   color: #aaa;
   background: #111;
-}
-
-/* Blink animation for live badge */
-@keyframes blink {
-  50% { opacity: 0.4; }
 }
 </style>
 </head>
@@ -145,18 +144,12 @@ footer {
 <div id="vipContainer"></div>
 <div id="normalContainer"></div>
 
-</div>
-
-<!-- 🔥 FIXED BOTTOM AD (no layout shift) -->
+<!-- 🔥 BOTTOM AD (ABOVE FOOTER) -->
 <div style="
-  position: fixed;
-  bottom: 0;
-  left: 0;
   width: 100%;
   display: flex;
   justify-content: center;
-  z-index: 9999;
-  pointer-events: none;
+  margin: 20px 0 0 0;
 ">
 
   <div style="
@@ -167,7 +160,6 @@ footer {
     overflow: hidden;
     background: #fff;
     position: relative;
-    pointer-events: auto;
   ">
 
     <!-- JuicyAds -->
@@ -196,6 +188,8 @@ footer {
     </div>
 
   </div>
+</div>
+
 </div>
 
 <script>
