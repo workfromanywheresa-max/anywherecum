@@ -16,7 +16,16 @@ const config = window.VIDEO_CONFIG || {};
 const folderName = (config.folder || "").toLowerCase();
 const dataSource = config.dataSource || "videos.json";
 
-/* Title */
+/* ---------------- CACHE ---------------- */
+function saveCache(key, value) {
+  localStorage.setItem(key, value);
+}
+
+function getCache(key) {
+  return localStorage.getItem(key);
+}
+
+/* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
   return str
     .toLowerCase()
@@ -31,14 +40,17 @@ if (folderName) {
   document.getElementById("folderTitle").textContent = "🔐VIP Exclusive";
 }
 
-/* Format Views */
+/* ---------------- FORMAT ---------------- */
 function formatViews(num) {
+  num = Number(num);
+  if (isNaN(num)) return "0";
+
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0", "") + "M";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(".0", "") + "K";
   return num;
 }
 
-/* Worker */
+/* ---------------- WORKER ---------------- */
 async function sendToWorker(videoId) {
   try {
     await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
@@ -51,27 +63,30 @@ async function sendToWorker(videoId) {
   }
 }
 
-/* Increase Views */
 function increaseViews(videoId) {
   if (TEST_MODE) return;
   sendToWorker("clicked_" + videoId);
 }
 
-/* Containers */
+/* ---------------- CONTAINERS ---------------- */
 const trendingContainer = document.getElementById("trendingVideos");
 const normalContainer = document.getElementById("normalVideos");
 
 const videoElements = {};
 
-/* UI update */
+/* ---------------- UI UPDATE ---------------- */
 function updateUI(id) {
   const v = videoElements[id];
   if (!v) return;
 
   const total = v.totalViews || 0;
   const cycle = v.cycleViews || 0;
-  const isTrending = cycle >= 10;
 
+  /* -------- CACHE -------- */
+  saveCache("views_" + id, total);
+  saveCache("cycle_" + id, cycle);
+
+  const isTrending = cycle >= 10;
   const target = isTrending ? trendingContainer : normalContainer;
 
   if (v.box.parentElement !== target) {
@@ -82,14 +97,18 @@ function updateUI(id) {
     }
   }
 
-  v.views.textContent = isTrending
+  const newText = isTrending
     ? `🔥 Trending | 👁 ${formatViews(total)}`
     : `👁 ${formatViews(total)}`;
 
-  v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
+  /* -------- UPDATE ONLY IF CHANGED -------- */
+  if (v.views.textContent !== newText) {
+    v.views.textContent = newText;
+    v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
+  }
 }
 
-/* Load Videos */
+/* ---------------- LOAD VIDEOS ---------------- */
 fetch(dataSource)
 .then(res => res.json())
 .then(videos => {
@@ -106,10 +125,8 @@ fetch(dataSource)
     const wrapper = document.createElement("div");
     wrapper.className = "videoFrameWrapper";
 
-    /* Thumbnail */
     const thumb = document.createElement("img");
 
-    // ✅ FIXED: load directly from images folder using filename
     thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(v.thumbnail)}`;
 
     thumb.onclick = () => {
@@ -125,7 +142,6 @@ fetch(dataSource)
 
     wrapper.appendChild(thumb);
 
-    /* TITLE */
     const title = document.createElement("h3");
     title.className = "videoTitle";
     title.textContent = v.title;
@@ -135,12 +151,18 @@ fetch(dataSource)
       window.open(v.url, "_blank");
     };
 
-    /* VIEWS */
     const views = document.createElement("div");
     views.className = "views";
-    views.textContent = "👁 0";
 
-    /* DOWNLOAD */
+    /* -------- LOAD CACHE FIRST -------- */
+    const cachedViews = getCache("views_" + v.id);
+    const cachedCycle = getCache("cycle_" + v.id);
+
+    let initialViews = cachedViews ? Number(cachedViews) : 0;
+    let initialCycle = cachedCycle ? Number(cachedCycle) : 0;
+
+    views.textContent = `👁 ${formatViews(initialViews)}`;
+
     const btn = document.createElement("a");
     btn.className = "download";
     btn.href = "#";
@@ -162,11 +184,11 @@ fetch(dataSource)
     videoElements[v.id] = {
       box,
       views,
-      totalViews: 0,
-      cycleViews: 0
+      totalViews: initialViews,
+      cycleViews: initialCycle
     };
 
-    /* Firebase listeners */
+    /* -------- FIREBASE LISTENERS -------- */
     onValue(ref(db, "views/" + v.id), snap => {
       videoElements[v.id].totalViews = snap.val() || 0;
       updateUI(v.id);
