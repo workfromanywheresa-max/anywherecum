@@ -164,11 +164,13 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
 <script>
 window.OneSignalDeferred = window.OneSignalDeferred || [];
 
-/* ================= ADD THIS ================= */
-const NOTIFICATION_WORKER = "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/";
+/* ================= FIXED ================= */
+const NOTIFICATION_WORKER = "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscriber";
 
 window.saveSubscriber = async function(userId, optedIn) {
   try {
@@ -178,7 +180,6 @@ window.saveSubscriber = async function(userId, optedIn) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        type: "subscriber",
         userId: userId,
         subscribed: optedIn ? 1 : 0
       })
@@ -187,7 +188,7 @@ window.saveSubscriber = async function(userId, optedIn) {
     console.error("Subscriber Worker failed:", err);
   }
 };
-/* ========================================== */
+/* ========================================= */
 
 OneSignalDeferred.push(async function(OneSignal) {
 
@@ -208,18 +209,14 @@ OneSignalDeferred.push(async function(OneSignal) {
     if (!id) return;
 
     const lastState = localStorage.getItem("sub_" + id);
-
     if (lastState === String(optedIn)) return;
 
     localStorage.setItem("sub_" + id, optedIn);
 
-    if (window.saveSubscriber) {
-      window.saveSubscriber(id, optedIn);
-    }
+    window.saveSubscriber(id, optedIn);
   }
 
   handleSub();
-
   OneSignal.User.PushSubscription.addEventListener("change", handleSub);
 
 });
