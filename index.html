@@ -163,6 +163,7 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
   </style>
 
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
 <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(async function(OneSignal) {
@@ -171,10 +172,11 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
       safari_web_id: "web.onesignal.auto.597eddd1-7088-4460-8312-f4c61675b8f7",
       notifyButton: {
         enable: true,
+        position: "top-left" // 👈 this moves the bell
       },
     });
   });
-</script>
+                         </script>
   
 </head>
 <body>
