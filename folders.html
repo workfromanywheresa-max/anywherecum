@@ -14,7 +14,6 @@ html {
   box-sizing: border-box;
 }
 
-/* ✅ FLEX LAYOUT = NO FOOTER SHIFT */
 body {
   font-family: Arial, sans-serif;
   background: #1a1a1a;
@@ -27,12 +26,10 @@ body {
   min-height: 100vh;
 }
 
-/* PAGE WRAPPER TAKES AVAILABLE SPACE */
 #pageWrapper {
   flex: 1;
 }
 
-/* TITLE */
 h2 {
   text-align: center;
   color: #ff4444;
@@ -40,13 +37,10 @@ h2 {
   padding-bottom: 5px;
 }
 
-/* RESERVED SPACE = NO SHIFT */
-#vipContainer {
-  min-height: 120px;
-}
-
+/* 🔥 LOCK CONTAINERS */
+#vipContainer,
 #normalContainer {
-  min-height: 300px;
+  overflow: hidden;
 }
 
 /* Folder styles */
@@ -76,6 +70,8 @@ h2 {
   object-fit: cover;
   border-radius: 6px;
   background: #333;
+  display: block;
+  aspect-ratio: 100 / 70;
 }
 
 .folderTitle {
@@ -88,7 +84,7 @@ h2 {
   to { opacity: 1; }
 }
 
-/* 🔥 SHIMMER SKELETON */
+/* 🔥 SHIMMER */
 .skeleton {
   position: relative;
   overflow: hidden;
@@ -126,6 +122,7 @@ h2 {
   padding: 8px;
   border-radius: 8px;
   margin-bottom: 10px;
+  height: 86px; /* 🔥 FIX HEIGHT */
 }
 
 .skeletonThumb {
@@ -169,7 +166,7 @@ h2 {
   color: #ff4444;
 }
 
-/* FOOTER FIX (NO SHIFT) */
+/* FOOTER FIX */
 footer {
   margin-top: auto;
 }
@@ -218,7 +215,7 @@ const normalContainer = document.getElementById("normalContainer");
 
 const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
 
-/* SHIMMER */
+/* SHIMMER + HEIGHT LOCK */
 function showSkeleton(container, count = 4) {
   container.innerHTML = "";
 
@@ -236,6 +233,11 @@ function showSkeleton(container, count = 4) {
     box.appendChild(text);
     container.appendChild(box);
   }
+
+  // 🔥 LOCK HEIGHT
+  requestAnimationFrame(() => {
+    container.style.height = container.scrollHeight + "px";
+  });
 }
 
 /* Extract folders */
@@ -309,6 +311,10 @@ Promise.all([
   } else {
     renderFolders(normalContainer, normalFolders, false);
   }
+
+  // 🔥 UNLOCK HEIGHT (after render)
+  vipContainer.style.height = "auto";
+  normalContainer.style.height = "auto";
 
 })
 .catch(err => {
