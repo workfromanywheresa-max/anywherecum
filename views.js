@@ -17,21 +17,26 @@ window.saveSubscriber = async function(userId, optedIn) {
   try {
     console.log("Saving subscriber:", userId, optedIn);
 
-    await fetch(SUBSCRIBER_WORKER, {
+    const res = await fetch(SUBSCRIBER_WORKER, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        userId: userId,
+        userId,
         subscribed: optedIn ? 1 : 0
       })
     });
+
+    // ✅ DEBUG (IMPORTANT)
+    const text = await res.text();
+    console.log("Worker response:", text);
 
   } catch (err) {
     console.error("Subscriber Worker failed:", err);
   }
 };
+
 /* ===================================================== */
 
 
