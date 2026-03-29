@@ -60,22 +60,36 @@ li {
   cursor: pointer;
 }
 
-/* Subscribers */
-#subscriberList {
-  max-height: 220px;
+.monthly-box {
+  max-height: 120px;
+  min-height: 120px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+#pageViews {
+  max-height: 300px;
+  min-height: 300px;
   overflow-y: auto;
 }
 
-#subscriberList li {
-  flex-direction: column;
-  align-items: flex-start;
-  height: auto;
-  padding: 10px 0;
+#subscribersList {
+  max-height: 200px;
+  min-height: 200px;
+  overflow-y: auto;
 }
 
-.small-date {
-  font-size: 11px;
-  opacity: 0.6;
+.monthly-box::-webkit-scrollbar,
+#pageViews::-webkit-scrollbar,
+#subscribersList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.monthly-box::-webkit-scrollbar-thumb,
+#pageViews::-webkit-scrollbar-thumb,
+#subscribersList::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
 }
 </style>
 </head>
@@ -109,16 +123,17 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="totalViews" class="value">Loading...</div>
   <div id="videoViewsTotal" class="value">Video Views: Loading...</div>
   <div id="cycleViewsTotal" class="value">Cycle Views: Loading...</div>
+</div>
 
-  <br><br>
-
-  <h2>👥 Subscribers (Live)</h2>
-  <ul id="subscriberList"></ul>
+<!-- ✅ SUBSCRIBERS (NEW) -->
+<div class="card">
+  <h2>👥 Subscribers</h2>
+  <ul id="subscribersList"></ul>
 </div>
 
 <div class="card">
   <h2>📅 Monthly Visits</h2>
-  <ul id="monthlyList"></ul>
+  <ul id="monthlyList" class="monthly-box"></ul>
 </div>
 
 <div class="container">
@@ -140,50 +155,61 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ---------- SUBSCRIBERS ---------- */
-const subscriberList = document.getElementById("subscriberList");
-
-const source = new EventSource("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers-stream");
-
-source.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  renderSubscribers(data);
-};
-
-function renderSubscribers(data) {
-  if (!Array.isArray(data)) return;
-
-  // 🔥 SORT BY DATE (NEWEST FIRST)
-  data.sort((a, b) => {
-    return new Date(b.updatedAt) - new Date(a.updatedAt);
-  });
-
-  let html = "";
-
-  data.forEach(sub => {
-    const shortId = sub.userId ? sub.userId.slice(0, 6) + "..." : "unknown";
-    const date = sub.updatedAt ? new Date(sub.updatedAt).toLocaleString() : "N/A";
-
-    html += `
-      <li>
-        <div>${shortId}</div>
-        <div class="small-date">${date}</div>
-        <div class="value">${sub.subscribed ? "Active" : "Inactive"}</div>
-      </li>
-    `;
-  });
-
-  subscriberList.innerHTML = html;
-}
-
-/* ---------- FIREBASE ---------- */
 const pageViewsRef = ref(db, "pageViews");
 const videoViewsRef = ref(db, "views");
 const cycleViewsRef = ref(db, "cycleViews");
 
-const totalEl = document.getElementById("totalViews");
-const videoEl = document.getElementById("videoViewsTotal");
-const cycleEl = document.getElementById("cycleViewsTotal");
+/* ---------- SUBSCRIBERS ---------- */
+const subscribersList = document.getElementById("subscribersList");
+
+async function loadSubscribers() {
+  try {
+    const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers");
+    const data = await res.json();
+
+    renderSubscribers(data);
+  } catch (err) {
+    console.error(err);
+    subscribersList.innerHTML = "<li>Error loading subscribers</li>";
+  }
+}
+
+function renderSubscribers(data) {
+  if (!Array.isArray(data) || data.length === 0) {
+    subscribersList.innerHTML = "<li>No subscribers</li>";
+    return;
+  }
+
+  data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+  let html = "";
+
+  data.forEach(sub => {
+    html += `
+      <li>
+        <span>
+          ${sub.userId}
+          <br>
+          <small style="opacity:0.6">${sub.updatedAt || "No date"}</small>
+        </span>
+      </li>
+    `;
+  });
+
+  subscribersList.innerHTML = html;
+}
+
+loadSubscribers();
+setInterval(loadSubscribers, 30000);
+
+/* ---------- CACHE ---------- */
+function loadCache(key) {
+  return localStorage.getItem(key);
+}
+
+function saveCache(key, value) {
+  localStorage.setItem(key, value);
+}
 
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
@@ -201,19 +227,91 @@ function sumValues(data) {
   return total;
 }
 
+function bracket(num) {
+  return `<span style="font-size: 0.4em; opacity: 0.5;">(${num})</span>`;
+}
+
+/* ---------- TOTAL ---------- */
+const totalEl = document.getElementById("totalViews");
+const videoEl = document.getElementById("videoViewsTotal");
+const cycleEl = document.getElementById("cycleViewsTotal");
+
+totalEl.innerHTML = "Site Visits: " + (loadCache("totalViews") || "Loading...");
+videoEl.innerHTML = "Video Views: " + (loadCache("videoViews") || "Loading...");
+cycleEl.innerHTML = "Cycle Views: " + (loadCache("cycleViews") || "Loading...");
+
+/* ---------- MONTH ---------- */
+function getMonthLabel(offset) {
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+  return d.toLocaleString("default", { month: "long" });
+}
+
+const monthlyList = document.getElementById("monthlyList");
+
+function renderMonthly(data) {
+  let html = "";
+
+  for (let i = 0; i < 12; i++) {
+    const value = data[i] || 0;
+
+    html += `
+      <li>
+        <span>${getMonthLabel(i)}</span>
+        <span class="value">${formatViews(value)} ${bracket(value)}</span>
+      </li>
+    `;
+  }
+
+  monthlyList.innerHTML = html;
+}
+
+/* ---------- PAGE VIEWS ---------- */
+const pageList = document.getElementById("pageViews");
+
+function renderPages(data) {
+  const items = Object.entries(data || {})
+    .map(([key, value]) => [key, typeof value === "number" ? value : 0])
+    .sort((a, b) => b[1] - a[1]);
+
+  let html = "";
+
+  items.forEach(([key, value]) => {
+    html += `<li>
+      <span>${key}</span>
+      <span class="value">${formatViews(value)} ${bracket(value)}</span>
+    </li>`;
+  });
+
+  pageList.innerHTML = html;
+}
+
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val() || {};
-  totalEl.innerHTML = "Site Visits: " + formatViews(sumValues(data));
+
+  let monthlyTotals = new Array(12).fill(0);
+  monthlyTotals[0] = sumValues(data);
+
+  renderMonthly(monthlyTotals);
+  renderPages(data);
+
+  saveCache("monthlyTotals", JSON.stringify(monthlyTotals));
+  saveCache("pageViewsData", JSON.stringify(data));
+  saveCache("totalViews", sumValues(data));
 });
 
+/* ---------- VIDEO ---------- */
 onValue(videoViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val() || {});
-  videoEl.innerHTML = "Video Views: " + formatViews(total);
+  videoEl.innerHTML = `Video Views: ${formatViews(total)} ${bracket(total)}`;
+  saveCache("videoViews", total);
 });
 
+/* ---------- CYCLE ---------- */
 onValue(cycleViewsRef, (snapshot) => {
   const total = sumValues(snapshot.val() || {});
-  cycleEl.innerHTML = "Cycle Views: " + formatViews(total);
+  cycleEl.innerHTML = `Cycle Views: ${formatViews(total)} ${bracket(total)}`;
+  saveCache("cycleViews", total);
 });
 
 /* ---------- LOGOUT ---------- */
