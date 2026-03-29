@@ -33,22 +33,15 @@ async function sendToWorker(type) {
   }
 }
 
-/* ---------------- Subscriber (SUBSCRIBE / UNSUBSCRIBE) ---------------- */
-async function sendSubToWorker(subscribed) {
-  let userId = localStorage.getItem("userId");
-
-  if (!userId) {
-    userId = crypto.randomUUID();
-    localStorage.setItem("userId", userId);
-  }
-
+/* ---------------- Subscriber ---------------- */
+async function sendSubToWorker(userId, subscribed) {
   try {
     await fetch(SUB_WORKER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userId,
-        subscribed: subscribed
+        subscribed
       })
     });
   } catch (err) {
@@ -56,10 +49,18 @@ async function sendSubToWorker(subscribed) {
   }
 }
 
-/* ---------------- Toggle Subscribe ---------------- */
-window.saveSubscriber = function (subscribed) {
-  localStorage.setItem("subscribed", subscribed);
-  sendSubToWorker(subscribed);
+/* ---------------- OneSignal Compatible Function ---------------- */
+window.saveSubscriber = function (id, subscribed) {
+  // Use OneSignal ID as the key (already unique)
+
+  const lastState = localStorage.getItem("sub_" + id);
+
+  // Prevent duplicate sends
+  if (lastState === String(subscribed)) return;
+
+  localStorage.setItem("sub_" + id, subscribed);
+
+  sendSubToWorker(id, subscribed);
 };
 
 /* ---------------- Page Detection ---------------- */
