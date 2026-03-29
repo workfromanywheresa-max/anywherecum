@@ -117,10 +117,10 @@ if (!localStorage.getItem("adminLoggedIn")) {
 <div class="total-card">
   <h2>🔥 Total Views</h2>
 
-  <div id="totalViews" class="value">Loading...</div>
-  <div id="videoViewsTotal" class="value">Video Views: Loading...</div>
-  <div id="cycleViewsTotal" class="value">Cycle Views: Loading...</div>
-  <div id="totalSubscribers" class="value">Subscribers: Loading...</div>
+  <div id="totalViews" class="value">Site Visits: 0 (0)</div>
+  <div id="videoViewsTotal" class="value">Video Views: 0 (0)</div>
+  <div id="cycleViewsTotal" class="value">Cycle Views: 0 (0)</div>
+  <div id="totalSubscribers" class="value">Subscribers: 0 (0)</div>
 </div>
 
 <!-- 👥 Subscribers -->
@@ -181,11 +181,23 @@ function bracket(num) {
   return `<span style="font-size:0.4em;opacity:0.5;">(${num})</span>`;
 }
 
-/* ---------- SUBSCRIBERS ---------- */
+/* ---------- SUBSCRIBERS (NO BLINK FIX) ---------- */
+let lastSubscribersHash = "";
+
+function subscribersHash(data) {
+  return JSON.stringify(data || []);
+}
+
 async function loadSubscribers() {
   try {
     const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers");
     const data = await res.json();
+
+    const newHash = subscribersHash(data);
+
+    if (newHash === lastSubscribersHash) return;
+    lastSubscribersHash = newHash;
+
     renderSubscribers(data);
   } catch (err) {
     console.error(err);
@@ -197,21 +209,23 @@ function renderSubscribers(data) {
 
   data.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
 
-  let html = "";
+  const html = data.map(sub => `
+    <li>
+      <span>${sub.userId || "Unknown"}</span>
+      <span class="sub-date">${sub.updatedAt || "N/A"}</span>
+    </li>
+  `).join("");
 
-  data.forEach(sub => {
-    html += `
-      <li>
-        <span>${sub.userId || "Unknown"}</span>
-        <span class="sub-date">${sub.updatedAt || "N/A"}</span>
-      </li>
-    `;
-  });
-
-  subscribersList.innerHTML = html;
+  if (subscribersList.innerHTML !== html) {
+    subscribersList.innerHTML = html;
+  }
 
   const totalSubs = data.length;
-  subscribersTotalEl.innerHTML = `Subscribers: ${formatViews(totalSubs)} ${bracket(totalSubs)}`;
+  const newText = `Subscribers: ${formatViews(totalSubs)} (${totalSubs})`;
+
+  if (subscribersTotalEl.textContent !== newText) {
+    subscribersTotalEl.textContent = newText;
+  }
 }
 
 loadSubscribers();
@@ -290,12 +304,6 @@ if (cachedMonthly) renderMonthly(JSON.parse(cachedMonthly));
 const pageViewsRef = ref(db, "pageViews");
 const videoViewsRef = ref(db, "views");
 const cycleViewsRef = ref(db, "cycleViews");
-
-let lastHash = "";
-
-function hash(data) {
-  return JSON.stringify(data || {});
-}
 
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val() || {};
