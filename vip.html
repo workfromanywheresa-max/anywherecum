@@ -165,6 +165,7 @@ footer div a img {
 
 <!-- VIDEOS CONTAINER WITH SKELETONS -->
 <div id="normalVideos">
+  <!-- Skeleton placeholders -->
   <div class="videoBox skeleton-video">
     <div class="videoFrameWrapper skeleton-frame"></div>
     <div class="videoTitle skeleton-text"></div>
@@ -205,9 +206,7 @@ window.VIDEO_CONFIG = {
   folder: params.get("folder") || ""
 };
 
-const IMAGE_BASE = "https://anywherecum.pages.dev/images/";
-
-// Function to remove skeletons and render videos
+// Function to remove skeletons and append videos
 function renderVideos(videos) {
   const container = document.getElementById("normalVideos");
   container.innerHTML = ""; // Remove skeletons
@@ -218,9 +217,8 @@ function renderVideos(videos) {
 
     const wrapper = document.createElement("div");
     wrapper.className = "videoFrameWrapper";
-
     const thumb = document.createElement("img");
-    thumb.src = IMAGE_BASE + encodeURIComponent(v.thumbnail);
+    thumb.src = v.thumbnail;
     thumb.onclick = () => {
       const iframe = document.createElement("iframe");
       iframe.src = v.embed;
