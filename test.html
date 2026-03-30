@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnywhereCum - Browse Video Folders & Exclusive Content</title>
+
+  <!-- Favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="https://anywherecum.pages.dev/images/favicon.webp">
+<link rel="apple-touch-icon" href="https://anywherecum.pages.dev/images/favicon.webp">
+<link rel="shortcut icon" href="https://anywherecum.pages.dev/images/favicon.webp">
+
+<!-- SEO Meta -->
+<meta name="description" content="Browse categorized video folders and explore exclusive video content. Fast, organized video library with easy navigation and latest uploads.">
+<meta name="keywords" content="video folders, browse video collections, exclusive video content, online video library, categorized videos, media streaming folders, video directory">
+<meta name="robots" content="index, follow">
+<meta name="author" content="AnywhereCum">
+<link rel="canonical" href="https://anywherecum.pages.dev/">
+
+<!-- Open Graph (Social Sharing) -->
+<meta property="og:title" content="AnywhereCum - Video Folders & Exclusive Content">
+<meta property="og:description" content="Browse categorized video folders and discover exclusive video content in a fast and organized layout.">
+<meta property="og:url" content="https://anywherecum.pages.dev/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://anywherecum.pages.dev/images/header-image.webp">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AnywhereCum">
+<meta name="twitter:description" content="Browse video folders and exclusive content easily.">
+<meta name="twitter:image" content="https://anywherecum.pages.dev/images/header-image.webp">
+
+<meta name="juicyads-site-verification" content="fedca85ac4a54612547b4245f3a820ff">
+  
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "AnywhereCum",
+  "url": "https://anywherecum.pages.dev/",
+  "description": "Browse categorized video folders and exclusive content.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://anywherecum.pages.dev/?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
+  <style>
+    #vipList {
+  margin-bottom: 0;
+  padding: 0;
+}
+
+#vipCTA {
+  margin-top: 10px;
+}
+    </Style>
+
+<style>
+body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; margin: 0; padding: 15px; }
+header { text-align: center; padding: 5px 10px; background: #111; }
+header h1 { color: #ff4444; margin: 2px 0; font-size: 20px; }
+header p { margin: 0 0 2px 0; font-size: 12px; }
+
+#visitSite { font-size: 12px; text-align: center; margin-bottom: 10px; }
+#visitSite a { color: #ff4444; text-decoration: none; font-weight: bold; animation: flash 1s infinite alternate; position: relative; padding: 0 25px; display: inline-block; font-size: 12px; }
+#visitSite a::before { content: "➤"; position: absolute; left: 5px; animation: bounceLeft 1s infinite alternate; }
+#visitSite a::after { content: "◀"; position: absolute; right: 5px; animation: bounceRight 1s infinite alternate; }
+#visitSite a:hover { color: #fff; text-decoration: underline; }
+
+h2 { color: #ff4444; border-bottom: 2px solid #ff4444; padding-bottom: 5px; margin-top:20px; margin-bottom: 5px; text-align: center; }
+
+ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; }
+li { background: #222; padding: 10px; border-radius: 8px; text-align: center; transition: 0.3s; cursor: pointer; }
+li:hover { background: #333; }
+
+a.folder-link { color: #fff; font-weight: bold; text-decoration: none; display: block; margin-top: 5px; }
+a.folder-link:hover { color: #ff4444; text-decoration: underline; }
+
+.blogspot-style-link { color: #fff; font-weight: bold; text-decoration: none; font-size: 12px; display: inline-block; animation: flash 1s infinite alternate; position: relative; padding: 0 25px; }
+.blogspot-style-link::before { content: "➤"; position: absolute; left: 5px; animation: bounceLeft 1s infinite alternate; }
+.blogspot-style-link::after { content: "◀"; position: absolute; right: 5px; animation: bounceRight 1s infinite alternate; }
+.blogspot-style-link:hover { color: #ff4444; text-decoration: underline; }
+
+#latestVideo { margin-bottom: 20px; }
+#vipList li img, #folderList li img { width: 100%; height: 180px; border-radius: 5px; object-fit: cover; margin-bottom: 5px; }
+
+/* Skeleton Loader Styles */
+.skeleton { background: #333; border-radius: 5px; position: relative; overflow: hidden; }
+.skeleton::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); animation: loading 1.5s infinite; }
+
+/* Header Skeleton for header image only */
+#headerSkeleton {
+  background: #333;           
+  border-radius: 8px;         
+  width: 720px;               
+  max-width: 100%;            
+  height: 90px;              
+  margin: 5px auto;           
+  position: relative;
+  overflow: hidden;
+}
+#headerSkeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
+
+footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; background: #111; margin-top: 10px; }
+@media(max-width:600px){ ul { grid-template-columns: 1fr; } }
+.folder-grid { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; margin: 0; }
+@media(max-width:600px){ .folder-grid { grid-template-columns: 1fr; } }
+
+@keyframes flash { 0% { text-shadow: 0 0 5px #ff4444; } 50% { text-shadow: 0 0 20px #ff4444, 0 0 30px #ff8888; } 100% { text-shadow: 0 0 5px #ff4444; } }
+@keyframes bounceLeft { 0% { transform: translateX(0); } 50% { transform: translateX(5px); } 100% { transform: translateX(0); } }
+@keyframes bounceRight { 0% { transform: translateX(0); } 50% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+.blink { animation: blink 1s infinite; }
+@keyframes blink { 0% {opacity:1;} 50% {opacity:0;} 100% {opacity:1;} }
+
+.ad-wrapper { width:100%; display:flex; justify-content:center; margin-top:20px; }
+.ad-container { text-align:center; border:1px solid #ff0000; border-radius:10px; background-color:#1a1a1a; display:inline-block; cursor:default; overflow:hidden; transition:transform 0.2s, box-shadow 0.2s; padding-top:6px; }
+.ad-container:hover { transform:scale(1.05); box-shadow:0 0 12px #ff0000; }
+.ad-text { display:block; margin:0 0 4px 0; font-size:14px; font-weight:bold; color:#fff; user-select:none; pointer-events:none; }
+.ad-container ins { display:block; margin:0 auto; }
+
+/* Popup Fix for Mobile Centering */
+#ageModal {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  text-align: center;
+  padding: 15px;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+}
+#popupContent {
+  max-width: 400px;
+  width: 90%;
+  background: #111;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 15px #ff4444;
+  text-align: center;
+}
+#popupImage { width:100%; height:auto; border-radius:10px; margin-bottom:15px; }
+#popupContent button { flex:1 1 45%; min-width:120px; margin-top:8px; }
+@media(max-width:500px){ #popupContent button { flex:1 1 100%; } }
+  </style>
+
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
+<script>
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+
+OneSignalDeferred.push(async function(OneSignal) {
+
+  await OneSignal.init({
+    appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f"
+  });
+
+  async function handleSub() {
+    const sub = OneSignal.User.PushSubscription;
+
+    if (!sub) return;
+
+    // ✅ FIX HERE
+    const id = sub.token || sub.id;
+
+    if (!id) {
+      console.log("Waiting for subscription...", sub);
+      return;
+    }
+
+    const optedIn = sub.optedIn;
+
+    const lastState = localStorage.getItem("sub_" + id);
+    if (lastState === String(optedIn)) return;
+
+    localStorage.setItem("sub_" + id, optedIn);
+
+    console.log("OneSignal Sub Update:", id, optedIn);
+
+    if (window.saveSubscriber) {
+      window.saveSubscriber(id, optedIn);
+    }
+  }
+
+  // ✅ IMPORTANT: OneSignal loads late
+  setTimeout(handleSub, 2000);
+  setTimeout(handleSub, 5000);
+
+  handleSub();
+
+  OneSignal.User.PushSubscription.addEventListener("change", handleSub);
+
+});
+</script>
+  
+</head>
+<body>
+
+  <div id="topBanner" style="
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -100%);
+  width: 95%;
+  max-width: 700px;
+  background: #ffffff;
+  color: #111;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 12px;
+  font-size: 11px;
+  z-index: 9999;
+  border-radius: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.5s ease;
+">
+  <span style="flex: 1; text-align: center;">
+    🔔 Click the bell icon on your bottom left to receive notifications
+  </span>
+  <button id="closeBtn" style="
+    position: absolute;
+    right: 8px;
+    background: transparent;
+    border: none;
+    color: #111;
+    font-size: 12px;
+    cursor: pointer;
+    line-height: 1;
+  ">✖</button>
+</div>
+
+<script>
+  const banner = document.getElementById("topBanner");
+  const closeBtn = document.getElementById("closeBtn");
+
+  const lastClosed = localStorage.getItem("bannerClosedTime");
+  const now = Date.now();
+  const twentyFourHours = 24 * 60 * 60 * 1000;
+
+  if (!lastClosed || now - lastClosed > twentyFourHours) {
+    // Show banner
+    banner.style.display = "flex";
+
+    // Slide down smoothly
+    setTimeout(() => {
+      banner.style.transform = "translate(-50%, 0)";
+    }, 50);
+
+    // Auto-hide after 30 seconds
+    setTimeout(() => {
+      banner.style.transform = "translate(-50%, -100%)";
+      setTimeout(() => {
+        banner.style.display = "none";
+        localStorage.setItem("bannerClosedTime", Date.now());
+      }, 500);
+    }, 30000);
+  }
+
+  closeBtn.addEventListener("click", () => {
+    banner.style.transform = "translate(-50%, -100%)";
+    setTimeout(() => {
+      banner.style.display = "none";
+      localStorage.setItem("bannerClosedTime", Date.now());
+    }, 500);
+  });
+</script>
+
+  <!-- JuicyAds PopUnders v3 Start -->
+<script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p29423b414&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
+<!-- JuicyAds PopUnders v3 End -->
+
+<!-- 18+ Age Verification Modal -->
+<div id="ageModal">
+  <div id="popupContent">
+    <img id="popupImage" src="" alt="AnywhereCum" style="display:none; border-radius:10px; margin-bottom:15px;">
+    <h2 id="popupTitle" style="color:#ff4444; font-size:24px; margin-bottom:10px; display:none;">⚠️ 18+ ONLY ⚠️</h2>
+    <p id="popupDesc" style="color:#fff; font-size:16px; margin-bottom:20px; display:none;">
+      You must be 18 years or older to enter this site. Click below to confirm your age or leave the site if you are under 18.
+    </p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+      <button id="enterSiteBtn" style="display:none;">I am 18+</button>
+      <button id="leaveSiteBtn" style="display:none;">Leave Site</button>
+    </div>
+  </div>
+</div>
+
+<div id="adminContainer"></div>
+  
+<!-- Header -->
+<header>
+  <h1>AnywhereCum - Video Folders & Exclusive Content</h1>
+
+  <nav style="margin-top:10px; font-size:10px; color:#fff;">
+  <a href="folders.html" style="color:#fff; margin:0 8px;">📂All Folders</a> |
+  <a href="contact.html" style="color:#fff; margin:0 8px;">📨Contact</a> |
+  <a href="terms-privacy.html" style="color:#fff; margin:0 8px;">⚖️Terms & Privacy</a>
+  </nav>
+  
+  <!-- Header Skeleton -->
+  <div id="headerSkeleton" class="skeleton"></div>
+
+  <!-- Actual Header Image -->
+  <img src="" alt="AnywhereCum" style="display:none; border-radius:8px; margin-top:5px; max-width:100%;" id="headerImage">
+</header>
+  
+  <!-- Ad1 (Top Ad) -->
+<div style="
+  text-align: center;
+  position: relative;
+  width: 320px;
+  height: 50px;
+  margin: auto;
+  border: 2px solid red;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  z-index: 1;
+">
+
+  <!-- 🔴 LIVE Badge (Blinking + Glow) -->
+  <div style="
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    background: red;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 999px;
+    z-index: 9999;
+    pointer-events: none;
+    animation: blinkLive 1s infinite;
+  ">
+    🔴 LIVE
+  </div>
+
+  <div id="adContainer" style="width:100%; height:100%; position: relative;">
+    <!-- JuicyAds v3.0 -->
+    <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+    <ins id="1113670" data-width="300" data-height="62"></ins>
+    <script type="text/javascript" data-cfasync="false" async>
+      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});
+    </script>
+    <!--JuicyAds END-->
+  </div>
+
+</div>
+
+<!-- Blinking Animation -->
+<style>
+@keyframes blinkLive {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0px rgba(255, 0, 0, 0);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.1);
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0px rgba(255, 0, 0, 0);
+  }
+}
+</style>
+
+  <!-- Latest Video Skeleton -->
+  <h2>🎥Latest Video🎥</h2>
+
+  <div id="vipCTA" style="text-align:center; margin-bottom:10px !important;">
+  <a href="https://streamtape.com/v/e4zr74b81VuY6O4/Instruction_On_How_To_Watch_and_Download_Videos.mp4" target="_blank" class="blogspot-style-link">
+    How to Watch & Download Videos on this Site 
+  </a>
+  </div>
+  
+<div id="latestVideo"></div>
+                   
+<h2>📂Content Folders📂</h2>
+  <!-- VIP Section Skeleton -->
+<section id="vipSection">
+  
+  <ul id="vipList">
+    <li class="skeleton" style="height:180px;"></li>
+  </ul>
+</section>
+
+<div id="vipCTA" style="text-align:center; margin-bottom:50px;">
+  <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4" target="_blank" class="blogspot-style-link">
+    Click & Watch how to unlock VIP Exclusive for Free 
+  </a>
+</div>
+  
+<ul id="folderList">
+  <li class="skeleton" style="height:180px;"></li>
+  <li class="skeleton" style="height:180px;"></li>
+</ul>
+
+  <style>
+body {
+  background: #1a1a1a;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+/* Skeleton loader */
+.skeleton {
+  width: 100%;
+  height: 250px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Ad hidden initially */
+#ad-container {
+  display: none;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Skeleton -->
+<div id="skeleton" class="skeleton"></div>
+
+<!-- Ad -->
+<div id="ad-container">
+  <script async="async" data-cfasync="false"
+    src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js">
+  </script>
+  <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
+</div>
+
+<script>
+const skeleton = document.getElementById("skeleton");
+const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
+const adWrapper = document.getElementById("ad-container");
+
+// Observe changes inside the ad container
+const observer = new MutationObserver((mutations, obs) => {
+  if (adContainer.children.length > 0) {
+    skeleton.style.display = "none";
+    adWrapper.style.display = "block";
+    obs.disconnect();
+  }
+});
+
+observer.observe(adContainer, { childList: true, subtree: true });
+</script>
+  
+  <footer style="text-align:center; padding:15px; color:#fff; font-size:12px;">
+  © 2026 AnywhereCum – Legal content only. 18+<br>
+
+  <div style="margin-top:8px; font-size:10px;">
+    
+    <a href="https://www.facebook.com/profile.php?id=100069048046082" 
+       target="_blank" 
+       rel="noopener noreferrer" 
+       style="margin:0 10px; display:inline-block;">
+      <img src="https://www.facebook.com/images/fb_icon_325x325.png" 
+           alt="Facebook" 
+           style="width:14px; height:14px; vertical-align:middle;">
+    </a> |
+
+    <a href="contact.html" 
+       style="color:#ff4444; text-decoration:none; margin:0 10px;">
+      📨Contact
+    </a> |
+
+    <a href="terms-privacy.html" 
+       style="color:#ff4444; text-decoration:underline; margin:0 10px;">
+      ⚖️Terms & Privacy
+    </a> |
+
+    <a href="#" 
+       onclick="window.scrollTo({top:0, behavior:'smooth'});" 
+       style="color:#ff4444; text-decoration:none; margin:0 10px; white-space:nowrap;">
+      ⬆️Back To Top
+    </a>
+
+  </div>
+  </footer>
+  
+<!-- Cookie Consent Banner -->
+<div id="cookieBanner" style="position:fixed; bottom:-100px; left:0; width:100%; background-color:#222; color:#fff; padding:12px 15px; text-align:center; font-size:14px; z-index:9998; display:flex; justify-content:center; align-items:center; gap:10px; box-sizing:border-box; transition: bottom 0.5s ease-in-out; flex-wrap: wrap;">
+  <span style="max-width: 100%; text-align: center;">
+    We use cookies to improve your experience. 
+    <a href="https://anywherecum.pages.dev/terms-privacy.html" target="_blank" style="color:#ff4444; text-decoration: underline;">Privacy Policy</a>
+  </span>
+  <button id="acceptCookies" style="padding:6px 15px; font-size:14px; font-weight:bold; color:#fff; background-color:#ff4444; border:none; border-radius:5px; cursor:pointer; box-shadow:0 0 5px #ff4444;">Accept</button>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const BASE_URL = "https://anywherecum.pages.dev/images/";
+
+  // Header Image
+  const headerImg = document.getElementById('headerImage');
+  const headerSkeleton = document.getElementById('headerSkeleton');
+  headerImg.onload = () => { headerSkeleton.style.display = 'none'; headerImg.style.display = 'block'; }
+  headerImg.src = BASE_URL + "header-image.webp";
+
+  // Popup Image & Age Modal
+  const popupImg = document.getElementById('popupImage');
+  const popupTitle = document.getElementById('popupTitle');
+  const popupDesc = document.getElementById('popupDesc');
+  const enterBtn = document.getElementById('enterSiteBtn');
+  const leaveBtn = document.getElementById('leaveSiteBtn');
+  const ageModal = document.getElementById('ageModal');
+
+  popupImg.onload = () => {
+    popupImg.style.display = 'block';
+    popupTitle.style.display = 'block';
+    popupDesc.style.display = 'block';
+    enterBtn.style.display = 'inline-block';
+    leaveBtn.style.display = 'inline-block';
+  };
+  popupImg.src = BASE_URL + "header-image.webp";
+
+  setTimeout(() => {
+    if(localStorage.getItem('ageConfirmed')!=='true') ageModal.style.opacity='1'; 
+    else ageModal.style.display='none';
+  }, 100);
+
+  enterBtn.onclick = () => {
+    localStorage.setItem('ageConfirmed','true'); 
+    ageModal.style.opacity='0'; 
+    setTimeout(() => { ageModal.style.display='none'; }, 500);
+  }
+  leaveBtn.onclick = () => window.location.href="https://www.google.com";
+
+  // Cookies
+  const banner=document.getElementById('cookieBanner');
+  if(localStorage.getItem('cookiesAccepted')!=='true'){ setTimeout(()=>{banner.style.bottom='0';},300);}
+  document.getElementById('acceptCookies').onclick=()=>{ 
+    localStorage.setItem('cookiesAccepted','true'); 
+    banner.style.bottom='-100px'; 
+    setTimeout(()=>{banner.style.display='none';},500); 
+  }
+
+  // VIP Videos (unchanged)
+  fetch('./vip.json').then(res=>res.json()).then(videos=>{
+    if(!videos.length) return;
+    const container=document.getElementById('vipList'); container.innerHTML='';
+    videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const latestVIP=videos[0]; const li=document.createElement('li');
+    const thumb=document.createElement('img'); thumb.src=BASE_URL+latestVIP.thumbnail; thumb.alt=latestVIP.folder;
+    thumb.onclick=()=>window.open("https://fc-lc.xyz/al0L8qyP","_blank");
+    const link=document.createElement('a'); link.className="folder-link"; link.href="https://fc-lc.xyz/al0L8qyP"; link.target="_blank"; link.textContent=latestVIP.folder;
+    li.appendChild(thumb); li.appendChild(link); container.appendChild(li);
+  });
+
+  // Content Folders & Latest Video
+  fetch('./videos.json').then(res=>res.json()).then(videos=>{
+    const folders={}; videos.forEach(v=>{ if(!folders[v.folder]) folders[v.folder]=[]; folders[v.folder].push(v); });
+    const folderList=document.getElementById('folderList'); folderList.innerHTML='';
+    Object.keys(folders).sort().forEach(folderName=>{
+      const folderVideos=folders[folderName]; folderVideos.sort((a,b)=>new Date(b.date)-new Date(a.date));
+      const latest=folderVideos[0]; const li=document.createElement('li');
+
+      const thumb=document.createElement('img'); 
+      thumb.src=BASE_URL + latest.thumbnail; 
+      thumb.alt=folderName; 
+      thumb.onclick=()=>window.open("folder.html?folder="+encodeURIComponent(folderName), "_self");
+
+      const link=document.createElement('a'); 
+      link.className="folder-link"; 
+      link.href="folder.html?folder="+encodeURIComponent(folderName); 
+      link.target="_self";
+      link.textContent=folderName;
+
+      li.appendChild(thumb); 
+      li.appendChild(link); 
+      folderList.appendChild(li);
+    });
+
+    // Latest Video (FIXED - H2 REMOVED)
+    if (videos.length) {
+      const latestVideo = videos.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+
+      const latestDiv = document.getElementById('latestVideo');
+
+      // Clear existing content safely
+      latestDiv.innerHTML = "";
+
+      const ul = document.createElement("ul");
+      ul.className = "folder-grid";
+
+      const li = document.createElement("li");
+      li.dataset.folder = latestVideo.folder;
+
+      const img = document.createElement("img");
+      img.src = BASE_URL + latestVideo.thumbnail;
+      img.alt = latestVideo.folder;
+      img.style.cssText = "width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;";
+
+      const link = document.createElement("a");
+      link.className = "folder-link latest-link";
+      link.href = "folder.html?folder=" + encodeURIComponent(latestVideo.folder);
+      link.textContent = "Watch Now: New Video Available!!!";
+      link.dataset.folder = latestVideo.folder;
+
+      img.onclick = (e) => {
+        e.stopPropagation();
+        if (window.trackPreviewClick) {
+          window.trackPreviewClick(latestVideo.folder);
+        }
+        setTimeout(() => {
+          window.location.href = link.href;
+        }, 200);
+      };
+
+      link.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (window.trackPreviewClick) {
+          window.trackPreviewClick(latestVideo.folder);
+        }
+        setTimeout(() => {
+          window.location.href = link.href;
+        }, 200);
+      };
+
+      li.appendChild(img);
+      li.appendChild(link);
+      ul.appendChild(li);
+
+      latestDiv.appendChild(ul);
+    }
+  });
+});
+                                        </script>
+
+  <script>
+document.addEventListener("click", function (e) {
+
+  function getFolderName(el) {
+    return (
+      el.dataset?.folder ||                          // ✅ hidden real name (MAIN FIX)
+      el.closest("[data-folder]")?.dataset.folder || // ✅ fallback from parent
+      el.getAttribute("data-folder") ||
+      el.alt || 
+      el.textContent?.trim() || 
+      "Unknown"
+    );
+  }
+
+  /* ---------------- Folder Links (ALL SECTIONS) ---------------- */
+  const folderLink = e.target.closest("a.folder-link");
+  if (folderLink) {
+    const folderName = getFolderName(folderLink);
+
+    console.log("Folder link clicked:", folderName);
+
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(folderName);
+    }
+  }
+
+  /* ---------------- Folder Images (ALL SECTIONS) ---------------- */
+  const folderImage = e.target.closest("#folderList img, #vipList img, #latestVideo img");
+  if (folderImage) {
+    const folderName = getFolderName(folderImage);
+
+    console.log("Folder image clicked:", folderName);
+
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(folderName);
+    }
+  }
+
+  /* ---------------- Folder Items (ALL SECTIONS) ---------------- */
+  const folderItem = e.target.closest("#folderList li, #vipList li, #latestVideo li");
+  if (folderItem) {
+    console.log("Folder item clicked (generic)");
+  }
+
+  /* ---------------- Latest Video Link Specific ---------------- */
+  const latestLink = e.target.closest("#latestVideo a.folder-link");
+  if (latestLink) {
+    const name = getFolderName(latestLink);
+
+    console.log("Latest video clicked:", name);
+
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(name);
+    }
+  }
+
+  /* ---------------- VIP Section Link Specific ---------------- */
+  const vipLink = e.target.closest("#vipList a.folder-link");
+  if (vipLink) {
+    const name = getFolderName(vipLink);
+
+    console.log("VIP clicked:", name);
+
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(name);
+    }
+  }
+
+});
+  </script>
+  
+  <script type="module" src="views.js"></script>
+
+  <script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/service-worker.js")
+    .then(() => console.log("Service Worker registered"))
+    .catch((err) => console.error("SW registration failed:", err));
+}
+  </script>
+  
+</body>
+  </html>
