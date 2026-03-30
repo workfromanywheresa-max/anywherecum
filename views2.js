@@ -20,20 +20,26 @@ const dataSource = config.dataSource || "videos.json";
 function saveCache(key, value) { localStorage.setItem(key, value); }
 function getCache(key) { return localStorage.getItem(key); }
 
+/* ---------------- STATE ---------------- */
+const videoDataMap = {};
+const originalOrder = [];
+const videoElements = {};
+
 /* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
   return str.toLowerCase().split(" ")
-            .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-            .join(" ");
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
 }
-document.getElementById("folderTitle").textContent = folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
+document.getElementById("folderTitle").textContent =
+  folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
   num = Number(num);
   if (isNaN(num)) return "0";
-  if (num >= 1_000_000) return (num / 1_000_000).toFixed(1).replace(".0","") + "M";
-  if (num >= 1_000) return (num / 1_000).toFixed(1).replace(".0","") + "K";
+  if (num >= 1_000_000) return (num / 1_000_000).toFixed(1).replace(".0", "") + "M";
+  if (num >= 1_000) return (num / 1_000).toFixed(1).replace(".0", "") + "K";
   return num;
 }
 
@@ -47,11 +53,12 @@ async function sendToWorker(videoId) {
     });
   } catch (err) { console.error("Worker failed:", err); }
 }
-function increaseViews(videoId) { if (!TEST_MODE) sendToWorker("clicked_" + videoId); }
+function increaseViews(videoId) {
+  if (!TEST_MODE) sendToWorker("clicked_" + videoId);
+}
 
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
-const videoElements = {};
 
 /* ---------------- LOADER ---------------- */
 const videoBoxWidth = 600;
@@ -88,7 +95,7 @@ function removeLoader() {
   if (loader) loader.remove();
 }
 
-const style = document.createElement('style');
+const style = document.createElement("style");
 style.innerHTML = `
 @keyframes spin {
   0% { transform: rotate(0deg); }
@@ -123,17 +130,23 @@ function createVideoBox(video) {
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
-  title.onclick = () => { increaseViews(video.id); window.open(video.url, "_blank"); };
+  title.onclick = () => {
+    increaseViews(video.id);
+    window.open(video.url, "_blank");
+  };
 
   const views = document.createElement("div");
   views.className = "views";
-  views.textContent = `👁 ${formatViews(video.totalViews)}`;
 
   const btn = document.createElement("a");
   btn.className = "download";
   btn.href = "#";
   btn.textContent = `Download (${video.size || "?"})`;
-  btn.onclick = (e) => { e.preventDefault(); increaseViews(video.id); window.open(video.url, "_blank"); };
+  btn.onclick = (e) => {
+    e.preventDefault();
+    increaseViews(video.id);
+    window.open(video.url, "_blank");
+  };
 
   box.appendChild(wrapper);
   box.appendChild(title);
@@ -143,37 +156,47 @@ function createVideoBox(video) {
   return box;
 }
 
+/* ---------------- RENDER ---------------- */
+function renderVideos() {
+  const arr = Object.values(videoDataMap);
+
+  arr.sort((a, b) => {
+    const aTrending = a.cycleViews >= 10;
+    const bTrending = b.cycleViews >= 10;
+
+    if (aTrending && !bTrending) return -1;
+    if (!aTrending && bTrending) return 1;
+
+    return originalOrder.indexOf(a.id) - originalOrder.indexOf(b.id);
+  });
+
+  videosContainer.innerHTML = "";
+
+  arr.forEach(v => {
+    videosContainer.appendChild(videoElements[v.id].box);
+  });
+}
+
 /* ---------------- UI UPDATE ---------------- */
 function updateUI(id) {
-  const v = videoElements[id];
+  const v = videoDataMap[id];
   if (!v) return;
 
   const total = v.totalViews || 0;
-  const cycle = v.cycleViews || 0;
+  const isTrending = v.cycleViews >= 10;
 
   saveCache("views_" + id, total);
-  saveCache("cycle_" + id, cycle);
+  saveCache("cycle_" + id, v.cycleViews);
 
-  const isTrending = cycle >= 10;
+  const newText = isTrending
+    ? `🔥 Trending | 👁 ${formatViews(total)}`
+    : `👁 ${formatViews(total)}`;
 
-  if (v.box.parentElement === videosContainer) {
-    videosContainer.removeChild(v.box);
-  }
+  const el = videoElements[id].views;
 
-  if (isTrending) {
-    videosContainer.insertBefore(v.box, videosContainer.firstChild);
-  } else {
-    if (v.originalIndex >= videosContainer.children.length) {
-      videosContainer.appendChild(v.box);
-    } else {
-      videosContainer.insertBefore(v.box, videosContainer.children[v.originalIndex]);
-    }
-  }
-
-  const newText = isTrending ? `🔥 Trending | 👁 ${formatViews(total)}` : `👁 ${formatViews(total)}`;
-  if (v.views.textContent !== newText) {
-    v.views.textContent = newText;
-    v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
+  if (el.textContent !== newText) {
+    el.textContent = newText;
+    el.style.color = isTrending ? "#ffcc00" : "#aaa";
   }
 }
 
@@ -189,16 +212,21 @@ fetch(dataSource)
       ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
       : videos;
 
-    filtered.forEach((v, index) => {
+    filtered.forEach((v) => {
+      originalOrder.push(v.id);
+
+      videoDataMap[v.id] = {
+        ...v,
+        totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
+        cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
+      };
+
       const box = createVideoBox(v);
       videosContainer.appendChild(box);
 
       videoElements[v.id] = {
         box,
-        views: box.querySelector(".views"),
-        totalViews: Number(getCache("views_" + v.id)) || (v.totalViews || 0),
-        cycleViews: Number(getCache("cycle_" + v.id)) || (v.cycleViews || 0),
-        originalIndex: index
+        views: box.querySelector(".views")
       };
 
       updateUI(v.id);
@@ -206,21 +234,25 @@ fetch(dataSource)
       onValue(ref(db, "views/" + v.id), snap => {
         const val = snap.val();
         if (val !== null && val !== undefined) {
-          videoElements[v.id].totalViews = val;
-          saveCache("views_" + v.id, val);
+          videoDataMap[v.id].totalViews = val;
           updateUI(v.id);
+          saveCache("views_" + v.id, val);
+          renderVideos();
         }
       });
 
       onValue(ref(db, "cycleViews/" + v.id), snap => {
         const val = snap.val();
         if (val !== null && val !== undefined) {
-          videoElements[v.id].cycleViews = Number(val);
-          saveCache("cycle_" + v.id, val);
+          videoDataMap[v.id].cycleViews = Number(val);
           updateUI(v.id);
+          saveCache("cycle_" + v.id, val);
+          renderVideos();
         }
       });
     });
+
+    renderVideos();
   })
   .catch(err => {
     console.error(err);
