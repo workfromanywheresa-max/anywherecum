@@ -12,7 +12,6 @@ body {
   color: #fff;
   margin: 0;
   padding: 15px;
-  padding-bottom: 120px; /* space for fixed bottom ad */
 }
 
 button {
@@ -111,15 +110,12 @@ h2 {
   background: #ff2222;
 }
 
-/* FIXED BOTTOM AD */
+/* BOTTOM AD */
 #ad-container {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  display: block;  /* visible immediately */
   width: 320px;
-  z-index: 9999;
-  display: block; /* show immediately */
+  max-width: 95%;
+  margin: 20px auto 40px auto; /* space around ad */
 }
 </style>
 
@@ -167,7 +163,7 @@ background: #fff;
 <div id="trendingVideos"></div>
 <div id="normalVideos"></div>
 
-<!-- MID/BOTTOM AD FIXED -->
+<!-- MID/BOTTOM AD -->
 <div id="ad-container">
   <script async data-cfasync="false"
     src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js">
