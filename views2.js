@@ -67,26 +67,53 @@ function createVideoBox(video) {
   box.className = "videoBox";
   box.style.height = `${videoBoxHeight + 60}px`;
 
+  /* ---------------- WRAPPER ---------------- */
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
+  wrapper.style.position = "relative";
   wrapper.style.width = "100%";
   wrapper.style.maxWidth = `${videoBoxWidth}px`;
   wrapper.style.aspectRatio = "16/9";
 
+  /* ---------------- LOADER ---------------- */
+  const loader = document.createElement("div");
+  loader.className = "imgLoader";
+
+  /* ---------------- IMAGE ---------------- */
   const thumb = document.createElement("img");
+  thumb.style.width = "100%";
+  thumb.style.height = "100%";
+  thumb.style.objectFit = "cover";
+  thumb.style.opacity = "0";
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
 
+  /* IMAGE LOADED */
+  thumb.onload = () => {
+    thumb.style.opacity = "1";
+    loader.remove();
+  };
+
+  /* ERROR HANDLING */
+  thumb.onerror = () => {
+    loader.textContent = "Failed to load";
+  };
+
+  /* CLICK */
   thumb.onclick = () => {
     increaseViews(video.id);
+
     const iframe = document.createElement("iframe");
     iframe.src = video.embed;
     iframe.allowFullscreen = true;
+
     wrapper.innerHTML = "";
     wrapper.appendChild(iframe);
   };
 
+  wrapper.appendChild(loader);
   wrapper.appendChild(thumb);
 
+  /* ---------------- TITLE ---------------- */
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
@@ -95,10 +122,12 @@ function createVideoBox(video) {
     window.open(video.url, "_blank");
   };
 
+  /* ---------------- VIEWS ---------------- */
   const views = document.createElement("div");
   views.className = "views";
   views.textContent = `👁 ${formatViews(video.totalViews)}`;
 
+  /* ---------------- BUTTON ---------------- */
   const btn = document.createElement("a");
   btn.className = "download";
   btn.href = "#";
@@ -197,7 +226,6 @@ function renderVideos(videos) {
 /* ---------------- LOAD VIDEOS (INSTANT) ---------------- */
 const cached = getCache("videos");
 
-// ⚡ Load instantly from cache
 if (cached) {
   try {
     renderVideos(JSON.parse(cached));
@@ -206,7 +234,6 @@ if (cached) {
   }
 }
 
-// 🔄 Fetch fresh data in background
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
