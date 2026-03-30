@@ -67,13 +67,9 @@ function createVideoBox(video) {
   box.className = "videoBox";
   box.style.height = `${videoBoxHeight + 60}px`;
 
-  /* ---------------- WRAPPER ---------------- */
+  /* WRAPPER */
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
-  wrapper.style.position = "relative";
-  wrapper.style.width = "100%";
-  wrapper.style.maxWidth = `${videoBoxWidth}px`;
-  wrapper.style.aspectRatio = "16/9";
 
   /* ---------------- LOADER ---------------- */
   const loader = document.createElement("div");
@@ -81,21 +77,22 @@ function createVideoBox(video) {
 
   /* ---------------- IMAGE ---------------- */
   const thumb = document.createElement("img");
-  thumb.style.width = "100%";
-  thumb.style.height = "100%";
-  thumb.style.objectFit = "cover";
-  thumb.style.opacity = "0";
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
+  
+  /* hide until loaded */
+  thumb.style.opacity = "0";
+  thumb.style.transition = "opacity 0.3s ease";
 
-  /* IMAGE LOADED */
+  /* when loaded */
   thumb.onload = () => {
     thumb.style.opacity = "1";
-    loader.remove();
+    if (loader) loader.remove();
   };
 
-  /* ERROR HANDLING */
+  /* fallback */
   thumb.onerror = () => {
-    loader.textContent = "Failed to load";
+    loader.style.display = "none";
+    thumb.style.opacity = "1";
   };
 
   /* CLICK */
@@ -110,10 +107,11 @@ function createVideoBox(video) {
     wrapper.appendChild(iframe);
   };
 
+  /* ORDER (IMPORTANT) */
   wrapper.appendChild(loader);
   wrapper.appendChild(thumb);
 
-  /* ---------------- TITLE ---------------- */
+  /* TITLE */
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
@@ -122,12 +120,12 @@ function createVideoBox(video) {
     window.open(video.url, "_blank");
   };
 
-  /* ---------------- VIEWS ---------------- */
+  /* VIEWS */
   const views = document.createElement("div");
   views.className = "views";
   views.textContent = `👁 ${formatViews(video.totalViews)}`;
 
-  /* ---------------- BUTTON ---------------- */
+  /* BUTTON */
   const btn = document.createElement("a");
   btn.className = "download";
   btn.href = "#";
@@ -213,17 +211,9 @@ function renderVideos(videos) {
       updateUI(v.id);
     });
   });
-
-  setTimeout(() => {
-    Object.keys(videoElements).forEach(id => {
-      if (videoElements[id].cycleViews >= 10) {
-        updateUI(id);
-      }
-    });
-  }, 0);
 }
 
-/* ---------------- LOAD VIDEOS (INSTANT) ---------------- */
+/* ---------------- LOAD ---------------- */
 const cached = getCache("videos");
 
 if (cached) {
