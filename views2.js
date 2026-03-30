@@ -66,34 +66,22 @@ function updateUI(id) {
 
   const isTrending = cycle >= 10;
 
-  // Only move videos if it's not the first load or page refresh
+  // Remove box first
   if (v.box.parentElement === videosContainer) {
-    v.box.classList.add('moving');
+    videosContainer.removeChild(v.box);
   }
 
-  v.box.addEventListener('transitionend', () => {
-    // After transition, update the position only for trending videos
-    if (v.box.parentElement === videosContainer) {
-      videosContainer.removeChild(v.box);
-    }
-
-    if (isTrending) {
-      // Check if the video has already moved to the top to avoid unnecessary movements
-      if (!localStorage.getItem(`moved_${id}`)) {
-        videosContainer.insertBefore(v.box, videosContainer.firstChild);
-        localStorage.setItem(`moved_${id}`, "true"); // Store that this video has moved
-      }
+  if (isTrending) {
+    // Move trending videos to top
+    videosContainer.insertBefore(v.box, videosContainer.firstChild);
+  } else {
+    // Return to original position if below 10
+    if (v.originalIndex >= videosContainer.children.length) {
+      videosContainer.appendChild(v.box);
     } else {
-      if (v.originalIndex >= videosContainer.children.length) {
-        videosContainer.appendChild(v.box);
-      } else {
-        videosContainer.insertBefore(v.box, videosContainer.children[v.originalIndex]);
-      }
+      videosContainer.insertBefore(v.box, videosContainer.children[v.originalIndex]);
     }
-
-    // Remove "moving" class after transition ends
-    v.box.classList.remove('moving');
-  });
+  }
 
   const newText = isTrending ? `🔥 Trending | 👁 ${formatViews(total)}` : `👁 ${formatViews(total)}`;
   if (v.views.textContent !== newText) {
@@ -179,10 +167,10 @@ fetch(dataSource)
     });
 
     // ---------------- POST-LOAD TRENDING ----------------
-    // Check for already moved videos to avoid re-moving after page refresh
+    // Move cached trending videos to top smoothly
     setTimeout(() => {
       Object.keys(videoElements).forEach(id => {
-        if (videoElements[id].cycleViews >= 10 && !localStorage.getItem(`moved_${id}`)) {
+        if (videoElements[id].cycleViews >= 10) {
           updateUI(id);
         }
       });
