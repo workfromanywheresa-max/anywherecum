@@ -19,13 +19,13 @@
 
     /* BUTTONS & HEADERS */
     button {
-  background: #444;
-  color: #fff;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-bottom: 15px;
+      background: #444;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 15px;
       align-self: flex-start;
     }
     
@@ -45,6 +45,13 @@
     #normalVideos {
       margin-bottom: 50px; /* space for footer */
       flex-grow: 1; /* push footer down if content is short */
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center; /* Center the video boxes horizontally */
+      gap: 20px; /* Add space between video boxes */
+      margin: 0 auto;
+      padding: 20px;
+      box-sizing: border-box;
     }
 
     /* VIDEO BOX */
@@ -56,6 +63,11 @@
       text-align: center;
       visibility: visible; /* Default visibility is visible */
       transition: transform 0.5s ease, visibility 0s ease; /* Only apply transform with a 0.5s delay */
+      width: 400px; /* Fixed width for all video boxes */
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* Center content horizontally */
+      justify-content: flex-start; /* Align items to the top */
     }
 
     /* VIDEO PLAYER */
@@ -123,6 +135,25 @@
       width: 14px;
       height: 14px;
     }
+
+    /* Skeleton Loader Style */
+    .skeleton {
+      width: 100%;
+      height: 250px;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    #ad-container {
+      display: none;
+    }
   </style>
 </head>
 
@@ -137,50 +168,30 @@
   <div id="normalVideos"></div>
 
   <!-- Skeleton Ad Loader -->
-<div id="skeleton" class="skeleton"></div>
+  <div id="skeleton" class="skeleton"></div>
 
-<div id="ad-container">
-  <script async="async" data-cfasync="false"
-    src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js">
+  <div id="ad-container">
+    <script async="async" data-cfasync="false"
+      src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js">
+    </script>
+    <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
+  </div>
+
+  <script>
+    const skeleton = document.getElementById("skeleton");
+    const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
+    const adWrapper = document.getElementById("ad-container");
+
+    const observer = new MutationObserver((mutations, obs) => {
+      if (adContainer.children.length > 0) {
+        skeleton.style.display = "none";
+        adWrapper.style.display = "block";
+        obs.disconnect();
+      }
+    });
+
+    observer.observe(adContainer, { childList: true, subtree: true });
   </script>
-  <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
-</div>
-
-<style>
-.skeleton {
-  width: 100%;
-  height: 250px;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-#ad-container {
-  display: none;
-}
-</style>
-
-<script>
-const skeleton = document.getElementById("skeleton");
-const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
-const adWrapper = document.getElementById("ad-container");
-
-const observer = new MutationObserver((mutations, obs) => {
-  if (adContainer.children.length > 0) {
-    skeleton.style.display = "none";
-    adWrapper.style.display = "block";
-    obs.disconnect();
-  }
-});
-
-observer.observe(adContainer, { childList: true, subtree: true });
-</script>
 
   <footer>
     © 2026 AnywhereCum – Legal content only. 18+<br>
