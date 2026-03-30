@@ -90,11 +90,18 @@ fetch(dataSource)
       ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
       : videos;
 
+    // REMOVE skeleton placeholders
+    const skeletons = normalContainer.querySelectorAll(".videoBox.skeleton");
+    skeletons.forEach(skel => skel.remove());
+
     filtered.forEach(v => {
 
       // Video Box
       const box = document.createElement("div");
       box.className = "videoBox";
+      box.style.opacity = 0;
+      box.style.transform = "translateY(10px)";
+      box.style.transition = "opacity 0.3s ease, transform 0.3s ease";
 
       // Video Frame / Thumbnail
       const wrapper = document.createElement("div");
@@ -148,6 +155,12 @@ fetch(dataSource)
       box.appendChild(views);
       box.appendChild(btn);
       normalContainer.appendChild(box);
+
+      // Fade-in effect
+      requestAnimationFrame(() => {
+        box.style.opacity = 1;
+        box.style.transform = "translateY(0)";
+      });
 
       // Save reference
       videoElements[v.id] = { box, views, totalViews: initialViews, cycleViews: initialCycle };
