@@ -12,7 +12,7 @@ const db = getDatabase(app);
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 const config = window.VIDEO_CONFIG || {};
 const folderName = (config.folder || "").toLowerCase();
-const dataSource = config.dataSource || "videos.json";
+const dataSource = config.dataSource || "vip.json";
 
 /* ---------------- CONTAINER ---------------- */
 const normalContainer = document.getElementById("normalVideos");
@@ -112,12 +112,12 @@ async function loadVideos() {
       thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(v.thumbnail)}`;
       thumb.alt = v.title;
 
-      // Remove skeleton once thumbnail loads
-      thumb.onload = () => {
+      // Always show video box whether thumbnail loads or fails
+      thumb.onload = thumb.onerror = () => {
         if (v._skeleton) v._skeleton.remove();
         wrapper.appendChild(thumb);
         normalContainer.appendChild(box);
-        updateUI(v.id); // Apply trending if cycleViews >= 10 from cache
+        updateUI(v.id); // Apply trending if cycleViews >= 10
       };
 
       // Click to replace thumbnail with iframe
@@ -177,12 +177,13 @@ async function loadVideos() {
         updateUI(v.id);
       });
 
-      // Optional fail-safe: remove skeleton if thumbnail fails after 5s
+      // Optional fail-safe: remove skeleton after 5s if not loaded
       setTimeout(() => {
         if (v._skeleton) {
           v._skeleton.remove();
-          wrapper.appendChild(thumb); // show thumbnail anyway
+          wrapper.appendChild(thumb);
           normalContainer.appendChild(box);
+          updateUI(v.id);
         }
       }, 5000);
     });
