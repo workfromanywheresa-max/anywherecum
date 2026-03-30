@@ -1,41 +1,41 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-/* Firebase */
+/* ---------------- FIREBASE ---------------- */
 const app = initializeApp({
   apiKey: "AIzaSyCEX...",
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
 });
 const db = getDatabase(app);
 
-/* TEST MODE */
+/* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
-/* CONFIG */
+/* ---------------- CONFIG ---------------- */
 const config = window.VIDEO_CONFIG || {};
 const folderName = (config.folder || "").toLowerCase();
-const dataSource = config.dataSource || "videos.json";
+const dataSource = config.dataSource || "vip.json";
 
-/* CACHE */
-function saveCache(key, value) { localStorage.setItem(key, value); }
-function getCache(key) { return localStorage.getItem(key); }
+/* ---------------- CACHE ---------------- */
+const saveCache = (key, value) => localStorage.setItem(key, value);
+const getCache = (key) => localStorage.getItem(key);
 
-/* TITLE */
-function toTitleCase(str) {
-  return str.toLowerCase().split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
-}
-document.getElementById("folderTitle").textContent = folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
+/* ---------------- TITLE ---------------- */
+const folderTitle = document.getElementById("folderTitle");
+folderTitle.textContent = folderName
+  ? folderName.split(" ").map(w => w[0].toUpperCase()+w.slice(1)).join(" ")
+  : "🔐 VIP Exclusive";
 
-/* FORMAT */
+/* ---------------- FORMAT ---------------- */
 function formatViews(num) {
   num = Number(num);
   if (isNaN(num)) return "0";
-  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M";
-  if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K";
+  if (num >= 1_000_000) return (num/1_000_000).toFixed(1).replace(".0","") + "M";
+  if (num >= 1_000) return (num/1_000).toFixed(1).replace(".0","") + "K";
   return num;
 }
 
-/* WORKER */
+/* ---------------- WORKER ---------------- */
 async function sendToWorker(videoId) {
   try {
     await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
@@ -43,16 +43,15 @@ async function sendToWorker(videoId) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ videoId })
     });
-  } catch (err) { console.error("Worker failed:", err); }
+  } catch(e) { console.error("Worker failed:", e); }
 }
-function increaseViews(videoId) { if (!TEST_MODE) sendToWorker("clicked_" + videoId); }
+function increaseViews(videoId) { if(!TEST_MODE) sendToWorker("clicked_" + videoId); }
 
-/* CONTAINERS */
-const trendingContainer = document.getElementById("trendingVideos");
-const normalContainer = document.getElementById("normalVideos");
+/* ---------------- CONTAINER ---------------- */
+const container = document.getElementById("normalVideos");
 const videoElements = {};
 
-/* UI UPDATE */
+/* ---------------- UI UPDATE ---------------- */
 function updateUI(id) {
   const v = videoElements[id];
   if (!v) return;
@@ -64,92 +63,82 @@ function updateUI(id) {
   saveCache("cycle_" + id, cycle);
 
   const isTrending = cycle >= 10;
-  const target = isTrending ? trendingContainer : normalContainer;
 
-  if (v.box.parentElement !== target) {
-    if (isTrending) target.insertBefore(v.box, target.firstChild);
-    else target.appendChild(v.box);
-  }
+  // Move trending videos to top
+  if (v.box.parentElement !== container) container.appendChild(v.box); // ensure it's inside
+  if (isTrending) container.insertBefore(v.box, container.firstChild);
 
-  const newText = isTrending ? `🔥 Trending | 👁 ${formatViews(total)}` : `👁 ${formatViews(total)}`;
-  if (v.views.textContent !== newText) {
-    v.views.textContent = newText;
-    v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
-  }
+  // Update views display
+  v.views.textContent = `${isTrending ? "🔥 " : ""}👁 ${formatViews(total)}`;
+  v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
 }
 
-/* LOAD VIDEOS */
+/* ---------------- LOAD VIDEOS ---------------- */
 fetch(dataSource)
-.then(res => res.json())
-.then(videos => {
+  .then(res => res.json())
+  .then(videos => {
 
-  const filtered = folderName
-    ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
-    : videos;
+    const filtered = folderName
+      ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
+      : videos;
 
-  filtered.forEach(v => {
+    filtered.forEach(v => {
+      const box = document.createElement("div");
+      box.className = "videoBox";
 
-    const box = document.createElement("div");
-    box.className = "videoBox";
+      const wrapper = document.createElement("div");
+      wrapper.className = "videoFrameWrapper";
 
-    const wrapper = document.createElement("div");
-    wrapper.className = "videoFrameWrapper";
+      const thumb = document.createElement("img");
+      thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(v.thumbnail)}`;
+      thumb.onclick = () => {
+        increaseViews(v.id);
+        wrapper.innerHTML = "";
+        const iframe = document.createElement("iframe");
+        iframe.src = v.embed;
+        iframe.allowFullscreen = true;
+        wrapper.appendChild(iframe);
+      };
+      wrapper.appendChild(thumb);
 
-    const thumb = document.createElement("img");
-    thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(v.thumbnail)}`;
-    thumb.onclick = () => {
-      increaseViews(v.id);
-      const iframe = document.createElement("iframe");
-      iframe.src = v.embed;
-      iframe.allowFullscreen = true;
-      wrapper.innerHTML = "";
-      wrapper.appendChild(iframe);
-    };
-    wrapper.appendChild(thumb);
+      const title = document.createElement("h3");
+      title.className = "videoTitle";
+      title.textContent = v.title;
+      title.onclick = () => { increaseViews(v.id); window.open(v.url, "_blank"); };
 
-    const title = document.createElement("h3");
-    title.className = "videoTitle";
-    title.textContent = v.title;
-    title.onclick = () => { increaseViews(v.id); window.open(v.url, "_blank"); };
+      const views = document.createElement("div");
+      views.className = "views";
+      views.textContent = `👁 ${formatViews(getCache("views_" + v.id) || 0)}`;
 
-    const views = document.createElement("div");
-    views.className = "views";
+      const btn = document.createElement("a");
+      btn.className = "download";
+      btn.href = "#";
+      btn.textContent = `Download (${v.size || "?"})`;
+      btn.onclick = (e) => { e.preventDefault(); increaseViews(v.id); window.open(v.url, "_blank"); };
 
-    const cachedViews = getCache("views_" + v.id);
-    const cachedCycle = getCache("cycle_" + v.id);
+      box.appendChild(wrapper);
+      box.appendChild(title);
+      box.appendChild(views);
+      box.appendChild(btn);
 
-    const initialViews = cachedViews ? Number(cachedViews) : 0;
-    const initialCycle = cachedCycle ? Number(cachedCycle) : 0;
+      container.appendChild(box);
 
-    views.textContent = `👁 ${formatViews(initialViews)}`;
+      videoElements[v.id] = {
+        box,
+        views,
+        totalViews: Number(getCache("views_" + v.id) || 0),
+        cycleViews: Number(getCache("cycle_" + v.id) || 0)
+      };
 
-    const btn = document.createElement("a");
-    btn.className = "download";
-    btn.href = "#";
-    btn.textContent = `Download (${v.size || "?"})`;
-    btn.onclick = e => { e.preventDefault(); increaseViews(v.id); window.open(v.url, "_blank"); };
+      /* Firebase listeners */
+      onValue(ref(db, "views/" + v.id), snap => {
+        videoElements[v.id].totalViews = snap.val() || 0;
+        updateUI(v.id);
+      });
 
-    box.appendChild(wrapper);
-    box.appendChild(title);
-    box.appendChild(views);
-    box.appendChild(btn);
-
-    normalContainer.appendChild(box);
-
-    videoElements[v.id] = { box, views, totalViews: initialViews, cycleViews: initialCycle };
-
-    /* Firebase listeners */
-    onValue(ref(db, "views/" + v.id), snap => {
-      videoElements[v.id].totalViews = snap.val() || 0;
-      updateUI(v.id);
+      onValue(ref(db, "cycleViews/" + v.id), snap => {
+        videoElements[v.id].cycleViews = Number(snap.val()) || 0;
+        updateUI(v.id);
+      });
     });
-    onValue(ref(db, "cycleViews/" + v.id), snap => {
-      videoElements[v.id].cycleViews = Number(snap.val()) || 0;
-      updateUI(v.id);
-    });
-
-  });
-
-  /* Remove skeletons */
-  document.querySelectorAll(".videoBox.skeleton").forEach(skel => skel.remove());
 });
