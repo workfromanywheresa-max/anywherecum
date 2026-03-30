@@ -241,8 +241,8 @@ OneSignalDeferred.push(async function(OneSignal) {
     }, 500);
   });
 </script>
-
-  <!-- TOP AD -->
+  
+<!-- TOP AD -->
 <div id="topAdMain" style="
 position: fixed;
 top: -80px;
@@ -258,7 +258,7 @@ background: #fff;
 transition: top 0.5s ease;
 ">
 
-  <!-- Blink animation (required for inline use) -->
+  <!-- Blink animation -->
   <style>
     @keyframes blink {
       0% { opacity: 1; }
@@ -267,8 +267,8 @@ transition: top 0.5s ease;
     }
   </style>
 
-  <!-- Ad -->
-  <div style="
+  <!-- Ad container (empty initially) -->
+  <div id="adContainer" style="
     position:absolute;
     top:0;
     left:0;
@@ -276,15 +276,9 @@ transition: top 0.5s ease;
     height:100%;
     z-index:1;
     background:#fff;
-  ">
-    <script async src="https://poweredby.jads.co/js/jads.js"></script>
-    <ins id="1113670" data-width="300" data-height="62"></ins>
-    <script>
-      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});
-    </script>
-  </div>
+  "></div>
 
-  <!-- 🔴 Live (Blinking) -->
+  <!-- 🔴 Live -->
   <div style="
     position:absolute;
     top:2px;
@@ -313,7 +307,6 @@ transition: top 0.5s ease;
     justify-content:center;
   ">
 
-    <!-- Timer -->
     <div id="mainCountdown" style="
       background:black;
       color:#fff;
@@ -325,7 +318,6 @@ transition: top 0.5s ease;
       15s
     </div>
 
-    <!-- Close Button -->
     <div id="mainCloseBtn" style="
       display:none;
       background:#000;
@@ -338,8 +330,6 @@ transition: top 0.5s ease;
       text-align:center;
       border-radius:4px;
       cursor:pointer;
-      align-items:center;
-      justify-content:center;
     ">
       ✕
     </div>
@@ -351,14 +341,40 @@ transition: top 0.5s ease;
 document.addEventListener("DOMContentLoaded", function () {
 
   const ad = document.getElementById("topAdMain");
+  const adContainer = document.getElementById("adContainer");
   const countdownEl = document.getElementById("mainCountdown");
   const closeBtn = document.getElementById("mainCloseBtn");
 
   let countdownInterval;
   let cycleTimeout;
+  let adLoaded = false;
+
+  function loadAdScriptOnce() {
+    if (adLoaded) return;
+    adLoaded = true;
+
+    const script1 = document.createElement("script");
+    script1.async = true;
+    script1.src = "https://poweredby.jads.co/js/jads.js";
+
+    const ins = document.createElement("ins");
+    ins.setAttribute("id", "1113670");
+    ins.setAttribute("data-width", "300");
+    ins.setAttribute("data-height", "62");
+
+    const script2 = document.createElement("script");
+    script2.text = "(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});";
+
+    adContainer.appendChild(script1);
+    adContainer.appendChild(ins);
+    adContainer.appendChild(script2);
+  }
 
   function showAd() {
     ad.style.top = "10px";
+
+    // Load ad only when needed
+    loadAdScriptOnce();
 
     let timeLeft = 15;
 
@@ -386,8 +402,8 @@ document.addEventListener("DOMContentLoaded", function () {
     ad.style.top = "-80px";
 
     clearInterval(countdownInterval);
-
     clearTimeout(cycleTimeout);
+
     cycleTimeout = setTimeout(showAd, 120000);
   }
 
@@ -399,7 +415,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 </script>
-
+  
 <button onclick="history.back()">← Back</button>
   
 <h2 id="folderTitle">🔐VIP Exclusive</h2>
