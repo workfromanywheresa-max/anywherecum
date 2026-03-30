@@ -118,19 +118,15 @@ h2 {
   background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
+  margin-bottom: 15px;
 }
 
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
-
-#ad-container {
-  display: none;
-}
 </style>
 
-<script src="https://pl28956604.profitablecpmratenetwork.com/c7/ba/1d/c7ba1d0cd42bd7cbdf437d03bd000409.js"></script>
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
 <script>
@@ -226,32 +222,17 @@ closeBtn.addEventListener("click", () => {
 <!-- TRENDING VIDEOS (NO SKELETON) -->
 <div id="trendingVideos"></div>
 
-<!-- NORMAL VIDEOS (WITH SKELETON) -->
+<!-- NORMAL VIDEOS (WITH 3 SKELETON LOADERS) -->
 <div id="normalVideos"></div>
-<div id="normalSkeleton" class="skeleton"></div>
+<div class="skeleton" id="normalSkeleton1"></div>
+<div class="skeleton" id="normalSkeleton2"></div>
+<div class="skeleton" id="normalSkeleton3"></div>
 
-<!-- MID AD -->
+<!-- MID AD (no loader) -->
 <div id="ad-container">
   <script async data-cfasync="false" src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js"></script>
   <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
 </div>
-
-<script>
-// Show skeleton only for normal videos until ads load
-const skeleton = document.getElementById("normalSkeleton");
-const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
-const adWrapper = document.getElementById("ad-container");
-
-const observer = new MutationObserver((mutations, obs) => {
-  if (adContainer.children.length > 0) {
-    skeleton.style.display = "none";
-    adWrapper.style.display = "block";
-    obs.disconnect();
-  }
-});
-
-observer.observe(adContainer, { childList: true, subtree: true });
-</script>
 
 <!-- FOOTER -->
 <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
