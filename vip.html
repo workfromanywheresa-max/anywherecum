@@ -162,6 +162,25 @@ OneSignalDeferred.push(async function(OneSignal) {
 
 });
 </script>
+
+  <script>
+let popunderLoaded = false;
+
+function loadPopunder() {
+  if (popunderLoaded) return;
+  popunderLoaded = true;
+
+  const script = document.createElement("script");
+  script.src = "https://pl28956604.profitablecpmratenetwork.com/c7/ba/1d/c7ba1d0cd42bd7cbdf437d03bd000409.js";
+  document.body.appendChild(script);
+}
+
+// Load after first click/tap anywhere
+document.addEventListener("click", loadPopunder, { once: true });
+
+// Optional: fallback load after a delay (e.g. 10s)
+setTimeout(loadPopunder, 10000);
+  </script>
   
 </head>
 
