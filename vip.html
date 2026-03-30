@@ -73,31 +73,33 @@ h2 {
   border: 0;
   object-fit: cover;
   display: block;
+}
+
+/* HIDE IMAGE INITIALLY */
+.videoFrameWrapper img {
   opacity: 0;
   transition: opacity 0.4s ease;
 }
 
-/* ========================= */
-/* ✅ SHIMMER LOADER */
-/* ========================= */
+/* FULL COVER SHIMMER */
 .imgLoader {
   position: absolute;
   inset: 0;
+  z-index: 10;
   border-radius: 8px;
+
   background: linear-gradient(
     90deg,
-    #111 0%,
-    #222 20%,
-    #333 40%,
-    #222 60%,
-    #111 100%
+    #111 25%,
+    #222 50%,
+    #111 75%
   );
+
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite linear;
-  z-index: 5;
 }
 
-/* shimmer animation */
+/* SHIMMER ANIMATION */
 @keyframes shimmer {
   0% {
     background-position: 200% 0;
@@ -145,7 +147,7 @@ footer {
 
 #ad-container {
   display: none;
-}
+      }
   </style>
 
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
