@@ -110,6 +110,23 @@ h2 {
   background: #ff2222;
 }
 
+/* SKELETON LOADER FOR VIDEO CARDS */
+.skeleton {
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 16 / 9; /* same as video */
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  border-radius: 8px;
+  margin: 0 auto 10px auto;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 /* BOTTOM AD */
 #ad-container {
   display: block;  /* visible immediately */
@@ -160,8 +177,17 @@ background: #fff;
 </div>
 
 <!-- TRENDING & NORMAL VIDEOS -->
-<div id="trendingVideos"></div>
-<div id="normalVideos"></div>
+<div id="trendingVideos">
+  <!-- Skeleton loaders before videos load -->
+  <div class="videoBox"><div class="skeleton"></div></div>
+  <div class="videoBox"><div class="skeleton"></div></div>
+  <div class="videoBox"><div class="skeleton"></div></div>
+</div>
+<div id="normalVideos">
+  <div class="videoBox"><div class="skeleton"></div></div>
+  <div class="videoBox"><div class="skeleton"></div></div>
+  <div class="videoBox"><div class="skeleton"></div></div>
+</div>
 
 <!-- MID/BOTTOM AD -->
 <div id="ad-container">
@@ -195,7 +221,7 @@ window.VIDEO_CONFIG = {
 };
 </script>
 
-<!-- Load JS that separates trending & normal videos -->
+<!-- Load JS that replaces skeletons with actual videos -->
 <script type="module" src="views2.js"></script>
 
 </body>
