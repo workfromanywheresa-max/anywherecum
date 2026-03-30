@@ -7,147 +7,111 @@
 
   <style>
     body {
-  font-family: Arial, sans-serif;
-  background: #1a1a1a;
-  color: #fff;
-  margin: 0;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
+      font-family: Arial, sans-serif;
+      background: #1a1a1a;
+      color: #fff;
+      margin: 0;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
-button {
-  background: #444;
-  color: #fff;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-bottom: 15px;
-  align-self: flex-start;
-}
+    button {
+      background: #444;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 15px;
+      align-self: flex-start;
+    }
+    
+    h2 {
+      color: #ff4444;
+      text-align: center;
+      border-bottom: 2px solid #ff4444;
+      padding-bottom: 5px;
+    }
 
-h2 {
-  color: #ff4444;
-  text-align: center;
-  border-bottom: 2px solid #ff4444;
-  padding-bottom: 5px;
-}
+    #folderDescription {
+      text-align: center;
+      color: #aaa;
+      font-size: 14px;
+    }
 
-#folderDescription {
-  text-align: center;
-  color: #aaa;
-  font-size: 14px;
-}
+    #normalVideos {
+      margin-bottom: 50px;
+      flex-grow: 1;
+    }
 
-#normalVideos {
-  margin-bottom: 50px;
-  flex-grow: 1;
-}
+    .videoBox {
+      background: #222;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
 
-.videoBox {
-  background: #222;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 30px;
-  text-align: center;
-}
+    .videoFrameWrapper {
+      width: 100%;
+      max-width: 300px;
+      margin: 0 auto;
+      position: relative;
+      aspect-ratio: 16 / 9;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #000;
+    }
 
-.videoFrameWrapper {
-  width: 100%;
-  max-width: 300px;
-  margin: 0 auto;
-  position: relative;
-  aspect-ratio: 16 / 9;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #000;
-}
+    .videoFrameWrapper iframe,
+    .videoFrameWrapper img {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      object-fit: cover;
+    }
 
-/* IMAGE */
-.videoFrameWrapper img,
-.videoFrameWrapper iframe {
-  width: 100%;
-  height: 100%;
-  border: 0;
-  object-fit: cover;
-  display: block;
-}
+    .videoTitle {
+      text-align: center;
+      margin: 6px 0;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: underline;
+    }
 
-/* HIDE IMAGE INITIALLY */
-.videoFrameWrapper img {
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
+    .views {
+      text-align: center;
+      color: #aaa;
+      margin: 2px 0;
+      font-size: 12px;
+    }
 
-/* FULL COVER SHIMMER */
-.imgLoader {
-  position: absolute;
-  inset: 0;
-  z-index: 10;
-  border-radius: 8px;
+    .download {
+      display: block;
+      width: fit-content;
+      margin: 6px auto;
+      padding: 5px 10px;
+      background: #ff4444;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+      font-size: 12px;
+    }
 
-  background: linear-gradient(
-    90deg,
-    #111 25%,
-    #222 50%,
-    #111 75%
-  );
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      color: #aaa;
+      background: #111;
+      margin-top: auto;
+    }
 
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite linear;
-}
-
-/* SHIMMER ANIMATION */
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-.videoTitle {
-  text-align: center;
-  margin: 6px 0;
-  font-size: 13px;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.views {
-  text-align: center;
-  color: #aaa;
-  margin: 2px 0;
-  font-size: 12px;
-}
-
-.download {
-  display: block;
-  width: fit-content;
-  margin: 6px auto;
-  padding: 5px 10px;
-  background: #ff4444;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 5px;
-  font-size: 12px;
-}
-
-footer {
-  text-align: center;
-  padding: 20px;
-  font-size: 12px;
-  color: #aaa;
-  background: #111;
-  margin-top: auto;
-}
-
-#ad-container {
-  display: none;
-      }
+    #ad-container {
+      display: none;
+    }
   </style>
 
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -198,8 +162,6 @@ OneSignalDeferred.push(async function(OneSignal) {
 
 });
 </script>
-
-  <script src="https://pl28956604.profitablecpmratenetwork.com/c7/ba/1d/c7ba1d0cd42bd7cbdf437d03bd000409.js"></script>
   
 </head>
 
@@ -277,181 +239,7 @@ OneSignalDeferred.push(async function(OneSignal) {
     }, 500);
   });
 </script>
- 
-<!-- TOP AD -->
-<div id="topAdMain" style="
-position: fixed;
-top: -80px;
-left: 50%;
-transform: translateX(-50%);
-width: 300px;
-height: 62px;
-border: 2px solid red;
-border-radius: 8px;
-overflow: hidden;
-z-index: 9999;
-background: #fff;
-transition: top 0.5s ease;
-">
 
-  <!-- Blink animation -->
-  <style>
-    @keyframes blink {
-      0% { opacity: 1; }
-      50% { opacity: 0; }
-      100% { opacity: 1; }
-    }
-  </style>
-
-  <!-- Ad container (empty initially) -->
-  <div id="adContainer" style="
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    z-index:1;
-    background:#fff;
-  "></div>
-
-  <!-- 🔴 Live -->
-  <div style="
-    position:absolute;
-    top:2px;
-    left:50%;
-    transform:translateX(-50%);
-    background:red;
-    color:#fff;
-    font-weight:bold;
-    font-size:11px;
-    padding:1px 6px;
-    border-radius:4px;
-    z-index:1000;
-    animation: blink 1s infinite;
-  ">
-    🔴 Live
-  </div>
-
-  <!-- Timer / Close -->
-  <div style="
-    position:absolute;
-    top:4px;
-    right:14px;
-    z-index:1000;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  ">
-
-    <div id="mainCountdown" style="
-      background:black;
-      color:#fff;
-      font-size:11px;
-      font-weight:bold;
-      padding:2px 6px;
-      border-radius:4px;
-    ">
-      15s
-    </div>
-
-    <div id="mainCloseBtn" style="
-      display:none;
-      background:#000;
-      color:#fff;
-      font-size:13px;
-      font-weight:bold;
-      width:20px;
-      height:20px;
-      line-height:20px;
-      text-align:center;
-      border-radius:4px;
-      cursor:pointer;
-    ">
-      ✕
-    </div>
-
-  </div>
-</div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-
-  const ad = document.getElementById("topAdMain");
-  const adContainer = document.getElementById("adContainer");
-  const countdownEl = document.getElementById("mainCountdown");
-  const closeBtn = document.getElementById("mainCloseBtn");
-
-  let countdownInterval;
-  let cycleTimeout;
-  let adLoaded = false;
-
-  function loadAdScriptOnce() {
-    if (adLoaded) return;
-    adLoaded = true;
-
-    const script1 = document.createElement("script");
-    script1.async = true;
-    script1.src = "https://poweredby.jads.co/js/jads.js";
-
-    const ins = document.createElement("ins");
-    ins.setAttribute("id", "1113670");
-    ins.setAttribute("data-width", "300");
-    ins.setAttribute("data-height", "62");
-
-    const script2 = document.createElement("script");
-    script2.text = "(adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});";
-
-    adContainer.appendChild(script1);
-    adContainer.appendChild(ins);
-    adContainer.appendChild(script2);
-  }
-
-  function showAd() {
-    ad.style.top = "10px";
-
-    // Load ad only when needed
-    loadAdScriptOnce();
-
-    let timeLeft = 15;
-
-    countdownEl.style.display = "block";
-    closeBtn.style.display = "none";
-
-    countdownEl.textContent = timeLeft + "s";
-
-    clearInterval(countdownInterval);
-
-    countdownInterval = setInterval(() => {
-      timeLeft--;
-      countdownEl.textContent = timeLeft + "s";
-
-      if (timeLeft <= 0) {
-        clearInterval(countdownInterval);
-
-        countdownEl.style.display = "none";
-        closeBtn.style.display = "flex";
-      }
-    }, 1000);
-  }
-
-  function hideMainAd() {
-    ad.style.top = "-80px";
-
-    clearInterval(countdownInterval);
-    clearTimeout(cycleTimeout);
-
-    cycleTimeout = setTimeout(showAd, 120000);
-  }
-
-  closeBtn.addEventListener("click", hideMainAd);
-
-  setTimeout(() => {
-    showAd();
-  }, 30000);
-
-});
-</script>
-  
 <button onclick="history.back()">← Back</button>
   
 <h2 id="folderTitle">🔐VIP Exclusive</h2>
