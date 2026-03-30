@@ -7,29 +7,28 @@
 
   <style>
     body {
-  font-family: Arial, sans-serif;
-  background: #1a1a1a;
-  color: #fff;
-  margin: 0;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  align-items: center; /* Center content horizontally */
-}
+      font-family: Arial, sans-serif;
+      background: #1a1a1a;
+      color: #fff;
+      margin: 0;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
 
-button {
-  background: #444;
-  color: #fff;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-bottom: 15px;
-  margin-left: 0;  /* Aligns button to the left without affecting other content */
-  align-self: flex-start; /* This makes sure the button aligns to the left while other items stay centered */
-}
-
+    /* BUTTONS & HEADERS */
+    button {
+      background: #444;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 15px;
+      align-self: flex-start; /* This makes sure the button aligns to the left */
+    }
+    
     h2 {
       color: #ff4444;
       text-align: center;
@@ -129,7 +128,6 @@ button {
 
 <body>
 
-  <!-- BUTTON OUTSIDE HEADER -->
   <button onclick="history.back()">← Back</button>
   
   <h2 id="folderTitle">🔐VIP Exclusive</h2>
@@ -149,39 +147,39 @@ button {
   </div>
 
   <style>
-  .skeleton {
-    width: 100%;
-    height: 250px;
-    border-radius: 10px;
-    background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-  }
+    .skeleton {
+      width: 100%;
+      height: 250px;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
 
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
 
-  #ad-container {
-    display: none;
-  }
+    #ad-container {
+      display: none;
+    }
   </style>
 
   <script>
-  const skeleton = document.getElementById("skeleton");
-  const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
-  const adWrapper = document.getElementById("ad-container");
+    const skeleton = document.getElementById("skeleton");
+    const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
+    const adWrapper = document.getElementById("ad-container");
 
-  const observer = new MutationObserver((mutations, obs) => {
-    if (adContainer.children.length > 0) {
-      skeleton.style.display = "none";
-      adWrapper.style.display = "block";
-      obs.disconnect();
-    }
-  });
+    const observer = new MutationObserver((mutations, obs) => {
+      if (adContainer.children.length > 0) {
+        skeleton.style.display = "none";
+        adWrapper.style.display = "block";
+        obs.disconnect();
+      }
+    });
 
-  observer.observe(adContainer, { childList: true, subtree: true });
+    observer.observe(adContainer, { childList: true, subtree: true });
   </script>
 
   <footer>
