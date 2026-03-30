@@ -52,7 +52,6 @@ function increaseViews(videoId) { if (!TEST_MODE) sendToWorker("clicked_" + vide
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
 const videoElements = {};
-let isFirstLoad = true; // Flag to detect first load
 
 /* ---------------- UI UPDATE ---------------- */
 function updateUI(id) {
@@ -67,32 +66,33 @@ function updateUI(id) {
 
   const isTrending = cycle >= 10;
 
-  // Add the "moving" class for smooth animation only when position changes
+  // Only move videos if it's not the first load or page refresh
   if (v.box.parentElement === videosContainer) {
     v.box.classList.add('moving');
   }
 
-  // Wait for the animation to complete before actually moving the element
   v.box.addEventListener('transitionend', () => {
-    // Once the animation ends, apply the DOM movement
+    // After transition, update the position only for trending videos
     if (v.box.parentElement === videosContainer) {
       videosContainer.removeChild(v.box);
     }
 
     if (isTrending) {
-      // Move trending videos to top and add the 'moved' class for visibility
-      videosContainer.insertBefore(v.box, videosContainer.firstChild);
-      v.box.classList.remove('moving');
-      v.box.classList.add('moved');
+      // Check if the video has already moved to the top to avoid unnecessary movements
+      if (!localStorage.getItem(`moved_${id}`)) {
+        videosContainer.insertBefore(v.box, videosContainer.firstChild);
+        localStorage.setItem(`moved_${id}`, "true"); // Store that this video has moved
+      }
     } else {
-      // Return to original position if below 10
       if (v.originalIndex >= videosContainer.children.length) {
         videosContainer.appendChild(v.box);
       } else {
         videosContainer.insertBefore(v.box, videosContainer.children[v.originalIndex]);
       }
-      v.box.classList.remove('moving');
     }
+
+    // Remove "moving" class after transition ends
+    v.box.classList.remove('moving');
   });
 
   const newText = isTrending ? `🔥 Trending | 👁 ${formatViews(total)}` : `👁 ${formatViews(total)}`;
@@ -179,10 +179,10 @@ fetch(dataSource)
     });
 
     // ---------------- POST-LOAD TRENDING ----------------
-    // Move cached trending videos to top smoothly
+    // Check for already moved videos to avoid re-moving after page refresh
     setTimeout(() => {
       Object.keys(videoElements).forEach(id => {
-        if (videoElements[id].cycleViews >= 10) {
+        if (videoElements[id].cycleViews >= 10 && !localStorage.getItem(`moved_${id}`)) {
           updateUI(id);
         }
       });
