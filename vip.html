@@ -15,7 +15,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  align-items: flex-start; /* Prevents items from centering, aligns to the left */
+  align-items: center; /* Center content horizontally */
 }
 
 button {
@@ -26,7 +26,8 @@ button {
   border-radius: 5px;
   cursor: pointer;
   margin-bottom: 15px;
-  display: inline-block;  /* Ensures button takes only required width */
+  margin-left: 0;  /* Aligns button to the left without affecting other content */
+  align-self: flex-start; /* This makes sure the button aligns to the left while other items stay centered */
 }
 
     h2 {
