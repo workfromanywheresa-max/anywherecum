@@ -166,25 +166,19 @@ h2 {
 
 <script>
 window.OneSignalDeferred = window.OneSignalDeferred || [];
-
 OneSignalDeferred.push(async function(OneSignal) {
   await OneSignal.init({ appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f" });
-
   async function handleSub() {
     const sub = OneSignal.User.PushSubscription;
     if (!sub) return;
-
     const id = sub.token || sub.id;
     if (!id) return;
-
     const optedIn = sub.optedIn;
     const lastState = localStorage.getItem("sub_" + id);
     if (lastState === String(optedIn)) return;
-
     localStorage.setItem("sub_" + id, optedIn);
     if (window.saveSubscriber) window.saveSubscriber(id, optedIn);
   }
-
   setTimeout(handleSub, 2000);
   setTimeout(handleSub, 5000);
   handleSub();
@@ -203,6 +197,7 @@ OneSignalDeferred.push(async function(OneSignal) {
 </p>
 
 <div id="normalVideos">
+  <!-- Initial Skeletons -->
   <div class="videoBox skeleton">
     <div class="videoFrameWrapper"></div>
     <div class="videoTitle"></div>
