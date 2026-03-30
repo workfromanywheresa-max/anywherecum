@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 /* ---------------- FIREBASE ---------------- */
 const app = initializeApp({
@@ -171,19 +171,8 @@ fetch(dataSource)
         videoElements[v.id].totalViews = snap.val() || 0;
         updateUI(v.id);
       });
-
-      // Listen to cycleViews change (if it resets or decreases)
       onValue(ref(db, "cycleViews/" + v.id), snap => {
-        const newCycle = Number(snap.val()) || 0;
-        videoElements[v.id].cycleViews = newCycle;
-
-        // Reset cycleViews to 0 if it drops below 10
-        if (newCycle < 10) {
-          set(ref(db, "cycleViews/" + v.id), 0);  // Reset cycleViews to 0 in Firebase
-          videoElements[v.id].cycleViews = 0;  // Also reset locally
-        }
-
-        // Update position if cycleViews go below 10
+        videoElements[v.id].cycleViews = Number(snap.val()) || 0;
         updateUI(v.id);
       });
     });
