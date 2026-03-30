@@ -64,7 +64,9 @@
       text-align: center;
       visibility: visible; /* Default visibility is visible */
       transition: transform 0.5s ease, visibility 0s ease; /* Only apply transform with a 0.5s delay */
-      width: 400px; /* Fixed width for all video boxes */
+      width: 100%; /* Make the video box take up full available width */
+      max-width: 400px; /* Max width of video box */
+      box-sizing: border-box; /* Include padding and border in width calculation */
       display: flex;
       flex-direction: column;
       align-items: center; /* Center content horizontally */
