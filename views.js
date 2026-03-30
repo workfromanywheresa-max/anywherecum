@@ -21,29 +21,20 @@ window.saveSubscriber = async function(userId, optedIn) {
 
     const res = await fetch(SUBSCRIBER_WORKER, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        userId,
-        subscribed: optedIn ? 1 : 0
-      })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, subscribed: optedIn ? 1 : 0 })
     });
 
     const text = await res.text();
     console.log("Worker response:", text);
-
   } catch (err) {
     console.error("Subscriber Worker failed:", err);
   }
 };
 
-/* ===================================================== */
-
 /* ---------------- Worker ---------------- */
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
 
-/* ---------------- Send to Worker ---------------- */
 async function sendToWorker(type) {
   try {
     await fetch(WORKER_URL, {
@@ -58,21 +49,14 @@ async function sendToWorker(type) {
 
 /* ---------------- Page Detection ---------------- */
 let path = window.location.pathname.toLowerCase();
-
-let pageName;
-
-if (path === "/" || path === "/index.html") {
-  pageName = "home";
-} else {
-  pageName = path.split("/").filter(Boolean).pop().replace(".html", "");
-}
+let pageName = (path === "/" || path === "/index.html")
+  ? "home"
+  : path.split("/").filter(Boolean).pop().replace(".html", "");
 
 /* ---------------- Track Page ---------------- */
 function trackPage(page) {
   const key = "page_" + page;
-
   if (sessionStorage.getItem(key)) return;
-
   sessionStorage.setItem(key, "1");
   sendToWorker(page);
 }
@@ -80,9 +64,7 @@ function trackPage(page) {
 /* ---------------- Preview Click Tracking ---------------- */
 function trackPreviewClick(folderName) {
   const key = "preview_" + folderName;
-
   if (sessionStorage.getItem(key)) return;
-
   sessionStorage.setItem(key, "1");
   sendToWorker(folderName);
 }
@@ -90,15 +72,11 @@ function trackPreviewClick(folderName) {
 window.trackPreviewClick = trackPreviewClick;
 
 /* ---------------- Detect Clicks ---------------- */
-document.addEventListener("click", function (e) {
+document.addEventListener("click", function(e) {
   const preview = e.target.closest(".folder-preview");
-
   if (preview) {
     const folderName = preview.getAttribute("data-folder");
-
-    if (folderName) {
-      trackPreviewClick(folderName);
-    }
+    if (folderName) trackPreviewClick(folderName);
   }
 });
 
@@ -109,30 +87,20 @@ trackPage(pageName);
 function formatViews(num) {
   num = Number(num);
   if (isNaN(num)) return "0";
-
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0", "") + "M";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(".0", "") + "K";
-
   return num;
 }
 
 /* ---------------- Cache ---------------- */
-function saveCache(key, value) {
-  localStorage.setItem(key, value);
-}
-
-function getCache(key) {
-  return localStorage.getItem(key);
-}
+function saveCache(key, value) { localStorage.setItem(key, value); }
+function getCache(key) { return localStorage.getItem(key); }
 
 /* ---------------- Inject UI ---------------- */
 let el = null;
-
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("adminContainer");
-
   if (!container) return;
-
   container.innerHTML = `
     <a id="adminLink" href="admin.html" style="
       position: fixed;
@@ -147,43 +115,25 @@ document.addEventListener("DOMContentLoaded", () => {
       <span id="viewNumber">👁 0</span> | Admin
     </a>
   `;
-
   el = document.getElementById("viewNumber");
 });
 
 /* ---------------- Cached Value ---------------- */
 const cachedRaw = getCache("totalViews");
-
-let cachedTotal = (!isNaN(cachedRaw) && cachedRaw !== null)
-  ? Number(cachedRaw)
-  : null;
-
+let cachedTotal = (!isNaN(cachedRaw) && cachedRaw !== null) ? Number(cachedRaw) : null;
 let firstLoad = true;
 let lastRenderedTotal = null;
 
 /* ---------------- Firebase (VIEWS ONLY) ---------------- */
 const pageRef = ref(db, "pageViews");
-
 onValue(pageRef, (snapshot) => {
   const data = snapshot.val() || {};
-
   let total = 0;
-
-  Object.values(data).forEach(v => {
-    if (typeof v === "number") total += v;
-  });
-
+  Object.values(data).forEach(v => { if (typeof v === "number") total += v; });
   saveCache("totalViews", total);
   saveCache("pageViewsData", JSON.stringify(data));
-
   cachedTotal = total;
-
-  if (firstLoad) {
-    firstLoad = false;
-    lastRenderedTotal = total;
-    return;
-  }
-
+  if (firstLoad) { firstLoad = false; lastRenderedTotal = total; return; }
   if (total !== lastRenderedTotal && el) {
     el.textContent = `👁 ${formatViews(total)}`;
     lastRenderedTotal = total;
