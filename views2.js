@@ -54,11 +54,9 @@ const videosContainer = document.getElementById("normalVideos");
 const videoElements = {};
 
 /* ---------------- LOADER ---------------- */
-// Reduced size for video box
-const videoBoxWidth = 600; // Smaller width
-const videoBoxHeight = 169; // Adjusted height based on 16:9 aspect ratio
+const videoBoxWidth = 600;
+const videoBoxHeight = 169;
 
-// Function to create a loader with a fixed size
 function createLoader() {
   const loader = document.createElement("div");
   loader.id = "loader";
@@ -70,55 +68,46 @@ function createLoader() {
   loader.style.display = "flex";
   loader.style.justifyContent = "center";
   loader.style.alignItems = "center";
-  loader.style.width = `${videoBoxWidth}px`; // Fixed width for the loader
-  loader.style.height = `${videoBoxHeight}px`; // Fixed height for the loader
+  loader.style.width = `${videoBoxWidth}px`;
+  loader.style.height = `${videoBoxHeight}px`;
 
   const spinner = document.createElement("div");
   spinner.style.border = "4px solid rgba(255, 255, 255, 0.3)";
   spinner.style.borderTop = "4px solid #ffcc00";
   spinner.style.borderRadius = "50%";
-  spinner.style.width = "50px"; // Fixed size of the spinner
+  spinner.style.width = "50px";
   spinner.style.height = "50px";
   spinner.style.animation = "spin 1s linear infinite";
-  
+
   loader.appendChild(spinner);
-  
-  // Append the loader to the body
   document.body.appendChild(loader);
 }
 
-// Remove the loader element
 function removeLoader() {
   const loader = document.getElementById("loader");
-  if (loader) {
-    loader.remove();
-  }
+  if (loader) loader.remove();
 }
 
-// Add spinner animation CSS dynamically
 const style = document.createElement('style');
 style.innerHTML = `
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-`;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}`;
 document.head.appendChild(style);
 
-// Function to create a video box with auto width and reduced sizes
+/* ---------------- VIDEO BOX ---------------- */
 function createVideoBox(video) {
   const box = document.createElement("div");
-  box.className = "videoBox"; // Add the class for styling
-  box.style.height = `${videoBoxHeight + 60}px`; // Fixed height for the video box (plus some space for text)
-  
+
   const wrapper = document.createElement("div");
-  wrapper.className = "videoFrameWrapper";
   wrapper.style.width = "100%";
-  wrapper.style.maxWidth = `${videoBoxWidth}px`; // Fixed width for the video wrapper
-  wrapper.style.aspectRatio = "16/9"; // Maintain 16:9 aspect ratio
-  
+  wrapper.style.maxWidth = `${videoBoxWidth}px`;
+  wrapper.style.aspectRatio = "16/9";
+
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
+
   thumb.onclick = () => {
     increaseViews(video.id);
     const iframe = document.createElement("iframe");
@@ -127,22 +116,26 @@ function createVideoBox(video) {
     wrapper.innerHTML = "";
     wrapper.appendChild(iframe);
   };
+
   wrapper.appendChild(thumb);
 
   const title = document.createElement("h3");
-  title.className = "videoTitle";
   title.textContent = video.title;
-  title.onclick = () => { increaseViews(video.id); window.open(video.url, "_blank"); };
+  title.onclick = () => {
+    increaseViews(video.id);
+    window.open(video.url, "_blank");
+  };
 
   const views = document.createElement("div");
-  views.className = "views";
-  views.textContent = `👁 ${formatViews(video.totalViews)}`;
 
   const btn = document.createElement("a");
-  btn.className = "download";
   btn.href = "#";
   btn.textContent = `Download (${video.size || "?"})`;
-  btn.onclick = (e) => { e.preventDefault(); increaseViews(video.id); window.open(video.url, "_blank"); };
+  btn.onclick = (e) => {
+    e.preventDefault();
+    increaseViews(video.id);
+    window.open(video.url, "_blank");
+  };
 
   box.appendChild(wrapper);
   box.appendChild(title);
@@ -165,16 +158,13 @@ function updateUI(id) {
 
   const isTrending = cycle >= 10;
 
-  // Remove box first
   if (v.box.parentElement === videosContainer) {
     videosContainer.removeChild(v.box);
   }
 
   if (isTrending) {
-    // Move trending videos to top
     videosContainer.insertBefore(v.box, videosContainer.firstChild);
   } else {
-    // Return to original position if below 10
     if (v.originalIndex >= videosContainer.children.length) {
       videosContainer.appendChild(v.box);
     } else {
@@ -190,52 +180,63 @@ function updateUI(id) {
 }
 
 /* ---------------- LOAD VIDEOS ---------------- */
-createLoader();  // Show loader before the fetch
+createLoader();
 
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
-    removeLoader();  // Hide loader after the videos are loaded
+    removeLoader();
 
     const filtered = folderName
       ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
       : videos;
 
     filtered.forEach((v, index) => {
-      const box = createVideoBox(v); // Create a video box for each video
+      const box = createVideoBox(v);
 
       videosContainer.appendChild(box);
 
-      // store video info including original position
+      // ✅ CACHE FIRST
+      const cachedViews = Number(getCache("views_" + v.id)) || v.totalViews || 0;
+      const cachedCycle = Number(getCache("cycle_" + v.id)) || v.cycleViews || 0;
+
       videoElements[v.id] = {
         box,
-        views: box.querySelector(".views"),
-        totalViews: v.totalViews || 0,
-        cycleViews: v.cycleViews || 0,
+        views: box.querySelector("div"),
+        totalViews: cachedViews,
+        cycleViews: cachedCycle,
         originalIndex: index
       };
 
-      // FIREBASE LISTENERS
+      updateUI(v.id);
+
+      // ✅ FIREBASE MERGE WITH CACHE
       onValue(ref(db, "views/" + v.id), snap => {
-        videoElements[v.id].totalViews = snap.val() || 0;
+        const fb = snap.val() || 0;
+        const cached = Number(getCache("views_" + v.id)) || 0;
+
+        videoElements[v.id].totalViews = Math.max(fb, cached);
         updateUI(v.id);
       });
+
       onValue(ref(db, "cycleViews/" + v.id), snap => {
-        videoElements[v.id].cycleViews = Number(snap.val()) || 0;
+        const fb = Number(snap.val()) || 0;
+        const cached = Number(getCache("cycle_" + v.id)) || 0;
+
+        videoElements[v.id].cycleViews = Math.max(fb, cached);
         updateUI(v.id);
       });
     });
 
-    // ---------------- POST-LOAD TRENDING ----------------
     setTimeout(() => {
       Object.keys(videoElements).forEach(id => {
         if (videoElements[id].cycleViews >= 10) {
           updateUI(id);
         }
       });
-    }, 50); // slight delay ensures DOM is fully rendered
+    }, 50);
   })
   .catch(error => {
     console.error("Error loading videos:", error);
-    removeLoader();  // Hide loader if an error occurs
+    removeLoader();
   });
