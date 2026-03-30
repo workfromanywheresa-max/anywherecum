@@ -165,6 +165,7 @@ footer div a img {
 
 <!-- VIDEOS CONTAINER WITH SKELETONS -->
 <div id="normalVideos">
+  <!-- Skeleton placeholders -->
   <div class="videoBox skeleton-video">
     <div class="videoFrameWrapper skeleton-frame"></div>
     <div class="videoTitle skeleton-text"></div>
@@ -204,9 +205,64 @@ window.VIDEO_CONFIG = {
   dataSource: "vip.json",
   folder: params.get("folder") || ""
 };
-</script>
 
-<script type="module" src="views2.js"></script>
+// Function to remove skeletons and append videos
+function renderVideos(videos) {
+  const container = document.getElementById("normalVideos");
+  container.innerHTML = ""; // Remove skeletons
+
+  videos.forEach(v => {
+    const box = document.createElement("div");
+    box.className = "videoBox";
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "videoFrameWrapper";
+    const thumb = document.createElement("img");
+    thumb.src = v.thumbnail;
+    thumb.onclick = () => {
+      const iframe = document.createElement("iframe");
+      iframe.src = v.embed;
+      iframe.allowFullscreen = true;
+      wrapper.innerHTML = "";
+      wrapper.appendChild(iframe);
+    };
+    wrapper.appendChild(thumb);
+
+    const title = document.createElement("h3");
+    title.className = "videoTitle";
+    title.textContent = v.title;
+    title.onclick = () => window.open(v.url, "_blank");
+
+    const views = document.createElement("div");
+    views.className = "views";
+    views.textContent = `👁 ${v.views || 0}`;
+
+    const btn = document.createElement("a");
+    btn.className = "download";
+    btn.href = v.url;
+    btn.textContent = `Download (${v.size || "?"})`;
+    btn.target = "_blank";
+
+    box.appendChild(wrapper);
+    box.appendChild(title);
+    box.appendChild(views);
+    box.appendChild(btn);
+    container.appendChild(box);
+  });
+}
+
+// Fetch data and render videos
+fetch(window.VIDEO_CONFIG.dataSource)
+  .then(res => res.json())
+  .then(data => {
+    const folder = window.VIDEO_CONFIG.folder.toLowerCase();
+    const videos = folder
+      ? data.filter(v => v.folder && v.folder.toLowerCase() === folder)
+      : data;
+    renderVideos(videos);
+  })
+  .catch(err => console.error("Failed to load videos:", err));
+</script>
 
 </body>
 </html>
