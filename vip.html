@@ -121,7 +121,7 @@ footer div a img {
   height: 14px;
 }
 
-/* LOADER ABOVE FOOTER */
+/* FOOTER LOADER */
 #footerLoader {
   text-align: center;
   color: #888;
@@ -141,6 +141,7 @@ footer div a img {
 <!-- VIDEOS CONTAINER -->
 <div id="normalVideos">
   <!-- Initial skeleton loader -->
+  <div class="videoBox placeholder"></div>
   <div class="videoBox placeholder"></div>
   <div class="videoBox placeholder"></div>
 </div>
@@ -168,27 +169,12 @@ window.VIDEO_CONFIG = {
   folder: params.get("folder") || ""
 };
 
-/* REMOVE loader once videos injected */
-const normalContainer = document.getElementById("normalVideos");
+/* Remove footer loader once your JS injects videos */
 const footerLoader = document.getElementById("footerLoader");
-
-function removeFooterLoader() {
+window.removeFooterLoader = () => {
   if (footerLoader) footerLoader.style.display = "none";
-}
-
-/* Example: simulate videos loading after 1.5s */
-setTimeout(() => {
-  // Remove skeletons
-  normalContainer.innerHTML = `
-    <div class="videoBox">Video 1</div>
-    <div class="videoBox">Video 2</div>
-    <div class="videoBox">Video 3</div>
-  `;
-  removeFooterLoader();
-}, 1500);
+};
 </script>
-
-<script type="module" src="views2.js"></script>
 
 </body>
 </html>
