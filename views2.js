@@ -56,17 +56,9 @@ fetch(dataSource)
 .then(res => res.json())
 .then(videos => {
 
-  // Remove skeletons when real content is ready
-  const skeletons = document.querySelectorAll(".videoBox.skeleton");
-  skeletons.forEach(skel => {
-    skel.classList.add("removing");
-    setTimeout(() => skel.remove(), 500);
-  });
-
   const filtered = folderName ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName) : videos;
 
   filtered.forEach(v => {
-
     const box = document.createElement("div");
     box.className = "videoBox";
 
@@ -92,13 +84,8 @@ fetch(dataSource)
 
     const views = document.createElement("div");
     views.className = "views";
-
     const cachedViews = getCache("views_" + v.id);
-    const cachedCycle = getCache("cycle_" + v.id);
-    let initialViews = cachedViews ? Number(cachedViews) : 0;
-    let initialCycle = cachedCycle ? Number(cachedCycle) : 0;
-
-    views.textContent = `👁 ${formatViews(initialViews)}`;
+    views.textContent = `👁 ${formatViews(cachedViews ? Number(cachedViews) : 0)}`;
 
     const btn = document.createElement("a");
     btn.className = "download";
@@ -113,10 +100,17 @@ fetch(dataSource)
 
     normalContainer.appendChild(box);
 
-    videoElements[v.id] = { box, views, totalViews: initialViews, cycleViews: initialCycle };
+    videoElements[v.id] = { box, views, totalViews: cachedViews ? Number(cachedViews) : 0, cycleViews: 0 };
 
     onValue(ref(db,"views/" + v.id), snap => { videoElements[v.id].totalViews = snap.val() || 0; updateUI(v.id); });
     onValue(ref(db,"cycleViews/" + v.id), snap => { videoElements[v.id].cycleViews = Number(snap.val()) || 0; updateUI(v.id); });
+  });
+
+  // Remove skeletons **after real videos appended**
+  const skeletons = document.querySelectorAll(".videoBox.skeleton");
+  skeletons.forEach(skel => {
+    skel.classList.add("removing");
+    skel.addEventListener("transitionend", () => skel.remove());
   });
 
 });
@@ -133,4 +127,4 @@ function updateUI(id){
     v.views.textContent = newText;
     v.views.style.color = cycle >= 10 ? "#ffcc00" : "#aaa";
   }
-}
+                       }
