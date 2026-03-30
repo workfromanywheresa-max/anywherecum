@@ -22,7 +22,6 @@ function getCache(key) { return localStorage.getItem(key); }
 function toTitleCase(str) {
   return str.toLowerCase().split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 }
-
 document.getElementById("folderTitle").textContent =
   folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
 
@@ -45,17 +44,12 @@ async function sendToWorker(videoId) {
     });
   } catch (err) { console.error("Worker failed:", err); }
 }
+function increaseViews(videoId) { if (!TEST_MODE) sendToWorker("clicked_" + videoId); }
 
-function increaseViews(videoId) {
-  if (!TEST_MODE) sendToWorker("clicked_" + videoId);
-}
-
-/* ---------------- CONTAINERS ---------------- */
-const trendingContainer = document.getElementById("trendingVideos");
+/* ---------------- UI ---------------- */
 const normalContainer = document.getElementById("normalVideos");
 const videoElements = {};
 
-/* ---------------- UI UPDATE ---------------- */
 function updateUI(id) {
   const v = videoElements[id];
   if (!v) return;
@@ -67,13 +61,6 @@ function updateUI(id) {
   saveCache("cycle_" + id, cycle);
 
   const isTrending = cycle >= 10;
-  const target = isTrending ? trendingContainer : normalContainer;
-
-  if (v.box.parentElement !== target) {
-    if (isTrending) target.insertBefore(v.box, target.firstChild);
-    else target.appendChild(v.box);
-  }
-
   const newText = isTrending ? `🔥 Trending | 👁 ${formatViews(total)}` : `👁 ${formatViews(total)}`;
   if (v.views.textContent !== newText) {
     v.views.textContent = newText;
@@ -92,42 +79,71 @@ document.addEventListener("DOMContentLoaded", () => {
         ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
         : videos;
 
-      // Remove all skeleton placeholders
-      const skeletons = normalContainer.querySelectorAll(".videoBox.skeleton");
-      skeletons.forEach(skel => skel.remove());
+      // Initial skeletons
+      for (let i = 0; i < 3; i++) {
+        const skel = document.createElement("div");
+        skel.className = "videoBox skeleton";
+        skel.innerHTML = `
+          <div class="videoFrameWrapper"></div>
+          <div class="videoTitle"></div>
+          <div class="views"></div>
+          <div class="download"></div>
+        `;
+        normalContainer.appendChild(skel);
+      }
 
       filtered.forEach(v => {
 
-        // Video Box
+        // Remove one skeleton
+        const skeleton = normalContainer.querySelector(".videoBox.skeleton");
+        if (skeleton) skeleton.remove();
+
         const box = document.createElement("div");
         box.className = "videoBox";
         box.style.opacity = 0;
         box.style.transform = "translateY(10px)";
         box.style.transition = "opacity 0.3s ease, transform 0.3s ease";
 
-        // Video Frame / Thumbnail
         const wrapper = document.createElement("div");
         wrapper.className = "videoFrameWrapper";
+
         const thumb = document.createElement("img");
         thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(v.thumbnail)}`;
         thumb.style.cursor = "pointer";
+
         thumb.onclick = () => {
           increaseViews(v.id);
+
+          const loader = document.createElement("div");
+          loader.style.cssText = `
+            position: absolute;
+            inset: 0;
+            border-radius: 8px;
+            background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+          `;
+          wrapper.innerHTML = "";
+          wrapper.appendChild(loader);
+
           const iframe = document.createElement("iframe");
           iframe.src = v.embed;
           iframe.allowFullscreen = true;
-          wrapper.innerHTML = "";
+          iframe.style.width = "100%";
+          iframe.style.height = "100%";
+          iframe.style.border = "0";
+          iframe.onload = () => loader.remove();
+
           wrapper.appendChild(iframe);
         };
+
         wrapper.appendChild(thumb);
 
-        // Title
         const title = document.createElement("h3");
         title.className = "videoTitle";
         title.textContent = v.title;
         title.onclick = () => { increaseViews(v.id); window.open(v.url, "_blank"); };
 
-        // Views
         const views = document.createElement("div");
         views.className = "views";
         const cachedViews = getCache("views_" + v.id);
@@ -136,40 +152,33 @@ document.addEventListener("DOMContentLoaded", () => {
         const initialCycle = cachedCycle ? Number(cachedCycle) : 0;
         views.textContent = `👁 ${formatViews(initialViews)}`;
 
-        // Download button
         const btn = document.createElement("a");
         btn.className = "download";
         btn.href = v.url;
         btn.textContent = `Download (${v.size || "?"})`;
         btn.onclick = (e) => { e.preventDefault(); increaseViews(v.id); window.open(v.url, "_blank"); };
 
-        // Append elements
         box.appendChild(wrapper);
         box.appendChild(title);
         box.appendChild(views);
         box.appendChild(btn);
         normalContainer.appendChild(box);
 
-        // Fade in effect
         requestAnimationFrame(() => {
           box.style.opacity = 1;
           box.style.transform = "translateY(0)";
         });
 
-        // Save references
         videoElements[v.id] = { box, views, totalViews: initialViews, cycleViews: initialCycle };
 
-        // Firebase Realtime Updates
         onValue(ref(db, "views/" + v.id), snap => {
           videoElements[v.id].totalViews = snap.val() || 0;
           updateUI(v.id);
         });
-
         onValue(ref(db, "cycleViews/" + v.id), snap => {
           videoElements[v.id].cycleViews = Number(snap.val()) || 0;
           updateUI(v.id);
         });
-
       });
     })
     .catch(err => console.error("Failed to load videos:", err));
