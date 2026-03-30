@@ -12,7 +12,6 @@ body {
   color: #fff;
   margin: 0;
   padding: 15px;
-  padding-bottom: 80px; /* Space for fixed footer */
 }
 
 /* BUTTONS & HEADERS */
@@ -35,6 +34,11 @@ h2 {
   text-align: center;
   color: #aaa;
   font-size: 14px;
+}
+
+/* VIDEOS CONTAINER */
+#normalVideos {
+  margin-bottom: 50px; /* Space between last video and footer */
 }
 
 /* VIDEO BOX */
@@ -101,18 +105,14 @@ h2 {
   font-size: 12px;
 }
 
-/* FOOTER - FIXED AT BOTTOM */
+/* FOOTER - natural flow */
 footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
   text-align: center;
   padding: 20px;
   font-size: 12px;
   color: #aaa;
   background: #111;
-  z-index: 999;
+  margin-top: 0; /* Footer sticks naturally after content */
 }
 footer div a img {
   width: 14px;
