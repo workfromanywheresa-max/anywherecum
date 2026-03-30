@@ -82,100 +82,95 @@ function updateUI(id) {
 }
 
 /* ---------------- LOAD VIDEOS ---------------- */
-fetch(dataSource)
-  .then(res => res.json())
-  .then(videos => {
+document.addEventListener("DOMContentLoaded", () => {
 
-    const filtered = folderName
-      ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
-      : videos;
+  fetch(dataSource)
+    .then(res => res.json())
+    .then(videos => {
 
-    // REMOVE skeleton placeholders
-    const skeletons = normalContainer.querySelectorAll(".videoBox.skeleton");
-    skeletons.forEach(skel => skel.remove());
+      const filtered = folderName
+        ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
+        : videos;
 
-    filtered.forEach(v => {
+      // Remove all skeleton placeholders
+      const skeletons = normalContainer.querySelectorAll(".videoBox.skeleton");
+      skeletons.forEach(skel => skel.remove());
 
-      // Video Box
-      const box = document.createElement("div");
-      box.className = "videoBox";
-      box.style.opacity = 0;
-      box.style.transform = "translateY(10px)";
-      box.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+      filtered.forEach(v => {
 
-      // Video Frame / Thumbnail
-      const wrapper = document.createElement("div");
-      wrapper.className = "videoFrameWrapper";
+        // Video Box
+        const box = document.createElement("div");
+        box.className = "videoBox";
+        box.style.opacity = 0;
+        box.style.transform = "translateY(10px)";
+        box.style.transition = "opacity 0.3s ease, transform 0.3s ease";
 
-      const thumb = document.createElement("img");
-      thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(v.thumbnail)}`;
-      thumb.style.cursor = "pointer";
-      thumb.onclick = () => {
-        increaseViews(v.id);
-        const iframe = document.createElement("iframe");
-        iframe.src = v.embed;
-        iframe.allowFullscreen = true;
-        wrapper.innerHTML = "";
-        wrapper.appendChild(iframe);
-      };
-      wrapper.appendChild(thumb);
+        // Video Frame / Thumbnail
+        const wrapper = document.createElement("div");
+        wrapper.className = "videoFrameWrapper";
+        const thumb = document.createElement("img");
+        thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(v.thumbnail)}`;
+        thumb.style.cursor = "pointer";
+        thumb.onclick = () => {
+          increaseViews(v.id);
+          const iframe = document.createElement("iframe");
+          iframe.src = v.embed;
+          iframe.allowFullscreen = true;
+          wrapper.innerHTML = "";
+          wrapper.appendChild(iframe);
+        };
+        wrapper.appendChild(thumb);
 
-      // Video Title
-      const title = document.createElement("h3");
-      title.className = "videoTitle";
-      title.textContent = v.title;
-      title.onclick = () => {
-        increaseViews(v.id);
-        window.open(v.url, "_blank");
-      };
+        // Title
+        const title = document.createElement("h3");
+        title.className = "videoTitle";
+        title.textContent = v.title;
+        title.onclick = () => { increaseViews(v.id); window.open(v.url, "_blank"); };
 
-      // Views
-      const views = document.createElement("div");
-      views.className = "views";
-      const cachedViews = getCache("views_" + v.id);
-      const cachedCycle = getCache("cycle_" + v.id);
-      const initialViews = cachedViews ? Number(cachedViews) : 0;
-      const initialCycle = cachedCycle ? Number(cachedCycle) : 0;
-      views.textContent = `👁 ${formatViews(initialViews)}`;
+        // Views
+        const views = document.createElement("div");
+        views.className = "views";
+        const cachedViews = getCache("views_" + v.id);
+        const cachedCycle = getCache("cycle_" + v.id);
+        const initialViews = cachedViews ? Number(cachedViews) : 0;
+        const initialCycle = cachedCycle ? Number(cachedCycle) : 0;
+        views.textContent = `👁 ${formatViews(initialViews)}`;
 
-      // Download Button
-      const btn = document.createElement("a");
-      btn.className = "download";
-      btn.href = v.url;
-      btn.textContent = `Download (${v.size || "?"})`;
-      btn.onclick = (e) => {
-        e.preventDefault();
-        increaseViews(v.id);
-        window.open(v.url, "_blank");
-      };
+        // Download button
+        const btn = document.createElement("a");
+        btn.className = "download";
+        btn.href = v.url;
+        btn.textContent = `Download (${v.size || "?"})`;
+        btn.onclick = (e) => { e.preventDefault(); increaseViews(v.id); window.open(v.url, "_blank"); };
 
-      // Append elements
-      box.appendChild(wrapper);
-      box.appendChild(title);
-      box.appendChild(views);
-      box.appendChild(btn);
-      normalContainer.appendChild(box);
+        // Append elements
+        box.appendChild(wrapper);
+        box.appendChild(title);
+        box.appendChild(views);
+        box.appendChild(btn);
+        normalContainer.appendChild(box);
 
-      // Fade-in effect
-      requestAnimationFrame(() => {
-        box.style.opacity = 1;
-        box.style.transform = "translateY(0)";
+        // Fade in effect
+        requestAnimationFrame(() => {
+          box.style.opacity = 1;
+          box.style.transform = "translateY(0)";
+        });
+
+        // Save references
+        videoElements[v.id] = { box, views, totalViews: initialViews, cycleViews: initialCycle };
+
+        // Firebase Realtime Updates
+        onValue(ref(db, "views/" + v.id), snap => {
+          videoElements[v.id].totalViews = snap.val() || 0;
+          updateUI(v.id);
+        });
+
+        onValue(ref(db, "cycleViews/" + v.id), snap => {
+          videoElements[v.id].cycleViews = Number(snap.val()) || 0;
+          updateUI(v.id);
+        });
+
       });
-
-      // Save reference
-      videoElements[v.id] = { box, views, totalViews: initialViews, cycleViews: initialCycle };
-
-      // Firebase Realtime Updates
-      onValue(ref(db, "views/" + v.id), snap => {
-        videoElements[v.id].totalViews = snap.val() || 0;
-        updateUI(v.id);
-      });
-
-      onValue(ref(db, "cycleViews/" + v.id), snap => {
-        videoElements[v.id].cycleViews = Number(snap.val()) || 0;
-        updateUI(v.id);
-      });
-
-    });
-  })
-  .catch(err => console.error("Failed to load videos:", err));
+    })
+    .catch(err => console.error("Failed to load videos:", err));
+});
