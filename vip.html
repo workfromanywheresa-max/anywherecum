@@ -19,13 +19,13 @@
 
     /* BUTTONS & HEADERS */
     button {
-      background: #444;
-      color: #fff;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-bottom: 15px;
+  background: #444;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 15px;
       align-self: flex-start;
     }
     
@@ -43,9 +43,6 @@
 
     /* VIDEOS CONTAINER */
     #normalVideos {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px; /* Adds space between video boxes */
       margin-bottom: 50px; /* space for footer */
       flex-grow: 1; /* push footer down if content is short */
     }
@@ -53,14 +50,12 @@
     /* VIDEO BOX */
     .videoBox {
       background: #222;
-      padding: 20px; /* Increased padding for space inside the box */
+      padding: 10px;
       border-radius: 8px;
-      margin-bottom: 20px; /* Space between boxes */
+      margin-bottom: 20px;
       text-align: center;
-      visibility: visible;
-      transition: transform 0.5s ease, visibility 0s ease;
-      width: 100%;
-      max-width: 320px; /* Set max width to ensure consistency */
+      visibility: visible; /* Default visibility is visible */
+      transition: transform 0.5s ease, visibility 0s ease; /* Only apply transform with a 0.5s delay */
     }
 
     /* VIDEO PLAYER */
@@ -110,9 +105,9 @@
 
     /* SMOOTH TRANSITION FOR MOVING */
     .videoBox.moving {
-      visibility: hidden;
-      transform: translateY(-50px);
-      transition: transform 0.5s ease, visibility 0s ease 0.5s;
+      visibility: hidden; /* Hide the element while moving */
+      transform: translateY(-50px); /* Move element up */
+      transition: transform 0.5s ease, visibility 0s ease 0.5s; /* Delay visibility change */
     }
 
     /* FOOTER */
@@ -122,7 +117,7 @@
       font-size: 12px;
       color: #aaa;
       background: #111;
-      margin-top: auto;
+      margin-top: auto; /* keeps footer at bottom if content is short */
     }
     footer div a img {
       width: 14px;
@@ -142,50 +137,50 @@
   <div id="normalVideos"></div>
 
   <!-- Skeleton Ad Loader -->
-  <div id="skeleton" class="skeleton"></div>
+<div id="skeleton" class="skeleton"></div>
 
-  <div id="ad-container">
-    <script async="async" data-cfasync="false"
-      src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js">
-    </script>
-    <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
-  </div>
-
-  <style>
-  .skeleton {
-    width: 100%;
-    height: 250px;
-    border-radius: 10px;
-    background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-  }
-
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-
-  #ad-container {
-    display: none;
-  }
-  </style>
-
-  <script>
-  const skeleton = document.getElementById("skeleton");
-  const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
-  const adWrapper = document.getElementById("ad-container");
-
-  const observer = new MutationObserver((mutations, obs) => {
-    if (adContainer.children.length > 0) {
-      skeleton.style.display = "none";
-      adWrapper.style.display = "block";
-      obs.disconnect();
-    }
-  });
-
-  observer.observe(adContainer, { childList: true, subtree: true });
+<div id="ad-container">
+  <script async="async" data-cfasync="false"
+    src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js">
   </script>
+  <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
+</div>
+
+<style>
+.skeleton {
+  width: 100%;
+  height: 250px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+#ad-container {
+  display: none;
+}
+</style>
+
+<script>
+const skeleton = document.getElementById("skeleton");
+const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
+const adWrapper = document.getElementById("ad-container");
+
+const observer = new MutationObserver((mutations, obs) => {
+  if (adContainer.children.length > 0) {
+    skeleton.style.display = "none";
+    adWrapper.style.display = "block";
+    obs.disconnect();
+  }
+});
+
+observer.observe(adContainer, { childList: true, subtree: true });
+</script>
 
   <footer>
     © 2026 AnywhereCum – Legal content only. 18+<br>
@@ -202,11 +197,11 @@
 
   <!-- VIDEO CONFIG & MODULE -->
   <script>
-  const params = new URLSearchParams(window.location.search);
-  window.VIDEO_CONFIG = {
-    dataSource: "vip.json",
-    folder: params.get("folder") || ""
-  };
+    const params = new URLSearchParams(window.location.search);
+    window.VIDEO_CONFIG = {
+      dataSource: "vip.json",
+      folder: params.get("folder") || ""
+    };
   </script>
 
   <script type="module" src="views2.js"></script>
