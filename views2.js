@@ -196,10 +196,12 @@ fetch(dataSource)
       videoElements[v.id] = {
         box,
         views: box.querySelector(".views"),
-        totalViews: getCache("views_" + v.id) !== null ? Number(getCache("views_" + v.id)) : (v.totalViews || 0),
-        cycleViews: getCache("cycle_" + v.id) !== null ? Number(getCache("cycle_" + v.id)) : (v.cycleViews || 0),
+        totalViews: Number(getCache("views_" + v.id)) || (v.totalViews || 0),
+        cycleViews: Number(getCache("cycle_" + v.id)) || (v.cycleViews || 0),
         originalIndex: index
       };
+
+      updateUI(v.id);
 
       onValue(ref(db, "views/" + v.id), snap => {
         const val = snap.val();
