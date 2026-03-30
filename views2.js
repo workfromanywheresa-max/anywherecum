@@ -68,10 +68,8 @@ function increaseViews(videoId) {
   sendToWorker("clicked_" + videoId);
 }
 
-/* ---------------- CONTAINERS ---------------- */
-const trendingContainer = document.getElementById("trendingVideos");
+/* ---------------- CONTAINER ---------------- */
 const normalContainer = document.getElementById("normalVideos");
-
 const videoElements = {};
 
 /* ---------------- UI UPDATE ---------------- */
@@ -86,25 +84,21 @@ function updateUI(id) {
   saveCache("views_" + id, total);
   saveCache("cycle_" + id, cycle);
 
-  const isTrending = cycle >= 10;
-  const target = isTrending ? trendingContainer : normalContainer;
+  /* Move up if cycle >= 10, else keep original order */
+  const currentIndex = Array.from(normalContainer.children).indexOf(v.box);
 
-  if (v.box.parentElement !== target) {
-    if (isTrending) {
-      target.insertBefore(v.box, target.firstChild);
-    } else {
-      target.appendChild(v.box);
-    }
+  if (cycle >= 10 && currentIndex > 0) {
+    normalContainer.insertBefore(v.box, normalContainer.firstChild);
+  } else if (cycle < 10 && currentIndex === 0) {
+    normalContainer.appendChild(v.box);
   }
 
-  const newText = isTrending
-    ? `🔥 Trending | 👁 ${formatViews(total)}`
-    : `👁 ${formatViews(total)}`;
+  const newText = `👁 ${formatViews(total)}`;
 
   /* -------- UPDATE ONLY IF CHANGED -------- */
   if (v.views.textContent !== newText) {
     v.views.textContent = newText;
-    v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
+    v.views.style.color = "#aaa";
   }
 }
 
@@ -112,10 +106,11 @@ function updateUI(id) {
 fetch(dataSource)
 .then(res => res.json())
 .then(videos => {
-
   const filtered = folderName
     ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
     : videos;
+
+  normalContainer.innerHTML = ""; // Remove skeletons
 
   filtered.forEach(v => {
 
@@ -126,16 +121,13 @@ fetch(dataSource)
     wrapper.className = "videoFrameWrapper";
 
     const thumb = document.createElement("img");
-
     thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(v.thumbnail)}`;
 
     thumb.onclick = () => {
       increaseViews(v.id);
-
       const iframe = document.createElement("iframe");
       iframe.src = v.embed;
       iframe.allowFullscreen = true;
-
       wrapper.innerHTML = "";
       wrapper.appendChild(iframe);
     };
@@ -154,10 +146,8 @@ fetch(dataSource)
     const views = document.createElement("div");
     views.className = "views";
 
-    /* -------- LOAD CACHE FIRST -------- */
     const cachedViews = getCache("views_" + v.id);
     const cachedCycle = getCache("cycle_" + v.id);
-
     let initialViews = cachedViews ? Number(cachedViews) : 0;
     let initialCycle = cachedCycle ? Number(cachedCycle) : 0;
 
@@ -200,5 +190,4 @@ fetch(dataSource)
     });
 
   });
-
 });
