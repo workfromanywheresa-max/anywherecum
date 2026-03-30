@@ -102,8 +102,14 @@ fetch(dataSource)
       const box = document.createElement("div");
       box.className = "videoBox";
 
+      // Skeleton loader for each video box
+      const skeleton = document.createElement("div");
+      skeleton.className = "skeleton";
+      box.appendChild(skeleton);
+
       const wrapper = document.createElement("div");
       wrapper.className = "videoFrameWrapper";
+      box.appendChild(wrapper);
 
       const thumb = document.createElement("img");
       thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(v.thumbnail)}`;
@@ -139,7 +145,6 @@ fetch(dataSource)
       btn.textContent = `Download (${v.size || "?"})`;
       btn.onclick = (e) => { e.preventDefault(); increaseViews(v.id); window.open(v.url, "_blank"); };
 
-      box.appendChild(wrapper);
       box.appendChild(title);
       box.appendChild(views);
       box.appendChild(btn);
@@ -152,14 +157,18 @@ fetch(dataSource)
         views,
         totalViews: initialViews,
         cycleViews: initialCycle,
-        originalIndex: index
+        originalIndex: index,
+        skeleton
       };
 
-      // FIREBASE LISTENERS
+      // Firebase listeners
       onValue(ref(db, "views/" + v.id), snap => {
         videoElements[v.id].totalViews = snap.val() || 0;
         updateUI(v.id);
+        // Remove skeleton loader once data is loaded
+        videoElements[v.id].skeleton.style.display = "none";
       });
+
       onValue(ref(db, "cycleViews/" + v.id), snap => {
         videoElements[v.id].cycleViews = Number(snap.val()) || 0;
         updateUI(v.id);
@@ -167,12 +176,11 @@ fetch(dataSource)
     });
 
     // ---------------- POST-LOAD TRENDING ----------------
-    // Move cached trending videos to top smoothly
     setTimeout(() => {
       Object.keys(videoElements).forEach(id => {
         if (videoElements[id].cycleViews >= 10) {
           updateUI(id);
         }
       });
-    }, 50); // slight delay ensures DOM is fully rendered
+    }, 50);
   });
