@@ -59,7 +59,6 @@
       width: 100%;
       max-width: 300px;
       margin: 0 auto;
-      position: relative;
       aspect-ratio: 16 / 9;
       border-radius: 8px;
       overflow: hidden;
@@ -77,7 +76,6 @@
     .videoTitle {
       margin: 6px 0;
       font-size: 13px;
-      cursor: pointer;
       text-decoration: underline;
     }
 
@@ -88,7 +86,6 @@
 
     .download {
       display: block;
-      width: fit-content;
       margin: 6px auto;
       padding: 5px 10px;
       background: #ff4444;
@@ -107,146 +104,89 @@
       margin-top: auto;
     }
 
-    footer div a img {
-      width: 14px;
-      height: 14px;
-    }
-
-    /* ✅ FIXED TOP BANNER */
-    #topBanner {
-      position: fixed;
-      top: 0;
-      left: 50%;
-      transform: translate(-50%, -100%);
-      width: 95%;
-      max-width: 700px;
-      background: #ffffff;
-      color: #111;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 3px 12px;
-      font-size: 11px;
-      z-index: 9999;
-      border-radius: 5px;
-      white-space: nowrap;
-      overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      transition: transform 0.4s ease, opacity 0.3s ease;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    #topBanner button {
-      position: absolute;
-      right: 8px;
-      top: -5px;
-      background: transparent;
-      border: none;
-      color: #111;
-      font-size: 12px;
-      cursor: pointer;
-    }
-
-    .skeleton {
-      width: 100%;
-      height: 250px;
-      border-radius: 10px;
-      background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-    }
-
+    /* ✅ Skeleton animation for top ad */
     @keyframes shimmer {
       0% { background-position: -200% 0; }
       100% { background-position: 200% 0; }
+    }
+
+    .topAdSkeleton {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, #eee 25%, #ddd 50%, #eee 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
     }
 
     #ad-container {
       display: none;
     }
   </style>
-
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 </head>
 
 <body>
-
-<!-- ✅ TOP BANNER -->
-<div id="topBanner">
-  <span style="flex: 1; text-align: center;">
-    🔔 Click the bell icon on your bottom left to receive notifications
-  </span>
-  <button id="closeBtn">✖</button>
-</div>
-
-<script>
-const banner = document.getElementById("topBanner");
-const closeBtn = document.getElementById("closeBtn");
-
-const lastClosed = localStorage.getItem("bannerClosedTime");
-const now = Date.now();
-const twentyFourHours = 24 * 60 * 60 * 1000;
-
-if (!lastClosed || now - lastClosed > twentyFourHours) {
-
-  banner.style.opacity = "1";
-  banner.style.pointerEvents = "auto";
-
-  requestAnimationFrame(() => {
-    banner.style.transform = "translate(-50%, 0)";
-  });
-
-  setTimeout(() => {
-    banner.style.transform = "translate(-50%, -100%)";
-    setTimeout(() => {
-      banner.style.opacity = "0";
-      banner.style.pointerEvents = "none";
-      localStorage.setItem("bannerClosedTime", Date.now());
-    }, 400);
-  }, 30000);
-}
-
-closeBtn.addEventListener("click", () => {
-  banner.style.transform = "translate(-50%, -100%)";
-  setTimeout(() => {
-    banner.style.opacity = "0";
-    banner.style.pointerEvents = "none";
-    localStorage.setItem("bannerClosedTime", Date.now());
-  }, 400);
-});
-</script>
 
 <button onclick="history.back()">← Back</button>
 
 <h2>🔐VIP Exclusive</h2>
 <p id="folderDescription">Enjoy our Exclusive VIP videos, updated regularly.</p>
 
-<!-- AD -->
-<div style="
-text-align: center;
-position: relative;
-width: 320px;
-height: 50px;
-margin: auto;
-border: 2px solid red;
-border-radius: 12px;
-overflow: hidden;
-background: #fff;
-">
-  <script>
+<!-- ✅ FIXED TOP AD -->
+<div style="display:flex; justify-content:center; margin:10px 0 20px;">
+  <div style="
+    width:320px;
+    height:50px;
+    border:2px solid red;
+    border-radius:10px;
+    overflow:hidden;
+    background:#fff;
+    position:relative;
+  ">
+    <!-- skeleton -->
+    <div id="topAdSkeleton" class="topAdSkeleton"></div>
+
+    <!-- ad container -->
+    <div id="adContainer" style="width:100%; height:100%;"></div>
+  </div>
+</div>
+
+<script>
+const adBox = document.getElementById("adContainer");
+const skeletonTop = document.getElementById("topAdSkeleton");
+
+const observerTop = new MutationObserver((mutations, obs) => {
+  if (adBox.children.length > 0) {
+    skeletonTop.style.display = "none";
+    obs.disconnect();
+  }
+});
+
+observerTop.observe(adBox, { childList: true });
+
+// load ad AFTER layout (prevents jump)
+setTimeout(() => {
+  const s1 = document.createElement("script");
+  s1.innerHTML = `
     atOptions = {
       'key' : '58e0d60dc3ec78d2ff8981481d093080',
       'format' : 'iframe',
       'height' : 50,
       'width' : 320
     };
-  </script>
-  <script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
-</div>
+  `;
 
+  const s2 = document.createElement("script");
+  s2.src = "https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js";
+
+  adBox.appendChild(s1);
+  adBox.appendChild(s2);
+}, 100);
+</script>
+
+<!-- VIDEOS -->
 <div id="normalVideos"></div>
 
+<!-- BOTTOM AD (UNCHANGED) -->
 <div id="skeleton" class="skeleton"></div>
 
 <div id="ad-container">
@@ -258,18 +198,18 @@ background: #fff;
 
 <script>
 const skeleton = document.getElementById("skeleton");
-const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
+const adContainer2 = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
 const adWrapper = document.getElementById("ad-container");
 
 const observer = new MutationObserver((mutations, obs) => {
-  if (adContainer.children.length > 0) {
+  if (adContainer2.children.length > 0) {
     skeleton.style.display = "none";
     adWrapper.style.display = "block";
     obs.disconnect();
   }
 });
 
-observer.observe(adContainer, { childList: true, subtree: true });
+observer.observe(adContainer2, { childList: true, subtree: true });
 </script>
 
 <footer>
