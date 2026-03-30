@@ -52,10 +52,9 @@ function increaseViews(videoId) { if (!TEST_MODE) sendToWorker("clicked_" + vide
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
 const videoElements = {};
-
-/* ---------------- UI UPDATE ---------------- */
 let isFirstLoad = true; // Flag to detect first load
 
+/* ---------------- UI UPDATE ---------------- */
 function updateUI(id) {
   const v = videoElements[id];
   if (!v) return;
@@ -67,24 +66,8 @@ function updateUI(id) {
   saveCache("cycle_" + id, cycle);
 
   const isTrending = cycle >= 10;
-  
-  // Check if the position of the video has changed
-  const storedPosition = getCache("position_" + id); // Get stored position from localStorage
-  const currentPosition = v.originalIndex;
 
-  // If it's the first load, we don't want to trigger the sliding animation
-  if (isFirstLoad) {
-    // Set the first load flag to false after the initial load
-    isFirstLoad = false;
-    return;
-  }
-
-  // If the position hasn't changed, don't slide
-  if (storedPosition && storedPosition === currentPosition) {
-    return;
-  }
-
-  // Add the "moving" class for smooth animation
+  // Add the "moving" class for smooth animation only when position changes
   if (v.box.parentElement === videosContainer) {
     v.box.classList.add('moving');
   }
@@ -97,8 +80,10 @@ function updateUI(id) {
     }
 
     if (isTrending) {
-      // Move trending videos to top
+      // Move trending videos to top and add the 'moved' class for visibility
       videosContainer.insertBefore(v.box, videosContainer.firstChild);
+      v.box.classList.remove('moving');
+      v.box.classList.add('moved');
     } else {
       // Return to original position if below 10
       if (v.originalIndex >= videosContainer.children.length) {
@@ -106,12 +91,8 @@ function updateUI(id) {
       } else {
         videosContainer.insertBefore(v.box, videosContainer.children[v.originalIndex]);
       }
+      v.box.classList.remove('moving');
     }
-
-    // Remove the "moving" class after the transition ends
-    v.box.classList.remove('moving');
-    // Store the new position after the move
-    saveCache("position_" + id, currentPosition);
   });
 
   const newText = isTrending ? `🔥 Trending | 👁 ${formatViews(total)}` : `👁 ${formatViews(total)}`;
