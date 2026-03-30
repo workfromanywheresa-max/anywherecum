@@ -110,15 +110,13 @@ h2 {
   background: #ff2222;
 }
 
-/* SKELETON LOADER FOR VIDEO CARDS */
+/* Skeleton loader for normal videos only */
 .skeleton {
   width: 100%;
-  max-width: 400px;
-  aspect-ratio: 16 / 9; /* same as video */
+  height: 250px;
+  border-radius: 10px;
   background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
   background-size: 200% 100%;
-  border-radius: 8px;
-  margin: 0 auto 10px auto;
   animation: shimmer 1.5s infinite;
 }
 
@@ -127,22 +125,81 @@ h2 {
   100% { background-position: 200% 0; }
 }
 
-/* BOTTOM AD */
 #ad-container {
-  display: block;  /* visible immediately */
-  width: 320px;
-  max-width: 95%;
-  margin: 20px auto 40px auto; /* space around ad */
+  display: none;
 }
 </style>
 
 <script src="https://pl28956604.profitablecpmratenetwork.com/c7/ba/1d/c7ba1d0cd42bd7cbdf437d03bd000409.js"></script>
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
-</head>
+<script>
+window.OneSignalDeferred = window.OneSignalDeferred || [];
 
+OneSignalDeferred.push(async function(OneSignal) {
+  await OneSignal.init({ appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f" });
+
+  async function handleSub() {
+    const sub = OneSignal.User.PushSubscription;
+    if (!sub) return;
+
+    const id = sub.token || sub.id;
+    if (!id) return;
+
+    const optedIn = sub.optedIn;
+    const lastState = localStorage.getItem("sub_" + id);
+    if (lastState === String(optedIn)) return;
+
+    localStorage.setItem("sub_" + id, optedIn);
+    if (window.saveSubscriber) window.saveSubscriber(id, optedIn);
+  }
+
+  setTimeout(handleSub, 2000);
+  setTimeout(handleSub, 5000);
+  handleSub();
+  OneSignal.User.PushSubscription.addEventListener("change", handleSub);
+});
+</script>
+
+</head>
 <body>
 
+<div id="topBanner" style="position: fixed; top: 0; left: 50%; transform: translate(-50%, -100%); width: 95%; max-width: 700px; background: #fff; color: #111; display: none; align-items: center; justify-content: center; padding: 3px 12px; font-size: 11px; z-index: 9999; border-radius: 5px; white-space: nowrap; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: transform 0.5s ease;">
+  <span style="flex: 1; text-align: center;">
+    🔔 Click the bell icon on your bottom left to receive notifications
+  </span>
+  <button id="closeBtn" style="position: absolute; right: 8px; top: -5px; background: transparent; border: none; color: #111; font-size: 12px; cursor: pointer; line-height: 1;">✖</button>
+</div>
+
+<script>
+const banner = document.getElementById("topBanner");
+const closeBtn = document.getElementById("closeBtn");
+const lastClosed = localStorage.getItem("bannerClosedTime");
+const now = Date.now();
+const twentyFourHours = 24 * 60 * 60 * 1000;
+
+if (!lastClosed || now - lastClosed > twentyFourHours) {
+  banner.style.display = "flex";
+  setTimeout(() => { banner.style.transform = "translate(-50%, 0)"; }, 50);
+  setTimeout(() => {
+    banner.style.transform = "translate(-50%, -100%)";
+    setTimeout(() => {
+      banner.style.display = "none";
+      localStorage.setItem("bannerClosedTime", Date.now());
+    }, 500);
+  }, 30000);
+}
+
+closeBtn.addEventListener("click", () => {
+  banner.style.transform = "translate(-50%, -100%)";
+  setTimeout(() => {
+    banner.style.display = "none";
+    localStorage.setItem("bannerClosedTime", Date.now());
+  }, 500);
+});
+</script>
+
+<!-- BACK BUTTON -->
 <button onclick="history.back()">← Back</button>
 
 <h2 id="folderTitle">🔐 VIP Exclusive</h2>
@@ -151,17 +208,7 @@ h2 {
 </p>
 
 <!-- TOP BANNER AD -->
-<div style="
-text-align: center;
-position: relative;
-width: 320px;
-height: 50px;
-margin: auto;
-border: 2px solid red;
-border-radius: 12px;
-overflow: hidden;
-background: #fff;
-">
+<div style="text-align: center; position: relative; width: 320px; height: 50px; margin: auto; border: 2px solid red; border-radius: 12px; overflow: hidden; background: #fff;">
   <div id="adContainer" style="width:100%; height:100%;">
     <script>
       atOptions = {
@@ -176,26 +223,35 @@ background: #fff;
   </div>
 </div>
 
-<!-- TRENDING & NORMAL VIDEOS -->
-<div id="trendingVideos">
-  <!-- Skeleton loaders before videos load -->
-  <div class="videoBox"><div class="skeleton"></div></div>
-  <div class="videoBox"><div class="skeleton"></div></div>
-  <div class="videoBox"><div class="skeleton"></div></div>
-</div>
-<div id="normalVideos">
-  <div class="videoBox"><div class="skeleton"></div></div>
-  <div class="videoBox"><div class="skeleton"></div></div>
-  <div class="videoBox"><div class="skeleton"></div></div>
-</div>
+<!-- TRENDING VIDEOS (NO SKELETON) -->
+<div id="trendingVideos"></div>
 
-<!-- MID/BOTTOM AD -->
+<!-- NORMAL VIDEOS (WITH SKELETON) -->
+<div id="normalVideos"></div>
+<div id="normalSkeleton" class="skeleton"></div>
+
+<!-- MID AD -->
 <div id="ad-container">
-  <script async data-cfasync="false"
-    src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js">
-  </script>
+  <script async data-cfasync="false" src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js"></script>
   <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
 </div>
+
+<script>
+// Show skeleton only for normal videos until ads load
+const skeleton = document.getElementById("normalSkeleton");
+const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
+const adWrapper = document.getElementById("ad-container");
+
+const observer = new MutationObserver((mutations, obs) => {
+  if (adContainer.children.length > 0) {
+    skeleton.style.display = "none";
+    adWrapper.style.display = "block";
+    obs.disconnect();
+  }
+});
+
+observer.observe(adContainer, { childList: true, subtree: true });
+</script>
 
 <!-- FOOTER -->
 <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
@@ -221,7 +277,7 @@ window.VIDEO_CONFIG = {
 };
 </script>
 
-<!-- Load JS that replaces skeletons with actual videos -->
+<!-- Load JS that separates trending & normal videos -->
 <script type="module" src="views2.js"></script>
 
 </body>
