@@ -20,22 +20,13 @@ const normalContainer = document.getElementById("normalVideos");
 const videoElements = {};
 
 /* ---------------- CACHE ---------------- */
-function saveCache(key, value) {
-  localStorage.setItem(key, value);
-}
-function getCache(key) {
-  return localStorage.getItem(key);
-}
+function saveCache(key, value) { localStorage.setItem(key, value); }
+function getCache(key) { return localStorage.getItem(key); }
 
 /* ---------------- UTILITIES ---------------- */
 function toTitleCase(str) {
-  return str
-    .toLowerCase()
-    .split(" ")
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
+  return str.toLowerCase().split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 }
-
 function formatViews(num) {
   num = Number(num);
   if (isNaN(num)) return "0";
@@ -43,11 +34,7 @@ function formatViews(num) {
   if (num >= 1e3) return (num / 1e3).toFixed(1).replace(".0", "") + "K";
   return num;
 }
-
-/* ---------------- UPDATE TITLE ---------------- */
-document.getElementById("folderTitle").textContent = folderName
-  ? toTitleCase(folderName)
-  : "🔐 VIP Exclusive";
+document.getElementById("folderTitle").textContent = folderName ? toTitleCase(folderName) : "🔐 VIP Exclusive";
 
 /* ---------------- VIDEO INTERACTIONS ---------------- */
 async function sendToWorker(videoId) {
@@ -62,38 +49,35 @@ async function sendToWorker(videoId) {
     console.error("Worker failed:", err);
   }
 }
+function increaseViews(videoId) { sendToWorker("clicked_" + videoId); }
 
-function increaseViews(videoId) {
-  sendToWorker("clicked_" + videoId);
+/* ---------------- SKELETON LOADER ---------------- */
+function createSkeleton() {
+  const box = document.createElement("div");
+  box.className = "videoBox skeleton";
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "videoFrameWrapper";
+  box.appendChild(wrapper);
+
+  const title = document.createElement("div");
+  title.className = "videoTitle";
+  box.appendChild(title);
+
+  const views = document.createElement("div");
+  views.className = "views";
+  box.appendChild(views);
+
+  const btn = document.createElement("div");
+  btn.className = "download";
+  box.appendChild(btn);
+
+  return box;
 }
 
-/* ---------------- UI UPDATE ---------------- */
-function updateUI(id) {
-  const v = videoElements[id];
-  if (!v) return;
-
-  const total = v.totalViews || 0;
-  const cycle = v.cycleViews || 0;
-
-  saveCache("views_" + id, total);
-  saveCache("cycle_" + id, cycle);
-
-  const isTrending = cycle >= 10;
-  const target = isTrending ? trendingContainer : normalContainer;
-
-  if (v.box.parentElement !== target) {
-    if (isTrending) target.insertBefore(v.box, target.firstChild);
-    else target.appendChild(v.box);
-  }
-
-  const newText = isTrending
-    ? `🔥 Trending | 👁 ${formatViews(total)}`
-    : `👁 ${formatViews(total)}`;
-
-  if (v.views.textContent !== newText) {
-    v.views.textContent = newText;
-    v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
-  }
+/* Show 3 skeletons immediately */
+for (let i = 0; i < 3; i++) {
+  normalContainer.appendChild(createSkeleton());
 }
 
 /* ---------------- CREATE VIDEO BOX ---------------- */
@@ -168,13 +152,37 @@ function createVideoBox(videoData) {
   return box;
 }
 
+/* ---------------- UPDATE UI ---------------- */
+function updateUI(id) {
+  const v = videoElements[id];
+  if (!v) return;
+
+  const total = v.totalViews || 0;
+  const cycle = v.cycleViews || 0;
+
+  saveCache("views_" + id, total);
+  saveCache("cycle_" + id, cycle);
+
+  const isTrending = cycle >= 10;
+  const target = isTrending ? trendingContainer : normalContainer;
+
+  if (v.box.parentElement !== target) {
+    if (isTrending) target.insertBefore(v.box, target.firstChild);
+    else target.appendChild(v.box);
+  }
+
+  const newText = isTrending ? `🔥 Trending | 👁 ${formatViews(total)}` : `👁 ${formatViews(total)}`;
+  if (v.views.textContent !== newText) {
+    v.views.textContent = newText;
+    v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
+  }
+}
+
 /* ---------------- LOAD VIDEOS ---------------- */
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
-    // Remove skeleton loaders first
-    const skeletons = normalContainer.querySelectorAll('.videoBox.skeleton');
-    skeletons.forEach(s => s.remove());
+    normalContainer.innerHTML = ""; // remove skeletons
 
     const filtered = folderName
       ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
