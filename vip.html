@@ -6,10 +6,141 @@
 <title>VIP Exclusive</title>
 
 <style>
-/* ... Keep all your CSS from before (body, .videoBox, .videoFrameWrapper, .skeleton, etc.) ... */
+body {
+  font-family: Arial, sans-serif;
+  background: #1a1a1a;
+  color: #fff;
+  margin: 0;
+  padding: 15px;
+}
+
+button {
+  background: #444;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 15px;
+}
+
+h2 {
+  color: #ff4444;
+  text-align: center;
+  border-bottom: 2px solid #ff4444;
+  padding-bottom: 5px;
+}
+
+#folderDescription {
+  text-align: center;
+  color: #aaa;
+  font-size: 14px;
+}
+
+/* VIDEO BOX */
+.videoBox {
+  background: #222;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.videoBox:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(255, 68, 68, 0.5);
+}
+
+/* 16:9 VIDEO PLAYER */
+.videoFrameWrapper {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+}
+
+.videoFrameWrapper iframe,
+.videoFrameWrapper img {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+}
+
+/* TEXT */
+.videoTitle {
+  text-align: center;
+  margin: 6px 0;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  color: #fff;
+}
+
+.videoTitle:hover {
+  color: #ff4444;
+}
+
+.views {
+  text-align: center;
+  color: #aaa;
+  margin: 2px 0;
+  font-size: 12px;
+}
+
+.download {
+  display: block;
+  width: fit-content;
+  margin: 6px auto;
+  padding: 5px 10px;
+  background: #ff4444;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 12px;
+  transition: background 0.2s;
+}
+
+.download:hover {
+  background: #ff2222;
+}
+
+/* SKELETON LOADER FOR VIDEO CARDS */
+.skeleton {
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 16 / 9; /* same as video */
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  border-radius: 8px;
+  margin: 0 auto 10px auto;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* BOTTOM AD */
+#ad-container {
+  display: block;  /* visible immediately */
+  width: 320px;
+  max-width: 95%;
+  margin: 20px auto 40px auto; /* space around ad */
+}
 </style>
 
+<script src="https://pl28956604.profitablecpmratenetwork.com/c7/ba/1d/c7ba1d0cd42bd7cbdf437d03bd000409.js"></script>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
 </head>
+
 <body>
 
 <button onclick="history.back()">← Back</button>
@@ -19,9 +150,52 @@
   Enjoy our VIP Exclusive videos, updated regularly for your viewing pleasure.
 </p>
 
+<!-- TOP BANNER AD -->
+<div style="
+text-align: center;
+position: relative;
+width: 320px;
+height: 50px;
+margin: auto;
+border: 2px solid red;
+border-radius: 12px;
+overflow: hidden;
+background: #fff;
+">
+  <div id="adContainer" style="width:100%; height:100%;">
+    <script>
+      atOptions = {
+        'key' : '58e0d60dc3ec78d2ff8981481d093080',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
+    </script>
+    <script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
+  </div>
+</div>
+
 <!-- TRENDING & NORMAL VIDEOS -->
-<div id="trendingVideos"></div>
-<div id="normalVideos"></div>
+<div id="trendingVideos">
+  <!-- Skeleton loaders before videos load -->
+  <div class="videoBox"><div class="skeleton"></div></div>
+  <div class="videoBox"><div class="skeleton"></div></div>
+  <div class="videoBox"><div class="skeleton"></div></div>
+</div>
+<div id="normalVideos">
+  <div class="videoBox"><div class="skeleton"></div></div>
+  <div class="videoBox"><div class="skeleton"></div></div>
+  <div class="videoBox"><div class="skeleton"></div></div>
+</div>
+
+<!-- MID/BOTTOM AD -->
+<div id="ad-container">
+  <script async data-cfasync="false"
+    src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js">
+  </script>
+  <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
+</div>
 
 <!-- FOOTER -->
 <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
@@ -47,7 +221,7 @@ window.VIDEO_CONFIG = {
 };
 </script>
 
-<!-- External JS -->
+<!-- Load JS that replaces skeletons with actual videos -->
 <script type="module" src="views2.js"></script>
 
 </body>
