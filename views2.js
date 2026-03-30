@@ -53,6 +53,105 @@ function increaseViews(videoId) { if (!TEST_MODE) sendToWorker("clicked_" + vide
 const videosContainer = document.getElementById("normalVideos");
 const videoElements = {};
 
+/* ---------------- LOADER ---------------- */
+const videoBoxWidth = 400; // Max width of the video box
+const videoBoxHeight = Math.floor(videoBoxWidth * (9 / 16)); // Height based on 16:9 aspect ratio
+
+// Function to create a loader with a custom size based on video box dimensions
+function createLoader() {
+  const loader = document.createElement("div");
+  loader.id = "loader";
+  loader.style.position = "fixed";
+  loader.style.top = "50%";
+  loader.style.left = "50%";
+  loader.style.transform = "translate(-50%, -50%)";
+  loader.style.zIndex = "9999";
+  loader.style.display = "flex";
+  loader.style.justifyContent = "center";
+  loader.style.alignItems = "center";
+  loader.style.width = `${videoBoxWidth}px`; // Match video box width
+  loader.style.height = `${videoBoxHeight}px`; // Match video box height
+
+  const spinner = document.createElement("div");
+  spinner.style.border = "4px solid rgba(255, 255, 255, 0.3)";
+  spinner.style.borderTop = "4px solid #ffcc00";
+  spinner.style.borderRadius = "50%";
+  spinner.style.width = "50px"; // Adjust the spinner size to fit within the video box
+  spinner.style.height = "50px";
+  spinner.style.animation = "spin 1s linear infinite";
+  
+  loader.appendChild(spinner);
+  
+  // Append the loader to the body
+  document.body.appendChild(loader);
+}
+
+// Remove the loader element
+function removeLoader() {
+  const loader = document.getElementById("loader");
+  if (loader) {
+    loader.remove();
+  }
+}
+
+// Add spinner animation CSS dynamically
+const style = document.createElement('style');
+style.innerHTML = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+document.head.appendChild(style);
+
+// Function to create a video box with hardcoded sizes
+function createVideoBox(video) {
+  const box = document.createElement("div");
+  box.className = "videoBox";
+  box.style.width = `${videoBoxWidth}px`; // Set the width of the video box
+  box.style.height = `${videoBoxHeight + 60}px`; // Set height to accommodate the video and text elements
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "videoFrameWrapper";
+  wrapper.style.width = "100%";
+  wrapper.style.maxWidth = `${videoBoxWidth}px`; // Set max width of the video wrapper
+  wrapper.style.aspectRatio = "16/9"; // Maintain the 16:9 aspect ratio
+
+  const thumb = document.createElement("img");
+  thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
+  thumb.onclick = () => {
+    increaseViews(video.id);
+    const iframe = document.createElement("iframe");
+    iframe.src = video.embed;
+    iframe.allowFullscreen = true;
+    wrapper.innerHTML = "";
+    wrapper.appendChild(iframe);
+  };
+  wrapper.appendChild(thumb);
+
+  const title = document.createElement("h3");
+  title.className = "videoTitle";
+  title.textContent = video.title;
+  title.onclick = () => { increaseViews(video.id); window.open(video.url, "_blank"); };
+
+  const views = document.createElement("div");
+  views.className = "views";
+  views.textContent = `👁 ${formatViews(video.totalViews)}`;
+
+  const btn = document.createElement("a");
+  btn.className = "download";
+  btn.href = "#";
+  btn.textContent = `Download (${video.size || "?"})`;
+  btn.onclick = (e) => { e.preventDefault(); increaseViews(video.id); window.open(video.url, "_blank"); };
+
+  box.appendChild(wrapper);
+  box.appendChild(title);
+  box.appendChild(views);
+  box.appendChild(btn);
+
+  return box;
+}
+
 /* ---------------- UI UPDATE ---------------- */
 function updateUI(id) {
   const v = videoElements[id];
@@ -90,51 +189,6 @@ function updateUI(id) {
   }
 }
 
-/* ---------------- LOADER ---------------- */
-function createLoader() {
-  const loader = document.createElement("div");
-  loader.id = "loader";
-  loader.style.position = "fixed";
-  loader.style.top = "50%";
-  loader.style.left = "50%";
-  loader.style.transform = "translate(-50%, -50%)";
-  loader.style.zIndex = "9999";
-  loader.style.display = "flex";
-  loader.style.justifyContent = "center";
-  loader.style.alignItems = "center";
-
-  const spinner = document.createElement("div");
-  spinner.style.border = "4px solid rgba(255, 255, 255, 0.3)";
-  spinner.style.borderTop = "4px solid #ffcc00";
-  spinner.style.borderRadius = "50%";
-  spinner.style.width = "50px";
-  spinner.style.height = "50px";
-  spinner.style.animation = "spin 1s linear infinite";
-  
-  loader.appendChild(spinner);
-  
-  // Append the loader to the body
-  document.body.appendChild(loader);
-}
-
-// Remove the loader element
-function removeLoader() {
-  const loader = document.getElementById("loader");
-  if (loader) {
-    loader.remove();
-  }
-}
-
-// Add spinner animation CSS dynamically
-const style = document.createElement('style');
-style.innerHTML = `
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-`;
-document.head.appendChild(style);
-
 /* ---------------- LOAD VIDEOS ---------------- */
 createLoader();  // Show loader before the fetch
 
@@ -148,59 +202,16 @@ fetch(dataSource)
       : videos;
 
     filtered.forEach((v, index) => {
-      const box = document.createElement("div");
-      box.className = "videoBox";
-
-      const wrapper = document.createElement("div");
-      wrapper.className = "videoFrameWrapper";
-
-      const thumb = document.createElement("img");
-      thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(v.thumbnail)}`;
-      thumb.onclick = () => {
-        increaseViews(v.id);
-        const iframe = document.createElement("iframe");
-        iframe.src = v.embed;
-        iframe.allowFullscreen = true;
-        wrapper.innerHTML = "";
-        wrapper.appendChild(iframe);
-      };
-      wrapper.appendChild(thumb);
-
-      const title = document.createElement("h3");
-      title.className = "videoTitle";
-      title.textContent = v.title;
-      title.onclick = () => { increaseViews(v.id); window.open(v.url, "_blank"); };
-
-      const views = document.createElement("div");
-      views.className = "views";
-
-      const cachedViews = getCache("views_" + v.id);
-      const cachedCycle = getCache("cycle_" + v.id);
-
-      let initialViews = cachedViews ? Number(cachedViews) : 0;
-      let initialCycle = cachedCycle ? Number(cachedCycle) : 0;
-
-      views.textContent = `👁 ${formatViews(initialViews)}`;
-
-      const btn = document.createElement("a");
-      btn.className = "download";
-      btn.href = "#";
-      btn.textContent = `Download (${v.size || "?"})`;
-      btn.onclick = (e) => { e.preventDefault(); increaseViews(v.id); window.open(v.url, "_blank"); };
-
-      box.appendChild(wrapper);
-      box.appendChild(title);
-      box.appendChild(views);
-      box.appendChild(btn);
+      const box = createVideoBox(v); // Create a video box for each video
 
       videosContainer.appendChild(box);
 
       // store video info including original position
       videoElements[v.id] = {
         box,
-        views,
-        totalViews: initialViews,
-        cycleViews: initialCycle,
+        views: box.querySelector(".views"),
+        totalViews: v.totalViews || 0,
+        cycleViews: v.cycleViews || 0,
         originalIndex: index
       };
 
@@ -226,5 +237,4 @@ fetch(dataSource)
   })
   .catch(error => {
     console.error("Error loading videos:", error);
-    removeLoader();  // Hide loader if an error occurs
-  });
+    removeLoader();  //
