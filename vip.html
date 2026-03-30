@@ -12,6 +12,9 @@ body {
   color: #fff;
   margin: 0;
   padding: 15px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 /* BUTTONS & HEADERS */
@@ -38,7 +41,8 @@ h2 {
 
 /* VIDEOS CONTAINER */
 #normalVideos {
-  margin-bottom: 50px;
+  margin-bottom: 50px; /* space for footer */
+  flex-grow: 1; /* push footer down if content is short */
 }
 
 /* VIDEO BOX */
@@ -103,7 +107,7 @@ footer {
   font-size: 12px;
   color: #aaa;
   background: #111;
-  margin-top: 0;
+  margin-top: auto; /* keeps footer at bottom if content is short */
 }
 footer div a img {
   width: 14px;
