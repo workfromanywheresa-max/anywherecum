@@ -54,6 +54,8 @@ const videosContainer = document.getElementById("normalVideos");
 const videoElements = {};
 
 /* ---------------- UI UPDATE ---------------- */
+let isFirstLoad = true; // Flag to detect first load
+
 function updateUI(id) {
   const v = videoElements[id];
   if (!v) return;
@@ -69,6 +71,13 @@ function updateUI(id) {
   // Check if the position of the video has changed
   const storedPosition = getCache("position_" + id); // Get stored position from localStorage
   const currentPosition = v.originalIndex;
+
+  // If it's the first load, we don't want to trigger the sliding animation
+  if (isFirstLoad) {
+    // Set the first load flag to false after the initial load
+    isFirstLoad = false;
+    return;
+  }
 
   // If the position hasn't changed, don't slide
   if (storedPosition && storedPosition === currentPosition) {
