@@ -38,8 +38,7 @@ h2 {
 
 /* VIDEOS CONTAINER */
 #normalVideos {
-  margin-bottom: 50px; /* Space for footer */
-  min-height: 400px;    /* Reserve space so footer doesn't jump */
+  margin-bottom: 50px;
 }
 
 /* VIDEO BOX */
@@ -51,15 +50,6 @@ h2 {
   text-align: center;
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
-
-/* VIDEO PLACEHOLDER / SKELETON */
-.videoBox.placeholder {
-  height: 250px;
-  background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-@keyframes shimmer {0%{background-position:-200% 0;}100%{background-position:200% 0;}}
 
 /* VIDEO PLAYER */
 .videoFrameWrapper {
@@ -114,19 +104,10 @@ footer {
   color: #aaa;
   background: #111;
   margin-top: 0;
-  transition: opacity 0.3s ease;
 }
 footer div a img {
   width: 14px;
   height: 14px;
-}
-
-/* FOOTER LOADER */
-#footerLoader {
-  text-align: center;
-  color: #888;
-  font-size: 12px;
-  margin-bottom: 20px;
 }
 </style>
 </head>
@@ -139,17 +120,9 @@ footer div a img {
 <p id="folderDescription">Enjoy our exclusive VIP videos, updated regularly.</p>
 
 <!-- VIDEOS CONTAINER -->
-<div id="normalVideos">
-  <!-- Initial skeleton loader -->
-  <div class="videoBox placeholder"></div>
-  <div class="videoBox placeholder"></div>
-  <div class="videoBox placeholder"></div>
-</div>
+<div id="normalVideos"></div>
 
-<!-- Footer loader (reserve space) -->
-<div id="footerLoader">Loading videos...</div>
-
-<footer id="mainFooter">
+<footer>
 © 2026 AnywhereCum – Legal content only. 18+<br>
 <div style="margin-top:8px; font-size:8px;">
   <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank" style="margin:0 5px;">
@@ -162,19 +135,16 @@ footer div a img {
 </div>
 </footer>
 
+<!-- VIDEO CONFIG & MODULE -->
 <script>
 const params = new URLSearchParams(window.location.search);
 window.VIDEO_CONFIG = {
   dataSource: "vip.json",
   folder: params.get("folder") || ""
 };
-
-/* Remove footer loader once your JS injects videos */
-const footerLoader = document.getElementById("footerLoader");
-window.removeFooterLoader = () => {
-  if (footerLoader) footerLoader.style.display = "none";
-};
 </script>
+
+<script type="module" src="views2.js"></script>
 
 </body>
 </html>
