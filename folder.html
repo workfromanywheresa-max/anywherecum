@@ -130,9 +130,13 @@ OneSignalDeferred.push(async function(OneSignal) {
 
     if (!sub) return;
 
+    // ✅ FIX HERE
     const id = sub.token || sub.id;
 
-    if (!id) return;
+    if (!id) {
+      console.log("Waiting for subscription...", sub);
+      return;
+    }
 
     const optedIn = sub.optedIn;
 
@@ -141,11 +145,14 @@ OneSignalDeferred.push(async function(OneSignal) {
 
     localStorage.setItem("sub_" + id, optedIn);
 
+    console.log("OneSignal Sub Update:", id, optedIn);
+
     if (window.saveSubscriber) {
       window.saveSubscriber(id, optedIn);
     }
   }
 
+  // ✅ IMPORTANT: OneSignal loads late
   setTimeout(handleSub, 2000);
   setTimeout(handleSub, 5000);
 
