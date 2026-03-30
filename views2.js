@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 /* ---------------- FIREBASE ---------------- */
 const app = initializeApp({
@@ -66,22 +66,33 @@ function updateUI(id) {
 
   const isTrending = cycle >= 10;
 
-  // Remove box first
+  // Add the "moving" class for smooth animation
   if (v.box.parentElement === videosContainer) {
-    videosContainer.removeChild(v.box);
+    v.box.classList.add('moving');
   }
 
-  if (isTrending) {
-    // Move trending videos to top
-    videosContainer.insertBefore(v.box, videosContainer.firstChild);
-  } else {
-    // Return to original position if below 10
-    if (v.originalIndex >= videosContainer.children.length) {
-      videosContainer.appendChild(v.box);
-    } else {
-      videosContainer.insertBefore(v.box, videosContainer.children[v.originalIndex]);
+  // Wait for the animation to complete before actually moving the element
+  v.box.addEventListener('transitionend', () => {
+    // Once the animation ends, apply the DOM movement
+    if (v.box.parentElement === videosContainer) {
+      videosContainer.removeChild(v.box);
     }
-  }
+
+    if (isTrending) {
+      // Move trending videos to top
+      videosContainer.insertBefore(v.box, videosContainer.firstChild);
+    } else {
+      // Return to original position if below 10
+      if (v.originalIndex >= videosContainer.children.length) {
+        videosContainer.appendChild(v.box);
+      } else {
+        videosContainer.insertBefore(v.box, videosContainer.children[v.originalIndex]);
+      }
+    }
+
+    // Remove the "moving" class after the transition ends
+    v.box.classList.remove('moving');
+  });
 
   const newText = isTrending ? `🔥 Trending | 👁 ${formatViews(total)}` : `👁 ${formatViews(total)}`;
   if (v.views.textContent !== newText) {
@@ -160,8 +171,19 @@ fetch(dataSource)
         videoElements[v.id].totalViews = snap.val() || 0;
         updateUI(v.id);
       });
+
+      // Listen to cycleViews change (if it resets or decreases)
       onValue(ref(db, "cycleViews/" + v.id), snap => {
-        videoElements[v.id].cycleViews = Number(snap.val()) || 0;
+        const newCycle = Number(snap.val()) || 0;
+        videoElements[v.id].cycleViews = newCycle;
+
+        // Reset cycleViews to 0 if it drops below 10
+        if (newCycle < 10) {
+          set(ref(db, "cycleViews/" + v.id), 0);  // Reset cycleViews to 0 in Firebase
+          videoElements[v.id].cycleViews = 0;  // Also reset locally
+        }
+
+        // Update position if cycleViews go below 10
         updateUI(v.id);
       });
     });
