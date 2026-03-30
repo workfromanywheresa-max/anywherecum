@@ -52,8 +52,8 @@
       border-radius: 8px;
       margin-bottom: 20px;
       text-align: center;
-      visibility: visible; /* Ensure visibility is on by default */
-      transition: transform 0.5s ease, visibility 0s ease; /* Transition for transform only */
+      visibility: visible; /* Default visibility is visible */
+      transition: transform 0.5s ease, visibility 0s ease; /* Only apply transform with a 0.5s delay */
     }
 
     /* VIDEO PLAYER */
@@ -103,9 +103,9 @@
 
     /* SMOOTH TRANSITION FOR MOVING */
     .videoBox.moving {
-      visibility: hidden; /* Hide element while it moves */
+      visibility: hidden; /* Hide the element while moving */
       transform: translateY(-50px); /* Move element up */
-      transition: transform 0.5s ease, visibility 0s ease 0.5s; /* Delay visibility change until transition ends */
+      transition: transform 0.5s ease, visibility 0s ease 0.5s; /* Delay visibility change */
     }
 
     /* FOOTER */
