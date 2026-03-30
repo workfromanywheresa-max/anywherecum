@@ -38,7 +38,8 @@ h2 {
 
 /* VIDEOS CONTAINER */
 #normalVideos {
-  margin-bottom: 50px; /* Space between last video and footer */
+  margin-bottom: 50px; /* Space for footer */
+  min-height: 400px;    /* Reserve space so footer doesn't jump */
 }
 
 /* VIDEO BOX */
@@ -51,7 +52,7 @@ h2 {
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
-/* VIDEO PLACEHOLDER */
+/* VIDEO PLACEHOLDER / SKELETON */
 .videoBox.placeholder {
   height: 250px;
   background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
@@ -105,18 +106,27 @@ h2 {
   font-size: 12px;
 }
 
-/* FOOTER - natural flow */
+/* FOOTER */
 footer {
   text-align: center;
   padding: 20px;
   font-size: 12px;
   color: #aaa;
   background: #111;
-  margin-top: 0; /* Footer sticks naturally after content */
+  margin-top: 0;
+  transition: opacity 0.3s ease;
 }
 footer div a img {
   width: 14px;
   height: 14px;
+}
+
+/* LOADER ABOVE FOOTER */
+#footerLoader {
+  text-align: center;
+  color: #888;
+  font-size: 12px;
+  margin-bottom: 20px;
 }
 </style>
 </head>
@@ -129,9 +139,16 @@ footer div a img {
 <p id="folderDescription">Enjoy our exclusive VIP videos, updated regularly.</p>
 
 <!-- VIDEOS CONTAINER -->
-<div id="normalVideos"></div>
+<div id="normalVideos">
+  <!-- Initial skeleton loader -->
+  <div class="videoBox placeholder"></div>
+  <div class="videoBox placeholder"></div>
+</div>
 
-<footer>
+<!-- Footer loader (reserve space) -->
+<div id="footerLoader">Loading videos...</div>
+
+<footer id="mainFooter">
 © 2026 AnywhereCum – Legal content only. 18+<br>
 <div style="margin-top:8px; font-size:8px;">
   <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank" style="margin:0 5px;">
@@ -150,6 +167,25 @@ window.VIDEO_CONFIG = {
   dataSource: "vip.json",
   folder: params.get("folder") || ""
 };
+
+/* REMOVE loader once videos injected */
+const normalContainer = document.getElementById("normalVideos");
+const footerLoader = document.getElementById("footerLoader");
+
+function removeFooterLoader() {
+  if (footerLoader) footerLoader.style.display = "none";
+}
+
+/* Example: simulate videos loading after 1.5s */
+setTimeout(() => {
+  // Remove skeletons
+  normalContainer.innerHTML = `
+    <div class="videoBox">Video 1</div>
+    <div class="videoBox">Video 2</div>
+    <div class="videoBox">Video 3</div>
+  `;
+  removeFooterLoader();
+}, 1500);
 </script>
 
 <script type="module" src="views2.js"></script>
