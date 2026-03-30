@@ -112,6 +112,7 @@ function createVideoBox(video) {
   box.style.width = "auto"; // Set width to auto
   box.style.height = `${videoBoxHeight + 60}px`; // Fixed height for the video box (plus some space for text)
   box.style.display = "block"; // Ensure block-level display
+  box.style.marginBottom = "20px"; // Add margin to create space between video boxes (adjust the value as needed)
   
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
