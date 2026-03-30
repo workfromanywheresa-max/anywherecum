@@ -23,11 +23,7 @@ function saveCache(key, value) { localStorage.setItem(key, value); }
 function getCache(key) { return localStorage.getItem(key); }
 
 function toTitleCase(str) {
-  return str
-    .toLowerCase()
-    .split(" ")
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+  return str.toLowerCase().split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
 }
 
 function formatViews(num) {
@@ -47,6 +43,7 @@ function increaseViews(videoId) {
   }).catch(err => console.error("Worker failed:", err));
 }
 
+/* ---------------- TRENDING / UI UPDATE ---------------- */
 function updateUI(id) {
   const v = videoElements[id];
   if (!v) return;
@@ -57,18 +54,17 @@ function updateUI(id) {
   saveCache("views_" + id, total);
   saveCache("cycle_" + id, cycle);
 
-  const currentIndex = Array.from(normalContainer.children).indexOf(v.box);
-  if (cycle >= 10 && currentIndex > 0) {
-    normalContainer.insertBefore(v.box, normalContainer.firstChild);
-  } else if (cycle < 10 && currentIndex === 0) {
-    normalContainer.appendChild(v.box);
-  }
-
+  // Update view count
   const newText = `👁 ${formatViews(total)}`;
-  if (v.views.textContent !== newText) {
-    v.views.textContent = newText;
-    v.views.style.color = "#aaa";
-  }
+  if (v.views.textContent !== newText) v.views.textContent = newText;
+
+  // Move trending videos to top
+  const currentIndex = Array.from(normalContainer.children).indexOf(v.box);
+  if (cycle >= 10 && currentIndex > 0) normalContainer.insertBefore(v.box, normalContainer.firstChild);
+  else if (cycle < 10 && currentIndex === 0) normalContainer.appendChild(v.box);
+
+  // Highlight trending videos visually
+  v.box.style.border = cycle >= 10 ? "2px solid #ff4444" : "none";
 }
 
 /* ---------------- SET FOLDER TITLE ---------------- */
@@ -86,73 +82,90 @@ async function loadVideos() {
       ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
       : videos;
 
-    // Remove skeletons now that we have data
-    normalContainer.innerHTML = "";
-
     if (!filtered.length) {
       normalContainer.innerHTML = `<p style="text-align:center;color:#aaa;">No videos available.</p>`;
       return;
     }
 
+    // Add skeleton for each video
+    filtered.forEach(v => {
+      const skeleton = document.createElement("div");
+      skeleton.className = "videoBox skeleton-video";
+      skeleton.innerHTML = `
+        <div class="videoFrameWrapper skeleton-frame"></div>
+        <div class="videoTitle skeleton-text"></div>
+        <div class="views skeleton-text"></div>
+        <div class="download skeleton-button"></div>
+      `;
+      normalContainer.appendChild(skeleton);
+      v._skeleton = skeleton;
+    });
+
     filtered.forEach(v => {
       const box = document.createElement("div");
       box.className = "videoBox";
 
-      // Video wrapper
       const wrapper = document.createElement("div");
       wrapper.className = "videoFrameWrapper";
 
       const thumb = document.createElement("img");
       thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(v.thumbnail)}`;
       thumb.alt = v.title;
-      wrapper.appendChild(thumb);
 
-      // Click to replace with iframe
-      thumb.addEventListener("click", () => {
+      // Remove skeleton once thumbnail loads
+      thumb.onload = () => {
+        if (v._skeleton) v._skeleton.remove();
+        wrapper.appendChild(thumb);
+        normalContainer.appendChild(box);
+        updateUI(v.id); // Apply trending if cycleViews >= 10 from cache
+      };
+
+      // Click to replace thumbnail with iframe
+      thumb.onclick = () => {
         increaseViews(v.id);
         const iframe = document.createElement("iframe");
         iframe.src = v.embed;
         iframe.allowFullscreen = true;
         wrapper.innerHTML = "";
         wrapper.appendChild(iframe);
-      });
+      };
 
-      // Video title
       const title = document.createElement("h3");
       title.className = "videoTitle";
       title.textContent = v.title;
-      title.addEventListener("click", () => {
+      title.onclick = () => {
         increaseViews(v.id);
         window.open(v.url, "_blank");
-      });
+      };
 
-      // Views
       const views = document.createElement("div");
       views.className = "views";
       const cachedViews = getCache("views_" + v.id);
       const cachedCycle = getCache("cycle_" + v.id);
       views.textContent = `👁 ${formatViews(cachedViews ? Number(cachedViews) : 0)}`;
 
-      // Download button
       const btn = document.createElement("a");
       btn.className = "download";
       btn.href = "#";
       btn.textContent = `Download (${v.size || "?"})`;
-      btn.addEventListener("click", e => {
+      btn.onclick = e => {
         e.preventDefault();
         increaseViews(v.id);
         window.open(v.url, "_blank");
-      });
+      };
 
-      // Append elements
       box.appendChild(wrapper);
       box.appendChild(title);
       box.appendChild(views);
       box.appendChild(btn);
-      normalContainer.appendChild(box);
 
-      // Save element reference
-      videoElements[v.id] = { box, views, totalViews: cachedViews ? Number(cachedViews) : 0, cycleViews: cachedCycle ? Number(cachedCycle) : 0 };
+      // Store references for trending and view updates
+      videoElements[v.id] = {
+        box,
+        views,
+        totalViews: cachedViews ? Number(cachedViews) : 0,
+        cycleViews: cachedCycle ? Number(cachedCycle) : 0
+      };
 
       // Firebase listeners
       onValue(ref(db, "views/" + v.id), snap => {
@@ -163,6 +176,15 @@ async function loadVideos() {
         videoElements[v.id].cycleViews = Number(snap.val()) || 0;
         updateUI(v.id);
       });
+
+      // Optional fail-safe: remove skeleton if thumbnail fails after 5s
+      setTimeout(() => {
+        if (v._skeleton) {
+          v._skeleton.remove();
+          wrapper.appendChild(thumb); // show thumbnail anyway
+          normalContainer.appendChild(box);
+        }
+      }, 5000);
     });
   } catch (err) {
     console.error("Failed to load videos:", err);
@@ -170,5 +192,4 @@ async function loadVideos() {
   }
 }
 
-/* ---------------- START ---------------- */
 loadVideos();
