@@ -17,8 +17,12 @@ const folderName = (config.folder || "").toLowerCase();
 const dataSource = config.dataSource || "videos.json";
 
 /* ---------------- CACHE ---------------- */
-function saveCache(key, value) { localStorage.setItem(key, value); }
-function getCache(key) { return localStorage.getItem(key); }
+function saveCache(key, value) {
+  localStorage.setItem(key, value);
+}
+function getCache(key) {
+  return localStorage.getItem(key);
+}
 
 /* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
@@ -26,6 +30,7 @@ function toTitleCase(str) {
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 }
+
 document.getElementById("folderTitle").textContent =
   folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
 
@@ -50,6 +55,7 @@ async function sendToWorker(videoId) {
     console.error("Worker failed:", err);
   }
 }
+
 function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
@@ -66,15 +72,25 @@ function createVideoBox(video) {
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
 
-  /* LOADER OVERLAY (FULL COVER) */
+  /* SHIMMER LOADER */
   const loader = document.createElement("div");
   loader.className = "imgLoader";
 
-  /* IMAGE */
+  /* THUMBNAIL */
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
 
-  /* CLICK */
+  /* START HIDDEN */
+  thumb.style.opacity = "0";
+
+  /* FADE IN WHEN READY */
+  thumb.onload = () => {
+    thumb.style.opacity = "1";
+    loader.style.opacity = "0";
+    setTimeout(() => loader.remove(), 400);
+  };
+
+  /* CLICK TO PLAY */
   thumb.onclick = () => {
     increaseViews(video.id);
 
@@ -86,13 +102,6 @@ function createVideoBox(video) {
     wrapper.appendChild(iframe);
   };
 
-  /* WHEN LOADED */
-  thumb.onload = () => {
-    loader.style.opacity = "0";
-    setTimeout(() => loader.remove(), 300);
-  };
-
-  /* IMPORTANT ORDER */
   wrapper.appendChild(thumb);
   wrapper.appendChild(loader);
 
@@ -100,6 +109,7 @@ function createVideoBox(video) {
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
+
   title.onclick = () => {
     increaseViews(video.id);
     window.open(video.url, "_blank");
@@ -110,11 +120,12 @@ function createVideoBox(video) {
   views.className = "views";
   views.textContent = `👁 ${formatViews(video.totalViews)}`;
 
-  /* BUTTON */
+  /* DOWNLOAD */
   const btn = document.createElement("a");
   btn.className = "download";
   btn.href = "#";
   btn.textContent = `Download (${video.size || "?"})`;
+
   btn.onclick = (e) => {
     e.preventDefault();
     increaseViews(video.id);
