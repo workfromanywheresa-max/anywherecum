@@ -8,16 +8,12 @@ const app = initializeApp({
 });
 const db = getDatabase(app);
 
-/* ---------------- TEST MODE ---------------- */
-const TEST_MODE = localStorage.getItem("testMode") === "true";
-
 /* ---------------- CONFIG ---------------- */
 const config = window.VIDEO_CONFIG || {};
 const folderName = (config.folder || "").toLowerCase();
 const dataSource = config.dataSource || "videos.json";
 
 /* ---------------- CACHE ---------------- */
-function saveCache(key, value) { localStorage.setItem(key, value); }
 function getCache(key) { return localStorage.getItem(key); }
 
 /* ---------------- TITLE ---------------- */
@@ -34,18 +30,6 @@ function formatViews(num) {
   if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K";
   return num;
 }
-
-/* ---------------- VIEWS WORKER ---------------- */
-async function sendToWorker(videoId) {
-  try {
-    await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ videoId })
-    });
-  } catch(err){ console.error(err); }
-}
-function increaseViews(videoId){ if(TEST_MODE) return; sendToWorker("clicked_" + videoId); }
 
 /* ---------------- CONTAINERS ---------------- */
 const normalContainer = document.getElementById("normalVideos");
@@ -68,7 +52,6 @@ fetch(dataSource)
     const thumb = document.createElement("img");
     thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(v.thumbnail)}`;
     thumb.onclick = () => {
-      increaseViews(v.id);
       const iframe = document.createElement("iframe");
       iframe.src = v.embed;
       iframe.allowFullscreen = true;
@@ -80,7 +63,7 @@ fetch(dataSource)
     const title = document.createElement("h3");
     title.className = "videoTitle";
     title.textContent = v.title;
-    title.onclick = () => { increaseViews(v.id); window.open(v.url,"_blank"); };
+    title.onclick = () => window.open(v.url,"_blank");
 
     const views = document.createElement("div");
     views.className = "views";
@@ -91,7 +74,7 @@ fetch(dataSource)
     btn.className = "download";
     btn.href = "#";
     btn.textContent = `Download (${v.size || "?"})`;
-    btn.onclick = e => { e.preventDefault(); increaseViews(v.id); window.open(v.url,"_blank"); };
+    btn.onclick = e => { e.preventDefault(); window.open(v.url,"_blank"); };
 
     box.appendChild(wrapper);
     box.appendChild(title);
@@ -99,37 +82,19 @@ fetch(dataSource)
     box.appendChild(btn);
 
     normalContainer.appendChild(box);
+    videoElements[v.id] = { box, views };
 
-    videoElements[v.id] = { box, views, totalViews: cachedViews ? Number(cachedViews) : 0, cycleViews: 0 };
-
-    onValue(ref(db,"views/" + v.id), snap => { videoElements[v.id].totalViews = snap.val() || 0; updateUI(v.id); });
-    onValue(ref(db,"cycleViews/" + v.id), snap => { videoElements[v.id].cycleViews = Number(snap.val()) || 0; updateUI(v.id); });
+    // Firebase listeners
+    onValue(ref(db,"views/" + v.id), snap => {
+      videoElements[v.id].views.textContent = `👁 ${formatViews(snap.val() || 0)}`;
+    });
   });
 
-  /* ---------------- REMOVE SKELETONS ---------------- */
+  // Remove skeletons after videos loaded
   const skeletons = document.querySelectorAll(".videoBox.skeleton");
   skeletons.forEach(skel => {
-    // Force starting state
-    skel.style.opacity = "1";
-    skel.style.transform = "scale(1)";
-    // Trigger fade out
     skel.classList.add("removing");
-    // Remove after transition (slightly longer than CSS 0.5s)
     setTimeout(() => skel.remove(), 600);
   });
 
 });
-
-/* ---------------- UPDATE UI ---------------- */
-function updateUI(id){
-  const v = videoElements[id]; if(!v) return;
-
-  const total = v.totalViews || 0;
-  const cycle = v.cycleViews || 0;
-
-  const newText = cycle >= 10 ? `🔥 Trending | 👁 ${formatViews(total)}` : `👁 ${formatViews(total)}`;
-  if(v.views.textContent !== newText) {
-    v.views.textContent = newText;
-    v.views.style.color = cycle >= 10 ? "#ffcc00" : "#aaa";
-  }
-}
