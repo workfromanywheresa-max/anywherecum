@@ -3,7 +3,7 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12
 
 /* ---------------- FIREBASE ---------------- */
 const app = initializeApp({
-  apiKey: "AIzaSyCEX...",
+  apiKey: "AIzaSyCEX...", // Replace with your API key
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
 });
 const db = getDatabase(app);
@@ -14,24 +14,33 @@ const TEST_MODE = localStorage.getItem("testMode") === "true";
 /* ---------------- CONFIG ---------------- */
 const config = window.VIDEO_CONFIG || {};
 const folderName = (config.folder || "").toLowerCase();
-const dataSource = config.dataSource || "vip.json";
+const dataSource = config.dataSource || "videos.json";
 
 /* ---------------- CACHE ---------------- */
-const saveCache = (key, value) => localStorage.setItem(key, value);
-const getCache = (key) => localStorage.getItem(key);
+function saveCache(key, value) {
+  localStorage.setItem(key, value);
+}
+function getCache(key) {
+  return localStorage.getItem(key);
+}
 
 /* ---------------- TITLE ---------------- */
-const folderTitle = document.getElementById("folderTitle");
-folderTitle.textContent = folderName
-  ? folderName.split(" ").map(w => w[0].toUpperCase()+w.slice(1)).join(" ")
-  : "🔐 VIP Exclusive";
+function toTitleCase(str) {
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
 
-/* ---------------- FORMAT ---------------- */
+document.getElementById("folderTitle").textContent = folderName ? toTitleCase(folderName) : "🔐 VIP Exclusive";
+
+/* ---------------- FORMAT VIEWS ---------------- */
 function formatViews(num) {
   num = Number(num);
   if (isNaN(num)) return "0";
-  if (num >= 1_000_000) return (num/1_000_000).toFixed(1).replace(".0","") + "M";
-  if (num >= 1_000) return (num/1_000).toFixed(1).replace(".0","") + "K";
+  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0", "") + "M";
+  if (num >= 1000) return (num / 1000).toFixed(1).replace(".0", "") + "K";
   return num;
 }
 
@@ -43,12 +52,18 @@ async function sendToWorker(videoId) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ videoId })
     });
-  } catch(e) { console.error("Worker failed:", e); }
+  } catch (err) {
+    console.error("Worker failed:", err);
+  }
 }
-function increaseViews(videoId) { if(!TEST_MODE) sendToWorker("clicked_" + videoId); }
 
-/* ---------------- CONTAINER ---------------- */
-const container = document.getElementById("normalVideos");
+function increaseViews(videoId) {
+  if (TEST_MODE) return;
+  sendToWorker("clicked_" + videoId);
+}
+
+/* ---------------- CONTAINERS ---------------- */
+const normalContainer = document.getElementById("normalVideos");
 const videoElements = {};
 
 /* ---------------- UI UPDATE ---------------- */
@@ -59,17 +74,19 @@ function updateUI(id) {
   const total = v.totalViews || 0;
   const cycle = v.cycleViews || 0;
 
+  // Save to cache
   saveCache("views_" + id, total);
   saveCache("cycle_" + id, cycle);
 
+  // Trending logic: cycleViews >= 10
   const isTrending = cycle >= 10;
 
-  // Move trending videos to top
-  if (v.box.parentElement !== container) container.appendChild(v.box); // ensure it's inside
-  if (isTrending) container.insertBefore(v.box, container.firstChild);
+  // Move to top if trending
+  if (v.box.parentElement !== normalContainer) normalContainer.appendChild(v.box);
+  if (isTrending) normalContainer.insertBefore(v.box, normalContainer.firstChild);
 
-  // Update views display
-  v.views.textContent = `${isTrending ? "🔥 " : ""}👁 ${formatViews(total)}`;
+  // Update views text and color
+  v.views.textContent = `👁 ${formatViews(total)}`;
   v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
 }
 
@@ -77,7 +94,6 @@ function updateUI(id) {
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
-
     const filtered = folderName
       ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
       : videos;
@@ -93,10 +109,10 @@ fetch(dataSource)
       thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(v.thumbnail)}`;
       thumb.onclick = () => {
         increaseViews(v.id);
-        wrapper.innerHTML = "";
         const iframe = document.createElement("iframe");
         iframe.src = v.embed;
         iframe.allowFullscreen = true;
+        wrapper.innerHTML = "";
         wrapper.appendChild(iframe);
       };
       wrapper.appendChild(thumb);
@@ -104,41 +120,53 @@ fetch(dataSource)
       const title = document.createElement("h3");
       title.className = "videoTitle";
       title.textContent = v.title;
-      title.onclick = () => { increaseViews(v.id); window.open(v.url, "_blank"); };
+      title.onclick = () => {
+        increaseViews(v.id);
+        window.open(v.url, "_blank");
+      };
 
       const views = document.createElement("div");
       views.className = "views";
-      views.textContent = `👁 ${formatViews(getCache("views_" + v.id) || 0)}`;
+
+      // Load cached views first
+      const cachedViews = getCache("views_" + v.id);
+      const cachedCycle = getCache("cycle_" + v.id);
+      const initialViews = cachedViews ? Number(cachedViews) : 0;
+      const initialCycle = cachedCycle ? Number(cachedCycle) : 0;
+      views.textContent = `👁 ${formatViews(initialViews)}`;
 
       const btn = document.createElement("a");
       btn.className = "download";
       btn.href = "#";
       btn.textContent = `Download (${v.size || "?"})`;
-      btn.onclick = (e) => { e.preventDefault(); increaseViews(v.id); window.open(v.url, "_blank"); };
+      btn.onclick = e => {
+        e.preventDefault();
+        increaseViews(v.id);
+        window.open(v.url, "_blank");
+      };
 
       box.appendChild(wrapper);
       box.appendChild(title);
       box.appendChild(views);
       box.appendChild(btn);
 
-      container.appendChild(box);
+      normalContainer.appendChild(box);
 
       videoElements[v.id] = {
         box,
         views,
-        totalViews: Number(getCache("views_" + v.id) || 0),
-        cycleViews: Number(getCache("cycle_" + v.id) || 0)
+        totalViews: initialViews,
+        cycleViews: initialCycle
       };
 
-      /* Firebase listeners */
+      // Listen for Firebase updates
       onValue(ref(db, "views/" + v.id), snap => {
         videoElements[v.id].totalViews = snap.val() || 0;
         updateUI(v.id);
       });
-
       onValue(ref(db, "cycleViews/" + v.id), snap => {
         videoElements[v.id].cycleViews = Number(snap.val()) || 0;
         updateUI(v.id);
       });
     });
-});
+  });
