@@ -3,9 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>VIP Exclusive</title>
+<title>Folders</title>
 
 <style>
+html { overflow-y: scroll; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
 body {
   font-family: Arial, sans-serif;
   background: #1a1a1a;
@@ -14,7 +18,16 @@ body {
   padding: 15px;
 }
 
-button {
+/* TITLE */
+.pageTitle {
+  color: #ff4444;
+  text-align: center;
+  font-size: 22px;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #ff4444;
+}
+  button {
   background: #444;
   color: #fff;
   border: none;
@@ -22,118 +35,398 @@ button {
   border-radius: 5px;
   cursor: pointer;
   margin-bottom: 15px;
+  }
+
+/* LIST */
+.list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
 }
 
-h2 {
-  color: #ff4444;
-  text-align: center;
-  border-bottom: 2px solid #ff4444;
-  padding-bottom: 5px;
-}
-
-#folderDescription {
-  text-align: center;
-  color: #aaa;
-  font-size: 14px;
-}
-
-/* VIDEO BOX */
-.videoBox {
+/* CARD (CLICKABLE) */
+.card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   background: #222;
-  padding: 10px;
+  padding: 8px;
   border-radius: 8px;
-  margin-bottom: 20px;
-  text-align: center;
-  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
 }
 
-.videoBox:hover {
-  transform: scale(1.02);
-  box-shadow: 0 4px 12px rgba(255, 68, 68, 0.5);
-}
-
-/* 16:9 VIDEO PLAYER */
-.videoFrameWrapper {
-  width: 100%;
-  max-width: 400px;
-  margin: 0 auto;
-  position: relative;
-  aspect-ratio: 16 / 9;
-  border-radius: 8px;
-  overflow: hidden;
-  background: #000;
-}
-
-.videoFrameWrapper iframe,
-.videoFrameWrapper img {
-  width: 100%;
-  height: 100%;
-  border: 0;
+/* THUMB */
+.card img {
+  width: 80px;
+  height: 55px;
   object-fit: cover;
+  border-radius: 5px;
 }
 
 /* TEXT */
-.videoTitle {
-  text-align: center;
-  margin: 6px 0;
-  font-size: 13px;
-  cursor: pointer;
-  text-decoration: underline;
-  color: #fff;
-}
-
-.videoTitle:hover {
-  color: #ff4444;
-}
-
-.views {
-  text-align: center;
-  color: #aaa;
-  margin: 2px 0;
-  font-size: 12px;
-}
-
-.download {
-  display: block;
-  width: fit-content;
-  margin: 6px auto;
-  padding: 5px 10px;
-  background: #ff4444;
+.card a {
   color: #fff;
   text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+/* SKELETON */
+.skeleton-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #222;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.skeleton-thumb {
+  width: 80px;
+  height: 55px;
   border-radius: 5px;
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+.skeleton-text {
+  flex: 1;
+  height: 14px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* AD */
+.ad-space {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.ad-lock {
+  width: 300px;
+  height: 112px;
+  overflow: hidden;
+  position: relative;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.ad-lock * {
+  max-width: 300px !important;
+  max-height: 112px !important;
+}
+
+/* FOOTER */
+footer {
+  margin-top: 20px;
+  text-align: center;
+  padding: 20px;
   font-size: 12px;
-  transition: background 0.2s;
-}
-
-.download:hover {
-  background: #ff2222;
-}
-
-/* Bottom ad */
-#ad-container {
-  width: 320px;
-  max-width: 95%;
-  margin: 20px auto 40px auto; /* space above and below ad */
-  display: block;
+  color: #aaa;
+  background: #111;
 }
 </style>
 
-<script src="https://pl28956604.profitablecpmratenetwork.com/c7/ba/1d/c7ba1d0cd42bd7cbdf437d03bd000409.js"></script>
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
+<script>
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+
+OneSignalDeferred.push(async function(OneSignal) {
+
+  await OneSignal.init({
+    appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f"
+  });
+
+  async function handleSub() {
+    const sub = OneSignal.User.PushSubscription;
+
+    if (!sub) return;
+
+    // ✅ FIX HERE
+    const id = sub.token || sub.id;
+
+    if (!id) {
+      console.log("Waiting for subscription...", sub);
+      return;
+    }
+
+    const optedIn = sub.optedIn;
+
+    const lastState = localStorage.getItem("sub_" + id);
+    if (lastState === String(optedIn)) return;
+
+    localStorage.setItem("sub_" + id, optedIn);
+
+    console.log("OneSignal Sub Update:", id, optedIn);
+
+    if (window.saveSubscriber) {
+      window.saveSubscriber(id, optedIn);
+    }
+  }
+
+  // ✅ IMPORTANT: OneSignal loads late
+  setTimeout(handleSub, 2000);
+  setTimeout(handleSub, 5000);
+
+  handleSub();
+
+  OneSignal.User.PushSubscription.addEventListener("change", handleSub);
+
+});
+</script>
+  
 </head>
 
 <body>
 
-<button onclick="history.back()">← Back</button>
+  <div id="topBanner" style="
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -100%);
+  width: 95%;
+  max-width: 700px;
+  background: #ffffff;
+  color: #111;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 12px;
+  font-size: 11px;
+  z-index: 9999;
+  border-radius: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: transform 0.5s ease;
+">
+  <span style="flex: 1; text-align: center;">
+    🔔 Click the bell icon on your bottom left to receive notifications
+  </span>
+  <button id="closeBtn" style="
+    position: absolute;
+    right: 8px;
+    top: 2px;
+    background: transparent;
+    border: none;
+    color: #111;
+    font-size: 12px;
+    cursor: pointer;
+    line-height: 1;
+  ">✖</button>
+</div>
 
-<h2 id="folderTitle">🔐 VIP Exclusive</h2>
-<p id="folderDescription">
-  Enjoy our VIP Exclusive videos, updated regularly for your viewing pleasure.
-</p>
+<script>
+  const banner = document.getElementById("topBanner");
+  const closeBtn = document.getElementById("closeBtn");
 
-<!-- TOP BANNER AD -->
+  const lastClosed = localStorage.getItem("bannerClosedTime");
+  const now = Date.now();
+  const twentyFourHours = 24 * 60 * 60 * 1000;
+
+  if (!lastClosed || now - lastClosed > twentyFourHours) {
+    // Show banner
+    banner.style.display = "flex";
+
+    // Slide down smoothly
+    setTimeout(() => {
+      banner.style.transform = "translate(-50%, 0)";
+    }, 50);
+
+    // Auto-hide after 30 seconds
+    setTimeout(() => {
+      banner.style.transform = "translate(-50%, -100%)";
+      setTimeout(() => {
+        banner.style.display = "none";
+        localStorage.setItem("bannerClosedTime", Date.now());
+      }, 500);
+    }, 30000);
+  }
+
+  closeBtn.addEventListener("click", () => {
+    banner.style.transform = "translate(-50%, -100%)";
+    setTimeout(() => {
+      banner.style.display = "none";
+      localStorage.setItem("bannerClosedTime", Date.now());
+    }, 500);
+  });
+</script>
+
+  <!-- TOP AD -->
+<div id="topAdMain" style="
+position: fixed;
+top: -80px;
+left: 50%;
+transform: translateX(-50%);
+width: 300px;
+height: 62px;
+border: 2px solid red;
+border-radius: 8px;
+overflow: hidden;
+z-index: 9999;
+background: #fff;
+transition: top 0.5s ease;
+">
+
+  <!-- Blink animation (required for inline use) -->
+  <style>
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+  </style>
+
+  <!-- Ad -->
+  <div style="
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:1;
+    background:#fff;
+  ">
+    <script async src="https://poweredby.jads.co/js/jads.js"></script>
+    <ins id="1113670" data-width="300" data-height="62"></ins>
+    <script>
+      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});
+    </script>
+  </div>
+
+  <!-- 🔴 Live (Blinking) -->
+  <div style="
+    position:absolute;
+    top:2px;
+    left:50%;
+    transform:translateX(-50%);
+    background:red;
+    color:#fff;
+    font-weight:bold;
+    font-size:11px;
+    padding:1px 6px;
+    border-radius:4px;
+    z-index:1000;
+    animation: blink 1s infinite;
+  ">
+    🔴 Live
+  </div>
+
+  <!-- Timer / Close -->
+  <div style="
+    position:absolute;
+    top:4px;
+    right:14px;
+    z-index:1000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  ">
+
+    <!-- Timer -->
+    <div id="mainCountdown" style="
+      background:black;
+      color:#fff;
+      font-size:11px;
+      font-weight:bold;
+      padding:2px 6px;
+      border-radius:4px;
+    ">
+      15s
+    </div>
+
+    <!-- Close Button -->
+    <div id="mainCloseBtn" style="
+      display:none;
+      background:#000;
+      color:#fff;
+      font-size:13px;
+      font-weight:bold;
+      width:20px;
+      height:20px;
+      line-height:20px;
+      text-align:center;
+      border-radius:4px;
+      cursor:pointer;
+      align-items:center;
+      justify-content:center;
+    ">
+      ✕
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const ad = document.getElementById("topAdMain");
+  const countdownEl = document.getElementById("mainCountdown");
+  const closeBtn = document.getElementById("mainCloseBtn");
+
+  let countdownInterval;
+  let cycleTimeout;
+
+  function showAd() {
+    ad.style.top = "10px";
+
+    let timeLeft = 15;
+
+    countdownEl.style.display = "block";
+    closeBtn.style.display = "none";
+
+    countdownEl.textContent = timeLeft + "s";
+
+    clearInterval(countdownInterval);
+
+    countdownInterval = setInterval(() => {
+      timeLeft--;
+      countdownEl.textContent = timeLeft + "s";
+
+      if (timeLeft <= 0) {
+        clearInterval(countdownInterval);
+
+        countdownEl.style.display = "none";
+        closeBtn.style.display = "flex";
+      }
+    }, 1000);
+  }
+
+  function hideMainAd() {
+    ad.style.top = "-80px";
+
+    clearInterval(countdownInterval);
+
+    clearTimeout(cycleTimeout);
+    cycleTimeout = setTimeout(showAd, 120000);
+  }
+
+  closeBtn.addEventListener("click", hideMainAd);
+
+  setTimeout(() => {
+    showAd();
+  }, 30000);
+
+});
+</script>
+
+  <button onclick="history.back()">← Back</button>
+
+<!-- TITLE -->
+<h2 class="pageTitle">Folders</h2>
+
+  <!-- AD 1 -->
 <div style="
 text-align: center;
 position: relative;
@@ -145,6 +438,7 @@ border-radius: 12px;
 overflow: hidden;
 background: #fff;
 ">
+
   <div id="adContainer" style="width:100%; height:100%;">
     <script>
       atOptions = {
@@ -158,45 +452,243 @@ background: #fff;
     <script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
   </div>
 </div>
+  
+<a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4" target="_blank"
+style="
+display:block;
+margin:10px auto;
+color:#ffffff;
+font-weight:bold;
+font-size:10px;
+text-decoration:none;
+text-align:center;
+padding:8px 10px;
+border:2px solid #ff4444;
+border-radius:10px;
+white-space:nowrap;
+animation:pulse 1.5s infinite;
+max-width:fit-content;
+">
 
-<!-- TRENDING & NORMAL VIDEOS -->
-<div id="trendingVideos"></div>
-<div id="normalVideos"></div>
+<span style="
+display:inline-block;
+animation:moveArrows 1s linear infinite;
+">➡➡➡</span>
 
-<!-- BOTTOM AD (scrolls with page, NOT sticky) -->
-<div id="ad-container">
-  <script async data-cfasync="false"
-    src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js">
-  </script>
-  <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
+Click & Watch how to unlock VIP Exclusive for Free
+
+<span style="
+display:inline-block;
+animation:moveArrows 1s linear infinite;
+">⬅⬅⬅</span>
+
+</a>
+
+<style>
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 rgba(255,68,68,0.5); }
+  50% { transform: scale(1.05); box-shadow: 0 0 10px rgba(255,68,68,0.8); }
+  100% { transform: scale(1); box-shadow: 0 0 0 rgba(255,68,68,0.5); }
+}
+
+@keyframes moveArrows {
+  0% { transform: translateX(0); opacity: 1; }
+  50% { transform: translateX(5px); opacity: 0.5; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+</style>
+  
+<!-- VIP (LOADER) -->
+<div id="vipList" class="list">
+  <div class="skeleton-card">
+    <div class="skeleton-thumb"></div>
+    <div class="skeleton-text"></div>
+  </div>
 </div>
 
-<!-- FOOTER -->
+<!-- FOLDERS (8 LOADERS) -->
+<div id="folderList" class="list" style="margin-top:15px;">
+
+  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
+  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
+  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
+  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
+  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
+  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
+  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
+  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
+
+</div>
+
+<!-- AD -->
+<div class="ad-space" style="text-align:center;">
+
+  <div style="display:inline-block; position:relative;">
+
+    <!-- 🔴 LIVE badge -->
+    <div style="
+      position:absolute;
+      top:-12px;
+      left:50%;
+      transform:translateX(-50%);
+      background:red;
+      color:white;
+      font-size:11px;
+      font-weight:bold;
+      padding:3px 10px;
+      border-radius:12px;
+      animation:blink 1s infinite;
+      z-index:9999;
+      pointer-events:none;
+    ">
+      🔴 Live
+    </div>
+
+    <!-- Border wrapper -->
+    <div style="
+      border:1.5px solid red;
+      border-radius:12px;
+      padding:3px;
+      background:#1a1a1a;
+      line-height:0;
+      overflow:visible; /* IMPORTANT */
+    ">
+
+      <!-- Ad -->
+      <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+      <ins id="1113665" data-width="300" data-height="112" style="display:block;"></ins>
+      <script type="text/javascript" data-cfasync="false" async>
+        (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113665});
+      </script>
+
+    </div>
+
+  </div>
+</div>
+
+<style>
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+</style>
+
 <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
 © 2026 AnywhereCum – Legal content only. 18+<br>
+
 <div style="margin-top:8px; font-size:8px;">
+
   <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank" style="margin:0 5px;">
     <img src="https://www.facebook.com/images/fb_icon_325x325.png" style="width:14px;height:14px;">
   </a><span>|</span>
+
   <a href="contact.html" style="color:#ff4444; margin:0 5px;">📨Contact</a><span>|</span>
+
   <a href="terms-privacy.html" style="color:#ff4444; margin:0 5px;">⚖️Terms & Privacy</a><span>|</span>
+
   <a href="/" style="color:#ff4444; margin:0 5px;">🏠Home</a><span>|</span>
+
   <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" style="color:#ff4444;">
     ⬆️Back to Top
   </a>
+
 </div>
 </footer>
 
-<!-- VIP CONFIG -->
 <script>
-window.VIDEO_CONFIG = {
-  dataSource: "vip.json",
-  folder: ""
-};
+
+/* ================= VIP ================= */
+async function loadVIP() {
+  const res = await fetch('./vip.json');
+  const data = await res.json();
+
+  const container = document.getElementById('vipList');
+  container.innerHTML = '';
+
+  if (!data.length) return;
+
+  data.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const vip = data[0];
+
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const img = document.createElement('img');
+  img.src = "https://anywherecum.pages.dev/images/" + vip.thumbnail;
+
+  const link = document.createElement('a');
+
+  const shortlink = "https://fc-lc.xyz/al0L8qyP";
+
+  link.href = shortlink;
+  link.target = "_blank";
+  link.textContent = vip.folder;
+
+  card.onclick = () => {
+    window.open(shortlink, "_blank");
+  };
+
+  card.appendChild(img);
+  card.appendChild(link);
+
+  container.appendChild(card);
+}
+
+/* ================= FOLDERS ================= */
+async function loadFolders() {
+  const res = await fetch('./videos.json');
+  const data = await res.json();
+
+  const folders = {};
+
+  data.forEach(v => {
+    if (!folders[v.folder]) folders[v.folder] = [];
+    folders[v.folder].push(v);
+  });
+
+  const container = document.getElementById('folderList');
+  container.innerHTML = '';
+
+  Object.keys(folders)
+    .sort()
+    .forEach(name => {
+
+      const vids = folders[name]
+        .sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+      const latest = vids[0];
+
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const img = document.createElement('img');
+      img.src = "https://anywherecum.pages.dev/images/" + latest.thumbnail;
+
+      const link = document.createElement('a');
+      link.href = "folder.html?folder=" + encodeURIComponent(name);
+      link.textContent = name;
+
+      card.onclick = () => {
+        window.location.href = link.href;
+      };
+
+      card.appendChild(img);
+      card.appendChild(link);
+
+      container.appendChild(card);
+    });
+}
+
+/* ================= INIT ================= */
+window.addEventListener('load', () => {
+  loadVIP();
+  loadFolders();
+});
+
 </script>
 
-<!-- Load JS that separates trending & normal videos -->
-<script type="module" src="views2.js"></script>
+  <script type="module" src="views.js"></script>
 
 </body>
 </html>
