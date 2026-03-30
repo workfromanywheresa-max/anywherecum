@@ -65,6 +65,15 @@ function updateUI(id) {
   saveCache("cycle_" + id, cycle);
 
   const isTrending = cycle >= 10;
+  
+  // Check if the position of the video has changed
+  const storedPosition = getCache("position_" + id); // Get stored position from localStorage
+  const currentPosition = v.originalIndex;
+
+  // If the position hasn't changed, don't slide
+  if (storedPosition && storedPosition === currentPosition) {
+    return;
+  }
 
   // Add the "moving" class for smooth animation
   if (v.box.parentElement === videosContainer) {
@@ -92,6 +101,8 @@ function updateUI(id) {
 
     // Remove the "moving" class after the transition ends
     v.box.classList.remove('moving');
+    // Store the new position after the move
+    saveCache("position_" + id, currentPosition);
   });
 
   const newText = isTrending ? `🔥 Trending | 👁 ${formatViews(total)}` : `👁 ${formatViews(total)}`;
