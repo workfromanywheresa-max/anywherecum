@@ -8,21 +8,14 @@ const app = initializeApp({
 });
 const db = getDatabase(app);
 
-/* ---------------- TEST MODE ---------------- */
-const TEST_MODE = localStorage.getItem("testMode") === "true";
-
 /* ---------------- CONFIG ---------------- */
 const config = window.VIDEO_CONFIG || {};
 const folderName = (config.folder || "").toLowerCase();
 const dataSource = config.dataSource || "videos.json";
 
 /* ---------------- CACHE ---------------- */
-function saveCache(key, value) {
-  localStorage.setItem(key, value);
-}
-function getCache(key) {
-  return localStorage.getItem(key);
-}
+const saveCache = (k, v) => localStorage.setItem(k, v);
+const getCache = (k) => localStorage.getItem(k);
 
 /* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
@@ -43,25 +36,8 @@ function formatViews(num) {
   return num;
 }
 
-/* ---------------- WORKER ---------------- */
-async function sendToWorker(videoId) {
-  try {
-    await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ videoId })
-    });
-  } catch (err) {
-    console.error("Worker failed:", err);
-  }
-}
-
-function increaseViews(videoId) {
-  if (!TEST_MODE) sendToWorker("clicked_" + videoId);
-}
-
 /* ---------------- CONTAINER ---------------- */
-const videosContainer = document.getElementById("normalVideos");
+const container = document.getElementById("normalVideos");
 const videoElements = {};
 
 /* ---------------- VIDEO BOX ---------------- */
@@ -76,22 +52,19 @@ function createVideoBox(video) {
   const loader = document.createElement("div");
   loader.className = "imgLoader";
 
-  /* THUMBNAIL */
-  const thumb = document.createElement("img");
-  thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
+  /* IMAGE */
+  const img = document.createElement("img");
+  img.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
+  img.style.opacity = "0";
 
-  /* START HIDDEN */
-  thumb.style.opacity = "0";
-
-  /* FADE IN WHEN READY */
-  thumb.onload = () => {
-    thumb.style.opacity = "1";
+  img.onload = () => {
+    img.style.opacity = "1";
     loader.style.opacity = "0";
-    setTimeout(() => loader.remove(), 400);
+    setTimeout(() => loader.remove(), 300);
   };
 
   /* CLICK TO PLAY */
-  thumb.onclick = () => {
+  img.onclick = () => {
     increaseViews(video.id);
 
     const iframe = document.createElement("iframe");
@@ -102,8 +75,9 @@ function createVideoBox(video) {
     wrapper.appendChild(iframe);
   };
 
-  wrapper.appendChild(thumb);
+  /* ORDER */
   wrapper.appendChild(loader);
+  wrapper.appendChild(img);
 
   /* TITLE */
   const title = document.createElement("h3");
@@ -118,7 +92,6 @@ function createVideoBox(video) {
   /* VIEWS */
   const views = document.createElement("div");
   views.className = "views";
-  views.textContent = `👁 ${formatViews(video.totalViews)}`;
 
   /* DOWNLOAD */
   const btn = document.createElement("a");
@@ -140,7 +113,7 @@ function createVideoBox(video) {
   return box;
 }
 
-/* ---------------- UI UPDATE ---------------- */
+/* ---------------- UPDATE UI ---------------- */
 function updateUI(id) {
   const v = videoElements[id];
   if (!v) return;
@@ -148,33 +121,27 @@ function updateUI(id) {
   const total = v.totalViews || 0;
   const cycle = v.cycleViews || 0;
 
-  saveCache("views_" + id, total);
-  saveCache("cycle_" + id, cycle);
-
   const isTrending = cycle >= 10;
 
-  if (v.box.parentElement === videosContainer) {
-    videosContainer.removeChild(v.box);
-  }
-
   if (isTrending) {
-    videosContainer.insertBefore(v.box, videosContainer.firstChild);
+    v.views.innerHTML = `🔥 <span class="trendingText">Trending</span> | 👁 ${formatViews(total)}`;
   } else {
-    if (v.originalIndex >= videosContainer.children.length) {
-      videosContainer.appendChild(v.box);
-    } else {
-      videosContainer.insertBefore(v.box, videosContainer.children[v.originalIndex]);
-    }
+    v.views.textContent = `👁 ${formatViews(total)}`;
   }
+}
 
-  v.views.textContent = isTrending
-    ? `🔥 Trending | 👁 ${formatViews(total)}`
-    : `👁 ${formatViews(total)}`;
+/* ---------------- WORKER ---------------- */
+function increaseViews(id) {
+  fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ videoId: "clicked_" + id })
+  }).catch(() => {});
 }
 
 /* ---------------- RENDER ---------------- */
 function renderVideos(videos) {
-  videosContainer.innerHTML = "";
+  container.innerHTML = "";
 
   const filtered = folderName
     ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
@@ -182,7 +149,7 @@ function renderVideos(videos) {
 
   filtered.forEach((v, index) => {
     const box = createVideoBox(v);
-    videosContainer.appendChild(box);
+    container.appendChild(box);
 
     videoElements[v.id] = {
       box,
@@ -192,6 +159,7 @@ function renderVideos(videos) {
       originalIndex: index
     };
 
+    /* FIREBASE LISTENERS */
     onValue(ref(db, "views/" + v.id), snap => {
       videoElements[v.id].totalViews = snap.val() || 0;
       updateUI(v.id);
@@ -210,15 +178,13 @@ const cached = getCache("videos");
 if (cached) {
   try {
     renderVideos(JSON.parse(cached));
-  } catch (e) {
-    console.error("Cache error:", e);
-  }
+  } catch {}
 }
 
 fetch(dataSource)
-  .then(res => res.json())
+  .then(r => r.json())
   .then(videos => {
     saveCache("videos", JSON.stringify(videos));
     renderVideos(videos);
   })
-  .catch(error => console.error(error));
+  .catch(console.error);
