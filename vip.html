@@ -12,7 +12,7 @@ body {
   color: #fff;
   margin: 0;
   padding: 15px;
-  padding-bottom: 100px; /* space for fixed bottom ad */
+  padding-bottom: 120px; /* space for fixed bottom ad */
 }
 
 button {
@@ -110,6 +110,17 @@ h2 {
 .download:hover {
   background: #ff2222;
 }
+
+/* FIXED BOTTOM AD */
+#ad-container {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  z-index: 9999;
+  display: block; /* show immediately */
+}
 </style>
 
 <script src="https://pl28956604.profitablecpmratenetwork.com/c7/ba/1d/c7ba1d0cd42bd7cbdf437d03bd000409.js"></script>
@@ -152,19 +163,12 @@ background: #fff;
   </div>
 </div>
 
-<!-- VIDEOS -->
+<!-- TRENDING & NORMAL VIDEOS -->
 <div id="trendingVideos"></div>
 <div id="normalVideos"></div>
 
-<!-- MID AD (LOCKED TO BOTTOM) -->
-<div id="ad-container" style="
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 320px;
-  z-index: 9999;
-">
+<!-- MID/BOTTOM AD FIXED -->
+<div id="ad-container">
   <script async data-cfasync="false"
     src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js">
   </script>
@@ -174,9 +178,20 @@ background: #fff;
 <!-- FOOTER -->
 <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
 © 2026 AnywhereCum – Legal content only. 18+<br>
+<div style="margin-top:8px; font-size:8px;">
+  <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank" style="margin:0 5px;">
+    <img src="https://www.facebook.com/images/fb_icon_325x325.png" style="width:14px;height:14px;">
+  </a><span>|</span>
+  <a href="contact.html" style="color:#ff4444; margin:0 5px;">📨Contact</a><span>|</span>
+  <a href="terms-privacy.html" style="color:#ff4444; margin:0 5px;">⚖️Terms & Privacy</a><span>|</span>
+  <a href="/" style="color:#ff4444; margin:0 5px;">🏠Home</a><span>|</span>
+  <a href="#" onclick="window.scrollTo({top:0, behavior:'smooth'});" style="color:#ff4444;">
+    ⬆️Back to Top
+  </a>
+</div>
 </footer>
 
-<!-- CONFIG -->
+<!-- VIP CONFIG -->
 <script>
 window.VIDEO_CONFIG = {
   dataSource: "vip.json",
@@ -184,6 +199,7 @@ window.VIDEO_CONFIG = {
 };
 </script>
 
+<!-- Load JS that separates trending & normal videos -->
 <script type="module" src="views2.js"></script>
 
 </body>
