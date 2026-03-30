@@ -47,15 +47,17 @@ h2 {
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
-/* Placeholder */
+/* VIDEO PLACEHOLDER */
 .videoBox.placeholder {
-  height: 220px;
+  height: 250px;
   background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
 
-/* ✅ CLEAN 16:9 PLAYER */
+@keyframes shimmer {0%{background-position:-200% 0;}100%{background-position:200% 0;}}
+
+/* CLEAN 16:9 PLAYER */
 .videoFrameWrapper {
   width: 100%;
   max-width: 400px;
@@ -102,30 +104,44 @@ h2 {
   border-radius: 5px;
   font-size: 12px;
 }
-
-@keyframes shimmer {0%{background-position:-200% 0;}100%{background-position:200% 0;}}
 </style>
 
-</head>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+OneSignalDeferred.push(async function(OneSignal) {
+  await OneSignal.init({ appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f" });
 
+  async function handleSub() {
+    const sub = OneSignal.User.PushSubscription;
+    if (!sub) return;
+    const id = sub.token || sub.id;
+    if (!id) { console.log("Waiting for subscription...", sub); return; }
+    const optedIn = sub.optedIn;
+    const lastState = localStorage.getItem("sub_" + id);
+    if (lastState === String(optedIn)) return;
+    localStorage.setItem("sub_" + id, optedIn);
+    console.log("OneSignal Sub Update:", id, optedIn);
+    if (window.saveSubscriber) { window.saveSubscriber(id, optedIn); }
+  }
+
+  setTimeout(handleSub, 2000);
+  setTimeout(handleSub, 5000);
+  handleSub();
+  OneSignal.User.PushSubscription.addEventListener("change", handleSub);
+});
+</script>
+
+</head>
 <body>
 
 <button onclick="history.back()">← Back</button>
 
 <h2 id="folderTitle">🔐VIP Exclusive</h2>
+<p id="folderDescription">Enjoy our exclusive VIP videos, updated regularly.</p>
 
-<p id="folderDescription">
-  Enjoy our exclusive VIP videos, updated regularly.
-</p>
-
-<div id="normalVideos">
-  <!-- Reserved placeholders -->
-  <div class="videoBox placeholder"></div>
-  <div class="videoBox placeholder"></div>
-  <div class="videoBox placeholder"></div>
-  <div class="videoBox placeholder"></div>
-  <div class="videoBox placeholder"></div>
-</div>
+<!-- VIDEOS CONTAINER -->
+<div id="normalVideos"></div>
 
 <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
 © 2026 AnywhereCum – Legal content only. 18+<br>
@@ -142,7 +158,6 @@ h2 {
 
 <script>
 const params = new URLSearchParams(window.location.search);
-
 window.VIDEO_CONFIG = {
   dataSource: "vip.json",
   folder: params.get("folder") || ""
