@@ -22,15 +22,12 @@
   background: #444;
   color: #fff;
   border: none;
-  padding: 20px 12px 8px 12px; /* Increase bottom padding */
+  padding: 8px 12px;
   border-radius: 5px;
   cursor: pointer;
   margin-bottom: 15px;
-  position: absolute;
-  left: 15px; /* Align to left */
-  top: 15px; /* Space from the top */
     }
-      
+    
     h2 {
       color: #ff4444;
       text-align: center;
@@ -130,7 +127,6 @@
 
 <body>
 
-  <!-- Back Button -->
   <button onclick="history.back()">← Back</button>
   
   <h2 id="folderTitle">🔐VIP Exclusive</h2>
@@ -140,50 +136,50 @@
   <div id="normalVideos"></div>
 
   <!-- Skeleton Ad Loader -->
-  <div id="skeleton" class="skeleton"></div>
+<div id="skeleton" class="skeleton"></div>
 
-  <div id="ad-container">
-    <script async="async" data-cfasync="false"
-      src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js">
-    </script>
-    <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
-  </div>
-
-  <style>
-    .skeleton {
-      width: 100%;
-      height: 250px;
-      border-radius: 10px;
-      background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-    }
-
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-
-    #ad-container {
-      display: none;
-    }
-  </style>
-
-  <script>
-    const skeleton = document.getElementById("skeleton");
-    const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
-    const adWrapper = document.getElementById("ad-container");
-
-    const observer = new MutationObserver((mutations, obs) => {
-      if (adContainer.children.length > 0) {
-        skeleton.style.display = "none";
-        adWrapper.style.display = "block";
-        obs.disconnect();
-      }
-    });
-
-    observer.observe(adContainer, { childList: true, subtree: true });
+<div id="ad-container">
+  <script async="async" data-cfasync="false"
+    src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js">
   </script>
+  <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
+</div>
+
+<style>
+.skeleton {
+  width: 100%;
+  height: 250px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+#ad-container {
+  display: none;
+}
+</style>
+
+<script>
+const skeleton = document.getElementById("skeleton");
+const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
+const adWrapper = document.getElementById("ad-container");
+
+const observer = new MutationObserver((mutations, obs) => {
+  if (adContainer.children.length > 0) {
+    skeleton.style.display = "none";
+    adWrapper.style.display = "block";
+    obs.disconnect();
+  }
+});
+
+observer.observe(adContainer, { childList: true, subtree: true });
+</script>
 
   <footer>
     © 2026 AnywhereCum – Legal content only. 18+<br>
