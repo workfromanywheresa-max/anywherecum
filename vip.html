@@ -107,19 +107,11 @@ h2 {
   background: #ff2222;
 }
 
-/* ---------------- SKELETONS ---------------- */
+/* Skeletons */
 .videoBox.skeleton {
   background: none;
   padding: 10px;
   text-align: center;
-  opacity: 1;
-  transform: scale(1);
-  transition: opacity 0.5s ease, transform 0.3s ease;
-}
-
-.videoBox.skeleton.removing {
-  opacity: 0;
-  transform: scale(0.98);
 }
 
 .videoBox.skeleton .videoFrameWrapper,
@@ -157,15 +149,6 @@ h2 {
   margin: 6px auto;
 }
 
-/* Fade children on remove */
-.videoBox.skeleton.removing .videoFrameWrapper,
-.videoBox.skeleton.removing .videoTitle,
-.videoBox.skeleton.removing .views,
-.videoBox.skeleton.removing .download {
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -179,7 +162,44 @@ footer {
   background:#111;
   margin-top:10px;
 }
+
+h3.trendingHeader {
+  color: #ffcc00;
+  text-align: center;
+  font-size: 14px;
+  margin-top: 10px;
+}
 </style>
+
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
+<script>
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+
+OneSignalDeferred.push(async function(OneSignal) {
+  await OneSignal.init({ appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f" });
+
+  async function handleSub() {
+    const sub = OneSignal.User.PushSubscription;
+    if (!sub) return;
+
+    const id = sub.token || sub.id;
+    if (!id) return;
+
+    const optedIn = sub.optedIn;
+    const lastState = localStorage.getItem("sub_" + id);
+    if (lastState === String(optedIn)) return;
+
+    localStorage.setItem("sub_" + id, optedIn);
+    if (window.saveSubscriber) window.saveSubscriber(id, optedIn);
+  }
+
+  setTimeout(handleSub, 2000);
+  setTimeout(handleSub, 5000);
+  handleSub();
+  OneSignal.User.PushSubscription.addEventListener("change", handleSub);
+});
+</script>
 
 </head>
 <body>
@@ -191,8 +211,10 @@ footer {
   Enjoy our VIP Exclusive videos, updated regularly for your viewing pleasure.
 </p>
 
+<h3 class="trendingHeader">🔥 Trending Videos</h3>
+<div id="trendingVideos"></div>
+
 <div id="normalVideos">
-  <!-- Skeletons initially -->
   <div class="videoBox skeleton">
     <div class="videoFrameWrapper"></div>
     <div class="videoTitle"></div>
