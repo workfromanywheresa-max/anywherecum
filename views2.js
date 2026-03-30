@@ -32,7 +32,6 @@ function toTitleCase(str) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 }
-
 document.getElementById("folderTitle").textContent = folderName ? toTitleCase(folderName) : "🔐 VIP Exclusive";
 
 /* ---------------- FORMAT VIEWS ---------------- */
@@ -46,6 +45,7 @@ function formatViews(num) {
 
 /* ---------------- WORKER ---------------- */
 async function sendToWorker(videoId) {
+  if (TEST_MODE) return;
   try {
     await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
       method: "POST",
@@ -56,11 +56,7 @@ async function sendToWorker(videoId) {
     console.error("Worker failed:", err);
   }
 }
-
-function increaseViews(videoId) {
-  if (TEST_MODE) return;
-  sendToWorker("clicked_" + videoId);
-}
+function increaseViews(videoId) { sendToWorker("clicked_" + videoId); }
 
 /* ---------------- CONTAINERS ---------------- */
 const normalContainer = document.getElementById("normalVideos");
@@ -74,18 +70,20 @@ function updateUI(id) {
   const total = v.totalViews || 0;
   const cycle = v.cycleViews || 0;
 
-  // Save to cache
   saveCache("views_" + id, total);
   saveCache("cycle_" + id, cycle);
 
-  // Trending logic: cycleViews >= 10
   const isTrending = cycle >= 10;
 
-  // Move to top if trending
-  if (v.box.parentElement !== normalContainer) normalContainer.appendChild(v.box);
-  if (isTrending) normalContainer.insertBefore(v.box, normalContainer.firstChild);
+  // Reorder within normalContainer
+  if (v.box.parentElement === normalContainer) normalContainer.removeChild(v.box);
+  if (isTrending) {
+    normalContainer.insertBefore(v.box, normalContainer.firstChild);
+  } else {
+    normalContainer.appendChild(v.box);
+  }
 
-  // Update views text and color
+  // Update views text
   v.views.textContent = `👁 ${formatViews(total)}`;
   v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
 }
@@ -99,6 +97,8 @@ fetch(dataSource)
       : videos;
 
     filtered.forEach(v => {
+      const placeholder = normalContainer.querySelector(".placeholder");
+
       const box = document.createElement("div");
       box.className = "videoBox";
 
@@ -120,53 +120,38 @@ fetch(dataSource)
       const title = document.createElement("h3");
       title.className = "videoTitle";
       title.textContent = v.title;
-      title.onclick = () => {
-        increaseViews(v.id);
-        window.open(v.url, "_blank");
-      };
+      title.onclick = () => { increaseViews(v.id); window.open(v.url, "_blank"); };
 
       const views = document.createElement("div");
       views.className = "views";
-
-      // Load cached views first
       const cachedViews = getCache("views_" + v.id);
       const cachedCycle = getCache("cycle_" + v.id);
-      const initialViews = cachedViews ? Number(cachedViews) : 0;
-      const initialCycle = cachedCycle ? Number(cachedCycle) : 0;
-      views.textContent = `👁 ${formatViews(initialViews)}`;
+      views.textContent = `👁 ${formatViews(cachedViews ? Number(cachedViews) : 0)}`;
 
       const btn = document.createElement("a");
       btn.className = "download";
       btn.href = "#";
       btn.textContent = `Download (${v.size || "?"})`;
-      btn.onclick = e => {
-        e.preventDefault();
-        increaseViews(v.id);
-        window.open(v.url, "_blank");
-      };
+      btn.onclick = e => { e.preventDefault(); increaseViews(v.id); window.open(v.url, "_blank"); };
 
       box.appendChild(wrapper);
       box.appendChild(title);
       box.appendChild(views);
       box.appendChild(btn);
 
-      normalContainer.appendChild(box);
+      // Replace placeholder if exists
+      if (placeholder) normalContainer.replaceChild(box, placeholder);
+      else normalContainer.appendChild(box);
 
       videoElements[v.id] = {
         box,
         views,
-        totalViews: initialViews,
-        cycleViews: initialCycle
+        totalViews: cachedViews ? Number(cachedViews) : 0,
+        cycleViews: cachedCycle ? Number(cachedCycle) : 0
       };
 
-      // Listen for Firebase updates
-      onValue(ref(db, "views/" + v.id), snap => {
-        videoElements[v.id].totalViews = snap.val() || 0;
-        updateUI(v.id);
-      });
-      onValue(ref(db, "cycleViews/" + v.id), snap => {
-        videoElements[v.id].cycleViews = Number(snap.val()) || 0;
-        updateUI(v.id);
-      });
+      // Firebase listeners
+      onValue(ref(db, "views/" + v.id), snap => { videoElements[v.id].totalViews = snap.val() || 0; updateUI(v.id); });
+      onValue(ref(db, "cycleViews/" + v.id), snap => { videoElements[v.id].cycleViews = Number(snap.val()) || 0; updateUI(v.id); });
     });
   });
