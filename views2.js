@@ -23,15 +23,16 @@ function getCache(key) { return localStorage.getItem(key); }
 /* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
   return str.toLowerCase().split(" ")
-            .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-            .join(" ");
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
 }
-document.getElementById("folderTitle").textContent = folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
+document.getElementById("folderTitle").textContent =
+  folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
   num = Number(num);
-  if (isNaN(num)) return "0";
+  if (!num || isNaN(num)) return "1"; // prevent 0 flash
   if (num >= 1_000_000) return (num / 1_000_000).toFixed(1).replace(".0","") + "M";
   if (num >= 1_000) return (num / 1_000).toFixed(1).replace(".0","") + "K";
   return num;
@@ -47,7 +48,9 @@ async function sendToWorker(videoId) {
     });
   } catch (err) { console.error("Worker failed:", err); }
 }
-function increaseViews(videoId) { if (!TEST_MODE) sendToWorker("clicked_" + videoId); }
+function increaseViews(videoId) {
+  if (!TEST_MODE) sendToWorker("clicked_" + videoId);
+}
 
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
@@ -72,7 +75,7 @@ function createLoader() {
   loader.style.height = `${videoBoxHeight}px`;
 
   const spinner = document.createElement("div");
-  spinner.style.border = "4px solid rgba(255, 255, 255, 0.3)";
+  spinner.style.border = "4px solid rgba(255,255,255,0.3)";
   spinner.style.borderTop = "4px solid #ffcc00";
   spinner.style.borderRadius = "50%";
   spinner.style.width = "50px";
@@ -88,7 +91,7 @@ function removeLoader() {
   if (loader) loader.remove();
 }
 
-const style = document.createElement('style');
+const style = document.createElement("style");
 style.innerHTML = `
 @keyframes spin {
   0% { transform: rotate(0deg); }
@@ -99,6 +102,8 @@ document.head.appendChild(style);
 /* ---------------- VIDEO BOX ---------------- */
 function createVideoBox(video) {
   const box = document.createElement("div");
+  box.className = "videoBox";
+  box.style.height = `${videoBoxHeight + 60}px`;
 
   const wrapper = document.createElement("div");
   wrapper.style.width = "100%";
@@ -107,7 +112,6 @@ function createVideoBox(video) {
 
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
-
   thumb.onclick = () => {
     increaseViews(video.id);
     const iframe = document.createElement("iframe");
@@ -127,6 +131,8 @@ function createVideoBox(video) {
   };
 
   const views = document.createElement("div");
+  views.className = "views";
+  views.textContent = `👁 ${formatViews(video.totalViews)}`;
 
   const btn = document.createElement("a");
   btn.href = "#";
@@ -172,14 +178,17 @@ function updateUI(id) {
     }
   }
 
-  const newText = isTrending ? `🔥 Trending | 👁 ${formatViews(total)}` : `👁 ${formatViews(total)}`;
+  const newText = isTrending
+    ? `🔥 Trending | 👁 ${formatViews(total)}`
+    : `👁 ${formatViews(total)}`;
+
   if (v.views.textContent !== newText) {
     v.views.textContent = newText;
     v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
   }
 }
 
-/* ---------------- LOAD VIDEOS ---------------- */
+/* ---------------- LOAD ---------------- */
 createLoader();
 
 fetch(dataSource)
@@ -193,50 +202,45 @@ fetch(dataSource)
 
     filtered.forEach((v, index) => {
       const box = createVideoBox(v);
-
       videosContainer.appendChild(box);
 
-      // ✅ CACHE FIRST
-      const cachedViews = Number(getCache("views_" + v.id)) || v.totalViews || 0;
-      const cachedCycle = Number(getCache("cycle_" + v.id)) || v.cycleViews || 0;
+      // ✅ load cache FIRST
+      const cachedViews = getCache("views_" + v.id);
+      const cachedCycle = getCache("cycle_" + v.id);
 
       videoElements[v.id] = {
         box,
-        views: box.querySelector("div"),
-        totalViews: cachedViews,
-        cycleViews: cachedCycle,
+        views: box.querySelector(".views"),
+        totalViews: cachedViews !== null ? Number(cachedViews) : (v.totalViews || 0),
+        cycleViews: cachedCycle !== null ? Number(cachedCycle) : (v.cycleViews || 0),
         originalIndex: index
       };
 
-      updateUI(v.id);
-
-      // ✅ FIREBASE MERGE WITH CACHE
+      // ✅ FIREBASE (override cache safely)
       onValue(ref(db, "views/" + v.id), snap => {
-        const fb = snap.val() || 0;
-        const cached = Number(getCache("views_" + v.id)) || 0;
-
-        videoElements[v.id].totalViews = Math.max(fb, cached);
-        updateUI(v.id);
+        const val = snap.val();
+        if (val !== null && val !== undefined) {
+          videoElements[v.id].totalViews = Number(val);
+          saveCache("views_" + v.id, val);
+          updateUI(v.id);
+        }
       });
 
       onValue(ref(db, "cycleViews/" + v.id), snap => {
-        const fb = Number(snap.val()) || 0;
-        const cached = Number(getCache("cycle_" + v.id)) || 0;
-
-        videoElements[v.id].cycleViews = Math.max(fb, cached);
-        updateUI(v.id);
+        const val = snap.val();
+        if (val !== null && val !== undefined) {
+          videoElements[v.id].cycleViews = Number(val);
+          saveCache("cycle_" + v.id, val);
+          updateUI(v.id);
+        }
       });
     });
 
     setTimeout(() => {
-      Object.keys(videoElements).forEach(id => {
-        if (videoElements[id].cycleViews >= 10) {
-          updateUI(id);
-        }
-      });
+      Object.keys(videoElements).forEach(id => updateUI(id));
     }, 50);
   })
-  .catch(error => {
-    console.error("Error loading videos:", error);
+  .catch(err => {
+    console.error("Error loading videos:", err);
     removeLoader();
   });
