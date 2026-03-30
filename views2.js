@@ -59,41 +59,20 @@ const videosContainer = document.getElementById("normalVideos");
 const videoElements = {};
 
 /* ---------------- VIDEO BOX ---------------- */
-const videoBoxWidth = 600;
-const videoBoxHeight = 169;
-
 function createVideoBox(video) {
   const box = document.createElement("div");
   box.className = "videoBox";
-  box.style.height = `${videoBoxHeight + 60}px`;
 
-  /* WRAPPER */
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
 
-  /* ---------------- LOADER ---------------- */
+  /* LOADER OVERLAY (FULL COVER) */
   const loader = document.createElement("div");
   loader.className = "imgLoader";
 
-  /* ---------------- IMAGE ---------------- */
+  /* IMAGE */
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
-  
-  /* hide until loaded */
-  thumb.style.opacity = "0";
-  thumb.style.transition = "opacity 0.3s ease";
-
-  /* when loaded */
-  thumb.onload = () => {
-    thumb.style.opacity = "1";
-    if (loader) loader.remove();
-  };
-
-  /* fallback */
-  thumb.onerror = () => {
-    loader.style.display = "none";
-    thumb.style.opacity = "1";
-  };
 
   /* CLICK */
   thumb.onclick = () => {
@@ -107,9 +86,15 @@ function createVideoBox(video) {
     wrapper.appendChild(iframe);
   };
 
-  /* ORDER (IMPORTANT) */
-  wrapper.appendChild(loader);
+  /* WHEN LOADED */
+  thumb.onload = () => {
+    loader.style.opacity = "0";
+    setTimeout(() => loader.remove(), 300);
+  };
+
+  /* IMPORTANT ORDER */
   wrapper.appendChild(thumb);
+  wrapper.appendChild(loader);
 
   /* TITLE */
   const title = document.createElement("h3");
@@ -171,14 +156,9 @@ function updateUI(id) {
     }
   }
 
-  const newText = isTrending
+  v.views.textContent = isTrending
     ? `🔥 Trending | 👁 ${formatViews(total)}`
     : `👁 ${formatViews(total)}`;
-
-  if (v.views.textContent !== newText) {
-    v.views.textContent = newText;
-    v.views.style.color = isTrending ? "#ffcc00" : "#aaa";
-  }
 }
 
 /* ---------------- RENDER ---------------- */
@@ -230,6 +210,4 @@ fetch(dataSource)
     saveCache("videos", JSON.stringify(videos));
     renderVideos(videos);
   })
-  .catch(error => {
-    console.error("Error loading videos:", error);
-  });
+  .catch(error => console.error(error));
