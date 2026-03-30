@@ -131,6 +131,166 @@ footer {
 
 <body>
 
+  <!-- TOP AD -->
+<div id="topAdMain" style="
+position: fixed;
+top: -80px;
+left: 50%;
+transform: translateX(-50%);
+width: 300px;
+height: 62px;
+border: 2px solid red;
+border-radius: 8px;
+overflow: hidden;
+z-index: 9999;
+background: #fff;
+transition: top 0.5s ease;
+">
+
+  <!-- Blink animation (required for inline use) -->
+  <style>
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+  </style>
+
+  <!-- Ad -->
+  <div style="
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:1;
+    background:#fff;
+  ">
+    <script async src="https://poweredby.jads.co/js/jads.js"></script>
+    <ins id="1113670" data-width="300" data-height="62"></ins>
+    <script>
+      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});
+    </script>
+  </div>
+
+  <!-- 🔴 Live (Blinking) -->
+  <div style="
+    position:absolute;
+    top:2px;
+    left:50%;
+    transform:translateX(-50%);
+    background:red;
+    color:#fff;
+    font-weight:bold;
+    font-size:11px;
+    padding:1px 6px;
+    border-radius:4px;
+    z-index:1000;
+    animation: blink 1s infinite;
+  ">
+    🔴 Live
+  </div>
+
+  <!-- Timer / Close -->
+  <div style="
+    position:absolute;
+    top:4px;
+    right:14px;
+    z-index:1000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  ">
+
+    <!-- Timer -->
+    <div id="mainCountdown" style="
+      background:black;
+      color:#fff;
+      font-size:11px;
+      font-weight:bold;
+      padding:2px 6px;
+      border-radius:4px;
+    ">
+      15s
+    </div>
+
+    <!-- Close Button -->
+    <div id="mainCloseBtn" style="
+      display:none;
+      background:#000;
+      color:#fff;
+      font-size:13px;
+      font-weight:bold;
+      width:20px;
+      height:20px;
+      line-height:20px;
+      text-align:center;
+      border-radius:4px;
+      cursor:pointer;
+      align-items:center;
+      justify-content:center;
+    ">
+      ✕
+    </div>
+
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const ad = document.getElementById("topAdMain");
+  const countdownEl = document.getElementById("mainCountdown");
+  const closeBtn = document.getElementById("mainCloseBtn");
+
+  let countdownInterval;
+  let cycleTimeout;
+
+  function showAd() {
+    ad.style.top = "10px";
+
+    let timeLeft = 15;
+
+    countdownEl.style.display = "block";
+    closeBtn.style.display = "none";
+
+    countdownEl.textContent = timeLeft + "s";
+
+    clearInterval(countdownInterval);
+
+    countdownInterval = setInterval(() => {
+      timeLeft--;
+      countdownEl.textContent = timeLeft + "s";
+
+      if (timeLeft <= 0) {
+        clearInterval(countdownInterval);
+
+        countdownEl.style.display = "none";
+        closeBtn.style.display = "flex";
+      }
+    }, 1000);
+  }
+
+  function hideMainAd() {
+    ad.style.top = "-80px";
+
+    clearInterval(countdownInterval);
+
+    clearTimeout(cycleTimeout);
+    cycleTimeout = setTimeout(showAd, 120000);
+  }
+
+  closeBtn.addEventListener("click", hideMainAd);
+
+  setTimeout(() => {
+    showAd();
+  }, 30000);
+
+});
+</script>
+
+  <button onclick="history.back()">← Back</button>
+
 <!-- TITLE -->
 <h2 class="pageTitle">Folders</h2>
 
