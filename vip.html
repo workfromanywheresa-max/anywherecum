@@ -41,8 +41,8 @@ h2 {
 
 /* VIDEOS CONTAINER */
 #normalVideos {
-  margin-bottom: 50px;
-  flex-grow: 1;
+  margin-bottom: 50px; /* space for footer */
+  flex-grow: 1; /* push footer down if content is short */
 }
 
 /* VIDEO BOX */
@@ -100,46 +100,6 @@ h2 {
   font-size: 12px;
 }
 
-/* ---------------- SKELETON ---------------- */
-.skeleton-video {
-  background: #222;
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 20px;
-}
-.skeleton-frame {
-  width: 100%;
-  max-width: 400px;
-  aspect-ratio: 16/9;
-  border-radius: 8px;
-  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-  margin: 0 auto;
-}
-.skeleton-text {
-  height: 12px;
-  margin: 6px auto;
-  max-width: 70%;
-  border-radius: 4px;
-  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-}
-.skeleton-button {
-  width: 60px;
-  height: 18px;
-  margin: 6px auto;
-  border-radius: 5px;
-  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-}
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
 /* FOOTER */
 footer {
   text-align: center;
@@ -147,7 +107,7 @@ footer {
   font-size: 12px;
   color: #aaa;
   background: #111;
-  margin-top: auto;
+  margin-top: auto; /* keeps footer at bottom if content is short */
 }
 footer div a img {
   width: 14px;
@@ -163,27 +123,8 @@ footer div a img {
 <h2 id="folderTitle">🔐VIP Exclusive</h2>
 <p id="folderDescription">Enjoy our exclusive VIP videos, updated regularly.</p>
 
-<!-- VIDEOS CONTAINER WITH SKELETONS -->
-<div id="normalVideos">
-  <div class="videoBox skeleton-video">
-    <div class="videoFrameWrapper skeleton-frame"></div>
-    <div class="videoTitle skeleton-text"></div>
-    <div class="views skeleton-text"></div>
-    <div class="download skeleton-button"></div>
-  </div>
-  <div class="videoBox skeleton-video">
-    <div class="videoFrameWrapper skeleton-frame"></div>
-    <div class="videoTitle skeleton-text"></div>
-    <div class="views skeleton-text"></div>
-    <div class="download skeleton-button"></div>
-  </div>
-  <div class="videoBox skeleton-video">
-    <div class="videoFrameWrapper skeleton-frame"></div>
-    <div class="videoTitle skeleton-text"></div>
-    <div class="views skeleton-text"></div>
-    <div class="download skeleton-button"></div>
-  </div>
-</div>
+<!-- VIDEOS CONTAINER -->
+<div id="normalVideos"></div>
 
 <footer>
 © 2026 AnywhereCum – Legal content only. 18+<br>
@@ -198,6 +139,7 @@ footer div a img {
 </div>
 </footer>
 
+<!-- VIDEO CONFIG & MODULE -->
 <script>
 const params = new URLSearchParams(window.location.search);
 window.VIDEO_CONFIG = {
