@@ -75,13 +75,52 @@ button:hover {
 </style>
 
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
 <script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f",
-    });
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+
+OneSignalDeferred.push(async function(OneSignal) {
+
+  await OneSignal.init({
+    appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f"
   });
+
+  async function handleSub() {
+    const sub = OneSignal.User.PushSubscription;
+
+    if (!sub) return;
+
+    // ✅ FIX HERE
+    const id = sub.token || sub.id;
+
+    if (!id) {
+      console.log("Waiting for subscription...", sub);
+      return;
+    }
+
+    const optedIn = sub.optedIn;
+
+    const lastState = localStorage.getItem("sub_" + id);
+    if (lastState === String(optedIn)) return;
+
+    localStorage.setItem("sub_" + id, optedIn);
+
+    console.log("OneSignal Sub Update:", id, optedIn);
+
+    if (window.saveSubscriber) {
+      window.saveSubscriber(id, optedIn);
+    }
+  }
+
+  // ✅ IMPORTANT: OneSignal loads late
+  setTimeout(handleSub, 2000);
+  setTimeout(handleSub, 5000);
+
+  handleSub();
+
+  OneSignal.User.PushSubscription.addEventListener("change", handleSub);
+
+});
 </script>
 
 </head>
