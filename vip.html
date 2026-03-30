@@ -107,6 +107,53 @@ h2 {
   background: #ff2222;
 }
 
+/* Skeletons */
+.videoBox.skeleton {
+  background: none;
+  padding: 10px;
+  text-align: center;
+}
+
+.videoBox.skeleton .videoFrameWrapper,
+.videoBox.skeleton .videoTitle,
+.videoBox.skeleton .views,
+.videoBox.skeleton .download {
+  border-radius: 6px;
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.videoBox.skeleton .videoFrameWrapper {
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 6px;
+}
+
+.videoBox.skeleton .videoTitle {
+  height: 14px;
+  width: 70%;
+  margin: 4px auto;
+}
+
+.videoBox.skeleton .views {
+  height: 12px;
+  width: 40%;
+  margin: 2px auto;
+}
+
+.videoBox.skeleton .download {
+  height: 18px;
+  width: 50px;
+  margin: 6px auto;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 footer {
   text-align:center;
   padding:20px;
@@ -121,12 +168,6 @@ h3.trendingHeader {
   text-align: center;
   font-size: 14px;
   margin-top: 10px;
-}
-
-.videoList {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
 }
 </style>
 
@@ -171,16 +212,40 @@ OneSignalDeferred.push(async function(OneSignal) {
 </p>
 
 <h3 class="trendingHeader">🔥 Trending Videos</h3>
-<div id="trendingVideos" class="videoList"></div>
+<div id="trendingVideos"></div>
 
-<h3 class="trendingHeader">📂 All Videos</h3>
-<div id="normalVideos" class="videoList"></div>
+<div id="normalVideos">
+  <div class="videoBox skeleton">
+    <div class="videoFrameWrapper"></div>
+    <div class="videoTitle"></div>
+    <div class="views"></div>
+    <div class="download"></div>
+  </div>
+  <div class="videoBox skeleton">
+    <div class="videoFrameWrapper"></div>
+    <div class="videoTitle"></div>
+    <div class="views"></div>
+    <div class="download"></div>
+  </div>
+  <div class="videoBox skeleton">
+    <div class="videoFrameWrapper"></div>
+    <div class="videoTitle"></div>
+    <div class="views"></div>
+    <div class="download"></div>
+  </div>
+</div>
 
 <footer>
 © 2026 AnywhereCum – Legal content only. 18+
 </footer>
 
-<script type="module" src="views.js"></script>
+  <script>
+  window.VIDEO_CONFIG = {
+    folder: "VIP Exclusive",
+    dataSource: "vip.json"
+  };
+</script>
 
+<script type="module" src="views.js"></script>
 </body>
 </html>
