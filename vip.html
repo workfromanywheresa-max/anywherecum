@@ -107,7 +107,7 @@ h2 {
   background: #ff2222;
 }
 
-/* Skeletons */
+/* Skeletons (used dynamically via JS) */
 .videoBox.skeleton {
   background: none;
   padding: 10px;
@@ -195,26 +195,8 @@ OneSignalDeferred.push(async function(OneSignal) {
   Enjoy our VIP Exclusive videos, updated regularly for your viewing pleasure.
 </p>
 
-<div id="normalVideos">
-  <div class="videoBox skeleton">
-    <div class="videoFrameWrapper"></div>
-    <div class="videoTitle"></div>
-    <div class="views"></div>
-    <div class="download"></div>
-  </div>
-  <div class="videoBox skeleton">
-    <div class="videoFrameWrapper"></div>
-    <div class="videoTitle"></div>
-    <div class="views"></div>
-    <div class="download"></div>
-  </div>
-  <div class="videoBox skeleton">
-    <div class="videoFrameWrapper"></div>
-    <div class="videoTitle"></div>
-    <div class="views"></div>
-    <div class="download"></div>
-  </div>
-</div>
+<!-- NORMAL VIDEOS: now empty, skeletons will be added by views.js -->
+<div id="normalVideos"></div>
 
 <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
 © 2026 AnywhereCum – Legal content only. 18+
