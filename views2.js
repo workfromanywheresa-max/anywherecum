@@ -55,7 +55,7 @@ const videoElements = {};
 
 /* ---------------- LOADER ---------------- */
 // Reduced size for video box
-const videoBoxWidth = 300; // Smaller width
+const videoBoxWidth = 600; // Smaller width
 const videoBoxHeight = 169; // Adjusted height based on 16:9 aspect ratio
 
 // Function to create a loader with a fixed size
