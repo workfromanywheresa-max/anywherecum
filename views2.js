@@ -20,14 +20,19 @@ const dataSource = config.dataSource || "videos.json";
 function saveCache(key, value) { localStorage.setItem(key, value); }
 function getCache(key) { return localStorage.getItem(key); }
 
+/* ---------------- SAFE NUMBER ---------------- */
+function getSafeNumber(value, fallback = 0) {
+  const num = Number(value);
+  return (!isNaN(num) && value !== null && value !== undefined) ? num : fallback;
+}
+
 /* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
   return str.toLowerCase().split(" ")
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 }
-document.getElementById("folderTitle").textContent =
-  folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
+document.getElementById("folderTitle").textContent = folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
@@ -48,9 +53,7 @@ async function sendToWorker(videoId) {
     });
   } catch (err) { console.error("Worker failed:", err); }
 }
-function increaseViews(videoId) {
-  if (!TEST_MODE) sendToWorker("clicked_" + videoId);
-}
+function increaseViews(videoId) { if (!TEST_MODE) sendToWorker("clicked_" + videoId); }
 
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
@@ -75,7 +78,7 @@ function createLoader() {
   loader.style.height = `${videoBoxHeight}px`;
 
   const spinner = document.createElement("div");
-  spinner.style.border = "4px solid rgba(255,255,255,0.3)";
+  spinner.style.border = "4px solid rgba(255, 255, 255, 0.3)";
   spinner.style.borderTop = "4px solid #ffcc00";
   spinner.style.borderRadius = "50%";
   spinner.style.width = "50px";
@@ -91,7 +94,7 @@ function removeLoader() {
   if (loader) loader.remove();
 }
 
-const style = document.createElement("style");
+const style = document.createElement('style');
 style.innerHTML = `
 @keyframes spin {
   0% { transform: rotate(0deg); }
@@ -156,8 +159,8 @@ function updateUI(id) {
   const v = videoElements[id];
   if (!v) return;
 
-  const total = v.totalViews || 0;
-  const cycle = v.cycleViews || 0;
+  const total = getSafeNumber(v.totalViews, 1);
+  const cycle = getSafeNumber(v.cycleViews, 0);
 
   saveCache("views_" + id, total);
   saveCache("cycle_" + id, cycle);
@@ -188,7 +191,7 @@ function updateUI(id) {
   }
 }
 
-/* ---------------- LOAD ---------------- */
+/* ---------------- LOAD VIDEOS ---------------- */
 createLoader();
 
 fetch(dataSource)
@@ -204,19 +207,22 @@ fetch(dataSource)
       const box = createVideoBox(v);
       videosContainer.appendChild(box);
 
-      // ✅ load cache FIRST
       const cachedViews = getCache("views_" + v.id);
       const cachedCycle = getCache("cycle_" + v.id);
 
       videoElements[v.id] = {
         box,
         views: box.querySelector(".views"),
-        totalViews: cachedViews !== null ? Number(cachedViews) : (v.totalViews || 0),
-        cycleViews: cachedCycle !== null ? Number(cachedCycle) : (v.cycleViews || 0),
+        totalViews: cachedViews !== null
+          ? getSafeNumber(cachedViews)
+          : getSafeNumber(v.totalViews, 1),
+        cycleViews: cachedCycle !== null
+          ? getSafeNumber(cachedCycle)
+          : getSafeNumber(v.cycleViews, 0),
         originalIndex: index
       };
 
-      // ✅ FIREBASE (override cache safely)
+      /* -------- FIREBASE -------- */
       onValue(ref(db, "views/" + v.id), snap => {
         const val = snap.val();
         if (val !== null && val !== undefined) {
@@ -240,7 +246,7 @@ fetch(dataSource)
       Object.keys(videoElements).forEach(id => updateUI(id));
     }, 50);
   })
-  .catch(err => {
-    console.error("Error loading videos:", err);
+  .catch(error => {
+    console.error("Error loading videos:", error);
     removeLoader();
   });
