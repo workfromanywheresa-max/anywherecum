@@ -153,6 +153,15 @@ h2 {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+
+footer {
+  text-align:center;
+  padding:20px;
+  font-size:12px;
+  color:#aaa;
+  background:#111;
+  margin-top:10px;
+}
 </style>
 
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -195,31 +204,13 @@ OneSignalDeferred.push(async function(OneSignal) {
   Enjoy our VIP Exclusive videos, updated regularly for your viewing pleasure.
 </p>
 
-<div id="normalVideos">
-  <div class="videoBox skeleton">
-    <div class="videoFrameWrapper"></div>
-    <div class="videoTitle"></div>
-    <div class="views"></div>
-    <div class="download"></div>
-  </div>
-  <div class="videoBox skeleton">
-    <div class="videoFrameWrapper"></div>
-    <div class="videoTitle"></div>
-    <div class="views"></div>
-    <div class="download"></div>
-  </div>
-  <div class="videoBox skeleton">
-    <div class="videoFrameWrapper"></div>
-    <div class="videoTitle"></div>
-    <div class="views"></div>
-    <div class="download"></div>
-  </div>
-</div>
+<div id="normalVideos"></div>
 
-<footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
+<footer>
 © 2026 AnywhereCum – Legal content only. 18+
 </footer>
 
 <script type="module" src="views.js"></script>
+
 </body>
 </html>
