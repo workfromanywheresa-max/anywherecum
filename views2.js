@@ -23,7 +23,7 @@ function getCache(key) { return localStorage.getItem(key); }
 /* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
   return str.toLowerCase().split(" ")
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .map(w => w.charAt(0).toUpperCase() + w.slice(1))
             .join(" ");
 }
 document.getElementById("folderTitle").textContent = folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
@@ -32,8 +32,8 @@ document.getElementById("folderTitle").textContent = folderName ? toTitleCase(fo
 function formatViews(num) {
   num = Number(num);
   if (isNaN(num)) return "0";
-  if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0","") + "M";
-  if (num >= 1000) return (num / 1000).toFixed(1).replace(".0","") + "K";
+  if (num >= 1_000_000) return (num / 1_000_000).toFixed(1).replace(".0","") + "M";
+  if (num >= 1_000) return (num / 1_000).toFixed(1).replace(".0","") + "K";
   return num;
 }
 
@@ -72,10 +72,10 @@ function updateUI(id) {
   }
 
   if (isTrending) {
-    // Trending: move to top
+    // Move trending videos to top
     videosContainer.insertBefore(v.box, videosContainer.firstChild);
   } else {
-    // Not trending: return to original position
+    // Return to original position if below 10
     if (v.originalIndex >= videosContainer.children.length) {
       videosContainer.appendChild(v.box);
     } else {
@@ -120,16 +120,14 @@ fetch(dataSource)
       const title = document.createElement("h3");
       title.className = "videoTitle";
       title.textContent = v.title;
-      title.onclick = () => {
-        increaseViews(v.id);
-        window.open(v.url, "_blank");
-      };
+      title.onclick = () => { increaseViews(v.id); window.open(v.url, "_blank"); };
 
       const views = document.createElement("div");
       views.className = "views";
 
       const cachedViews = getCache("views_" + v.id);
       const cachedCycle = getCache("cycle_" + v.id);
+
       let initialViews = cachedViews ? Number(cachedViews) : 0;
       let initialCycle = cachedCycle ? Number(cachedCycle) : 0;
 
@@ -148,12 +146,13 @@ fetch(dataSource)
 
       videosContainer.appendChild(box);
 
+      // store video info including original position
       videoElements[v.id] = {
         box,
         views,
         totalViews: initialViews,
         cycleViews: initialCycle,
-        originalIndex: index // store initial position
+        originalIndex: index
       };
 
       // FIREBASE LISTENERS
@@ -166,4 +165,14 @@ fetch(dataSource)
         updateUI(v.id);
       });
     });
+
+    // ---------------- POST-LOAD TRENDING ----------------
+    // Move cached trending videos to top smoothly
+    setTimeout(() => {
+      Object.keys(videoElements).forEach(id => {
+        if (videoElements[id].cycleViews >= 10) {
+          updateUI(id);
+        }
+      });
+    }, 50); // slight delay ensures DOM is fully rendered
   });
