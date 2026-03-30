@@ -90,10 +90,59 @@ function updateUI(id) {
   }
 }
 
+/* ---------------- LOADER ---------------- */
+function createLoader() {
+  const loader = document.createElement("div");
+  loader.id = "loader";
+  loader.style.position = "fixed";
+  loader.style.top = "50%";
+  loader.style.left = "50%";
+  loader.style.transform = "translate(-50%, -50%)";
+  loader.style.zIndex = "9999";
+  loader.style.display = "flex";
+  loader.style.justifyContent = "center";
+  loader.style.alignItems = "center";
+
+  const spinner = document.createElement("div");
+  spinner.style.border = "4px solid rgba(255, 255, 255, 0.3)";
+  spinner.style.borderTop = "4px solid #ffcc00";
+  spinner.style.borderRadius = "50%";
+  spinner.style.width = "50px";
+  spinner.style.height = "50px";
+  spinner.style.animation = "spin 1s linear infinite";
+  
+  loader.appendChild(spinner);
+  
+  // Append the loader to the body
+  document.body.appendChild(loader);
+}
+
+// Remove the loader element
+function removeLoader() {
+  const loader = document.getElementById("loader");
+  if (loader) {
+    loader.remove();
+  }
+}
+
+// Add spinner animation CSS dynamically
+const style = document.createElement('style');
+style.innerHTML = `
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+document.head.appendChild(style);
+
 /* ---------------- LOAD VIDEOS ---------------- */
+createLoader();  // Show loader before the fetch
+
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
+    removeLoader();  // Hide loader after the videos are loaded
+
     const filtered = folderName
       ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
       : videos;
@@ -102,14 +151,8 @@ fetch(dataSource)
       const box = document.createElement("div");
       box.className = "videoBox";
 
-      // Skeleton loader for each video box
-      const skeleton = document.createElement("div");
-      skeleton.className = "skeleton";
-      box.appendChild(skeleton);
-
       const wrapper = document.createElement("div");
       wrapper.className = "videoFrameWrapper";
-      box.appendChild(wrapper);
 
       const thumb = document.createElement("img");
       thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(v.thumbnail)}`;
@@ -145,6 +188,7 @@ fetch(dataSource)
       btn.textContent = `Download (${v.size || "?"})`;
       btn.onclick = (e) => { e.preventDefault(); increaseViews(v.id); window.open(v.url, "_blank"); };
 
+      box.appendChild(wrapper);
       box.appendChild(title);
       box.appendChild(views);
       box.appendChild(btn);
@@ -157,18 +201,14 @@ fetch(dataSource)
         views,
         totalViews: initialViews,
         cycleViews: initialCycle,
-        originalIndex: index,
-        skeleton
+        originalIndex: index
       };
 
-      // Firebase listeners
+      // FIREBASE LISTENERS
       onValue(ref(db, "views/" + v.id), snap => {
         videoElements[v.id].totalViews = snap.val() || 0;
         updateUI(v.id);
-        // Remove skeleton loader once data is loaded
-        videoElements[v.id].skeleton.style.display = "none";
       });
-
       onValue(ref(db, "cycleViews/" + v.id), snap => {
         videoElements[v.id].cycleViews = Number(snap.val()) || 0;
         updateUI(v.id);
@@ -182,5 +222,9 @@ fetch(dataSource)
           updateUI(id);
         }
       });
-    }, 50);
+    }, 50); // slight delay ensures DOM is fully rendered
+  })
+  .catch(error => {
+    console.error("Error loading videos:", error);
+    removeLoader();  // Hide loader if an error occurs
   });
