@@ -51,17 +51,17 @@ function increaseViews(videoId){ if(TEST_MODE) return; sendToWorker("clicked_" +
 const normalContainer = document.getElementById("normalVideos");
 const videoElements = {};
 
-/* ---------------- REMOVE SKELETON ---------------- */
-function removeSkeleton(box){
-  if(!box.classList.contains("skeleton")) return;
-  box.classList.add("removing");
-  setTimeout(() => box.classList.remove("skeleton","removing"), 500);
-}
-
 /* ---------------- LOAD VIDEOS ---------------- */
 fetch(dataSource)
 .then(res => res.json())
 .then(videos => {
+
+  // Remove skeletons when real content is ready
+  const skeletons = document.querySelectorAll(".videoBox.skeleton");
+  skeletons.forEach(skel => {
+    skel.classList.add("removing");
+    setTimeout(() => skel.remove(), 500);
+  });
 
   const filtered = folderName ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName) : videos;
 
@@ -112,9 +112,6 @@ fetch(dataSource)
     box.appendChild(btn);
 
     normalContainer.appendChild(box);
-
-    // Remove skeleton smoothly
-    removeSkeleton(box);
 
     videoElements[v.id] = { box, views, totalViews: initialViews, cycleViews: initialCycle };
 
