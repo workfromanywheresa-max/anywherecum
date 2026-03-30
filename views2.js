@@ -106,11 +106,16 @@ fetch(dataSource)
     onValue(ref(db,"cycleViews/" + v.id), snap => { videoElements[v.id].cycleViews = Number(snap.val()) || 0; updateUI(v.id); });
   });
 
-  // Remove skeletons **after real videos appended**
+  /* ---------------- REMOVE SKELETONS ---------------- */
   const skeletons = document.querySelectorAll(".videoBox.skeleton");
   skeletons.forEach(skel => {
+    // Force starting state
+    skel.style.opacity = "1";
+    skel.style.transform = "scale(1)";
+    // Trigger fade out
     skel.classList.add("removing");
-    skel.addEventListener("transitionend", () => skel.remove());
+    // Remove after transition (slightly longer than CSS 0.5s)
+    setTimeout(() => skel.remove(), 600);
   });
 
 });
@@ -127,4 +132,4 @@ function updateUI(id){
     v.views.textContent = newText;
     v.views.style.color = cycle >= 10 ? "#ffcc00" : "#aaa";
   }
-                       }
+}
