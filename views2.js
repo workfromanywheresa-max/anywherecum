@@ -54,9 +54,9 @@ const videosContainer = document.getElementById("normalVideos");
 const videoElements = {};
 
 /* ---------------- LOADER ---------------- */
-// Hardcoded dimensions for video box
-const videoBoxWidth = 400; // Fixed width of the video box
-const videoBoxHeight = 225; // Fixed height based on 16:9 aspect ratio
+// Reduced size for video box
+const videoBoxWidth = 300; // Smaller width
+const videoBoxHeight = 169; // Adjusted height based on 16:9 aspect ratio
 
 // Function to create a loader with a fixed size
 function createLoader() {
@@ -105,19 +105,20 @@ style.innerHTML = `
 `;
 document.head.appendChild(style);
 
-// Function to create a video box with hardcoded sizes
+// Function to create a video box with auto width and reduced sizes
 function createVideoBox(video) {
   const box = document.createElement("div");
   box.className = "videoBox";
-  box.style.width = `${videoBoxWidth}px`; // Fixed width for the video box
+  box.style.width = "auto"; // Set width to auto
   box.style.height = `${videoBoxHeight + 60}px`; // Fixed height for the video box (plus some space for text)
-
+  box.style.display = "block"; // Ensure block-level display
+  
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
   wrapper.style.width = "100%";
   wrapper.style.maxWidth = `${videoBoxWidth}px`; // Fixed width for the video wrapper
   wrapper.style.aspectRatio = "16/9"; // Maintain 16:9 aspect ratio
-
+  
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
   thumb.onclick = () => {
