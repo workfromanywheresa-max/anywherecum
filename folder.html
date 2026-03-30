@@ -41,14 +41,14 @@ h2 {
   font-size: 14px;
 }
 
-/* VIDEO LIST CONTAINERS */
+/* MAIN VIDEO AREA */
 #trendingVideos,
 #normalVideos {
   flex-grow: 1;
   margin-bottom: 40px;
 }
 
-/* VIP STYLE VIDEO BOX */
+/* VIDEO CARD (VIP STYLE) */
 .videoBox {
   background: #222;
   padding: 10px;
@@ -57,10 +57,10 @@ h2 {
   text-align: center;
 }
 
-/* VIP PLAYER SIZE */
+/* PLAYER */
 .videoFrameWrapper {
   width: 100%;
-  max-width: 300px;
+  max-width: 300px; /* VIP SIZE */
   margin: 0 auto;
   position: relative;
   aspect-ratio: 16 / 9;
@@ -77,7 +77,7 @@ h2 {
   object-fit: cover;
 }
 
-/* TEXT STYLES */
+/* TEXT */
 .videoTitle {
   text-align: center;
   margin: 6px 0;
@@ -105,7 +105,6 @@ h2 {
   font-size: 12px;
 }
 
-/* FOOTER */
 footer {
   text-align: center;
   padding: 20px;
@@ -116,129 +115,10 @@ footer {
 }
 </style>
 
-<!-- ONE SIGNAL -->
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-window.OneSignalDeferred = window.OneSignalDeferred || [];
-
-OneSignalDeferred.push(async function(OneSignal) {
-
-  await OneSignal.init({
-    appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f"
-  });
-
-  async function handleSub() {
-    const sub = OneSignal.User.PushSubscription;
-
-    if (!sub) return;
-
-    const id = sub.token || sub.id;
-
-    if (!id) return;
-
-    const optedIn = sub.optedIn;
-
-    const lastState = localStorage.getItem("sub_" + id);
-    if (lastState === String(optedIn)) return;
-
-    localStorage.setItem("sub_" + id, optedIn);
-
-    if (window.saveSubscriber) {
-      window.saveSubscriber(id, optedIn);
-    }
-  }
-
-  setTimeout(handleSub, 2000);
-  setTimeout(handleSub, 5000);
-
-  handleSub();
-
-  OneSignal.User.PushSubscription.addEventListener("change", handleSub);
-
-});
-</script>
-
 </head>
 
 <body>
 
-<!-- TOP BANNER -->
-<div id="topBanner" style="
-position: fixed;
-top: 0;
-left: 50%;
-transform: translate(-50%, -100%);
-width: 95%;
-max-width: 700px;
-background: #fff;
-color: #111;
-display: none;
-align-items: center;
-justify-content: center;
-padding: 3px 12px;
-font-size: 11px;
-z-index: 9999;
-border-radius: 5px;
-transition: transform 0.5s ease;
-">
-<span style="flex:1;text-align:center;">
-🔔 Click the bell icon on your bottom left to receive notifications
-</span>
-<button id="closeBtn" style="position:absolute;right:8px;top:-5px;background:none;border:none;cursor:pointer;">✖</button>
-</div>
-
-<script>
-const banner = document.getElementById("topBanner");
-const closeBtn = document.getElementById("closeBtn");
-
-const lastClosed = localStorage.getItem("bannerClosedTime");
-const now = Date.now();
-
-if (!lastClosed || now - lastClosed > 86400000) {
-  banner.style.display = "flex";
-  setTimeout(()=> banner.style.transform="translate(-50%,0)",50);
-}
-
-closeBtn.addEventListener("click", () => {
-  banner.style.transform="translate(-50%,-100%)";
-  setTimeout(()=>{
-    banner.style.display="none";
-    localStorage.setItem("bannerClosedTime", Date.now());
-  },500);
-});
-</script>
-
-<!-- TOP AD -->
-<div id="topAdMain" style="
-position: fixed;
-top: -80px;
-left: 50%;
-transform: translateX(-50%);
-width: 300px;
-height: 62px;
-border: 2px solid red;
-border-radius: 8px;
-overflow: hidden;
-z-index: 9999;
-background: #fff;
-transition: top 0.5s ease;
-"></div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-
-  const ad = document.getElementById("topAdMain");
-
-  function showAd() {
-    ad.style.top = "10px";
-  }
-
-  setTimeout(showAd, 30000);
-
-});
-</script>
-
-<!-- BACK -->
 <button onclick="history.back()">← Back</button>
 
 <h2 id="folderTitle">Folder</h2>
@@ -247,31 +127,35 @@ document.addEventListener("DOMContentLoaded", function () {
   Enjoy our videos, updated regularly for your viewing pleasure.
 </p>
 
-<!-- AD -->
+<!-- AD (UNCHANGED) -->
 <div style="width:320px;height:50px;margin:auto;">
-  <script>
-    atOptions = {
-      'key' : '58e0d60dc3ec78d2ff8981481d093080',
-      'format' : 'iframe',
-      'height' : 50,
-      'width' : 320,
-      'params' : {}
-    };
-  </script>
-  <script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
+  <div id="adContainer" style="width:100%;height:100%;">
+    <script>
+      atOptions = {
+        'key' : '58e0d60dc3ec78d2ff8981481d093080',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
+    </script>
+    <script src="https://www.highperformanceformat.com/58e0d60dc3ec78d2ff8981481d093080/invoke.js"></script>
+  </div>
 </div>
 
-<!-- VIDEOS -->
+<!-- KEEP YOUR LOGIC -->
 <div id="trendingVideos"></div>
 <div id="normalVideos"></div>
 
-<!-- BOTTOM AD -->
-<div id="ad-container">
-  <script async data-cfasync="false"
-  src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js"></script>
-  <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
+<!-- FOOTER (UNCHANGED) -->
+<footer>
+© 2026 AnywhereCum – Legal content only. 18+<br>
+<div style="margin-top:8px; font-size:8px;">
+  <a href="#" style="color:#ff4444;">Home</a>
 </div>
+</footer>
 
+<!-- CONFIG (UNCHANGED) -->
 <script>
 const params = new URLSearchParams(window.location.search);
 
@@ -281,15 +165,8 @@ window.VIDEO_CONFIG = {
 };
 </script>
 
+<!-- YOUR LOGIC FILE (UNCHANGED) -->
 <script type="module" src="views2.js"></script>
-
-<!-- FOOTER -->
-<footer>
-© 2026 AnywhereCum – Legal content only. 18+<br>
-<div style="margin-top:8px;font-size:8px;">
-  <a href="#" style="color:#ff4444;">Home</a>
-</div>
-</footer>
 
 </body>
 </html>
