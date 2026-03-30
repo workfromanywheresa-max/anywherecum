@@ -107,7 +107,7 @@ h2 {
   background: #ff2222;
 }
 
-/* SKELETON LOADERS */
+/* Skeletons */
 .videoBox.skeleton {
   background: none;
   padding: 10px;
@@ -154,8 +154,38 @@ h2 {
   100% { background-position: 200% 0; }
 }
 </style>
-</head>
 
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
+<script>
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+
+OneSignalDeferred.push(async function(OneSignal) {
+  await OneSignal.init({ appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f" });
+
+  async function handleSub() {
+    const sub = OneSignal.User.PushSubscription;
+    if (!sub) return;
+
+    const id = sub.token || sub.id;
+    if (!id) return;
+
+    const optedIn = sub.optedIn;
+    const lastState = localStorage.getItem("sub_" + id);
+    if (lastState === String(optedIn)) return;
+
+    localStorage.setItem("sub_" + id, optedIn);
+    if (window.saveSubscriber) window.saveSubscriber(id, optedIn);
+  }
+
+  setTimeout(handleSub, 2000);
+  setTimeout(handleSub, 5000);
+  handleSub();
+  OneSignal.User.PushSubscription.addEventListener("change", handleSub);
+});
+</script>
+
+</head>
 <body>
 
 <button onclick="history.back()">← Back</button>
@@ -166,7 +196,6 @@ h2 {
 </p>
 
 <div id="normalVideos">
-  <!-- Skeleton placeholders -->
   <div class="videoBox skeleton">
     <div class="videoFrameWrapper"></div>
     <div class="videoTitle"></div>
@@ -191,42 +220,6 @@ h2 {
 © 2026 AnywhereCum – Legal content only. 18+
 </footer>
 
-<script>
-window.VIDEO_CONFIG = {
-  dataSource: "vip.json"
-};
-
-// Load videos inside skeletons
-fetch(window.VIDEO_CONFIG.dataSource)
-  .then(res => res.json())
-  .then(videos => {
-    const skeletons = document.querySelectorAll('#normalVideos .videoBox.skeleton');
-
-    videos.forEach((video, index) => {
-      if (!skeletons[index]) {
-        // Extra videos if more than skeletons
-        const container = document.getElementById('normalVideos');
-        const box = document.createElement('div');
-        box.className = 'videoBox';
-        box.innerHTML = `
-          <div class="videoFrameWrapper"><iframe src="${video.url}" allowfullscreen></iframe></div>
-          <div class="videoTitle">${video.title}</div>
-          <div class="views">${video.views} views</div>
-          <a class="download" href="${video.download}">Download</a>
-        `;
-        container.appendChild(box);
-        return;
-      }
-
-      const box = skeletons[index];
-      box.classList.remove('skeleton');
-      box.querySelector('.videoFrameWrapper').innerHTML = `<iframe src="${video.url}" allowfullscreen></iframe>`;
-      box.querySelector('.videoTitle').textContent = video.title;
-      box.querySelector('.views').textContent = video.views + " views";
-      box.querySelector('.download').innerHTML = `<a href="${video.download}" class="download">Download</a>`;
-    });
-  });
-</script>
-
+<script type="module" src="views.js"></script>
 </body>
 </html>
