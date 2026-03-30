@@ -54,10 +54,11 @@ const videosContainer = document.getElementById("normalVideos");
 const videoElements = {};
 
 /* ---------------- LOADER ---------------- */
-const videoBoxWidth = 400; // Max width of the video box
-const videoBoxHeight = Math.floor(videoBoxWidth * (9 / 16)); // Height based on 16:9 aspect ratio
+// Hardcoded dimensions for video box
+const videoBoxWidth = 400; // Fixed width of the video box
+const videoBoxHeight = 225; // Fixed height based on 16:9 aspect ratio
 
-// Function to create a loader with a custom size based on video box dimensions
+// Function to create a loader with a fixed size
 function createLoader() {
   const loader = document.createElement("div");
   loader.id = "loader";
@@ -69,14 +70,14 @@ function createLoader() {
   loader.style.display = "flex";
   loader.style.justifyContent = "center";
   loader.style.alignItems = "center";
-  loader.style.width = `${videoBoxWidth}px`; // Match video box width
-  loader.style.height = `${videoBoxHeight}px`; // Match video box height
+  loader.style.width = `${videoBoxWidth}px`; // Fixed width for the loader
+  loader.style.height = `${videoBoxHeight}px`; // Fixed height for the loader
 
   const spinner = document.createElement("div");
   spinner.style.border = "4px solid rgba(255, 255, 255, 0.3)";
   spinner.style.borderTop = "4px solid #ffcc00";
   spinner.style.borderRadius = "50%";
-  spinner.style.width = "50px"; // Adjust the spinner size to fit within the video box
+  spinner.style.width = "50px"; // Fixed size of the spinner
   spinner.style.height = "50px";
   spinner.style.animation = "spin 1s linear infinite";
   
@@ -108,14 +109,14 @@ document.head.appendChild(style);
 function createVideoBox(video) {
   const box = document.createElement("div");
   box.className = "videoBox";
-  box.style.width = `${videoBoxWidth}px`; // Set the width of the video box
-  box.style.height = `${videoBoxHeight + 60}px`; // Set height to accommodate the video and text elements
+  box.style.width = `${videoBoxWidth}px`; // Fixed width for the video box
+  box.style.height = `${videoBoxHeight + 60}px`; // Fixed height for the video box (plus some space for text)
 
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
   wrapper.style.width = "100%";
-  wrapper.style.maxWidth = `${videoBoxWidth}px`; // Set max width of the video wrapper
-  wrapper.style.aspectRatio = "16/9"; // Maintain the 16:9 aspect ratio
+  wrapper.style.maxWidth = `${videoBoxWidth}px`; // Fixed width for the video wrapper
+  wrapper.style.aspectRatio = "16/9"; // Maintain 16:9 aspect ratio
 
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
@@ -237,4 +238,5 @@ fetch(dataSource)
   })
   .catch(error => {
     console.error("Error loading videos:", error);
-    removeLoader();  //
+    removeLoader();  // Hide loader if an error occurs
+  });
