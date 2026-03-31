@@ -16,10 +16,24 @@ body {
 
 h1, h2 { color: #ff4444; }
 
+/* EACH CARD IS NOW A SCROLL BOX */
 .card {
   background: #1e1e1e;
   padding: 15px;
   border-radius: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+/* SCROLLBAR */
+.card::-webkit-scrollbar {
+  width: 6px;
+}
+
+.card::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
 }
 
 .container {
@@ -64,28 +78,6 @@ li {
   border-radius: 6px;
   cursor: pointer;
 }
-
-.monthly-box {
-  max-height: 150px;
-  overflow-y: auto;
-  padding-right: 5px;
-}
-
-#pageViews {
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.monthly-box::-webkit-scrollbar,
-#pageViews::-webkit-scrollbar {
-  width: 6px;
-}
-
-.monthly-box::-webkit-scrollbar-thumb,
-#pageViews::-webkit-scrollbar-thumb {
-  background: #444;
-  border-radius: 3px;
-}
 </style>
 </head>
 
@@ -123,19 +115,17 @@ if (!localStorage.getItem("adminLoggedIn")) {
 
 <div class="card">
   <h2>👥 Subscribers</h2>
-  <ul id="subscribersList" class="monthly-box"></ul>
+  <ul id="subscribersList"></ul>
 </div>
 
 <div class="card">
   <h2>📅 Monthly Visits</h2>
-  <ul id="monthlyList" class="monthly-box"></ul>
+  <ul id="monthlyList"></ul>
 </div>
 
-<div class="container">
-  <div class="card">
-    <h2>📊 Page Views</h2>
-    <ul id="pageViews"></ul>
-  </div>
+<div class="card">
+  <h2>📊 Page Views</h2>
+  <ul id="pageViews"></ul>
 </div>
 
 <script type="module">
@@ -150,7 +140,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ---------- FORMAT ---------- */
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + "K";
@@ -161,7 +150,7 @@ function bracket(num) {
   return `<span style="font-size:0.4em;opacity:0.5;">(${num})</span>`;
 }
 
-/* ---------- DATE PARSER (FIXED) ---------- */
+/* DATE PARSER */
 function parseSADate(str) {
   if (!str) return null;
 
@@ -175,19 +164,17 @@ function parseSADate(str) {
   return isNaN(date.getTime()) ? null : date;
 }
 
-/* ---------- MONTH NAME ---------- */
 function getMonthLabel(date) {
   if (!date) return "Invalid";
   return date.toLocaleDateString("en-US", { year: "numeric", month: "long" });
 }
 
-/* ---------- MONTH KEY ---------- */
 function getMonthKey(date) {
   if (!date) return null;
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 }
 
-/* ---------- DOM ---------- */
+/* DOM */
 const subscribersList = document.getElementById("subscribersList");
 const subscribersTotalEl = document.getElementById("totalSubscribers");
 
@@ -197,7 +184,7 @@ const cycleEl = document.getElementById("cycleViewsTotal");
 const pageList = document.getElementById("pageViews");
 const monthlyList = document.getElementById("monthlyList");
 
-/* ---------- MONTHLY ---------- */
+/* MONTHLY */
 function calculateMonthlyTotals(data) {
   const monthly = {};
 
@@ -232,7 +219,7 @@ function renderMonthly(monthlyData) {
   }).join("");
 }
 
-/* ---------- PAGE VIEWS ---------- */
+/* PAGE VIEWS */
 function renderPages(data) {
   const items = Object.entries(data || {})
     .map(([key, value]) => {
@@ -259,7 +246,7 @@ function renderPages(data) {
   `).join("");
 }
 
-/* ---------- SUBSCRIBERS ---------- */
+/* SUBSCRIBERS */
 let lastSubscribersHash = "";
 
 function subscribersHash(data) {
@@ -294,7 +281,7 @@ async function loadSubscribers() {
 loadSubscribers();
 setInterval(loadSubscribers, 10000);
 
-/* ---------- FIREBASE ---------- */
+/* FIREBASE */
 const pageViewsRef = ref(db, "pageViews");
 const videoViewsRef = ref(db, "views");
 const cycleViewsRef = ref(db, "cycleViews");
@@ -328,7 +315,7 @@ onValue(cycleViewsRef, (snapshot) => {
   cycleEl.innerHTML = `Cycle Views: ${formatViews(total)} ${bracket(total)}`;
 });
 
-/* ---------- LOGOUT ---------- */
+/* LOGOUT */
 function logout() {
   localStorage.removeItem("adminLoggedIn");
   location.reload();
