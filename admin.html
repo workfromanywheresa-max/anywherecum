@@ -16,41 +16,43 @@ body {
 
 h1, h2 { color: #ff4444; }
 
-/* ALL CARDS SCROLL */
+/* CARDS */
 .card {
   background: #1e1e1e;
   padding: 15px;
   border-radius: 10px;
   margin-bottom: 20px;
-  max-height: 300px;
+}
+
+/* MONTHLY = 3 ITEMS ONLY */
+.card.monthly {
+  max-height: 180px;
   overflow-y: auto;
 }
 
-/* MONTHLY = EXACT 3 ITEMS */
-.card.monthly {
-  max-height: 180px; /* 3 × 60px */
+/* PAGE + SUBS SCROLL */
+.monthly-box {
+  max-height: 120px;
+  min-height: 120px;
+  overflow-y: auto;
+  padding-right: 5px;
 }
 
 /* SCROLLBAR */
+.monthly-box::-webkit-scrollbar,
 .card::-webkit-scrollbar {
   width: 6px;
 }
 
+.monthly-box::-webkit-scrollbar-thumb,
 .card::-webkit-scrollbar-thumb {
   background: #444;
   border-radius: 3px;
 }
 
-/* LAYOUT */
-.container {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-}
-
+/* LIST */
 ul { list-style: none; padding: 0; margin: 0; }
 
-/* FIXED MONTH ITEM HEIGHT */
 #monthlyList li {
   height: 60px;
   display: flex;
@@ -59,7 +61,6 @@ ul { list-style: none; padding: 0; margin: 0; }
   border-bottom: 1px solid #333;
 }
 
-/* GENERAL LIST ITEMS */
 li {
   padding: 8px;
   border-bottom: 1px solid #333;
@@ -106,11 +107,7 @@ if (!localStorage.getItem("adminLoggedIn")) {
   const entered = prompt("Enter Admin Password:");
 
   if (!entered || entered.trim() !== ADMIN_PASSWORD) {
-    document.documentElement.innerHTML = `
-      <body style="background:#121212;color:red;display:flex;justify-content:center;align-items:center;height:100vh;">
-        <h1>❌ Access Denied</h1>
-      </body>
-    `;
+    document.documentElement.innerHTML = `<body style="background:#121212;color:red;display:flex;justify-content:center;align-items:center;height:100vh;"><h1>❌ Access Denied</h1></body>`;
     throw new Error("Unauthorized");
   }
 
@@ -131,7 +128,7 @@ if (!localStorage.getItem("adminLoggedIn")) {
 
 <div class="card">
   <h2>👥 Subscribers</h2>
-  <ul id="subscribersList"></ul>
+  <ul id="subscribersList" class="monthly-box"></ul>
 </div>
 
 <div class="card monthly">
@@ -141,7 +138,7 @@ if (!localStorage.getItem("adminLoggedIn")) {
 
 <div class="card">
   <h2>📊 Page Views</h2>
-  <ul id="pageViews"></ul>
+  <ul id="pageViews" class="monthly-box"></ul>
 </div>
 
 <script type="module">
@@ -156,6 +153,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+/* ---------- CACHE ---------- */
+function loadCache(key) {
+  return localStorage.getItem(key);
+}
+
+function saveCache(key, value) {
+  localStorage.setItem(key, value);
+}
+
+/* ---------- FORMAT ---------- */
 function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + "M";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + "K";
@@ -166,141 +173,117 @@ function bracket(num) {
   return `<span style="font-size:0.4em;opacity:0.5;">(${num})</span>`;
 }
 
-/* DATE */
-function parseSADate(str) {
-  if (!str) return null;
-  const [datePart, timePart] = str.split(" ");
-  const [year, month, day] = datePart.split("/");
-  const [hour = "00", minute = "00"] = (timePart || "").split(":");
-
-  const date = new Date(`${year}-${month}-${day}T${hour}:${minute}:00`);
-  return isNaN(date.getTime()) ? null : date;
-}
-
-function getMonthLabel(date) {
-  return date.toLocaleDateString("en-US", { year: "numeric", month: "long" });
-}
-
-function getMonthKey(date) {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-}
-
-/* DOM */
+/* ---------- ELEMENTS ---------- */
 const subscribersList = document.getElementById("subscribersList");
 const subscribersTotalEl = document.getElementById("totalSubscribers");
 
 const totalEl = document.getElementById("totalViews");
 const videoEl = document.getElementById("videoViewsTotal");
 const cycleEl = document.getElementById("cycleViewsTotal");
+
 const pageList = document.getElementById("pageViews");
 const monthlyList = document.getElementById("monthlyList");
 
-/* MONTHLY */
-function calculateMonthlyTotals(data) {
-  const monthly = {};
+/* ---------- RENDER FUNCTIONS ---------- */
+function renderSubscribers(data) {
+  const html = data.map(sub => `
+    <li>
+      <span>${sub.userId || "Unknown"}</span>
+      <span class="sub-date">${sub.updatedAt || "N/A"}</span>
+    </li>
+  `).join("");
 
-  Object.values(data || {}).forEach(item => {
-    if (!item || typeof item !== "object") return;
+  if (subscribersList.innerHTML !== html) {
+    subscribersList.innerHTML = html;
+  }
 
-    const date = parseSADate(item.lastUpdated);
-    if (!date) return;
-
-    const key = getMonthKey(date);
-    monthly[key] = (monthly[key] || 0) + (item.count || 0);
-  });
-
-  return monthly;
+  const text = `Subscribers: ${formatViews(data.length)} ${bracket(data.length)}`;
+  if (subscribersTotalEl.innerHTML !== text) {
+    subscribersTotalEl.innerHTML = text;
+  }
 }
 
-function renderMonthly(monthlyData) {
-  const entries = Object.entries(monthlyData).sort((a, b) => b[0].localeCompare(a[0]));
+function renderPages(data) {
+  const items = Object.entries(data || {}).map(([k, v]) => [k, typeof v === "number" ? v : 0]);
 
-  monthlyList.innerHTML = entries.map(([key, value]) => {
-    const [year, month] = key.split("-");
-    const date = new Date(`${year}-${month}-01`);
+  const html = items.map(([k, v]) => `
+    <li>
+      <span>${k}</span>
+      <span class="value">${formatViews(v)} ${bracket(v)}</span>
+    </li>
+  `).join("");
 
-    return `
+  if (pageList.innerHTML !== html) {
+    pageList.innerHTML = html;
+  }
+}
+
+function renderMonthly(data) {
+  let html = "";
+
+  for (let i = 0; i < 12; i++) {
+    const value = data[i] || 0;
+
+    html += `
       <li>
-        <span>${getMonthLabel(date)}</span>
+        <span>Month ${i + 1}</span>
         <span class="value">${formatViews(value)} ${bracket(value)}</span>
       </li>
     `;
-  }).join("");
+  }
+
+  if (monthlyList.innerHTML !== html) {
+    monthlyList.innerHTML = html;
+  }
 }
 
-/* PAGE */
-function renderPages(data) {
-  const items = Object.entries(data || {}).map(([key, value]) => {
-    let count = 0;
-    let updated = "N/A";
+/* ---------- LOAD CACHE FIRST (NO FLICKER) ---------- */
+if (loadCache("subscribers"))
+  renderSubscribers(JSON.parse(loadCache("subscribers")));
 
-    if (typeof value === "number") count = value;
-    else if (value) {
-      count = value.count || 0;
-      updated = value.lastUpdated || "N/A";
-    }
+if (loadCache("pageViews"))
+  renderPages(JSON.parse(loadCache("pageViews")));
 
-    return [key, count, updated];
-  }).sort((a, b) => b[1] - a[1]);
+if (loadCache("monthly"))
+  renderMonthly(JSON.parse(loadCache("monthly")));
 
-  pageList.innerHTML = items.map(([key, value, updated]) => `
-    <li>
-      <span>${key}</span>
-      <span class="value">${formatViews(value)} ${bracket(value)}</span>
-      <span class="sub-date">🕒 ${updated}</span>
-    </li>
-  `).join("");
-}
+/* ---------- SUBSCRIBERS ---------- */
+let lastHash = "";
 
-/* SUBSCRIBERS */
-let lastSubscribersHash = "";
-
-function subscribersHash(data) {
+function hash(data) {
   return JSON.stringify(data || []);
 }
 
 async function loadSubscribers() {
-  try {
-    const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers");
-    const data = await res.json();
+  const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers");
+  const data = await res.json();
 
-    const newHash = subscribersHash(data);
-    if (newHash === lastSubscribersHash) return;
-    lastSubscribersHash = newHash;
+  const newHash = hash(data);
+  if (newHash === lastHash) return;
+  lastHash = newHash;
 
-    subscribersList.innerHTML = data.map(sub => `
-      <li>
-        <span>${sub.userId || "Unknown"}</span>
-        <span class="sub-date">${sub.updatedAt || "N/A"}</span>
-      </li>
-    `).join("");
-
-    subscribersTotalEl.innerHTML =
-      `Subscribers: ${formatViews(data.length)} ${bracket(data.length)}`;
-
-  } catch (err) {
-    console.error(err);
-  }
+  renderSubscribers(data);
+  saveCache("subscribers", JSON.stringify(data));
 }
 
 loadSubscribers();
 setInterval(loadSubscribers, 10000);
 
-/* FIREBASE */
+/* ---------- FIREBASE ---------- */
 onValue(ref(db, "pageViews"), (snap) => {
   const data = snap.val() || {};
 
   renderPages(data);
 
-  const monthly = calculateMonthlyTotals(data);
+  const monthly = new Array(12).fill(0);
+  monthly[0] = Object.values(data).reduce((a, b) => a + (typeof b === "number" ? b : 0), 0);
+
   renderMonthly(monthly);
 
-  let total = 0;
-  Object.values(data).forEach(i => {
-    if (typeof i === "object") total += i.count || 0;
-  });
+  saveCache("pageViews", JSON.stringify(data));
+  saveCache("monthly", JSON.stringify(monthly));
 
-  totalEl.innerHTML = `Site Visits: ${formatViews(total)} ${bracket(total)}`;
+  totalEl.innerHTML = `Site Visits: ${formatViews(monthly[0])} ${bracket(monthly[0])}`;
 });
 
 onValue(ref(db, "views"), (snap) => {
@@ -313,7 +296,7 @@ onValue(ref(db, "cycleViews"), (snap) => {
   cycleEl.innerHTML = `Cycle Views: ${formatViews(total)} ${bracket(total)}`;
 });
 
-/* LOGOUT */
+/* ---------- LOGOUT ---------- */
 function logout() {
   localStorage.removeItem("adminLoggedIn");
   location.reload();
