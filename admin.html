@@ -130,12 +130,23 @@ if (!localStorage.getItem("adminLoggedIn")) {
 <script>
 async function sendNotification() {
   try {
-    await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/check-now", {
-      method: "POST"
+    const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/check-now", {
+      method: "POST",
+      mode: "cors"
     });
+
+    const text = await res.text();
+
+    if (!res.ok) {
+      throw new Error(text);
+    }
+
+    console.log("Server response:", text);
     alert("✅ Notification sent!");
+
   } catch (e) {
-    alert("❌ Failed to send");
+    console.error("❌ Error:", e);
+    alert("❌ Failed: " + e.message);
   }
 }
 </script>
