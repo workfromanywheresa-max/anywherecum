@@ -131,13 +131,29 @@ if (!localStorage.getItem("adminLoggedIn")) {
 
 <script>
 async function sendNotification() {
+  const btn = document.querySelector("button");
+  btn.disabled = true;
+  btn.innerText = "Sending...";
+
   try {
     const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/check-now", {
       method: "POST"
     });
 
-    const data = await res.json();
-    console.log("Response:", data);
+    // ❗ IMPORTANT: handle non-JSON responses safely
+    let data;
+    try {
+      data = await res.json();
+    } catch (e) {
+      const text = await res.text();
+      throw new Error("Invalid response: " + text);
+    }
+
+    console.log("Worker response:", data);
+
+    if (!res.ok) {
+      throw new Error(data.error || "Request failed");
+    }
 
     if (data.sent) {
       alert("✅ Notification sent!");
@@ -146,8 +162,11 @@ async function sendNotification() {
     }
 
   } catch (err) {
-    console.error(err);
-    alert("❌ Failed to send notification");
+    console.error("Error:", err);
+    alert("❌ " + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerText = "🔔 Send Notification";
   }
 }
 </script>
