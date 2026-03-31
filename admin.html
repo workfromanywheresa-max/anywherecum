@@ -122,37 +122,6 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="cycleViewsTotal" class="value">Cycle Views: 0 (0)</div>
   <div id="totalSubscribers" class="value">Subscribers: 0 (0)</div>
 </div>
-
-<button onclick="sendNotification()" style="padding:15px 25px;font-size:18px;border:none;border-radius:8px;background:#ff0055;color:white;cursor:pointer;">
-  🔥 Send Notification
-</button>
-
-<script>
-async function sendNotification() {
-  try {
-    const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/trigger", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      mode: "cors"
-    });
-
-    const text = await res.text();
-    console.log("Server response:", text);
-
-    if (!res.ok) {
-      throw new Error(text || "Request failed");
-    }
-
-    alert("✅ Notification sent!");
-
-  } catch (e) {
-    console.error("❌ Error:", e);
-    alert("❌ Failed: " + e.message);
-  }
-}
-  </script>
   
 <!-- 👥 Subscribers -->
 <div class="card">
