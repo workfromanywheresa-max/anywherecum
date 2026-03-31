@@ -128,12 +128,23 @@ let lastRenderedTotal = null;
 const pageRef = ref(db, "pageViews");
 onValue(pageRef, (snapshot) => {
   const data = snapshot.val() || {};
+
+  /* ✅ FIXED TOTAL LOGIC (matches admin) */
   let total = 0;
-  Object.values(data).forEach(v => { if (typeof v === "number") total += v; });
+  Object.values(data).forEach(v => {
+    total += (v?.count || 0);
+  });
+
   saveCache("totalViews", total);
   saveCache("pageViewsData", JSON.stringify(data));
   cachedTotal = total;
-  if (firstLoad) { firstLoad = false; lastRenderedTotal = total; return; }
+
+  if (firstLoad) {
+    firstLoad = false;
+    lastRenderedTotal = total;
+    return;
+  }
+
   if (total !== lastRenderedTotal && el) {
     el.textContent = `👁 ${formatViews(total)}`;
     lastRenderedTotal = total;
