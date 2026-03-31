@@ -134,7 +134,9 @@ const CACHE = {
   pages: "pages_cache",
   monthly: "monthly_cache",
   subs: "subs_cache",
-  totals: "totals_cache"
+  totals: "totals_cache",
+  video: "video_cache",
+  cycle: "cycle_cache"
 };
 
 /* ---------- FORMAT ---------- */
@@ -207,15 +209,20 @@ const cachedPages = loadCache(CACHE.pages);
 const cachedMonthly = loadCache(CACHE.monthly);
 const cachedSubs = loadCache(CACHE.subs);
 const cachedTotals = loadCache(CACHE.totals);
+const cachedVideo = loadCache(CACHE.video);
+const cachedCycle = loadCache(CACHE.cycle);
 
 if(cachedPages) renderPages(cachedPages);
 if(cachedMonthly) renderMonthly(cachedMonthly);
 if(cachedSubs) renderSubs(cachedSubs);
+
 if(cachedTotals){
   totalEl.innerHTML = cachedTotals.total;
-  videoEl.innerHTML = cachedTotals.video;
-  cycleEl.innerHTML = cachedTotals.cycle;
+  subsEl.innerHTML = cachedTotals.subs || subsEl.innerHTML;
 }
+
+if(cachedVideo) videoEl.innerHTML = cachedVideo;
+if(cachedCycle) cycleEl.innerHTML = cachedCycle;
 
 /* ---------- SUBSCRIBERS ---------- */
 let lastHash="";
@@ -251,9 +258,7 @@ onValue(ref(db,"pageViews"),snap=>{
   });
 
   const totals = {
-    total:`Site Visits: ${formatViews(total)} ${bracket(total)}`,
-    video:videoEl.innerHTML,
-    cycle:cycleEl.innerHTML
+    total:`Site Visits: ${formatViews(total)} ${bracket(total)}`
   };
 
   totalEl.innerHTML = totals.total;
@@ -262,12 +267,18 @@ onValue(ref(db,"pageViews"),snap=>{
 
 onValue(ref(db,"views"),snap=>{
   const t=Object.values(snap.val()||{}).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
-  videoEl.innerHTML=`Video Views: ${formatViews(t)} ${bracket(t)}`;
+
+  const text=`Video Views: ${formatViews(t)} ${bracket(t)}`;
+  videoEl.innerHTML=text;
+  saveCache(CACHE.video,text);
 });
 
 onValue(ref(db,"cycleViews"),snap=>{
   const t=Object.values(snap.val()||{}).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
-  cycleEl.innerHTML=`Cycle Views: ${formatViews(t)} ${bracket(t)}`;
+
+  const text=`Cycle Views: ${formatViews(t)} ${bracket(t)}`;
+  cycleEl.innerHTML=text;
+  saveCache(CACHE.cycle,text);
 });
 
 /* ---------- LOGOUT ---------- */
