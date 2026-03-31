@@ -139,7 +139,12 @@ async function sendNotification() {
     const data = await res.json();
     console.log("Response:", data);
 
-    alert("✅ Notification sent!");
+    if (data.sent) {
+      alert("✅ Notification sent!");
+    } else {
+      alert("⚠️ " + (data.reason || "Not sent"));
+    }
+
   } catch (err) {
     console.error(err);
     alert("❌ Failed to send notification");
