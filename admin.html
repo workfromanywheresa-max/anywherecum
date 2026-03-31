@@ -123,6 +123,32 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="totalSubscribers" class="value">Subscribers: 0 (0)</div>
 </div>
 
+  <button id="sendBtn">Send Notification</button>
+
+<script>
+const btn = document.getElementById("sendBtn");
+
+btn.addEventListener("click", async () => {
+  btn.disabled = true;
+  btn.innerText = "Sending...";
+
+  try {
+    const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/");
+    const data = await res.json();
+
+    btn.innerText = data.sent ? "Sent ✅" : "Already Sent ⚠️";
+
+  } catch (err) {
+    btn.innerText = "Error ❌";
+  }
+
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.innerText = "Send Notification";
+  }, 3000);
+});
+</script>
+
 <!-- 👥 Subscribers -->
 <div class="card">
   <h2>👥 Subscribers</h2>
