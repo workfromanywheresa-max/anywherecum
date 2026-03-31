@@ -217,12 +217,11 @@ if(cachedMonthly) renderMonthly(cachedMonthly);
 if(cachedSubs) renderSubs(cachedSubs);
 
 if(cachedTotals){
-  totalEl.innerHTML = cachedTotals.total;
-  subsEl.innerHTML = cachedTotals.subs || subsEl.innerHTML;
+  totalEl.innerHTML = `<span class="value">${cachedTotals.total}</span>`;
 }
 
-if(cachedVideo) videoEl.innerHTML = cachedVideo;
-if(cachedCycle) cycleEl.innerHTML = cachedCycle;
+if(cachedVideo) videoEl.innerHTML = `<span class="value">${cachedVideo}</span>`;
+if(cachedCycle) cycleEl.innerHTML = `<span class="value">${cachedCycle}</span>`;
 
 /* ---------- SUBSCRIBERS ---------- */
 let lastHash="";
@@ -257,28 +256,25 @@ onValue(ref(db,"pageViews"),snap=>{
     if(typeof v==="object") total+=v.count||0;
   });
 
-  const totals = {
-    total:`Site Visits: ${formatViews(total)} ${bracket(total)}`
-  };
-
-  totalEl.innerHTML = totals.total;
-  saveCache(CACHE.totals, totals);
+  const text = `Site Visits: ${formatViews(total)} ${bracket(total)}`;
+  totalEl.innerHTML = `<span class="value">${text}</span>`;
+  saveCache(CACHE.totals, { total: text });
 });
 
 onValue(ref(db,"views"),snap=>{
   const t=Object.values(snap.val()||{}).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
 
   const text=`Video Views: ${formatViews(t)} ${bracket(t)}`;
-  videoEl.innerHTML=text;
-  saveCache(CACHE.video,text);
+  videoEl.innerHTML = `<span class="value">${text}</span>`;
+  saveCache(CACHE.video, text);
 });
 
 onValue(ref(db,"cycleViews"),snap=>{
   const t=Object.values(snap.val()||{}).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
 
   const text=`Cycle Views: ${formatViews(t)} ${bracket(t)}`;
-  cycleEl.innerHTML=text;
-  saveCache(CACHE.cycle,text);
+  cycleEl.innerHTML = `<span class="value">${text}</span>`;
+  saveCache(CACHE.cycle, text);
 });
 
 /* ---------- LOGOUT ---------- */
