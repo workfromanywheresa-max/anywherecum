@@ -127,6 +127,10 @@ if (!localStorage.getItem("adminLoggedIn")) {
   🔥 Send Notification
 </button>
 
+<button onclick="sendNotification()" style="padding:15px 25px;font-size:18px;border:none;border-radius:8px;background:#ff0055;color:white;cursor:pointer;">
+  🔥 Send Notification
+</button>
+
 <script>
 async function sendNotification() {
   try {
@@ -152,7 +156,7 @@ async function sendNotification() {
     alert("❌ Failed: " + e.message);
   }
 }
-</script>
+  </script>
   
 <!-- 👥 Subscribers -->
 <div class="card">
