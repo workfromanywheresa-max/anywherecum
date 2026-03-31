@@ -201,7 +201,8 @@ function renderSubs(data){
     <li><span>${s.userId}</span><span class="sub-date">${s.updatedAt}</span></li>
   `).join("");
 
-  subsEl.innerHTML = `Subscribers: ${formatViews(data.length)} ${bracket(data.length)}`;
+  const total = `Subscribers: ${formatViews(data.length)} ${bracket(data.length)}`;
+  subsEl.innerHTML = `<span class="value">${total}</span>`;
 }
 
 /* ---------- LOAD CACHE ---------- */
