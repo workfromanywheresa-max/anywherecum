@@ -188,11 +188,24 @@ function renderMonthly(data){
   `).join("");
 }
 
-/* ---------- PAGES ---------- */
+/* ---------- SORTED PAGES ---------- */
 function renderPages(data){
-  pageList.innerHTML = Object.entries(data||{}).map(([k,v])=>`
-    <li><span>${k}</span><span class="value">${formatViews(v?.count||v||0)}</span></li>
-  `).join("");
+  const sorted = Object.entries(data || {})
+    .sort((a, b) => {
+      const aVal = typeof a[1] === "object" ? (a[1].count || 0) : a[1];
+      const bVal = typeof b[1] === "object" ? (b[1].count || 0) : b[1];
+      return bVal - aVal;
+    });
+
+  pageList.innerHTML = sorted.map(([k, v]) => {
+    const val = typeof v === "object" ? (v.count || 0) : v;
+    return `
+      <li>
+        <span>${k}</span>
+        <span class="value">${formatViews(val)}</span>
+      </li>
+    `;
+  }).join("");
 }
 
 /* ---------- SUBS ---------- */
