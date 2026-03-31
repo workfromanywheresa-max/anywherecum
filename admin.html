@@ -124,49 +124,19 @@ if (!localStorage.getItem("adminLoggedIn")) {
 </div>
 
   <div style="text-align: right;">
-  <button onclick="sendNotification()" style="padding:10px 20px; font-size:16px; cursor:pointer;">
-    🔔 Send Notification
-  </button>
-</div>
+  <button onclick="sendNotification()" style="padding:15px 25px;font-size:18px;border:none;border-radius:8px;background:#ff0055;color:white;cursor:pointer;">
+  🔥 Send Notification
+</button>
 
 <script>
 async function sendNotification() {
-  const btn = document.querySelector("button");
-  btn.disabled = true;
-  btn.innerText = "Sending...";
-
   try {
-    const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/check-now", {
+    await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/check-now", {
       method: "POST"
     });
-
-    // ❗ IMPORTANT: handle non-JSON responses safely
-    let data;
-    try {
-      data = await res.json();
-    } catch (e) {
-      const text = await res.text();
-      throw new Error("Invalid response: " + text);
-    }
-
-    console.log("Worker response:", data);
-
-    if (!res.ok) {
-      throw new Error(data.error || "Request failed");
-    }
-
-    if (data.sent) {
-      alert("✅ Notification sent!");
-    } else {
-      alert("⚠️ " + (data.reason || "Not sent"));
-    }
-
-  } catch (err) {
-    console.error("Error:", err);
-    alert("❌ " + err.message);
-  } finally {
-    btn.disabled = false;
-    btn.innerText = "🔔 Send Notification";
+    alert("✅ Notification sent!");
+  } catch (e) {
+    alert("❌ Failed to send");
   }
 }
 </script>
