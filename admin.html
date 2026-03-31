@@ -66,15 +66,13 @@ li {
 }
 
 .monthly-box {
-  max-height: 120px;
-  min-height: 120px;
+  max-height: 150px;
   overflow-y: auto;
   padding-right: 5px;
 }
 
 #pageViews {
   max-height: 300px;
-  min-height: 300px;
   overflow-y: auto;
 }
 
@@ -122,8 +120,7 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="cycleViewsTotal" class="value">Cycle Views: 0 (0)</div>
   <div id="totalSubscribers" class="value">Subscribers: 0 (0)</div>
 </div>
-  
-<!-- 👥 Subscribers -->
+
 <div class="card">
   <h2>👥 Subscribers</h2>
   <ul id="subscribersList" class="monthly-box"></ul>
@@ -169,6 +166,8 @@ const subscribersTotalEl = document.getElementById("totalSubscribers");
 const totalEl = document.getElementById("totalViews");
 const videoEl = document.getElementById("videoViewsTotal");
 const cycleEl = document.getElementById("cycleViewsTotal");
+const pageList = document.getElementById("pageViews");
+const monthlyList = document.getElementById("monthlyList");
 
 /* ---------- FORMAT ---------- */
 function formatViews(num) {
@@ -179,6 +178,81 @@ function formatViews(num) {
 
 function bracket(num) {
   return `<span style="font-size:0.4em;opacity:0.5;">(${num})</span>`;
+}
+
+/* ---------- SA DATE PARSER ---------- */
+function parseSADate(str) {
+  if (!str) return null;
+
+  const [datePart, timePart] = str.split(" ");
+  if (!datePart) return null;
+
+  const [day, month, year] = datePart.split("/");
+  const [hour = "00", minute = "00"] = (timePart || "").split(":");
+
+  return new Date(`${year}-${month}-${day}T${hour}:${minute}:00`);
+}
+
+/* ---------- MONTH KEY ---------- */
+function getMonthKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
+/* ---------- MONTHLY CALC ---------- */
+function calculateMonthlyTotals(data) {
+  const monthly = {};
+
+  Object.values(data || {}).forEach(item => {
+    if (!item || typeof item !== "object") return;
+
+    const date = parseSADate(item.lastUpdated);
+    if (!date) return;
+
+    const key = getMonthKey(date);
+
+    monthly[key] = (monthly[key] || 0) + (item.count || 0);
+  });
+
+  return monthly;
+}
+
+/* ---------- RENDER MONTHLY ---------- */
+function renderMonthly(monthlyData) {
+  const keys = Object.keys(monthlyData).sort().reverse();
+
+  monthlyList.innerHTML = keys.map(key => `
+    <li>
+      <span>${key}</span>
+      <span class="value">${formatViews(monthlyData[key])} ${bracket(monthlyData[key])}</span>
+    </li>
+  `).join("");
+}
+
+/* ---------- PAGE VIEWS ---------- */
+function renderPages(data) {
+  const items = Object.entries(data || {})
+    .map(([key, value]) => {
+      let count = 0;
+      let updated = "N/A";
+
+      if (typeof value === "number") {
+        count = value;
+      } else if (value && typeof value === "object") {
+        count = value.count || 0;
+        updated = value.lastUpdated || "N/A";
+      }
+
+      return [key, count, updated];
+    })
+    .sort((a, b) => b[1] - a[1]);
+
+  pageList.innerHTML = items.map(([key, value, updated]) => `
+    <li>
+      <span>${key}</span>
+      <span class="value">${formatViews(value)} ${bracket(value)}</span>
+      <span class="sub-date">🕒 ${updated}</span>
+    </li>
+  `).join("");
 }
 
 /* ---------- SUBSCRIBERS ---------- */
@@ -198,139 +272,62 @@ async function loadSubscribers() {
     if (newHash === lastSubscribersHash) return;
     lastSubscribersHash = newHash;
 
-    renderSubscribers(data);
+    subscribersList.innerHTML = data.map(sub => `
+      <li>
+        <span>${sub.userId || "Unknown"}</span>
+        <span class="sub-date">${sub.updatedAt || "N/A"}</span>
+      </li>
+    `).join("");
+
+    subscribersTotalEl.innerHTML =
+      `Subscribers: ${formatViews(data.length)} ${bracket(data.length)}`;
+
   } catch (err) {
     console.error(err);
-  }
-}
-
-function renderSubscribers(data) {
-  if (!Array.isArray(data)) return;
-
-  data.sort((a, b) => new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0));
-
-  const html = data.map(sub => `
-    <li>
-      <span>${sub.userId || "Unknown"}</span>
-      <span class="sub-date">${sub.updatedAt || "N/A"}</span>
-    </li>
-  `).join("");
-
-  if (subscribersList.innerHTML !== html) {
-    subscribersList.innerHTML = html;
-  }
-
-  const totalSubs = data.length;
-
-  const newText = `Subscribers: ${formatViews(totalSubs)} ${bracket(totalSubs)}`;
-
-  if (subscribersTotalEl.innerHTML !== newText) {
-    subscribersTotalEl.innerHTML = newText;
   }
 }
 
 loadSubscribers();
 setInterval(loadSubscribers, 10000);
 
-/* ---------- TOTALS ---------- */
-function getCachedNumber(key) {
-  const val = loadCache(key);
-  return val ? Number(val) : 0;
-}
-
-const totalViews = getCachedNumber("totalViews");
-const videoViews = getCachedNumber("videoViews");
-const cycleViews = getCachedNumber("cycleViews");
-
-totalEl.innerHTML = `Site Visits: ${formatViews(totalViews)} ${bracket(totalViews)}`;
-videoEl.innerHTML = `Video Views: ${formatViews(videoViews)} ${bracket(videoViews)}`;
-cycleEl.innerHTML = `Cycle Views: ${formatViews(cycleViews)} ${bracket(cycleViews)}`;
-
-/* ---------- MONTH ---------- */
-function getMonthLabel(offset) {
-  const now = new Date();
-  const d = new Date(now.getFullYear(), now.getMonth() - offset, 1);
-  return d.toLocaleString("default", { month: "long" });
-}
-
-const monthlyList = document.getElementById("monthlyList");
-
-function renderMonthly(data) {
-  let html = "";
-
-  for (let i = 0; i < 12; i++) {
-    const value = data[i] || 0;
-
-    html += `
-      <li>
-        <span>${getMonthLabel(i)}</span>
-        <span class="value">${formatViews(value)} ${bracket(value)}</span>
-      </li>
-    `;
-  }
-
-  monthlyList.innerHTML = html;
-}
-
-/* ---------- PAGE VIEWS ---------- */
-const pageList = document.getElementById("pageViews");
-
-function renderPages(data) {
-  const items = Object.entries(data || {})
-    .map(([k, v]) => [k, typeof v === "number" ? v : 0])
-    .sort((a, b) => b[1] - a[1]);
-
-  let html = "";
-
-  items.forEach(([key, value]) => {
-    html += `
-      <li>
-        <span>${key}</span>
-        <span class="value">${formatViews(value)} ${bracket(value)}</span>
-      </li>
-    `;
-  });
-
-  pageList.innerHTML = html;
-}
-
-/* ---------- CACHE ---------- */
-const cachedPages = loadCache("pageViewsData");
-const cachedMonthly = loadCache("monthlyTotals");
-
-if (cachedPages) renderPages(JSON.parse(cachedPages));
-if (cachedMonthly) renderMonthly(JSON.parse(cachedMonthly));
-
 /* ---------- FIREBASE ---------- */
 const pageViewsRef = ref(db, "pageViews");
 const videoViewsRef = ref(db, "views");
 const cycleViewsRef = ref(db, "cycleViews");
 
+/* PAGE VIEWS */
 onValue(pageViewsRef, (snapshot) => {
   const data = snapshot.val() || {};
 
   renderPages(data);
 
-  let monthlyTotals = new Array(12).fill(0);
-  monthlyTotals[0] = Object.values(data).reduce((a, b) => a + (typeof b === "number" ? b : 0), 0);
+  const monthly = calculateMonthlyTotals(data);
+  renderMonthly(monthly);
 
-  renderMonthly(monthlyTotals);
+  let total = 0;
+
+  Object.values(data).forEach(item => {
+    if (typeof item === "object") {
+      total += item.count || 0;
+    }
+  });
 
   saveCache("pageViewsData", JSON.stringify(data));
-  saveCache("monthlyTotals", JSON.stringify(monthlyTotals));
-  saveCache("totalViews", monthlyTotals[0]);
+  saveCache("totalViews", total);
+
+  totalEl.innerHTML = `Site Visits: ${formatViews(total)} ${bracket(total)}`;
 });
 
+/* VIDEO VIEWS */
 onValue(videoViewsRef, (snapshot) => {
   const total = Object.values(snapshot.val() || {}).reduce((a, b) => a + (typeof b === "number" ? b : 0), 0);
   videoEl.innerHTML = `Video Views: ${formatViews(total)} ${bracket(total)}`;
-  saveCache("videoViews", total);
 });
 
+/* CYCLE VIEWS */
 onValue(cycleViewsRef, (snapshot) => {
   const total = Object.values(snapshot.val() || {}).reduce((a, b) => a + (typeof b === "number" ? b : 0), 0);
   cycleEl.innerHTML = `Cycle Views: ${formatViews(total)} ${bracket(total)}`;
-  saveCache("cycleViews", total);
 });
 
 /* ---------- LOGOUT ---------- */
