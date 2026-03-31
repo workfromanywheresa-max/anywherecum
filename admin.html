@@ -180,22 +180,40 @@ function bracket(num) {
   return `<span style="font-size:0.4em;opacity:0.5;">(${num})</span>`;
 }
 
-/* ---------- SA DATE PARSER ---------- */
+/* ---------- SAFE DATE ---------- */
 function parseSADate(str) {
   if (!str) return null;
 
   const [datePart, timePart] = str.split(" ");
   if (!datePart) return null;
 
-  const [day, month, year] = datePart.split("/");
-  const [hour = "00", minute = "00"] = (timePart || "").split(":");
+  const parts = datePart.split("/");
+  if (parts.length !== 3) return null;
 
-  return new Date(`${year}-${month}-${day}T${hour}:${minute}:00`);
+  const [day, month, year] = parts;
+
+  const hour = timePart ? timePart.split(":")[0] : "00";
+  const minute = timePart ? timePart.split(":")[1] : "00";
+
+  const date = new Date(`${year}-${month}-${day}T${hour}:${minute}:00`);
+
+  return isNaN(date.getTime()) ? null : date;
 }
 
 /* ---------- MONTH KEY ---------- */
 function getMonthKey(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
+/* ---------- MONTH NAME ---------- */
+function formatMonthKey(key) {
+  const [year, month] = key.split("-");
+  const date = new Date(`${year}-${month}-01`);
+
+  return date.toLocaleString("default", {
+    month: "long",
+    year: "numeric"
+  });
 }
 
 /* ---------- MONTHLY CALC ---------- */
@@ -222,7 +240,7 @@ function renderMonthly(monthlyData) {
 
   monthlyList.innerHTML = keys.map(key => `
     <li>
-      <span>${key}</span>
+      <span>${formatMonthKey(key)}</span>
       <span class="value">${formatViews(monthlyData[key])} ${bracket(monthlyData[key])}</span>
     </li>
   `).join("");
