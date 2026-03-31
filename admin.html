@@ -132,7 +132,9 @@ async function sendNotification() {
   try {
     const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/check-now", {
       method: "POST",
-      mode: "cors"
+      headers: {
+        "Content-Type": "application/json"
+      }
     });
 
     const text = await res.text();
