@@ -99,6 +99,46 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="totalSubscribers"></div>
 </div>
 
+  <button onclick="sendNotification()" style="
+  padding:15px 30px;
+  font-size:18px;
+  background:#ff1744;
+  color:white;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+">
+🚀 Send Notification
+</button>
+
+<p id="status" style="margin-top:20px;"></p>
+
+<script>
+async function sendNotification() {
+
+  const status = document.getElementById("status");
+  status.innerText = "Sending...";
+
+  try {
+    const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/sendNotification", {
+      method: "POST"
+    });
+
+    const data = await res.json();
+
+    if (data.sent) {
+      status.innerText = "✅ Notification Sent!";
+    } else {
+      status.innerText = "⛔ Already sent or no new video";
+    }
+
+  } catch (err) {
+    status.innerText = "❌ Error sending";
+    console.error(err);
+  }
+}
+</script>
+
 <div class="card">
   <h2>👥 Subscribers</h2>
   <ul id="subscribersList"></ul>
