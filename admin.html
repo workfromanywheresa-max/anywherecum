@@ -128,13 +128,23 @@ async function sendNotification() {
       body: JSON.stringify({ trigger: true })
     });
 
-    const data = await res.json();
-    console.log("Worker response:", data);
+    // ✅ Always check raw response first
+    const text = await res.text();
+    console.log("RAW Worker Response:", text);
 
-    if (data.sent) {
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      throw new Error("Invalid JSON from worker");
+    }
+
+    console.log("Worker JSON:", data);
+
+    if (data.sent === true) {
       status.innerText = "✅ Notification Sent!";
     } else {
-      status.innerText = "⛔ Not sent (check logs)";
+      status.innerText = "⛔ Not sent (check worker logs)";
     }
 
   } catch (err) {
