@@ -214,8 +214,16 @@ OneSignalDeferred.push(async function(OneSignal) {
 </head>
 <body>
 
-  <!-- Translate Language List -->
-<div id="google_translate_element" style="position: fixed; top: 0; left: 0; z-index: 1000;"></div>
+  <!-- Translate Language List at Top -->
+<div id="google_translate_element" style="
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    right: 0;
+    z-index: 1000; 
+    margin: 0; 
+    padding: 0;
+"></div>
 
 <!-- Google Translate Script -->
 <script type="text/javascript">
@@ -228,6 +236,13 @@ OneSignalDeferred.push(async function(OneSignal) {
   }
 </script>
 <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<!-- Optional: Remove page content top margin so list touches top -->
+<style>
+  body {
+    margin-top: 0 !important;
+  }
+</style>
 
   <div id="topBanner" style="
   position: fixed;
