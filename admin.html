@@ -225,6 +225,8 @@ function renderTrending(data){
 }
 
 /* ---------- MONTH ---------- */
+const monthNames = ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
+
 function parseDate(str){
   if(!str) return null;
   const d = new Date(str);
@@ -250,9 +252,18 @@ function calculateMonthly(data){
 }
 
 function renderMonthly(data){
-  monthList.innerHTML = Object.entries(data||{}).map(([k,v])=>`
-    <li><span>${k}</span><span class="value">${formatFull(v)}</span></li>
-  `).join("");
+  const sortedEntries = Object.entries(data || {}).sort(([aKey],[bKey]) => bKey.localeCompare(aKey));
+
+  monthList.innerHTML = sortedEntries.map(([k,v])=>{
+    const [year, month] = k.split("-");
+    const monthName = monthNames[parseInt(month,10)-1];
+    return `
+      <li>
+        <span>${year}-${month} (${monthName})</span>
+        <span class="value">${formatFull(v)}</span>
+      </li>
+    `;
+  }).join("");
 }
 
 /* ---------- SORTED PAGES ---------- */
