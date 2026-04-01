@@ -71,13 +71,6 @@ li {
   border-radius: 6px;
   cursor: pointer;
 }
-
-img.thumb {
-  width: 80px;
-  height: 45px;
-  object-fit: cover;
-  border-radius: 6px;
-}
 </style>
 </head>
 
@@ -111,7 +104,7 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <ul id="subscribersList"></ul>
 </div>
 
-<!-- 🔥 TRENDING SECTION -->
+<!-- ✅ ADDED TRENDING SECTION -->
 <div class="card">
   <h2>🔥 Trending Videos</h2>
   <ul id="trendingList"></ul>
@@ -139,6 +132,27 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+/* ---------- CACHE ---------- */
+function saveCache(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+function loadCache(k){ return JSON.parse(localStorage.getItem(k) || "null"); }
+
+const CACHE = {
+  pages: "pages_cache",
+  monthly: "monthly_cache",
+  subs: "subs_cache",
+  totals: "totals_cache",
+  video: "video_cache",
+  cycle: "cycle_cache"
+};
+
+/* ---------- FORMAT ---------- */
+function formatViews(n){
+  if(n>=1e6) return (n/1e6).toFixed(1).replace(/\.0$/,"")+"M";
+  if(n>=1e3) return (n/1e3).toFixed(1).replace(/\.0$/,"")+"K";
+  return n;
+}
+const bracket = n => `<span style="opacity:.5;font-size:.6em">(${n})</span>`;
+
 /* ---------- DOM ---------- */
 const totalEl = document.getElementById("totalViews");
 const videoEl = document.getElementById("videoViewsTotal");
@@ -148,18 +162,11 @@ const subsEl = document.getElementById("totalSubscribers");
 const pageList = document.getElementById("pageViews");
 const monthList = document.getElementById("monthlyList");
 const subsList = document.getElementById("subscribersList");
-const trendingList = document.getElementById("trendingList");
+const trendingList = document.getElementById("trendingList"); // ✅ ADDED
 
-/* ---------- FORMAT ---------- */
-function formatViews(n){
-  if(n>=1e6) return (n/1e6).toFixed(1).replace(/\.0$/,"")+"M";
-  if(n>=1e3) return (n/1e3).toFixed(1).replace(/\.0$/,"")+"K";
-  return n;
-}
-
-/* ---------- TRENDING ---------- */
+/* ---------- TRENDING FUNCTION (ADDED) ---------- */
 function renderTrending(data){
-  const trending = Object.entries(data || {})
+  const trending = Object.entries(data)
     .map(([id,val])=>{
       const views = typeof val==="number" ? val : (val?.count||0);
       return {
@@ -173,7 +180,7 @@ function renderTrending(data){
 
   trendingList.innerHTML = trending.map(v=>`
     <li>
-      <img class="thumb" src="${v.thumbnail}" onerror="this.style.display='none'"/>
+      <img src="${v.thumbnail}" style="width:80px;height:45px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'"/>
       <div>
         <div>${v.id}</div>
         <div class="value">${formatViews(v.views)}</div>
@@ -182,18 +189,145 @@ function renderTrending(data){
   `).join("");
 }
 
+/* ---------- MONTH ---------- */
+function parseDate(str){
+  if(!str) return null;
+  const d = new Date(str);
+  return isNaN(d) ? null : d;
+}
+
+function getKey(d){
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+}
+
+function calculateMonthly(data){
+  const m = {};
+  Object.values(data||{}).forEach(i=>{
+    if(i?.lastUpdated){
+      const d = parseDate(i.lastUpdated);
+      if(d){
+        const k = getKey(d);
+        m[k] = (m[k]||0)+(i.count||0);
+      }
+    }
+  });
+  return m;
+}
+
+function renderMonthly(data){
+  monthList.innerHTML = Object.entries(data||{}).map(([k,v])=>`
+    <li><span>${k}</span><span class="value">${formatViews(v)} ${bracket(v)}</span></li>
+  `).join("");
+}
+
+/* ---------- SORTED PAGES ---------- */
+function renderPages(data){
+  const sorted = Object.entries(data || {})
+    .sort((a, b) => {
+      const aVal = typeof a[1] === "object" ? (a[1].count || 0) : a[1];
+      const bVal = typeof b[1] === "object" ? (b[1].count || 0) : b[1];
+      return bVal - aVal;
+    });
+
+  pageList.innerHTML = sorted.map(([k, v]) => {
+    const val = typeof v === "object" ? (v.count || 0) : v;
+    return `
+      <li>
+        <span>${k}</span>
+        <span class="value">${formatViews(val)}</span>
+      </li>
+    `;
+  }).join("");
+}
+
+/* ---------- SUBS ---------- */
+function renderSubs(data){
+  subsList.innerHTML = data.map(s=>`
+    <li><span>${s.userId}</span><span class="sub-date">${s.updatedAt}</span></li>
+  `).join("");
+
+  const total = `Subscribers: ${formatViews(data.length)} ${bracket(data.length)}`;
+  subsEl.innerHTML = `<span class="value">${total}</span>`;
+}
+
+/* ---------- LOAD CACHE ---------- */
+const cachedPages = loadCache(CACHE.pages);
+const cachedMonthly = loadCache(CACHE.monthly);
+const cachedSubs = loadCache(CACHE.subs);
+const cachedTotals = loadCache(CACHE.totals);
+const cachedVideo = loadCache(CACHE.video);
+const cachedCycle = loadCache(CACHE.cycle);
+
+if(cachedPages) renderPages(cachedPages);
+if(cachedMonthly) renderMonthly(cachedMonthly);
+if(cachedSubs) renderSubs(cachedSubs);
+
+if(cachedTotals){
+  totalEl.innerHTML = `<span class="value">${cachedTotals.total}</span>`;
+}
+
+if(cachedVideo) videoEl.innerHTML = `<span class="value">${cachedVideo}</span>`;
+if(cachedCycle) cycleEl.innerHTML = `<span class="value">${cachedCycle}</span>`;
+
+/* ---------- SUBSCRIBERS ---------- */
+let lastHash="";
+async function loadSubs(){
+  const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers");
+  const data = await res.json();
+
+  const h = JSON.stringify(data);
+  if(h===lastHash) return;
+  lastHash=h;
+
+  renderSubs(data);
+  saveCache(CACHE.subs, data);
+}
+loadSubs();
+setInterval(loadSubs,10000);
+
 /* ---------- FIREBASE ---------- */
+onValue(ref(db,"pageViews"),snap=>{
+  const data = snap.val()||{};
+
+  renderPages(data);
+
+  const monthly = calculateMonthly(data);
+  renderMonthly(monthly);
+
+  saveCache(CACHE.pages,data);
+  saveCache(CACHE.monthly,monthly);
+
+  let total=0;
+  Object.values(data).forEach(v=>{
+    if(typeof v==="object") total+=v.count||0;
+  });
+
+  const text = `Site Visits: ${formatViews(total)} ${bracket(total)}`;
+  totalEl.innerHTML = `<span class="value">${text}</span>`;
+  saveCache(CACHE.totals, { total: text });
+});
+
+onValue(ref(db,"views"),snap=>{
+  const t=Object.values(snap.val()||{}).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
+
+  const text=`Video Views: ${formatViews(t)} ${bracket(t)}`;
+  videoEl.innerHTML = `<span class="value">${text}</span>`;
+  saveCache(CACHE.video, text);
+});
+
 onValue(ref(db,"cycleViews"),snap=>{
-  const data = snap.val() || {};
+  const data = snap.val()||{};
+  const t=Object.values(data).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
 
-  const t = Object.values(data).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
+  const text=`Cycle Views: ${formatViews(t)} ${bracket(t)}`;
+  cycleEl.innerHTML = `<span class="value">${text}</span>`;
+  saveCache(CACHE.cycle, text);
 
-  cycleEl.innerHTML = `<span class="value">Cycle Views: ${formatViews(t)}</span>`;
-
-  // 🔥 TRENDING CALL
+  /* ✅ TRENDING CALLED HERE */
   renderTrending(data);
 });
 
+/* ---------- LOGOUT ---------- */
 function logout(){
   localStorage.removeItem("adminLoggedIn");
   location.reload();
