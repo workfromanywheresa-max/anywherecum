@@ -119,7 +119,6 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <ul id="subscribersList"></ul>
 </div>
 
-<!-- ✅ COUNTRY CARD ADDED -->
 <div class="card">
   <h2>🌍 Countries</h2>
   <ul id="countryList"></ul>
@@ -149,7 +148,7 @@ const CACHE = {
   video: "video_cache",
   cycle: "cycle_cache",
   trending: "trending_cache",
-  country: "country_cache" // ✅ ADDED
+  country: "country_cache"
 };
 
 /* ---------- FORMAT ---------- */
@@ -170,15 +169,16 @@ const pageList = document.getElementById("pageViews");
 const monthList = document.getElementById("monthlyList");
 const subsList = document.getElementById("subscribersList");
 const trendingList = document.getElementById("trendingList");
-const countryList = document.getElementById("countryList"); // ✅ ADDED
+const countryList = document.getElementById("countryList");
 
-/* ---------- COUNTRY RENDER ---------- */
+/* ---------- COUNTRY ---------- */
 function renderCountries(data){
   const sorted = Object.entries(data || {})
     .sort((a,b)=>b[1]-a[1]);
 
   countryList.innerHTML = sorted.map(([code,count])=>{
     const flag = `https://flagcdn.com/24x18/${code.toLowerCase()}.png`;
+
     return `
       <li>
         <div style="display:flex;align-items:center;gap:8px;">
@@ -191,16 +191,7 @@ function renderCountries(data){
   }).join("");
 }
 
-/* ---------- FIREBASE COUNTRY ---------- */
-onValue(ref(db,"countryCounts"),snap=>{
-  const data = snap.val()||{};
-  renderCountries(data);
-  saveCache(CACHE.country,data);
-});
-
-/* ---------- OTHER FUNCTIONS (UNCHANGED) ---------- */
-/* (keeping your existing functions exactly as they are) */
-
+/* ---------- TRENDING ---------- */
 function renderTrending(data){
   const trending = Object.entries(data)
     .map(([id,val])=>{
@@ -225,9 +216,34 @@ function renderTrending(data){
   `).join("");
 }
 
-/* ---------- CACHE LOAD ---------- */
+/* ---------- LOAD CACHE ---------- */
+const cachedTrending = loadCache(CACHE.trending);
+const cachedPages = loadCache(CACHE.pages);
+const cachedMonthly = loadCache(CACHE.monthly);
+const cachedSubs = loadCache(CACHE.subs);
+const cachedTotals = loadCache(CACHE.totals);
+const cachedVideo = loadCache(CACHE.video);
+const cachedCycle = loadCache(CACHE.cycle);
 const cachedCountry = loadCache(CACHE.country);
+
+if(cachedTrending) renderTrending(cachedTrending);
+if(cachedPages) renderPages(cachedPages);
+if(cachedMonthly) renderMonthly(cachedMonthly);
+if(cachedSubs) renderSubs(cachedSubs);
 if(cachedCountry) renderCountries(cachedCountry);
+
+if(cachedTotals) totalEl.innerHTML = `<span class="value">${cachedTotals.total}</span>`;
+if(cachedVideo) videoEl.innerHTML = `<span class="value">${cachedVideo}</span>`;
+if(cachedCycle) cycleEl.innerHTML = `<span class="value">${cachedCycle}</span>`;
+
+/* ---------- FIREBASE ---------- */
+onValue(ref(db,"countryCounts"),snap=>{
+  const data = snap.val()||{};
+  renderCountries(data);
+  saveCache(CACHE.country,data);
+});
+
+/* (your existing Firebase listeners remain unchanged) */
 
 /* ---------- LOGOUT ---------- */
 function logout(){
