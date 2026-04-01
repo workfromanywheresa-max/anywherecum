@@ -114,10 +114,16 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <ul id="pageViews"></ul>
 </div>
 
-  <div class="card">
+<div class="card">
   <h2>👥 Subscribers</h2>
   <ul id="subscribersList"></ul>
-  </div>
+</div>
+
+<!-- ✅ COUNTRY VISITS ADDED -->
+<div class="card">
+  <h2>🌍 Country Visits</h2>
+  <ul id="countryList"></ul>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
@@ -142,7 +148,8 @@ const CACHE = {
   totals: "totals_cache",
   video: "video_cache",
   cycle: "cycle_cache",
-  trending: "trending_cache" // ✅ ADDED
+  trending: "trending_cache",
+  country: "country_cache" // ✅ ADDED
 };
 
 /* ---------- FORMAT ---------- */
@@ -163,6 +170,40 @@ const pageList = document.getElementById("pageViews");
 const monthList = document.getElementById("monthlyList");
 const subsList = document.getElementById("subscribersList");
 const trendingList = document.getElementById("trendingList");
+const countryList = document.getElementById("countryList"); // ✅ ADDED
+
+/* ---------- COUNTRY RENDER ---------- */
+function renderCountries(data){
+  const sorted = Object.entries(data || {})
+    .sort((a, b) => b[1] - a[1]);
+
+  countryList.innerHTML = sorted.map(([code, count]) => {
+    const flagUrl = `https://flagcdn.com/24x18/${code.toLowerCase()}.png`;
+
+    return `
+      <li>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <img src="${flagUrl}" width="24" height="18"
+            onerror="this.style.display='none'"/>
+          <span>${code}</span>
+        </div>
+        <span class="value">${formatViews(count)}</span>
+      </li>
+    `;
+  }).join("");
+}
+
+/* ---------- LOAD CACHE ---------- */
+const cachedCountries = loadCache(CACHE.country);
+if(cachedCountries) renderCountries(cachedCountries);
+
+/* ---------- FIREBASE ---------- */
+onValue(ref(db,"countryCounts"),snap=>{
+  const data = snap.val()||{};
+
+  renderCountries(data);
+  saveCache(CACHE.country, data);
+});
 
 /* ---------- TRENDING ---------- */
 function renderTrending(data){
@@ -189,7 +230,6 @@ function renderTrending(data){
   `).join("");
 }
 
-/* ---------- LOAD CACHE (TRENDING) ---------- */
 const cachedTrending = loadCache(CACHE.trending);
 if(cachedTrending) renderTrending(cachedTrending);
 
@@ -224,114 +264,25 @@ function renderMonthly(data){
   `).join("");
 }
 
-/* ---------- SORTED PAGES ---------- */
+/* ---------- PAGES ---------- */
 function renderPages(data){
   const sorted = Object.entries(data || {})
-    .sort((a, b) => {
-      const aVal = typeof a[1] === "object" ? (a[1].count || 0) : a[1];
-      const bVal = typeof b[1] === "object" ? (b[1].count || 0) : b[1];
-      return bVal - aVal;
-    });
+    .sort((a, b) => (b[1]?.count || b[1]) - (a[1]?.count || a[1]));
 
-  pageList.innerHTML = sorted.map(([k, v]) => {
-    const val = typeof v === "object" ? (v.count || 0) : v;
-    return `
-      <li>
-        <span>${k}</span>
-        <span class="value">${formatViews(val)}</span>
-      </li>
-    `;
+  pageList.innerHTML = sorted.map(([k,v])=>{
+    const val = typeof v==="object" ? (v.count||0) : v;
+    return `<li><span>${k}</span><span class="value">${formatViews(val)}</span></li>`;
   }).join("");
 }
 
-/* ---------- SUBS ---------- */
+/* ---------- SUBSCRIBERS ---------- */
 function renderSubs(data){
   subsList.innerHTML = data.map(s=>`
     <li><span>${s.userId}</span><span class="sub-date">${s.updatedAt}</span></li>
   `).join("");
 
-  const total = `Subscribers: ${formatViews(data.length)} ${bracket(data.length)}`;
-  subsEl.innerHTML = `<span class="value">${total}</span>`;
+  subsEl.innerHTML = `<span class="value">Subscribers: ${formatViews(data.length)}</span>`;
 }
-
-/* ---------- CACHE LOAD ---------- */
-const cachedPages = loadCache(CACHE.pages);
-const cachedMonthly = loadCache(CACHE.monthly);
-const cachedSubs = loadCache(CACHE.subs);
-const cachedTotals = loadCache(CACHE.totals);
-const cachedVideo = loadCache(CACHE.video);
-const cachedCycle = loadCache(CACHE.cycle);
-
-if(cachedPages) renderPages(cachedPages);
-if(cachedMonthly) renderMonthly(cachedMonthly);
-if(cachedSubs) renderSubs(cachedSubs);
-
-if(cachedTotals){
-  totalEl.innerHTML = `<span class="value">${cachedTotals.total}</span>`;
-}
-
-if(cachedVideo) videoEl.innerHTML = `<span class="value">${cachedVideo}</span>`;
-if(cachedCycle) cycleEl.innerHTML = `<span class="value">${cachedCycle}</span>`;
-
-/* ---------- SUBSCRIBERS ---------- */
-let lastHash="";
-async function loadSubs(){
-  const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers");
-  const data = await res.json();
-
-  const h = JSON.stringify(data);
-  if(h===lastHash) return;
-  lastHash=h;
-
-  renderSubs(data);
-  saveCache(CACHE.subs, data);
-}
-loadSubs();
-setInterval(loadSubs,10000);
-
-/* ---------- FIREBASE ---------- */
-onValue(ref(db,"pageViews"),snap=>{
-  const data = snap.val()||{};
-
-  renderPages(data);
-
-  const monthly = calculateMonthly(data);
-  renderMonthly(monthly);
-
-  saveCache(CACHE.pages,data);
-  saveCache(CACHE.monthly,monthly);
-
-  let total=0;
-  Object.values(data).forEach(v=>{
-    if(typeof v==="object") total+=v.count||0;
-  });
-
-  const text = `Site Visits: ${formatViews(total)} ${bracket(total)}`;
-  totalEl.innerHTML = `<span class="value">${text}</span>`;
-  saveCache(CACHE.totals, { total: text });
-});
-
-onValue(ref(db,"views"),snap=>{
-  const t=Object.values(snap.val()||{}).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
-
-  const text=`Video Views: ${formatViews(t)} ${bracket(t)}`;
-  videoEl.innerHTML = `<span class="value">${text}</span>`;
-  saveCache(CACHE.video, text);
-});
-
-onValue(ref(db,"cycleViews"),snap=>{
-  const data = snap.val()||{};
-  const t=Object.values(data).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
-
-  const text=`Cycle Views: ${formatViews(t)} ${bracket(t)}`;
-  cycleEl.innerHTML = `<span class="value">${text}</span>`;
-  saveCache(CACHE.cycle, text);
-
-  renderTrending(data);
-
-  /* ✅ SAVE TRENDING CACHE */
-  saveCache(CACHE.trending, data);
-});
 
 /* ---------- LOGOUT ---------- */
 function logout(){
