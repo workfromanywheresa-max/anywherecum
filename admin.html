@@ -25,7 +25,9 @@ h1, h2 { color: #ff4444; }
   overflow-y: auto;
 }
 
-.card.monthly { max-height: 180px; }
+.card.monthly {
+  max-height: 180px;
+}
 
 .card::-webkit-scrollbar { width: 6px; }
 .card::-webkit-scrollbar-thumb {
@@ -39,8 +41,8 @@ li {
   padding: 8px;
   border-bottom: 1px solid #333;
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .value {
@@ -109,6 +111,7 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <ul id="subscribersList"></ul>
 </div>
 
+<!-- 🔥 TRENDING SECTION -->
 <div class="card">
   <h2>🔥 Trending Videos</h2>
   <ul id="trendingList"></ul>
@@ -147,15 +150,6 @@ const monthList = document.getElementById("monthlyList");
 const subsList = document.getElementById("subscribersList");
 const trendingList = document.getElementById("trendingList");
 
-/* ---------- CACHE ---------- */
-function getCache(k){ return localStorage.getItem(k); }
-function setCache(k,v){ localStorage.setItem(k,v); }
-
-/* ---------- LOAD CACHE ---------- */
-if(getCache("siteViews")) totalEl.innerHTML = getCache("siteViews");
-if(getCache("videoViews")) videoEl.innerHTML = getCache("videoViews");
-if(getCache("cycleViews")) cycleEl.innerHTML = getCache("cycleViews");
-
 /* ---------- FORMAT ---------- */
 function formatViews(n){
   if(n>=1e6) return (n/1e6).toFixed(1).replace(/\.0$/,"")+"M";
@@ -163,46 +157,9 @@ function formatViews(n){
   return n;
 }
 
-/* ---------- TOTALS (FIXED CACHE) ---------- */
-onValue(ref(db,"pageViews"),snap=>{
-  let total=0;
-  Object.values(snap.val()||{}).forEach(v=>{
-    if(typeof v==="object") total+=v.count||0;
-  });
-
-  const html = `<span class="value">Site Visits: ${formatViews(total)}</span>`;
-  if(getCache("siteViews") !== html){
-    totalEl.innerHTML = html;
-    setCache("siteViews", html);
-  }
-});
-
-onValue(ref(db,"views"),snap=>{
-  const t = Object.values(snap.val()||{}).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
-
-  const html = `<span class="value">Video Views: ${formatViews(t)}</span>`;
-  if(getCache("videoViews") !== html){
-    videoEl.innerHTML = html;
-    setCache("videoViews", html);
-  }
-});
-
-onValue(ref(db,"cycleViews"),snap=>{
-  const data = snap.val()||{};
-  const t = Object.values(data).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
-
-  const html = `<span class="value">Cycle Views: ${formatViews(t)}</span>`;
-  if(getCache("cycleViews") !== html){
-    cycleEl.innerHTML = html;
-    setCache("cycleViews", html);
-  }
-
-  renderTrending(data);
-});
-
 /* ---------- TRENDING ---------- */
 function renderTrending(data){
-  const trending = Object.entries(data)
+  const trending = Object.entries(data || {})
     .map(([id,val])=>{
       const views = typeof val==="number" ? val : (val?.count||0);
       return {
@@ -225,63 +182,18 @@ function renderTrending(data){
   `).join("");
 }
 
-/* ---------- PAGE VIEWS ---------- */
-onValue(ref(db,"pageViews"),snap=>{
-  const data = snap.val()||{};
+/* ---------- FIREBASE ---------- */
+onValue(ref(db,"cycleViews"),snap=>{
+  const data = snap.val() || {};
 
-  const sorted = Object.entries(data).sort((a,b)=>{
-    const av = a[1].count||0;
-    const bv = b[1].count||0;
-    return bv-av;
-  });
+  const t = Object.values(data).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
 
-  pageList.innerHTML = sorted.map(([k,v])=>`
-    <li><span>${k}</span><span class="value">${formatViews(v.count||0)}</span></li>
-  `).join("");
+  cycleEl.innerHTML = `<span class="value">Cycle Views: ${formatViews(t)}</span>`;
+
+  // 🔥 TRENDING CALL
+  renderTrending(data);
 });
 
-/* ---------- MONTHLY ---------- */
-function getKey(d){
-  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
-}
-
-function calculateMonthly(data){
-  const m = {};
-  Object.values(data||{}).forEach(i=>{
-    if(i?.lastUpdated){
-      const d = new Date(i.lastUpdated);
-      if(!isNaN(d)){
-        const k = getKey(d);
-        m[k] = (m[k]||0)+(i.count||0);
-      }
-    }
-  });
-  return m;
-}
-
-onValue(ref(db,"pageViews"),snap=>{
-  const monthly = calculateMonthly(snap.val()||{});
-  monthList.innerHTML = Object.entries(monthly).map(([k,v])=>`
-    <li><span>${k}</span><span class="value">${formatViews(v)}</span></li>
-  `).join("");
-});
-
-/* ---------- SUBSCRIBERS ---------- */
-async function loadSubs(){
-  const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers");
-  const data = await res.json();
-
-  subsList.innerHTML = data.map(s=>`
-    <li><span>${s.userId}</span><span class="sub-date">${s.updatedAt}</span></li>
-  `).join("");
-
-  subsEl.innerHTML = `<span class="value">Subscribers: ${formatViews(data.length)}</span>`;
-}
-
-loadSubs();
-setInterval(loadSubs,10000);
-
-/* ---------- LOGOUT ---------- */
 function logout(){
   localStorage.removeItem("adminLoggedIn");
   location.reload();
