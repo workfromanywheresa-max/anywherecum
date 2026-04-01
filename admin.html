@@ -178,17 +178,20 @@ const trendingList = document.getElementById("trendingList");
 const countryList = document.getElementById("countryList");
 
 /* ---------- COUNTRY ---------- */
+const regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
+
 function renderCountries(data){
   const sorted = Object.entries(data || {})
     .sort((a,b)=>b[1]-a[1]);
 
   countryList.innerHTML = sorted.map(([code,count])=>{
     const flag = `https://flagcdn.com/24x18/${code.toLowerCase()}.png`;
+    const fullName = regionNames.of(code) || "Unknown";
     return `
       <li>
         <div style="display:flex;align-items:center;gap:8px;">
           <img src="${flag}" width="24" height="18"/>
-          <span>${code}</span>
+          <span>${code} - ${fullName}</span>
         </div>
         <span class="value">${formatFull(count)}</span>
       </li>
