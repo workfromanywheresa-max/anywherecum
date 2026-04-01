@@ -125,15 +125,16 @@ async function sendNotification() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ trigger: true }) // 👈 important
+      body: JSON.stringify({ trigger: true })
     });
 
     const data = await res.json();
+    console.log("Worker response:", data);
 
     if (data.sent) {
       status.innerText = "✅ Notification Sent!";
     } else {
-      status.innerText = "⛔ Already sent or no new video";
+      status.innerText = "⛔ Not sent (check logs)";
     }
 
   } catch (err) {
@@ -142,7 +143,7 @@ async function sendNotification() {
   }
 }
 </script>
-
+  
 <div class="card">
   <h2>👥 Subscribers</h2>
   <ul id="subscribersList"></ul>
