@@ -111,33 +111,50 @@ if (!localStorage.getItem("adminLoggedIn")) {
 🚀 Send Notification
 </button>
 
-<p id="status" style="margin-top:20px;"></p>
+<p id="status" style="margin-top:20px; white-space:pre-line;"></p>
 
 <script>
 async function sendNotification() {
 
   const status = document.getElementById("status");
-  status.innerHTML = "🔥 Running like CRON...";
+  status.innerHTML = "Triggering...";
 
   try {
 
     const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/sendNotification", {
-      method: "POST"
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ trigger: true })
     });
 
-    const data = await res.json();
+    const text = await res.text();
 
-    console.log("BUTTON RESPONSE:", data);
+    console.log("RAW RESPONSE:", text);
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      status.innerHTML = "❌ Invalid JSON response:\n" + text;
+      return;
+    }
+
+    if (data.logs && Array.isArray(data.logs)) {
+      status.innerHTML = data.logs.map(l => "➡️ " + l).join("<br>");
+    }
 
     if (data.sent === true) {
-      status.innerHTML = "🚀 Notification SENT (same as cron)";
+      status.innerHTML += "<br><br>🚀 Notification SENT";
     } else {
-      status.innerHTML = "⛔ Notification NOT sent (same as cron logic)";
+      status.innerHTML += "<br><br>⛔ Notification FAILED";
     }
 
   } catch (err) {
     console.error(err);
-    status.innerHTML = "❌ Error: " + err.message;
+    status.innerHTML = "❌ Request failed: " + err.message;
   }
 }
 </script>
