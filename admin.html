@@ -119,7 +119,7 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <ul id="subscribersList"></ul>
 </div>
 
-<!-- ✅ COUNTRY VISITS ADDED -->
+<!-- ✅ COUNTRY ADDED -->
 <div class="card">
   <h2>🌍 Country Visits</h2>
   <ul id="countryList"></ul>
@@ -193,17 +193,9 @@ function renderCountries(data){
   }).join("");
 }
 
-/* ---------- LOAD CACHE ---------- */
+/* ---------- CACHE LOAD ---------- */
 const cachedCountries = loadCache(CACHE.country);
 if(cachedCountries) renderCountries(cachedCountries);
-
-/* ---------- FIREBASE ---------- */
-onValue(ref(db,"countryCounts"),snap=>{
-  const data = snap.val()||{};
-
-  renderCountries(data);
-  saveCache(CACHE.country, data);
-});
 
 /* ---------- TRENDING ---------- */
 function renderTrending(data){
@@ -229,9 +221,6 @@ function renderTrending(data){
     </li>
   `).join("");
 }
-
-const cachedTrending = loadCache(CACHE.trending);
-if(cachedTrending) renderTrending(cachedTrending);
 
 /* ---------- MONTH ---------- */
 function parseDate(str){
@@ -283,6 +272,64 @@ function renderSubs(data){
 
   subsEl.innerHTML = `<span class="value">Subscribers: ${formatViews(data.length)}</span>`;
 }
+
+/* ---------- FIREBASE ---------- */
+onValue(ref(db,"countryCounts"),snap=>{
+  const data = snap.val() || {};
+
+  renderCountries(data);
+  saveCache(CACHE.country, data);
+});
+
+onValue(ref(db,"pageViews"),snap=>{
+  const data = snap.val()||{};
+
+  renderPages(data);
+
+  const monthly = calculateMonthly(data);
+  renderMonthly(monthly);
+
+  saveCache(CACHE.pages,data);
+  saveCache(CACHE.monthly,monthly);
+
+  let total=0;
+  Object.values(data).forEach(v=>{
+    if(typeof v==="object") total+=v.count||0;
+  });
+
+  totalEl.innerHTML = `<span class="value">Site Visits: ${formatViews(total)}</span>`;
+});
+
+onValue(ref(db,"views"),snap=>{
+  const t=Object.values(snap.val()||{}).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
+  videoEl.innerHTML = `<span class="value">Video Views: ${formatViews(t)}</span>`;
+});
+
+onValue(ref(db,"cycleViews"),snap=>{
+  const data = snap.val()||{};
+  const t=Object.values(data).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
+
+  cycleEl.innerHTML = `<span class="value">Cycle Views: ${formatViews(t)}</span>`;
+  renderTrending(data);
+
+  saveCache(CACHE.trending, data);
+});
+
+/* ---------- SUBSCRIBERS ---------- */
+let lastHash="";
+async function loadSubs(){
+  const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers");
+  const data = await res.json();
+
+  const h = JSON.stringify(data);
+  if(h===lastHash) return;
+  lastHash=h;
+
+  renderSubs(data);
+  saveCache(CACHE.subs, data);
+}
+loadSubs();
+setInterval(loadSubs,10000);
 
 /* ---------- LOGOUT ---------- */
 function logout(){
