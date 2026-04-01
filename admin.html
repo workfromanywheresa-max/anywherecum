@@ -121,7 +121,11 @@ async function sendNotification() {
 
   try {
     const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/sendNotification", {
-      method: "POST"
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ trigger: true }) // 👈 important
     });
 
     const data = await res.json();
