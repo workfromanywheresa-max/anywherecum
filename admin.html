@@ -147,15 +147,6 @@ const monthList = document.getElementById("monthlyList");
 const subsList = document.getElementById("subscribersList");
 const trendingList = document.getElementById("trendingList");
 
-/* ---------- CACHE ---------- */
-function getCache(k){ return localStorage.getItem(k); }
-function setCache(k,v){ localStorage.setItem(k,v); }
-
-/* ---------- LOAD CACHE ---------- */
-if(getCache("siteViews")) totalEl.innerHTML = getCache("siteViews");
-if(getCache("videoViews")) videoEl.innerHTML = getCache("videoViews");
-if(getCache("cycleViews")) cycleEl.innerHTML = getCache("cycleViews");
-
 /* ---------- FORMAT ---------- */
 function formatViews(n){
   if(n>=1e6) return (n/1e6).toFixed(1).replace(/\.0$/,"")+"M";
@@ -163,39 +154,25 @@ function formatViews(n){
   return n;
 }
 
-/* ---------- TOTALS (FIXED CACHE) ---------- */
+/* ---------- TOTALS ---------- */
 onValue(ref(db,"pageViews"),snap=>{
   let total=0;
   Object.values(snap.val()||{}).forEach(v=>{
     if(typeof v==="object") total+=v.count||0;
   });
-
-  const html = `<span class="value">Site Visits: ${formatViews(total)}</span>`;
-  if(getCache("siteViews") !== html){
-    totalEl.innerHTML = html;
-    setCache("siteViews", html);
-  }
+  totalEl.innerHTML = `<span class="value">Site Visits: ${formatViews(total)}</span>`;
 });
 
 onValue(ref(db,"views"),snap=>{
   const t = Object.values(snap.val()||{}).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
-
-  const html = `<span class="value">Video Views: ${formatViews(t)}</span>`;
-  if(getCache("videoViews") !== html){
-    videoEl.innerHTML = html;
-    setCache("videoViews", html);
-  }
+  videoEl.innerHTML = `<span class="value">Video Views: ${formatViews(t)}</span>`;
 });
 
 onValue(ref(db,"cycleViews"),snap=>{
   const data = snap.val()||{};
   const t = Object.values(data).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
 
-  const html = `<span class="value">Cycle Views: ${formatViews(t)}</span>`;
-  if(getCache("cycleViews") !== html){
-    cycleEl.innerHTML = html;
-    setCache("cycleViews", html);
-  }
+  cycleEl.innerHTML = `<span class="value">Cycle Views: ${formatViews(t)}</span>`;
 
   renderTrending(data);
 });
