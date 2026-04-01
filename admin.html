@@ -111,13 +111,13 @@ if (!localStorage.getItem("adminLoggedIn")) {
 🚀 Send Notification
 </button>
 
-<p id="status" style="margin-top:20px;"></p>
+<p id="status" style="margin-top:20px; white-space:pre-line;"></p>
 
 <script>
 async function sendNotification() {
 
   const status = document.getElementById("status");
-  status.innerText = "Triggering...";
+  status.innerHTML = "Triggering...";
 
   try {
     const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/sendNotification", {
@@ -128,28 +128,24 @@ async function sendNotification() {
       body: JSON.stringify({ trigger: true })
     });
 
-    const text = await res.text();
-    console.log("RAW:", text);
+    const data = await res.json();
 
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      throw new Error("Invalid JSON from worker");
+    if (data.logs && data.logs.length) {
+      status.innerHTML = data.logs.map(l => "➡️ " + l).join("<br>");
     }
 
     if (data.sent === true) {
-      status.innerText = "🚀 Trigger sent (notification processing in background)";
+      status.innerHTML += "<br><br>🚀 Trigger sent successfully";
     } else {
-      status.innerText = "⛔ Trigger failed (check worker logs)";
+      status.innerHTML += "<br><br>⛔ Trigger failed";
     }
 
   } catch (err) {
-    status.innerText = "❌ Error sending";
+    status.innerHTML = "❌ Error sending";
     console.error(err);
   }
 }
-</script>  
+</script>
   
 <div class="card">
   <h2>👥 Subscribers</h2>
