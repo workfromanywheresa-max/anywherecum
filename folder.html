@@ -173,88 +173,104 @@ OneSignalDeferred.push(async function(OneSignal) {
   <option value="">Loading languages...</option>
 </select>
 
-<script>
-// 1️⃣ Load all supported languages dynamically
-async function loadLanguages() {
-  const dropdown = document.getElementById('langSelect');
-  dropdown.innerHTML = '';
-  try {
-    const res = await fetch('https://libretranslate.com/languages');
-    const languages = await res.json();
-    languages.forEach(lang => {
-      const option = document.createElement('option');
-      option.value = lang.code;
-      option.textContent = lang.name;
-      dropdown.appendChild(option);
-    });
-  } catch (err) {
-    console.error('Failed to load languages:', err);
-    dropdown.innerHTML = '<option value="">Failed to load languages</option>';
-  }
-}
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
 
-// 2️⃣ Collect all visible text nodes
-function getTextNodes() {
-  const nodes = [];
-  function recurse(node) {
-    if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== "") {
-      nodes.push(node);
-    } else {
-      node.childNodes.forEach(recurse);
+  const langSelect = document.getElementById("langSelect");
+  const translationCache = {};
+  let currentLang = '';
+
+  // --- 1️⃣ Load languages dynamically ---
+  async function loadLanguages() {
+    langSelect.innerHTML = '<option value="">Loading languages...</option>';
+    try {
+      const res = await fetch('https://libretranslate.com/languages');
+      const languages = await res.json();
+      langSelect.innerHTML = '<option value="">Select Language</option>';
+      languages.forEach(lang => {
+        const option = document.createElement('option');
+        option.value = lang.code;
+        option.textContent = lang.name;
+        langSelect.appendChild(option);
+      });
+    } catch (err) {
+      console.error('Failed to load languages:', err);
+      langSelect.innerHTML = '<option value="">Failed to load languages</option>';
     }
   }
-  recurse(document.body);
-  return nodes;
-}
 
-// 3️⃣ Cache translations to avoid repeated API calls
-const translationCache = {};
-
-async function translatePage(targetLang) {
-  const nodes = getTextNodes();
-
-  // Get all unique text strings
-  const uniqueTexts = [...new Set(nodes.map(n => n.nodeValue.trim()))];
-
-  // Translate texts not in cache
-  for (const text of uniqueTexts) {
-    if (!translationCache[text]) {
-      try {
-        const res = await fetch('https://libretranslate.com/translate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            q: text,
-            source: 'en',
-            target: targetLang,
-            format: 'text'
-          })
-        });
-        const data = await res.json();
-        translationCache[text] = data.translatedText;
-      } catch (err) {
-        console.error('Translation error:', err);
-        translationCache[text] = text; // fallback to original
+  // --- 2️⃣ Get all visible text nodes (skip script/style/hidden) ---
+  function getTextNodes() {
+    const nodes = [];
+    function recurse(node) {
+      if (['SCRIPT','STYLE','NOSCRIPT'].includes(node.nodeName)) return;
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const style = getComputedStyle(node);
+        if (style.display === 'none' || style.visibility === 'hidden') return;
+      }
+      if (node.nodeType === Node.TEXT_NODE && node.nodeValue.trim() !== "") {
+        nodes.push(node);
+      } else {
+        node.childNodes.forEach(recurse);
       }
     }
+    recurse(document.body);
+    return nodes;
   }
 
-  // Replace all nodes with cached translations
-  nodes.forEach(node => {
-    const original = node.nodeValue.trim();
-    if (translationCache[original]) node.nodeValue = translationCache[original];
+  // --- 3️⃣ Translate page ---
+  async function translatePage(targetLang) {
+    if (!targetLang || targetLang === currentLang) return;
+    currentLang = targetLang;
+
+    const nodes = getTextNodes();
+    const uniqueTexts = [...new Set(nodes.map(n => n.nodeValue.trim()))];
+
+    for (const text of uniqueTexts) {
+      if (!translationCache[text]) {
+        try {
+          const res = await fetch('https://libretranslate.com/translate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              q: text,
+              source: 'en',
+              target: targetLang,
+              format: 'text'
+            })
+          });
+          const data = await res.json();
+          translationCache[text] = data.translatedText;
+        } catch (err) {
+          console.error('Translation error:', err);
+          translationCache[text] = text; // fallback
+        }
+      }
+    }
+
+    // Replace text nodes with translations
+    nodes.forEach(node => {
+      const original = node.nodeValue.trim();
+      if (translationCache[original]) node.nodeValue = translationCache[original];
+    });
+  }
+
+  // --- 4️⃣ Dropdown listener ---
+  langSelect.addEventListener('change', async (e) => {
+    const lang = e.target.value;
+    if (lang) await translatePage(lang);
   });
-}
 
-// 4️⃣ Set up dropdown listener
-document.getElementById('langSelect').addEventListener('change', (e) => {
-  const lang = e.target.value;
-  if (lang) translatePage(lang);
+  // --- 5️⃣ Observe dynamic content ---
+  const observer = new MutationObserver(() => {
+    if (currentLang) translatePage(currentLang);
+  });
+  observer.observe(document.getElementById('mainContainer'), { childList: true, subtree: true });
+
+  // --- 6️⃣ Initialize ---
+  loadLanguages();
 });
-
-// 5️⃣ Load languages on page load
-loadLanguages();
-</script>
+  </script>
 
 <div id="topBanner" style="
   position: fixed;
