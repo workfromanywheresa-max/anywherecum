@@ -11,4 +11,4 @@ jobs:
     steps:
       - name: Call Worker
         run: |
-          curl -X POST https://your-worker.workers.dev/trigger
+          curl -X POST https://anywherecumnotifications.workfromanywhere-sa.workers.dev/trigger
