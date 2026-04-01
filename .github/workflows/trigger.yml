@@ -1,0 +1,14 @@
+name: Trigger Worker
+
+on:
+  push:
+    paths:
+      - videos.json
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Worker
+        run: |
+          curl -X POST https://your-worker.workers.dev/trigger
