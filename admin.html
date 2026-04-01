@@ -25,6 +25,8 @@ h1, h2 { color: #ff4444; }
   overflow-y: auto;
 }
 
+.card.monthly { max-height: 180px; }
+
 .card::-webkit-scrollbar { width: 6px; }
 .card::-webkit-scrollbar-thumb {
   background: #444;
@@ -94,15 +96,20 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="totalSubscribers"></div>
 </div>
 
-<!-- 🔥 NEW SECTION -->
+<div class="card">
+  <h2>👥 Subscribers</h2>
+  <ul id="subscribersList"></ul>
+</div>
+
+<!-- 🔥 TRENDING -->
 <div class="card">
   <h2>🔥 Trending Video IDs</h2>
   <ul id="trendingList"></ul>
 </div>
 
-<div class="card">
-  <h2>👥 Subscribers</h2>
-  <ul id="subscribersList"></ul>
+<div class="card monthly">
+  <h2>📅 Monthly Visits</h2>
+  <ul id="monthlyList"></ul>
 </div>
 
 <div class="card">
@@ -122,6 +129,29 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+/* ---------- CACHE ---------- */
+function saveCache(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
+function loadCache(k){ return JSON.parse(localStorage.getItem(k) || "null"); }
+
+const CACHE = {
+  pages: "pages_cache",
+  monthly: "monthly_cache",
+  subs: "subs_cache",
+  totals: "totals_cache",
+  video: "video_cache",
+  cycle: "cycle_cache",
+  trending: "trending_cache"
+};
+
+/* ---------- DOM ---------- */
+const totalEl = document.getElementById("totalViews");
+const videoEl = document.getElementById("videoViewsTotal");
+const cycleEl = document.getElementById("cycleViewsTotal");
+const subsEl = document.getElementById("totalSubscribers");
+
+const pageList = document.getElementById("pageViews");
+const monthList = document.getElementById("monthlyList");
+const subsList = document.getElementById("subscribersList");
 const trendingList = document.getElementById("trendingList");
 
 /* ---------- FORMAT ---------- */
@@ -132,37 +162,128 @@ function formatViews(n){
 }
 const bracket = n => `<span style="opacity:.5;font-size:.6em">(${n})</span>`;
 
-/* ---------- TRENDING RENDER ---------- */
+/* ---------- TRENDING ---------- */
 function renderTrending(data){
   if(!data) return;
 
   const trending = Object.entries(data)
     .sort((a,b)=>b[1]-a[1]); // highest first
 
-  trendingList.innerHTML = trending.map(([id, views]) => {
-    const v = typeof views === "number" ? views : 0;
+  trendingList.innerHTML = trending.map(([id,val])=>{
+    const views = typeof val==="number" ? val : (val?.count||0);
+    return `<li><span>${id}</span><span class="value">${formatViews(views)}</span></li>`;
+  }).join("");
 
-    return `
-      <li>
-        <span>${id}</span>
-        <span class="value">${formatViews(v)} ${bracket(v)}</span>
-      </li>
-    `;
+  saveCache(CACHE.trending, trending);
+}
+
+/* ---------- MONTH ---------- */
+function parseDate(str){
+  if(!str) return null;
+  const d = new Date(str);
+  return isNaN(d) ? null : d;
+}
+
+function getKey(d){
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+}
+
+function calculateMonthly(data){
+  const m = {};
+  Object.values(data||{}).forEach(i=>{
+    if(i?.lastUpdated){
+      const d = parseDate(i.lastUpdated);
+      if(d){
+        const k = getKey(d);
+        m[k] = (m[k]||0)+(i.count||0);
+      }
+    }
+  });
+  return m;
+}
+
+function renderMonthly(data){
+  monthList.innerHTML = Object.entries(data||{}).map(([k,v])=>`
+    <li><span>${k}</span><span class="value">${formatViews(v)} ${bracket(v)}</span></li>
+  `).join("");
+}
+
+/* ---------- SORT PAGES ---------- */
+function renderPages(data){
+  const sorted = Object.entries(data || {})
+    .sort((a, b) => {
+      const aVal = typeof a[1] === "object" ? (a[1].count || 0) : a[1];
+      const bVal = typeof b[1] === "object" ? (b[1].count || 0) : b[1];
+      return bVal - aVal;
+    });
+
+  pageList.innerHTML = sorted.map(([k,v])=>{
+    const val = typeof v==="object" ? (v.count||0) : v;
+    return `<li><span>${k}</span><span class="value">${formatViews(val)}</span></li>`;
   }).join("");
 }
 
+/* ---------- SUBS ---------- */
+function renderSubs(data){
+  subsList.innerHTML = data.map(s=>`
+    <li><span>${s.userId}</span><span class="sub-date">${s.updatedAt}</span></li>
+  `).join("");
+
+  const total = `Subscribers: ${formatViews(data.length)} ${bracket(data.length)}`;
+  subsEl.innerHTML = `<span class="value">${total}</span>`;
+}
+
+/* ---------- CACHE LOAD ---------- */
+if(loadCache(CACHE.pages)) renderPages(loadCache(CACHE.pages));
+if(loadCache(CACHE.monthly)) renderMonthly(loadCache(CACHE.monthly));
+if(loadCache(CACHE.subs)) renderSubs(loadCache(CACHE.subs));
+if(loadCache(CACHE.trending)) trendingList.innerHTML = loadCache(CACHE.trending).map(([id,v])=>`<li><span>${id}</span><span class="value">${formatViews(v)}</span></li>`).join("");
+
 /* ---------- FIREBASE ---------- */
-onValue(ref(db,"cycleViews"), snap=>{
-  const data = snap.val() || {};
+onValue(ref(db,"pageViews"),snap=>{
+  const data = snap.val()||{};
 
-  const total = Object.values(data).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
+  renderPages(data);
 
-  document.getElementById("cycleViewsTotal").innerHTML =
-    `<span class="value">Cycle Views: ${formatViews(total)} ${bracket(total)}</span>`;
+  const monthly = calculateMonthly(data);
+  renderMonthly(monthly);
 
-  // 🔥 SHOW TRENDING IDS WITH VIEWS
-  renderTrending(data);
+  saveCache(CACHE.pages,data);
+  saveCache(CACHE.monthly,monthly);
+
+  let total=0;
+  Object.values(data).forEach(v=>{
+    if(typeof v==="object") total+=v.count||0;
+  });
+
+  totalEl.innerHTML = `<span class="value">Site Visits: ${formatViews(total)}</span>`;
 });
+
+onValue(ref(db,"views"),snap=>{
+  const t = Object.values(snap.val()||{}).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
+  videoEl.innerHTML = `<span class="value">Video Views: ${formatViews(t)}</span>`;
+});
+
+onValue(ref(db,"cycleViews"),snap=>{
+  const data = snap.val()||{};
+
+  const t = Object.values(data).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
+
+  cycleEl.innerHTML = `<span class="value">Cycle Views: ${formatViews(t)}</span>`;
+
+  renderTrending(data);
+  saveCache(CACHE.cycle,{total:t});
+});
+
+/* ---------- SUBSCRIBERS ---------- */
+async function loadSubs(){
+  const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers");
+  const data = await res.json();
+  renderSubs(data);
+  saveCache(CACHE.subs,data);
+}
+loadSubs();
+setInterval(loadSubs,10000);
 
 /* ---------- LOGOUT ---------- */
 function logout(){
