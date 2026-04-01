@@ -27,6 +27,12 @@ h1, h2 { color: #ff4444; }
 
 .card.monthly { max-height: 180px; }
 
+.card::-webkit-scrollbar { width: 6px; }
+.card::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+
 ul { list-style: none; padding: 0; margin: 0; }
 
 li {
@@ -99,13 +105,23 @@ if (!localStorage.getItem("adminLoggedIn")) {
 </div>
 
 <div class="card">
-  <h2>📊 Page Views</h2>
-  <ul id="pageViews"></ul>
+  <h2>👥 Subscribers</h2>
+  <ul id="subscribersList"></ul>
 </div>
 
 <div class="card">
   <h2>🔥 Trending Videos</h2>
   <ul id="trendingList"></ul>
+</div>
+
+<div class="card monthly">
+  <h2>📅 Monthly Visits</h2>
+  <ul id="monthlyList"></ul>
+</div>
+
+<div class="card">
+  <h2>📊 Page Views</h2>
+  <ul id="pageViews"></ul>
 </div>
 
 <script type="module">
@@ -120,6 +136,17 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+/* ---------- DOM ---------- */
+const totalEl = document.getElementById("totalViews");
+const videoEl = document.getElementById("videoViewsTotal");
+const cycleEl = document.getElementById("cycleViewsTotal");
+const subsEl = document.getElementById("totalSubscribers");
+
+const pageList = document.getElementById("pageViews");
+const monthList = document.getElementById("monthlyList");
+const subsList = document.getElementById("subscribersList");
+const trendingList = document.getElementById("trendingList");
+
 /* ---------- FORMAT ---------- */
 function formatViews(n){
   if(n>=1e6) return (n/1e6).toFixed(1).replace(/\.0$/,"")+"M";
@@ -127,41 +154,33 @@ function formatViews(n){
   return n;
 }
 
-/* ---------- ELEMENTS ---------- */
-const totalEl = document.getElementById("totalViews");
-const videoEl = document.getElementById("videoViewsTotal");
-const cycleEl = document.getElementById("cycleViewsTotal");
-const trendingList = document.getElementById("trendingList");
-
-/* ---------- PAGE VIEWS ---------- */
+/* ---------- TOTALS ---------- */
 onValue(ref(db,"pageViews"),snap=>{
   let total=0;
   Object.values(snap.val()||{}).forEach(v=>{
     if(typeof v==="object") total+=v.count||0;
   });
-
   totalEl.innerHTML = `<span class="value">Site Visits: ${formatViews(total)}</span>`;
 });
 
-/* ---------- VIDEO VIEWS ---------- */
 onValue(ref(db,"views"),snap=>{
   const t = Object.values(snap.val()||{}).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
   videoEl.innerHTML = `<span class="value">Video Views: ${formatViews(t)}</span>`;
 });
 
-/* ---------- CYCLE VIEWS ---------- */
 onValue(ref(db,"cycleViews"),snap=>{
-  const t = Object.values(snap.val()||{}).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
+  const data = snap.val()||{};
+  const t = Object.values(data).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
+
   cycleEl.innerHTML = `<span class="value">Cycle Views: ${formatViews(t)}</span>`;
-  renderTrending(snap.val());
+
+  renderTrending(data);
 });
 
 /* ---------- TRENDING ---------- */
 function renderTrending(data){
-  if(!data) return;
-
   const trending = Object.entries(data)
-    .map(([id, val])=>{
+    .map(([id,val])=>{
       const views = typeof val==="number" ? val : (val?.count||0);
       return {
         id,
@@ -182,6 +201,62 @@ function renderTrending(data){
     </li>
   `).join("");
 }
+
+/* ---------- PAGE VIEWS ---------- */
+onValue(ref(db,"pageViews"),snap=>{
+  const data = snap.val()||{};
+
+  const sorted = Object.entries(data).sort((a,b)=>{
+    const av = a[1].count||0;
+    const bv = b[1].count||0;
+    return bv-av;
+  });
+
+  pageList.innerHTML = sorted.map(([k,v])=>`
+    <li><span>${k}</span><span class="value">${formatViews(v.count||0)}</span></li>
+  `).join("");
+});
+
+/* ---------- MONTHLY ---------- */
+function getKey(d){
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+}
+
+function calculateMonthly(data){
+  const m = {};
+  Object.values(data||{}).forEach(i=>{
+    if(i?.lastUpdated){
+      const d = new Date(i.lastUpdated);
+      if(!isNaN(d)){
+        const k = getKey(d);
+        m[k] = (m[k]||0)+(i.count||0);
+      }
+    }
+  });
+  return m;
+}
+
+onValue(ref(db,"pageViews"),snap=>{
+  const monthly = calculateMonthly(snap.val()||{});
+  monthList.innerHTML = Object.entries(monthly).map(([k,v])=>`
+    <li><span>${k}</span><span class="value">${formatViews(v)}</span></li>
+  `).join("");
+});
+
+/* ---------- SUBSCRIBERS ---------- */
+async function loadSubs(){
+  const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers");
+  const data = await res.json();
+
+  subsList.innerHTML = data.map(s=>`
+    <li><span>${s.userId}</span><span class="sub-date">${s.updatedAt}</span></li>
+  `).join("");
+
+  subsEl.innerHTML = `<span class="value">Subscribers: ${formatViews(data.length)}</span>`;
+}
+
+loadSubs();
+setInterval(loadSubs,10000);
 
 /* ---------- LOGOUT ---------- */
 function logout(){
