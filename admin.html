@@ -165,26 +165,151 @@ const videoEl = document.getElementById("videoViewsTotal");
 const cycleEl = document.getElementById("cycleViewsTotal");
 const subsEl = document.getElementById("totalSubscribers");
 
-/* ---------- LOAD CACHE FIXED ---------- */
+const pageList = document.getElementById("pageViews");
+const monthList = document.getElementById("monthlyList");
+const subsList = document.getElementById("subscribersList");
+const trendingList = document.getElementById("trendingList");
+const countryList = document.getElementById("countryList");
+
+/* ---------- COUNTRY ---------- */
+function renderCountries(data){
+  const sorted = Object.entries(data || {})
+    .sort((a,b)=>b[1]-a[1]);
+
+  countryList.innerHTML = sorted.map(([code,count])=>{
+    const flag = `https://flagcdn.com/24x18/${code.toLowerCase()}.png`;
+    return `
+      <li>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <img src="${flag}" width="24" height="18"/>
+          <span>${code}</span>
+        </div>
+        <span class="value">${formatViews(count)}</span>
+      </li>
+    `;
+  }).join("");
+}
+
+/* ---------- TRENDING ---------- */
+function renderTrending(data){
+  const trending = Object.entries(data)
+    .map(([id,val])=>{
+      const views = typeof val==="number" ? val : (val?.count||0);
+      return {
+        id,
+        views,
+        thumbnail: `https://anywherecum.pages.dev/images/${id}.webp`
+      };
+    })
+    .filter(v=>v.views>=10)
+    .sort((a,b)=>b.views-a.views);
+
+  trendingList.innerHTML = trending.map(v=>`
+    <li>
+      <img src="${v.thumbnail}" style="width:80px;height:45px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'"/>
+      <div>
+        <div>${v.id}</div>
+        <div class="value">${formatViews(v.views)}</div>
+      </div>
+    </li>
+  `).join("");
+}
+
+/* ---------- MONTH ---------- */
+function parseDate(str){
+  if(!str) return null;
+  const d = new Date(str);
+  return isNaN(d) ? null : d;
+}
+
+function getKey(d){
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+}
+
+function calculateMonthly(data){
+  const m = {};
+  Object.values(data||{}).forEach(i=>{
+    if(i?.lastUpdated){
+      const d = parseDate(i.lastUpdated);
+      if(d){
+        const k = getKey(d);
+        m[k] = (m[k]||0)+(i.count||0);
+      }
+    }
+  });
+  return m;
+}
+
+function renderMonthly(data){
+  monthList.innerHTML = Object.entries(data||{}).map(([k,v])=>`
+    <li><span>${k}</span><span class="value">${formatViews(v)} ${bracket(v)}</span></li>
+  `).join("");
+}
+
+/* ---------- SORTED PAGES ---------- */
+function renderPages(data){
+  const sorted = Object.entries(data || {})
+    .sort((a,b)=>{
+      const aVal = typeof a[1]==="object" ? (a[1].count||0) : a[1];
+      const bVal = typeof b[1]==="object" ? (b[1].count||0) : b[1];
+      return bVal-aVal;
+    });
+
+  pageList.innerHTML = sorted.map(([k,v])=>{
+    const val = typeof v==="object" ? (v.count||0) : v;
+    return `
+      <li>
+        <span>${k}</span>
+        <span class="value">${formatViews(val)}</span>
+      </li>
+    `;
+  }).join("");
+}
+
+/* ---------- SUBS ---------- */
+function renderSubs(data){
+  subsList.innerHTML = data.map(s=>`
+    <li><span>${s.userId}</span><span class="sub-date">${s.updatedAt}</span></li>
+  `).join("");
+
+  subsEl.innerHTML = `<span class="value">Subscribers: ${formatViews(data.length)} ${bracket(data.length)}</span>`;
+}
+
+/* ---------- CACHE LOAD ---------- */
+const cachedTrending = loadCache(CACHE.trending);
+if(cachedTrending) renderTrending(cachedTrending);
+
+const cachedPages = loadCache(CACHE.pages);
+const cachedMonthly = loadCache(CACHE.monthly);
+const cachedSubs = loadCache(CACHE.subs);
 const cachedTotals = loadCache(CACHE.totals);
 const cachedVideo = loadCache(CACHE.video);
 const cachedCycle = loadCache(CACHE.cycle);
+const cachedCountry = loadCache(CACHE.country);
 
-if(cachedTotals?.value !== undefined){
-  totalEl.innerHTML = `<span class="value">Site Visits: ${formatViews(cachedTotals.value)} ${bracket(cachedTotals.value)}</span>`;
+if(cachedPages) renderPages(cachedPages);
+if(cachedMonthly) renderMonthly(cachedMonthly);
+if(cachedSubs) renderSubs(cachedSubs);
+if(cachedCountry) renderCountries(cachedCountry);
+
+if(cachedTotals){
+  totalEl.innerHTML = `<span class="value">${cachedTotals.total}</span>`;
 }
 
-if(cachedVideo?.value !== undefined){
-  videoEl.innerHTML = `<span class="value">Video Views: ${formatViews(cachedVideo.value)} ${bracket(cachedVideo.value)}</span>`;
-}
-
-if(cachedCycle?.value !== undefined){
-  cycleEl.innerHTML = `<span class="value">Cycle Views: ${formatViews(cachedCycle.value)} ${bracket(cachedCycle.value)}</span>`;
-}
+if(cachedVideo) videoEl.innerHTML = `<span class="value">${cachedVideo}</span>`;
+if(cachedCycle) cycleEl.innerHTML = `<span class="value">${cachedCycle}</span>`;
 
 /* ---------- FIREBASE ---------- */
 onValue(ref(db,"pageViews"),snap=>{
   const data = snap.val()||{};
+
+  renderPages(data);
+
+  const monthly = calculateMonthly(data);
+  renderMonthly(monthly);
+
+  saveCache(CACHE.pages,data);
+  saveCache(CACHE.monthly,monthly);
 
   let total=0;
   Object.values(data).forEach(v=>{
@@ -192,14 +317,14 @@ onValue(ref(db,"pageViews"),snap=>{
   });
 
   totalEl.innerHTML = `<span class="value">Site Visits: ${formatViews(total)} ${bracket(total)}</span>`;
-  saveCache(CACHE.totals, { value: total });
+  saveCache(CACHE.totals, { total });
 });
 
 onValue(ref(db,"views"),snap=>{
   const t=Object.values(snap.val()||{}).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
 
   videoEl.innerHTML = `<span class="value">Video Views: ${formatViews(t)} ${bracket(t)}</span>`;
-  saveCache(CACHE.video, { value: t });
+  saveCache(CACHE.video, t);
 });
 
 onValue(ref(db,"cycleViews"),snap=>{
@@ -207,8 +332,33 @@ onValue(ref(db,"cycleViews"),snap=>{
   const t=Object.values(data).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
 
   cycleEl.innerHTML = `<span class="value">Cycle Views: ${formatViews(t)} ${bracket(t)}</span>`;
-  saveCache(CACHE.cycle, { value: t });
+  saveCache(CACHE.cycle, t);
+
+  renderTrending(data);
+  saveCache(CACHE.trending, data);
 });
+
+onValue(ref(db,"countryCounts"),snap=>{
+  const data = snap.val()||{};
+  renderCountries(data);
+  saveCache(CACHE.country,data);
+});
+
+/* ---------- SUBSCRIBERS ---------- */
+let lastHash="";
+async function loadSubs(){
+  const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers");
+  const data = await res.json();
+
+  const h = JSON.stringify(data);
+  if(h===lastHash) return;
+  lastHash=h;
+
+  renderSubs(data);
+  saveCache(CACHE.subs, data);
+}
+loadSubs();
+setInterval(loadSubs,10000);
 
 /* ---------- LOGOUT ---------- */
 function logout(){
