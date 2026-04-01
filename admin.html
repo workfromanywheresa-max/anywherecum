@@ -25,10 +25,15 @@ h1, h2 { color: #ff4444; }
   overflow-y: auto;
 }
 
-.card.monthly { max-height: 180px; }
+.card.monthly {
+  max-height: 180px;
+}
 
 .card::-webkit-scrollbar { width: 6px; }
-.card::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+.card::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
 
 ul { list-style: none; padding: 0; margin: 0; }
 
@@ -40,9 +45,15 @@ li {
   gap: 2px;
 }
 
-.value { color: #00ffcc; font-weight: bold; }
+.value {
+  color: #00ffcc;
+  font-weight: bold;
+}
 
-.sub-date { color: #888; font-size: 0.7em; }
+.sub-date {
+  color: #888;
+  font-size: 0.7em;
+}
 
 .total-card {
   background: #1e1e1e;
@@ -154,26 +165,21 @@ const videoEl = document.getElementById("videoViewsTotal");
 const cycleEl = document.getElementById("cycleViewsTotal");
 const subsEl = document.getElementById("totalSubscribers");
 
-const pageList = document.getElementById("pageViews");
-const monthList = document.getElementById("monthlyList");
-const subsList = document.getElementById("subscribersList");
-const trendingList = document.getElementById("trendingList");
-const countryList = document.getElementById("countryList");
-
-/* ---------- LOAD CACHED TOTALS (FIXED) ---------- */
+/* ---------- LOAD CACHE FIXED ---------- */
 const cachedTotals = loadCache(CACHE.totals);
-if(cachedTotals && cachedTotals.total !== undefined){
-  totalEl.innerHTML = `<span class="value">Site Visits: ${formatViews(cachedTotals.total)} ${bracket(cachedTotals.total)}</span>`;
-}
-
 const cachedVideo = loadCache(CACHE.video);
-if(cachedVideo !== null){
-  videoEl.innerHTML = `<span class="value">Video Views: ${formatViews(cachedVideo)} ${bracket(cachedVideo)}</span>`;
+const cachedCycle = loadCache(CACHE.cycle);
+
+if(cachedTotals?.value !== undefined){
+  totalEl.innerHTML = `<span class="value">Site Visits: ${formatViews(cachedTotals.value)} ${bracket(cachedTotals.value)}</span>`;
 }
 
-const cachedCycle = loadCache(CACHE.cycle);
-if(cachedCycle !== null){
-  cycleEl.innerHTML = `<span class="value">Cycle Views: ${formatViews(cachedCycle)} ${bracket(cachedCycle)}</span>`;
+if(cachedVideo?.value !== undefined){
+  videoEl.innerHTML = `<span class="value">Video Views: ${formatViews(cachedVideo.value)} ${bracket(cachedVideo.value)}</span>`;
+}
+
+if(cachedCycle?.value !== undefined){
+  cycleEl.innerHTML = `<span class="value">Cycle Views: ${formatViews(cachedCycle.value)} ${bracket(cachedCycle.value)}</span>`;
 }
 
 /* ---------- FIREBASE ---------- */
@@ -186,20 +192,14 @@ onValue(ref(db,"pageViews"),snap=>{
   });
 
   totalEl.innerHTML = `<span class="value">Site Visits: ${formatViews(total)} ${bracket(total)}</span>`;
-  saveCache(CACHE.totals, { total });
-
-  renderPages(data);
-  const monthly = calculateMonthly(data);
-  renderMonthly(monthly);
-  saveCache(CACHE.pages,data);
-  saveCache(CACHE.monthly,monthly);
+  saveCache(CACHE.totals, { value: total });
 });
 
 onValue(ref(db,"views"),snap=>{
   const t=Object.values(snap.val()||{}).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
 
   videoEl.innerHTML = `<span class="value">Video Views: ${formatViews(t)} ${bracket(t)}</span>`;
-  saveCache(CACHE.video, t);
+  saveCache(CACHE.video, { value: t });
 });
 
 onValue(ref(db,"cycleViews"),snap=>{
@@ -207,36 +207,10 @@ onValue(ref(db,"cycleViews"),snap=>{
   const t=Object.values(data).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
 
   cycleEl.innerHTML = `<span class="value">Cycle Views: ${formatViews(t)} ${bracket(t)}</span>`;
-  saveCache(CACHE.cycle, t);
-
-  renderTrending(data);
-  saveCache(CACHE.trending, data);
+  saveCache(CACHE.cycle, { value: t });
 });
 
-onValue(ref(db,"countryCounts"),snap=>{
-  renderCountries(snap.val()||{});
-  saveCache(CACHE.country,snap.val()||{});
-});
-
-/* ---------- REMAINING FUNCTIONS (UNCHANGED) ---------- */
-function renderCountries(data){
-  const sorted = Object.entries(data || {})
-    .sort((a,b)=>b[1]-a[1]);
-
-  countryList.innerHTML = sorted.map(([code,count])=>{
-    const flag = `https://flagcdn.com/24x18/${code.toLowerCase()}.png`;
-    return `
-      <li>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <img src="${flag}" width="24" height="18"/>
-          <span>${code}</span>
-        </div>
-        <span class="value">${formatViews(count)}</span>
-      </li>
-    `;
-  }).join("");
-}
-
+/* ---------- LOGOUT ---------- */
 function logout(){
   localStorage.removeItem("adminLoggedIn");
   location.reload();
