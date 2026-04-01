@@ -100,6 +100,8 @@ if (!localStorage.getItem("adminLoggedIn")) {
 </div>
 
  <button onclick="triggerCron()" style="
+
+   <button onclick="triggerCron()" style="
   padding:15px 30px;
   font-size:18px;
   background:#ff1744;
@@ -111,21 +113,57 @@ if (!localStorage.getItem("adminLoggedIn")) {
 🚀 Run Cron Now
 </button>
 
-<p id="status"></p>
+<p id="status" style="margin-top:15px;"></p>
+
+<img id="preview" style="max-width:300px; margin-top:10px; display:none; border-radius:10px;" />
 
 <script>
 async function triggerCron() {
   const status = document.getElementById("status");
-  status.innerText = "Running...";
+  const preview = document.getElementById("preview");
+
+  status.innerText = "🔄 Loading latest video...";
 
   try {
-    const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/trigger", {
-      method: "POST"
-    });
+    // 1. Get latest video from your site
+    const res = await fetch("https://anywherecum.pages.dev/videos.json");
+    const videos = await res.json();
 
-    const data = await res.json();
+    if (!Array.isArray(videos) || videos.length === 0) {
+      status.innerText = "❌ No videos found";
+      return;
+    }
 
-    status.innerText = "✅ Done:\n" + JSON.stringify(data, null, 2);
+    // 2. Sort and get latest
+    videos.sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+    const latest = videos[0];
+
+    // 3. Build image URL
+    const imageUrl = `https://anywherecum.pages.dev/images/${latest.id}.webp`;
+
+    // 4. Show title + image on button UI
+    status.innerText = 
+      "🎬 Latest Video:\n\n" +
+      latest.title +
+      "\n\n🚀 Sending notification...";
+
+    preview.src = imageUrl;
+    preview.style.display = "block";
+
+    // 5. Trigger your Worker (THIS sends notification)
+    const triggerRes = await fetch(
+      "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/trigger",
+      { method: "POST" }
+    );
+
+    const data = await triggerRes.json();
+
+    // 6. Final UI update
+    status.innerText =
+      "✅ Done!\n\n🎬 " + latest.title +
+      "\n\n📡 Result:\n" +
+      JSON.stringify(data, null, 2);
+
   } catch (err) {
     status.innerText = "❌ Error:\n" + err.message;
   }
