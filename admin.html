@@ -117,44 +117,28 @@ if (!localStorage.getItem("adminLoggedIn")) {
 async function sendNotification() {
 
   const status = document.getElementById("status");
-  status.innerHTML = "Triggering...";
+  status.innerHTML = "🚀 Triggering...";
 
   try {
 
     const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/sendNotification", {
       method: "POST",
-      mode: "cors",
       headers: {
         "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ trigger: true })
+      }
     });
 
-    const text = await res.text();
-
-    console.log("RAW RESPONSE:", text);
-
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      status.innerHTML = "❌ Invalid JSON response:\n" + text;
-      return;
-    }
-
-    if (data.logs && Array.isArray(data.logs)) {
-      status.innerHTML = data.logs.map(l => "➡️ " + l).join("<br>");
-    }
+    const data = await res.json();
 
     if (data.sent === true) {
-      status.innerHTML += "<br><br>🚀 Notification SENT";
+      status.innerHTML = "✅ Notification SENT";
     } else {
-      status.innerHTML += "<br><br>⛔ Notification FAILED";
+      status.innerHTML = "⛔ Not sent (already sent or no new video)";
     }
 
   } catch (err) {
     console.error(err);
-    status.innerHTML = "❌ Request failed: " + err.message;
+    status.innerHTML = "❌ Error: " + err.message;
   }
 }
 </script>
