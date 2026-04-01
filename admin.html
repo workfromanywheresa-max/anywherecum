@@ -104,7 +104,6 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <ul id="subscribersList"></ul>
 </div>
 
-<!-- ✅ ADDED TRENDING SECTION -->
 <div class="card">
   <h2>🔥 Trending Videos</h2>
   <ul id="trendingList"></ul>
@@ -142,7 +141,8 @@ const CACHE = {
   subs: "subs_cache",
   totals: "totals_cache",
   video: "video_cache",
-  cycle: "cycle_cache"
+  cycle: "cycle_cache",
+  trending: "trending_cache" // ✅ ADDED
 };
 
 /* ---------- FORMAT ---------- */
@@ -162,9 +162,9 @@ const subsEl = document.getElementById("totalSubscribers");
 const pageList = document.getElementById("pageViews");
 const monthList = document.getElementById("monthlyList");
 const subsList = document.getElementById("subscribersList");
-const trendingList = document.getElementById("trendingList"); // ✅ ADDED
+const trendingList = document.getElementById("trendingList");
 
-/* ---------- TRENDING FUNCTION (ADDED) ---------- */
+/* ---------- TRENDING ---------- */
 function renderTrending(data){
   const trending = Object.entries(data)
     .map(([id,val])=>{
@@ -188,6 +188,10 @@ function renderTrending(data){
     </li>
   `).join("");
 }
+
+/* ---------- LOAD CACHE (TRENDING) ---------- */
+const cachedTrending = loadCache(CACHE.trending);
+if(cachedTrending) renderTrending(cachedTrending);
 
 /* ---------- MONTH ---------- */
 function parseDate(str){
@@ -250,7 +254,7 @@ function renderSubs(data){
   subsEl.innerHTML = `<span class="value">${total}</span>`;
 }
 
-/* ---------- LOAD CACHE ---------- */
+/* ---------- CACHE LOAD ---------- */
 const cachedPages = loadCache(CACHE.pages);
 const cachedMonthly = loadCache(CACHE.monthly);
 const cachedSubs = loadCache(CACHE.subs);
@@ -323,8 +327,10 @@ onValue(ref(db,"cycleViews"),snap=>{
   cycleEl.innerHTML = `<span class="value">${text}</span>`;
   saveCache(CACHE.cycle, text);
 
-  /* ✅ TRENDING CALLED HERE */
   renderTrending(data);
+
+  /* ✅ SAVE TRENDING CACHE */
+  saveCache(CACHE.trending, data);
 });
 
 /* ---------- LOGOUT ---------- */
