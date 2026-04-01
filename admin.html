@@ -139,7 +139,8 @@ const CACHE = {
   subs: "subs_cache",
   totals: "totals_cache",
   video: "video_cache",
-  cycle: "cycle_cache"
+  cycle: "cycle_cache",
+  trending: "trending_cache"
 };
 
 /* ---------- DOM ---------- */
@@ -161,24 +162,19 @@ function formatViews(n){
 }
 const bracket = n => `<span style="opacity:.5;font-size:.6em">(${n})</span>`;
 
-/* ---------- TRENDING (FIXED) ---------- */
+/* ---------- TRENDING ---------- */
 function renderTrending(data){
   if(!data) return;
 
   const trending = Object.entries(data)
-    .map(([id, val]) => {
-      const views = typeof val === "number" ? val : (val?.count || 0);
-      return { id, views };
-    })
-    .filter(v => v.views >= 10) // ONLY trending
-    .sort((a, b) => b.views - a.views);
+    .sort((a,b)=>b[1]-a[1]); // highest first
 
-  trendingList.innerHTML = trending.map(v => `
-    <li>
-      <span>${v.id}</span>
-      <span class="value">${formatViews(v.views)} ${bracket(v.views)}</span>
-    </li>
-  `).join("");
+  trendingList.innerHTML = trending.map(([id,val])=>{
+    const views = typeof val==="number" ? val : (val?.count||0);
+    return `<li><span>${id}</span><span class="value">${formatViews(views)}</span></li>`;
+  }).join("");
+
+  saveCache(CACHE.trending, trending);
 }
 
 /* ---------- MONTH ---------- */
@@ -237,6 +233,12 @@ function renderSubs(data){
   subsEl.innerHTML = `<span class="value">${total}</span>`;
 }
 
+/* ---------- CACHE LOAD ---------- */
+if(loadCache(CACHE.pages)) renderPages(loadCache(CACHE.pages));
+if(loadCache(CACHE.monthly)) renderMonthly(loadCache(CACHE.monthly));
+if(loadCache(CACHE.subs)) renderSubs(loadCache(CACHE.subs));
+if(loadCache(CACHE.trending)) trendingList.innerHTML = loadCache(CACHE.trending).map(([id,v])=>`<li><span>${id}</span><span class="value">${formatViews(v)}</span></li>`).join("");
+
 /* ---------- FIREBASE ---------- */
 onValue(ref(db,"pageViews"),snap=>{
   const data = snap.val()||{};
@@ -263,13 +265,14 @@ onValue(ref(db,"views"),snap=>{
 });
 
 onValue(ref(db,"cycleViews"),snap=>{
-  const data = snap.val() || {};
+  const data = snap.val()||{};
 
   const t = Object.values(data).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
 
   cycleEl.innerHTML = `<span class="value">Cycle Views: ${formatViews(t)}</span>`;
 
-  renderTrending(data); // 🔥 ONLY TRENDING
+  renderTrending(data);
+  saveCache(CACHE.cycle,{total:t});
 });
 
 /* ---------- SUBSCRIBERS ---------- */
@@ -277,6 +280,7 @@ async function loadSubs(){
   const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers");
   const data = await res.json();
   renderSubs(data);
+  saveCache(CACHE.subs,data);
 }
 loadSubs();
 setInterval(loadSubs,10000);
