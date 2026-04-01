@@ -157,6 +157,7 @@ function formatViews(n){
   if(n>=1e3) return (n/1e3).toFixed(1).replace(/\.0$/,"")+"k";
   return n;
 }
+
 const bracket = n => `<span style="opacity:.5;font-size:.6em">(${n})</span>`;
 
 // Full format: 1.6k (1566)
@@ -189,7 +190,7 @@ function renderCountries(data){
           <img src="${flag}" width="24" height="18"/>
           <span>${code}</span>
         </div>
-        <span class="value">${formatViews(count)}</span>
+        <span class="value">${formatFull(count)}</span>
       </li>
     `;
   }).join("");
@@ -214,7 +215,7 @@ function renderTrending(data){
       <img src="${v.thumbnail}" style="width:80px;height:45px;object-fit:cover;border-radius:6px;" onerror="this.style.display='none'"/>
       <div>
         <div>${v.id}</div>
-        <div class="value">${formatViews(v.views)}</div>
+        <div class="value">${formatFull(v.views)}</div>
       </div>
     </li>
   `).join("");
@@ -265,7 +266,7 @@ function renderPages(data){
     return `
       <li>
         <span>${k}</span>
-        <span class="value">${formatViews(val)}</span>
+        <span class="value">${formatFull(val)}</span>
       </li>
     `;
   }).join("");
