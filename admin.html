@@ -100,11 +100,6 @@ if (!localStorage.getItem("adminLoggedIn")) {
 </div>
 
 <div class="card">
-  <h2>👥 Subscribers</h2>
-  <ul id="subscribersList"></ul>
-</div>
-
-<div class="card">
   <h2>🔥 Trending Videos</h2>
   <ul id="trendingList"></ul>
 </div>
@@ -118,6 +113,11 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <h2>📊 Page Views</h2>
   <ul id="pageViews"></ul>
 </div>
+
+  <div class="card">
+  <h2>👥 Subscribers</h2>
+  <ul id="subscribersList"></ul>
+  </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
