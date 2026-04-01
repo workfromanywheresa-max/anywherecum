@@ -11,5 +11,5 @@ jobs:
     steps:
       - name: Call Worker after delay
         run: |
-          sleep 30
+          sleep 10
           curl -X POST https://anywherecumnotifications.workfromanywhere-sa.workers.dev/trigger
