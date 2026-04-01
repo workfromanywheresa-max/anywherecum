@@ -32,8 +32,9 @@ window.saveSubscriber = async function(userId, optedIn) {
   }
 };
 
-/* ---------------- Worker ---------------- */
+/* ---------------- PAGE + COUNTRY WORKERS ---------------- */
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
+const COUNTRY_WORKER_URL = "https://anywherecumcountry.workfromanywhere-sa.workers.dev/";
 
 async function sendToWorker(type) {
   try {
@@ -44,6 +45,16 @@ async function sendToWorker(type) {
     });
   } catch (err) {
     console.error("Worker tracking failed:", err);
+  }
+}
+
+async function sendCountryToWorker() {
+  try {
+    await fetch(COUNTRY_WORKER_URL, {
+      method: "POST"
+    });
+  } catch (err) {
+    console.error("Country tracking failed:", err);
   }
 }
 
@@ -80,8 +91,11 @@ document.addEventListener("click", function(e) {
   }
 });
 
-/* ---------------- Run Page Tracking ---------------- */
+/* ---------------- Run Tracking ---------------- */
 trackPage(pageName);
+
+/* 🔥 COUNTRY TRACKING ADDED HERE */
+sendCountryToWorker();
 
 /* ---------------- Format ---------------- */
 function formatViews(num) {
@@ -129,7 +143,6 @@ const pageRef = ref(db, "pageViews");
 onValue(pageRef, (snapshot) => {
   const data = snapshot.val() || {};
 
-  /* ✅ FIXED TOTAL LOGIC (matches admin) */
   let total = 0;
   Object.values(data).forEach(v => {
     total += (v?.count || 0);
