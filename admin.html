@@ -25,7 +25,9 @@ h1, h2 { color: #ff4444; }
   overflow-y: auto;
 }
 
-.card.monthly { max-height: 180px; }
+.card.monthly {
+  max-height: 180px;
+}
 
 .card::-webkit-scrollbar { width: 6px; }
 .card::-webkit-scrollbar-thumb {
@@ -117,9 +119,8 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <ul id="subscribersList"></ul>
 </div>
 
-<!-- ✅ COUNTRY SECTION -->
 <div class="card">
-  <h2>🌍 Country Visits</h2>
+  <h2>🌍 Countries</h2>
   <ul id="countryList"></ul>
 </div>
 
@@ -156,6 +157,7 @@ function formatViews(n){
   if(n>=1e3) return (n/1e3).toFixed(1).replace(/\.0$/,"")+"K";
   return n;
 }
+const bracket = n => `<span style="opacity:.5;font-size:.6em">(${n})</span>`;
 
 /* ---------- DOM ---------- */
 const totalEl = document.getElementById("totalViews");
@@ -176,7 +178,6 @@ function renderCountries(data){
 
   countryList.innerHTML = sorted.map(([code,count])=>{
     const flag = `https://flagcdn.com/24x18/${code.toLowerCase()}.png`;
-
     return `
       <li>
         <div style="display:flex;align-items:center;gap:8px;">
@@ -189,26 +190,15 @@ function renderCountries(data){
   }).join("");
 }
 
-/* ---------- CACHE LOAD ---------- */
-const cachedCountry = loadCache(CACHE.country);
-if(cachedCountry) renderCountries(cachedCountry);
-
-/* ---------- FIREBASE COUNTRY ---------- */
-onValue(ref(db,"countryCounts"),snap=>{
-  const data = snap.val() || {};
-  renderCountries(data);
-  saveCache(CACHE.country,data);
-});
-
 /* ---------- TRENDING ---------- */
 function renderTrending(data){
-  const trending = Object.entries(data||{})
+  const trending = Object.entries(data)
     .map(([id,val])=>{
-      const views = typeof val==="number"?val:(val?.count||0);
+      const views = typeof val==="number" ? val : (val?.count||0);
       return {
         id,
         views,
-        thumbnail:`https://anywherecum.pages.dev/images/${id}.webp`
+        thumbnail: `https://anywherecum.pages.dev/images/${id}.webp`
       };
     })
     .filter(v=>v.views>=10)
@@ -226,14 +216,24 @@ function renderTrending(data){
 }
 
 /* ---------- MONTH ---------- */
+function parseDate(str){
+  if(!str) return null;
+  const d = new Date(str);
+  return isNaN(d) ? null : d;
+}
+
+function getKey(d){
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+}
+
 function calculateMonthly(data){
-  const m={};
+  const m = {};
   Object.values(data||{}).forEach(i=>{
     if(i?.lastUpdated){
-      const d=new Date(i.lastUpdated);
-      if(!isNaN(d)){
-        const k=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
-        m[k]=(m[k]||0)+(i.count||0);
+      const d = parseDate(i.lastUpdated);
+      if(d){
+        const k = getKey(d);
+        m[k] = (m[k]||0)+(i.count||0);
       }
     }
   });
@@ -241,19 +241,28 @@ function calculateMonthly(data){
 }
 
 function renderMonthly(data){
-  monthList.innerHTML = Object.entries(data||{})
-    .map(([k,v])=>`<li><span>${k}</span><span class="value">${formatViews(v)}</span></li>`)
-    .join("");
+  monthList.innerHTML = Object.entries(data||{}).map(([k,v])=>`
+    <li><span>${k}</span><span class="value">${formatViews(v)} ${bracket(v)}</span></li>
+  `).join("");
 }
 
-/* ---------- PAGES ---------- */
+/* ---------- SORTED PAGES ---------- */
 function renderPages(data){
-  const sorted = Object.entries(data||{})
-    .sort((a,b)=>((b[1]?.count||b[1])-(a[1]?.count||a[1])));
+  const sorted = Object.entries(data || {})
+    .sort((a,b)=>{
+      const aVal = typeof a[1]==="object" ? (a[1].count||0) : a[1];
+      const bVal = typeof b[1]==="object" ? (b[1].count||0) : b[1];
+      return bVal-aVal;
+    });
 
   pageList.innerHTML = sorted.map(([k,v])=>{
-    const val=typeof v==="object"?(v.count||0):v;
-    return `<li><span>${k}</span><span class="value">${formatViews(val)}</span></li>`;
+    const val = typeof v==="object" ? (v.count||0) : v;
+    return `
+      <li>
+        <span>${k}</span>
+        <span class="value">${formatViews(val)}</span>
+      </li>
+    `;
   }).join("");
 }
 
@@ -263,17 +272,43 @@ function renderSubs(data){
     <li><span>${s.userId}</span><span class="sub-date">${s.updatedAt}</span></li>
   `).join("");
 
-  subsEl.innerHTML = `<span class="value">Subscribers: ${formatViews(data.length)}</span>`;
+  subsEl.innerHTML = `<span class="value">Subscribers: ${formatViews(data.length)} ${bracket(data.length)}</span>`;
 }
+
+/* ---------- CACHE LOAD ---------- */
+const cachedTrending = loadCache(CACHE.trending);
+if(cachedTrending) renderTrending(cachedTrending);
+
+const cachedPages = loadCache(CACHE.pages);
+const cachedMonthly = loadCache(CACHE.monthly);
+const cachedSubs = loadCache(CACHE.subs);
+const cachedTotals = loadCache(CACHE.totals);
+const cachedVideo = loadCache(CACHE.video);
+const cachedCycle = loadCache(CACHE.cycle);
+const cachedCountry = loadCache(CACHE.country);
+
+if(cachedPages) renderPages(cachedPages);
+if(cachedMonthly) renderMonthly(cachedMonthly);
+if(cachedSubs) renderSubs(cachedSubs);
+if(cachedCountry) renderCountries(cachedCountry);
+
+if(cachedTotals){
+  totalEl.innerHTML = `<span class="value">${cachedTotals.total}</span>`;
+}
+
+if(cachedVideo) videoEl.innerHTML = `<span class="value">${cachedVideo}</span>`;
+if(cachedCycle) cycleEl.innerHTML = `<span class="value">${cachedCycle}</span>`;
 
 /* ---------- FIREBASE ---------- */
 onValue(ref(db,"pageViews"),snap=>{
-  const data=snap.val()||{};
-  renderPages(data);
-  saveCache(CACHE.pages,data);
+  const data = snap.val()||{};
 
-  const monthly=calculateMonthly(data);
+  renderPages(data);
+
+  const monthly = calculateMonthly(data);
   renderMonthly(monthly);
+
+  saveCache(CACHE.pages,data);
   saveCache(CACHE.monthly,monthly);
 
   let total=0;
@@ -281,14 +316,49 @@ onValue(ref(db,"pageViews"),snap=>{
     if(typeof v==="object") total+=v.count||0;
   });
 
-  totalEl.innerHTML = `<span class="value">Site Visits: ${formatViews(total)}</span>`;
+  totalEl.innerHTML = `<span class="value">Site Visits: ${formatViews(total)} ${bracket(total)}</span>`;
+  saveCache(CACHE.totals, { total });
+});
+
+onValue(ref(db,"views"),snap=>{
+  const t=Object.values(snap.val()||{}).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
+
+  videoEl.innerHTML = `<span class="value">Video Views: ${formatViews(t)} ${bracket(t)}</span>`;
+  saveCache(CACHE.video, t);
 });
 
 onValue(ref(db,"cycleViews"),snap=>{
-  const data=snap.val()||{};
+  const data = snap.val()||{};
+  const t=Object.values(data).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
+
+  cycleEl.innerHTML = `<span class="value">Cycle Views: ${formatViews(t)} ${bracket(t)}</span>`;
+  saveCache(CACHE.cycle, t);
+
   renderTrending(data);
-  saveCache(CACHE.trending,data);
+  saveCache(CACHE.trending, data);
 });
+
+onValue(ref(db,"countryCounts"),snap=>{
+  const data = snap.val()||{};
+  renderCountries(data);
+  saveCache(CACHE.country,data);
+});
+
+/* ---------- SUBSCRIBERS ---------- */
+let lastHash="";
+async function loadSubs(){
+  const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers");
+  const data = await res.json();
+
+  const h = JSON.stringify(data);
+  if(h===lastHash) return;
+  lastHash=h;
+
+  renderSubs(data);
+  saveCache(CACHE.subs, data);
+}
+loadSubs();
+setInterval(loadSubs,10000);
 
 /* ---------- LOGOUT ---------- */
 function logout(){
