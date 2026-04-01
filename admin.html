@@ -136,13 +136,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ---------- NO BLINK STATE ---------- */
-const LAST = {
-  total: null,
-  video: null,
-  cycle: null
-};
-
 /* ---------- CACHE ---------- */
 function saveCache(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
 function loadCache(k){ return JSON.parse(localStorage.getItem(k) || "null"); }
@@ -161,10 +154,15 @@ const CACHE = {
 /* ---------- FORMAT ---------- */
 function formatViews(n){
   if(n>=1e6) return (n/1e6).toFixed(1).replace(/\.0$/,"")+"M";
-  if(n>=1e3) return (n/1e3).toFixed(1).replace(/\.0$/,"")+"K";
+  if(n>=1e3) return (n/1e3).toFixed(1).replace(/\.0$/,"")+"k";
   return n;
 }
 const bracket = n => `<span style="opacity:.5;font-size:.6em">(${n})</span>`;
+
+// Full format: 1.6k (1566)
+function formatFull(n){
+  return `${formatViews(n)} ${bracket(n)}`;
+}
 
 /* ---------- DOM ---------- */
 const totalEl = document.getElementById("totalViews");
@@ -249,11 +247,11 @@ function calculateMonthly(data){
 
 function renderMonthly(data){
   monthList.innerHTML = Object.entries(data||{}).map(([k,v])=>`
-    <li><span>${k}</span><span class="value">${formatViews(v)} ${bracket(v)}</span></li>
+    <li><span>${k}</span><span class="value">${formatFull(v)}</span></li>
   `).join("");
 }
 
-/* ---------- PAGES ---------- */
+/* ---------- SORTED PAGES ---------- */
 function renderPages(data){
   const sorted = Object.entries(data || {})
     .sort((a,b)=>{
@@ -279,12 +277,42 @@ function renderSubs(data){
     <li><span>${s.userId}</span><span class="sub-date">${s.updatedAt}</span></li>
   `).join("");
 
-  subsEl.innerHTML = `<span class="value">Subscribers: ${formatViews(data.length)} (${data.length})</span>`;
+  subsEl.innerHTML = `<span class="value">Subscribers: ${formatFull(data.length)}</span>`;
+}
+
+/* ---------- CACHE LOAD ---------- */
+const cachedTrending = loadCache(CACHE.trending);
+if(cachedTrending) renderTrending(cachedTrending);
+
+const cachedPages = loadCache(CACHE.pages);
+const cachedMonthly = loadCache(CACHE.monthly);
+const cachedSubs = loadCache(CACHE.subs);
+const cachedTotals = loadCache(CACHE.totals);
+const cachedVideo = loadCache(CACHE.video);
+const cachedCycle = loadCache(CACHE.cycle);
+const cachedCountry = loadCache(CACHE.country);
+
+if(cachedPages) renderPages(cachedPages);
+if(cachedMonthly) renderMonthly(cachedMonthly);
+if(cachedSubs) renderSubs(cachedSubs);
+if(cachedCountry) renderCountries(cachedCountry);
+
+if(cachedTotals){
+  totalEl.innerHTML = `<span class="value">Site Visits: ${formatFull(cachedTotals.total)}</span>`;
+}
+
+if(cachedVideo){
+  videoEl.innerHTML = `<span class="value">Video Views: ${formatFull(cachedVideo)}</span>`;
+}
+
+if(cachedCycle){
+  cycleEl.innerHTML = `<span class="value">Cycle Views: ${formatFull(cachedCycle)}</span>`;
 }
 
 /* ---------- FIREBASE ---------- */
 onValue(ref(db,"pageViews"),snap=>{
   const data = snap.val()||{};
+
   renderPages(data);
 
   const monthly = calculateMonthly(data);
@@ -298,22 +326,14 @@ onValue(ref(db,"pageViews"),snap=>{
     if(typeof v==="object") total+=v.count||0;
   });
 
-  if (LAST.total !== total) {
-    LAST.total = total;
-    totalEl.innerHTML = `<span class="value">Site Visits: ${formatViews(total)} ${bracket(total)}</span>`;
-  }
-
+  totalEl.innerHTML = `<span class="value">Site Visits: ${formatFull(total)}</span>`;
   saveCache(CACHE.totals, { total });
 });
 
 onValue(ref(db,"views"),snap=>{
   const t=Object.values(snap.val()||{}).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
 
-  if (LAST.video !== t) {
-    LAST.video = t;
-    videoEl.innerHTML = `<span class="value">Video Views: ${formatViews(t)} ${bracket(t)}</span>`;
-  }
-
+  videoEl.innerHTML = `<span class="value">Video Views: ${formatFull(t)}</span>`;
   saveCache(CACHE.video, t);
 });
 
@@ -321,11 +341,7 @@ onValue(ref(db,"cycleViews"),snap=>{
   const data = snap.val()||{};
   const t=Object.values(data).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
 
-  if (LAST.cycle !== t) {
-    LAST.cycle = t;
-    cycleEl.innerHTML = `<span class="value">Cycle Views: ${formatViews(t)} ${bracket(t)}</span>`;
-  }
-
+  cycleEl.innerHTML = `<span class="value">Cycle Views: ${formatFull(t)}</span>`;
   saveCache(CACHE.cycle, t);
 
   renderTrending(data);
