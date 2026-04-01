@@ -25,7 +25,9 @@ h1, h2 { color: #ff4444; }
   overflow-y: auto;
 }
 
-.card.monthly { max-height: 180px; }
+.card.monthly {
+  max-height: 180px;
+}
 
 .card::-webkit-scrollbar { width: 6px; }
 .card::-webkit-scrollbar-thumb {
@@ -102,6 +104,7 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <ul id="subscribersList"></ul>
 </div>
 
+<!-- 🔥 TRENDING -->
 <div class="card">
   <h2>🔥 Trending Video IDs</h2>
   <ul id="trendingList"></ul>
@@ -129,20 +132,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ---------- CACHE ---------- */
-function saveCache(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
-function loadCache(k){ return JSON.parse(localStorage.getItem(k) || "null"); }
-
 /* ---------- DOM ---------- */
 const totalEl = document.getElementById("totalViews");
 const videoEl = document.getElementById("videoViewsTotal");
 const cycleEl = document.getElementById("cycleViewsTotal");
 const subsEl = document.getElementById("totalSubscribers");
 
-const pageList = document.getElementById("pageViews");
-const monthList = document.getElementById("monthlyList");
-const subsList = document.getElementById("subscribersList");
 const trendingList = document.getElementById("trendingList");
+const subsList = document.getElementById("subscribersList");
 
 /* ---------- FORMAT ---------- */
 function formatViews(n){
@@ -152,13 +149,14 @@ function formatViews(n){
 }
 const bracket = n => `<span style="opacity:.5;font-size:.6em">(${n})</span>`;
 
-/* ---------- TRENDING (WITH THUMBNAIL) ---------- */
+/* ---------- TRENDING ---------- */
 function renderTrending(data){
   if(!data) return;
 
   const trending = Object.entries(data)
     .map(([id, val]) => {
       const views = typeof val === "number" ? val : (val?.count || 0);
+
       return {
         id,
         views,
@@ -173,88 +171,42 @@ function renderTrending(data){
       <img src="${v.thumbnail}" 
            onerror="this.style.display='none'"
            style="width:80px;height:45px;object-fit:cover;border-radius:6px;">
-
-      <div style="display:flex;flex-direction:column;">
+      
+      <div style="display:flex; flex-direction:column;">
         <span>${v.id}</span>
-        <span class="value">${formatViews(v.views)} ${bracket(v.views)}</span>
+        <span class="value">
+          ${formatViews(v.views)} ${bracket(v.views)}
+        </span>
       </div>
     </li>
   `).join("");
 }
 
-/* ---------- MONTH ---------- */
-function calculateMonthly(data){
-  const m = {};
-  Object.values(data||{}).forEach(i=>{
-    if(i?.lastUpdated){
-      const d = new Date(i.lastUpdated);
-      if(!isNaN(d)){
-        const key = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
-        m[key] = (m[key]||0)+(i.count||0);
-      }
-    }
-  });
-  return m;
-}
-
-function renderMonthly(data){
-  monthList.innerHTML = Object.entries(data||{}).map(([k,v])=>`
-    <li><span>${k}</span><span class="value">${formatViews(v)}</span></li>
-  `).join("");
-}
-
-/* ---------- PAGES ---------- */
-function renderPages(data){
-  const sorted = Object.entries(data||{})
-    .sort((a,b)=>{
-      const av = typeof a[1]==="object"?a[1].count||0:a[1];
-      const bv = typeof b[1]==="object"?b[1].count||0:b[1];
-      return bv-av;
-    });
-
-  pageList.innerHTML = sorted.map(([k,v])=>{
-    const val = typeof v==="object"?v.count||0:v;
-    return `<li><span>${k}</span><span class="value">${formatViews(val)}</span></li>`;
-  }).join("");
-}
-
-/* ---------- SUBS ---------- */
+/* ---------- SUBSCRIBERS ---------- */
 function renderSubs(data){
   subsList.innerHTML = data.map(s=>`
-    <li><span>${s.userId}</span><span class="sub-date">${s.updatedAt}</span></li>
+    <li>
+      <span>${s.userId}</span>
+      <span class="sub-date">${s.updatedAt}</span>
+    </li>
   `).join("");
 
-  subsEl.innerHTML = `<span class="value">Subscribers: ${formatViews(data.length)}</span>`;
+  const total = `Subscribers: ${formatViews(data.length)} ${bracket(data.length)}`;
+  subsEl.innerHTML = `<span class="value">${total}</span>`;
 }
 
 /* ---------- FIREBASE ---------- */
-onValue(ref(db,"pageViews"),snap=>{
-  const data = snap.val()||{};
-
-  renderPages(data);
-
-  const monthly = calculateMonthly(data);
-  renderMonthly(monthly);
-
-  saveCache("pages",data);
-});
-
-onValue(ref(db,"views"),snap=>{
-  const t = Object.values(snap.val()||{}).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
-  videoEl.innerHTML = `<span class="value">Video Views: ${formatViews(t)}</span>`;
-});
-
 onValue(ref(db,"cycleViews"),snap=>{
   const data = snap.val() || {};
 
-  const total = Object.values(data).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
+  const t = Object.values(data).reduce((a,b)=>a+(typeof b==="number"?b:0),0);
 
-  cycleEl.innerHTML = `<span class="value">Cycle Views: ${formatViews(total)}</span>`;
+  cycleEl.innerHTML = `<span class="value">Cycle Views: ${formatViews(t)} ${bracket(t)}</span>`;
 
-  renderTrending(data); // 🔥 FINAL TRENDING WITH THUMBNAILS
+  renderTrending(data);
 });
 
-/* ---------- SUBS ---------- */
+/* ---------- SUBSCRIBERS ---------- */
 async function loadSubs(){
   const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscribers");
   const data = await res.json();
