@@ -99,7 +99,7 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="totalSubscribers"></div>
 </div>
 
- <button onclick="sendNotification()" style="
+ <button onclick="triggerCron()" style="
   padding:15px 30px;
   font-size:18px;
   background:#ff1744;
@@ -108,37 +108,26 @@ if (!localStorage.getItem("adminLoggedIn")) {
   border-radius:10px;
   cursor:pointer;
 ">
-🚀 Send Notification
+🚀 Run Cron Now
 </button>
 
-<p id="status" style="margin-top:20px; white-space:pre-line;"></p>
+<p id="status"></p>
 
 <script>
-async function sendNotification() {
-
+async function triggerCron() {
   const status = document.getElementById("status");
-  status.innerHTML = "🚀 Triggering...";
+  status.innerText = "Running...";
 
   try {
-
-    const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/sendNotification", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      }
+    const res = await fetch("https://anywherecumnotifications.workfromanywhere-sa.workers.dev/trigger", {
+      method: "POST"
     });
 
     const data = await res.json();
 
-    if (data.sent === true) {
-      status.innerHTML = "✅ Notification SENT";
-    } else {
-      status.innerHTML = "⛔ Not sent (already sent or no new video)";
-    }
-
+    status.innerText = "✅ Done:\n" + JSON.stringify(data, null, 2);
   } catch (err) {
-    console.error(err);
-    status.innerHTML = "❌ Error: " + err.message;
+    status.innerText = "❌ Error:\n" + err.message;
   }
 }
 </script>
