@@ -61,7 +61,7 @@ function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
-/* ---------------- DOWNLOAD COLLAPSE ---------------- */
+/* ---------------- DOWNLOAD DROPDOWN ---------------- */
 function createDownloadDropdown(video) {
   const wrapper = document.createElement("div");
 
@@ -167,14 +167,15 @@ function createVideoBox(video) {
   views.className = "views";
 
   /* ---------------- BUILD ---------------- */
-  box.appendChild(title);
-
-  /* 🔥 QUALITY DROPDOWN ABOVE IFRAME */
   if (dropdown) {
     box.appendChild(dropdown);
   }
 
   box.appendChild(wrapper);
+
+  /* 👉 TITLE BELOW VIDEO (correct placement) */
+  box.appendChild(title);
+
   box.appendChild(views);
   box.appendChild(createDownloadDropdown(video));
 
