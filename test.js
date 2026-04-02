@@ -15,16 +15,15 @@ const TEST_MODE = localStorage.getItem("testMode") === "true";
 const config = window.VIDEO_CONFIG || {};
 const params = new URLSearchParams(window.location.search);
 
-/* ---------------- NORMALIZE ---------------- */
-const normalize = str => (str || "").toLowerCase().replace(/\s+/g, "");
+/* ✅ FIXED: folder handling */
+const folderName = (
+  config.folder ||
+  params.get("folder") ||
+  ""
+).toLowerCase().replace(/\s+/g, "");
 
-/* ---------------- FOLDER ---------------- */
-const folderName = normalize(
-  config.folder || params.get("folder") || ""
-);
-
-/* ---------------- DATA SOURCE ---------------- */
-const dataSource = config.dataSource || "/test.json";
+/* ✅ FIXED: use your real JSON */
+const dataSource = config.dataSource || "test.json";
 
 /* ---------------- CACHE ---------------- */
 function saveCache(key, value) { localStorage.setItem(key, value); }
@@ -42,11 +41,8 @@ function toTitleCase(str) {
     .join(" ");
 }
 
-const titleEl = document.getElementById("folderTitle");
-if (titleEl) {
-  titleEl.textContent =
-    folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
-}
+document.getElementById("folderTitle").textContent =
+  folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
@@ -65,9 +61,7 @@ async function sendToWorker(videoId) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ videoId })
     });
-  } catch (err) {
-    console.error("Worker failed:", err);
-  }
+  } catch (err) { console.error("Worker failed:", err); }
 }
 
 function increaseViews(videoId) {
@@ -86,9 +80,7 @@ function createVideoBox(video) {
   wrapper.className = "videoFrameWrapper";
 
   const thumb = document.createElement("img");
-
-  // safer thumbnail path
-  thumb.src = `/images/${video.thumbnail}`;
+  thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
 
   thumb.onclick = () => {
     increaseViews(video.id);
@@ -106,6 +98,11 @@ function createVideoBox(video) {
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
+
+  title.onclick = () => {
+    increaseViews(video.id);
+    window.open(video.url, "_blank");
+  };
 
   const views = document.createElement("div");
   views.className = "views";
@@ -146,9 +143,7 @@ function renderVideos() {
   videosContainer.innerHTML = "";
 
   arr.forEach(v => {
-    if (videoElements[v.id]) {
-      videosContainer.appendChild(videoElements[v.id].box);
-    }
+    videosContainer.appendChild(videoElements[v.id].box);
   });
 }
 
@@ -177,23 +172,36 @@ function updateUI(id) {
 
 /* ---------------- LOAD ---------------- */
 fetch(dataSource)
-  .then(res => res.json())
+  .then(res => {
+    if (!res.ok) throw new Error("Failed to load JSON");
+    return res.json();
+  })
   .then(videos => {
+
+    if (!Array.isArray(videos)) {
+      throw new Error("Invalid JSON format");
+    }
 
     const filtered = folderName
       ? videos.filter(v =>
-          normalize(v.folder) === folderName
+          v.folder &&
+          v.folder.toLowerCase().replace(/\s+/g, "") === folderName
         )
       : videos;
 
-    filtered.forEach((v, index) => {
+    if (filtered.length === 0) {
+      videosContainer.innerHTML = "<p>No videos found.</p>";
+      return;
+    }
+
+    filtered.forEach((v) => {
 
       originalOrder.push(v.id);
 
       videoDataMap[v.id] = {
         ...v,
-        totalViews: Number(getCache("views_" + v.id)) || 0,
-        cycleViews: Number(getCache("cycle_" + v.id)) || 0
+        totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
+        cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
       };
 
       const box = createVideoBox(v);
@@ -230,4 +238,7 @@ fetch(dataSource)
 
     renderVideos();
   })
-  .catch(err => console.error("LOAD ERROR:", err));
+  .catch(err => {
+    console.error(err);
+    videosContainer.innerHTML = "<p>Error loading videos.</p>";
+  });
