@@ -126,37 +126,19 @@ function createVideoBox(video) {
     }
   }
 
-  /* ---------------- CSS RESPONSIVE ---------------- */
-  wrapper.style.width = "100%";
-  wrapper.style.aspectRatio = "16/9";
-  wrapper.style.position = "relative";
-
   /* ---------------- THUMB ---------------- */
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
-  thumb.style.width = "100%";
-  thumb.style.height = "100%";
-  thumb.style.objectFit = "cover";
-  thumb.style.position = "absolute";
-  thumb.style.top = "0";
-  thumb.style.left = "0";
 
   thumb.onclick = () => {
     markViewOnce();
 
     const iframe = document.createElement("iframe");
     iframe.src = video.qualities ? video.qualities[0].embed : video.embed;
-
-    /* ✅ IMPORTANT FOR FULLSCREEN */
     iframe.allowFullscreen = true;
-    iframe.setAttribute("allowfullscreen", "");
 
-    iframe.style.width = "100%";
-    iframe.style.height = "100%";
-    iframe.style.border = "none";
-    iframe.style.position = "absolute";
-    iframe.style.top = "0";
-    iframe.style.left = "0";
+    /* ✅ HARD CODE WIDTH */
+    iframe.width = "600";
 
     wrapper.innerHTML = "";
     wrapper.appendChild(iframe);
