@@ -61,9 +61,6 @@ function increaseViews(videoId) {
 const videosContainer = document.getElementById("normalVideos");
 
 /* ---------------- LOADER ---------------- */
-const videoBoxWidth = 600;
-const videoBoxHeight = 169;
-
 function createLoader() {
   const loader = document.createElement("div");
   loader.id = "loader";
@@ -72,11 +69,6 @@ function createLoader() {
   loader.style.left = "50%";
   loader.style.transform = "translate(-50%, -50%)";
   loader.style.zIndex = "9999";
-  loader.style.display = "flex";
-  loader.style.justifyContent = "center";
-  loader.style.alignItems = "center";
-  loader.style.width = `${videoBoxWidth}px`;
-  loader.style.height = `${videoBoxHeight}px`;
 
   const spinner = document.createElement("div");
   spinner.style.border = "4px solid rgba(255, 255, 255, 0.3)";
@@ -89,69 +81,107 @@ function createLoader() {
   loader.appendChild(spinner);
   document.body.appendChild(loader);
 }
-
 function removeLoader() {
   const loader = document.getElementById("loader");
   if (loader) loader.remove();
 }
 
-const style = document.createElement("style");
-style.innerHTML = `
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}`;
-document.head.appendChild(style);
-
 /* ---------------- VIDEO BOX ---------------- */
 function createVideoBox(video) {
   const box = document.createElement("div");
   box.className = "videoBox";
-  box.style.height = `${videoBoxHeight + 60}px`;
 
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
-  wrapper.style.width = "100%";
-  wrapper.style.maxWidth = `${videoBoxWidth}px`;
-  wrapper.style.aspectRatio = "16/9";
 
+  /* DEFAULT QUALITY */
+  const defaultQuality =
+    video.qualities.find(q => q.recommended) ||
+    video.qualities.find(q => q.default) ||
+    video.qualities[0];
+
+  let currentEmbed = defaultQuality.embed;
+
+  function loadPlayer() {
+    const iframe = document.createElement("iframe");
+    iframe.src = currentEmbed;
+    iframe.allowFullscreen = true;
+    wrapper.innerHTML = "";
+    wrapper.appendChild(iframe);
+  }
+
+  /* THUMB */
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
   thumb.onclick = () => {
     increaseViews(video.id);
-    const iframe = document.createElement("iframe");
-    iframe.src = video.embed;
-    iframe.allowFullscreen = true;
-    wrapper.innerHTML = "";
-    wrapper.appendChild(iframe);
+    loadPlayer();
   };
   wrapper.appendChild(thumb);
 
+  /* DROPDOWN */
+  const select = document.createElement("select");
+  select.style.margin = "8px auto";
+  select.style.display = "block";
+
+  video.qualities.forEach((q, index) => {
+    const option = document.createElement("option");
+    option.value = index;
+    option.textContent = `${q.label} • ${q.size}`;
+    if (q === defaultQuality) option.selected = true;
+    select.appendChild(option);
+  });
+
+  select.onchange = () => {
+    const selected = video.qualities[select.value];
+    currentEmbed = selected.embed;
+
+    if (wrapper.querySelector("iframe")) {
+      loadPlayer();
+    }
+  };
+
+  /* TITLE */
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
-  title.onclick = () => {
-    increaseViews(video.id);
-    window.open(video.url, "_blank");
-  };
 
+  /* VIEWS */
   const views = document.createElement("div");
   views.className = "views";
 
-  const btn = document.createElement("a");
-  btn.className = "download";
-  btn.href = "#";
-  btn.textContent = `Download (${video.size || "?"})`;
-  btn.onclick = (e) => {
-    e.preventDefault();
-    increaseViews(video.id);
-    window.open(video.url, "_blank");
+  /* DOWNLOAD */
+  const downloadBtn = document.createElement("button");
+  downloadBtn.textContent = "Download";
+  downloadBtn.style.marginTop = "8px";
+
+  const downloadBox = document.createElement("div");
+  downloadBox.style.display = "none";
+
+  video.qualities.forEach(q => {
+    const link = document.createElement("a");
+    link.href = q.download;
+    link.target = "_blank";
+    link.textContent = `${q.label} • ${q.size}`;
+    link.style.display = "block";
+    link.style.margin = "5px 0";
+    link.style.color = "#ff4444";
+    link.onclick = () => increaseViews(video.id);
+    downloadBox.appendChild(link);
+  });
+
+  downloadBtn.onclick = () => {
+    downloadBox.style.display =
+      downloadBox.style.display === "none" ? "block" : "none";
   };
 
+  /* APPEND */
+  box.appendChild(select);
   box.appendChild(wrapper);
   box.appendChild(title);
   box.appendChild(views);
-  box.appendChild(btn);
+  box.appendChild(downloadBtn);
+  box.appendChild(downloadBox);
 
   return box;
 }
@@ -233,7 +263,7 @@ fetch(dataSource)
 
       onValue(ref(db, "views/" + v.id), snap => {
         const val = snap.val();
-        if (val !== null && val !== undefined) {
+        if (val !== null) {
           videoDataMap[v.id].totalViews = val;
           updateUI(v.id);
           saveCache("views_" + v.id, val);
@@ -243,7 +273,7 @@ fetch(dataSource)
 
       onValue(ref(db, "cycleViews/" + v.id), snap => {
         const val = snap.val();
-        if (val !== null && val !== undefined) {
+        if (val !== null) {
           videoDataMap[v.id].cycleViews = Number(val);
           updateUI(v.id);
           saveCache("cycle_" + v.id, val);
