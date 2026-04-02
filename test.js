@@ -14,7 +14,7 @@ const TEST_MODE = localStorage.getItem("testMode") === "true";
 /* ---------------- CONFIG ---------------- */
 const config = window.VIDEO_CONFIG || {};
 const folderName = (config.folder || "").toLowerCase();
-const dataSource = config.dataSource || "videos.json";
+const dataSource = config.dataSource || "test.json";
 
 /* ---------------- SESSION TRACKING ---------------- */
 function hasViewed(id) {
@@ -48,7 +48,7 @@ function toTitleCase(str) {
 }
 
 document.getElementById("folderTitle").textContent =
-  folderName ? toTitleCase(folderName) : "Videos";
+  folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
@@ -141,6 +141,7 @@ function createVideoBox(video) {
     }
   }
 
+  /* ---------------- QUALITY DROPDOWN ---------------- */
   let dropdown = null;
 
   if (video.qualities && video.qualities.length > 0) {
@@ -165,6 +166,7 @@ function createVideoBox(video) {
     });
   }
 
+  /* ---------------- THUMB ---------------- */
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
 
@@ -181,14 +183,19 @@ function createVideoBox(video) {
 
   wrapper.appendChild(thumb);
 
+  /* ---------------- TITLE (NO CLICK ACTION) ---------------- */
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
+
+  // 👉 No click event = does nothing
   title.style.cursor = "default";
 
+  /* ---------------- VIEWS ---------------- */
   const views = document.createElement("div");
   views.className = "views";
 
+  /* ---------------- BUILD ---------------- */
   if (dropdown) box.appendChild(dropdown);
 
   box.appendChild(wrapper);
