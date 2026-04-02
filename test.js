@@ -16,6 +16,21 @@ const config = window.VIDEO_CONFIG || {};
 const folderName = (config.folder || "").toLowerCase();
 const dataSource = config.dataSource || "videos.json";
 
+/* ---------------- SESSION TRACKING ---------------- */
+function hasViewed(id) {
+  return sessionStorage.getItem("viewed_" + id);
+}
+function markViewed(id) {
+  sessionStorage.setItem("viewed_" + id, "true");
+}
+
+function hasDownloaded(id) {
+  return sessionStorage.getItem("downloaded_" + id);
+}
+function markDownloaded(id) {
+  sessionStorage.setItem("downloaded_" + id, "true");
+}
+
 /* ---------------- CACHE ---------------- */
 function saveCache(key, value) { localStorage.setItem(key, value); }
 function getCache(key) { return localStorage.getItem(key); }
@@ -126,6 +141,31 @@ function createVideoBox(video) {
     }
   }
 
+  /* ---------------- QUALITY DROPDOWN ---------------- */
+  let dropdown = null;
+
+  if (video.qualities && video.qualities.length > 0) {
+    dropdown = document.createElement("select");
+
+    video.qualities.forEach(q => {
+      const opt = document.createElement("option");
+      opt.value = q.embed;
+      opt.textContent = q.label;
+      dropdown.appendChild(opt);
+    });
+
+    dropdown.addEventListener("change", () => {
+      markViewOnce();
+
+      const iframe = document.createElement("iframe");
+      iframe.src = dropdown.value;
+      iframe.allowFullscreen = true;
+
+      wrapper.innerHTML = "";
+      wrapper.appendChild(iframe);
+    });
+  }
+
   /* ---------------- THUMB ---------------- */
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
@@ -137,19 +177,18 @@ function createVideoBox(video) {
     iframe.src = video.qualities ? video.qualities[0].embed : video.embed;
     iframe.allowFullscreen = true;
 
-    /* ✅ HARD CODE WIDTH */
-    iframe.width = "600";
-
     wrapper.innerHTML = "";
     wrapper.appendChild(iframe);
   };
 
   wrapper.appendChild(thumb);
 
-  /* ---------------- TITLE ---------------- */
+  /* ---------------- TITLE (NO CLICK ACTION) ---------------- */
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
+
+  // 👉 No click event = does nothing
   title.style.cursor = "default";
 
   /* ---------------- VIEWS ---------------- */
@@ -157,6 +196,8 @@ function createVideoBox(video) {
   views.className = "views";
 
   /* ---------------- BUILD ---------------- */
+  if (dropdown) box.appendChild(dropdown);
+
   box.appendChild(wrapper);
   box.appendChild(title);
   box.appendChild(views);
