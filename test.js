@@ -15,14 +15,15 @@ const TEST_MODE = localStorage.getItem("testMode") === "true";
 const config = window.VIDEO_CONFIG || {};
 const params = new URLSearchParams(window.location.search);
 
-/* ✅ FIX: add URL fallback + safer matching */
+/* ✅ FIXED: folder handling */
 const folderName = (
   config.folder ||
   params.get("folder") ||
   ""
 ).toLowerCase().replace(/\s+/g, "");
 
-const dataSource = config.dataSource || "videos.json";
+/* ✅ FIXED: use your real JSON */
+const dataSource = config.dataSource || "test.json";
 
 /* ---------------- CACHE ---------------- */
 function saveCache(key, value) { localStorage.setItem(key, value); }
@@ -97,6 +98,7 @@ function createVideoBox(video) {
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
+
   title.onclick = () => {
     increaseViews(video.id);
     window.open(video.url, "_blank");
@@ -170,16 +172,27 @@ function updateUI(id) {
 
 /* ---------------- LOAD ---------------- */
 fetch(dataSource)
-  .then(res => res.json())
+  .then(res => {
+    if (!res.ok) throw new Error("Failed to load JSON");
+    return res.json();
+  })
   .then(videos => {
 
-    /* ✅ FIX: flexible folder matching */
+    if (!Array.isArray(videos)) {
+      throw new Error("Invalid JSON format");
+    }
+
     const filtered = folderName
       ? videos.filter(v =>
           v.folder &&
           v.folder.toLowerCase().replace(/\s+/g, "") === folderName
         )
       : videos;
+
+    if (filtered.length === 0) {
+      videosContainer.innerHTML = "<p>No videos found.</p>";
+      return;
+    }
 
     filtered.forEach((v) => {
 
@@ -225,4 +238,7 @@ fetch(dataSource)
 
     renderVideos();
   })
-  .catch(err => console.error(err));
+  .catch(err => {
+    console.error(err);
+    videosContainer.innerHTML = "<p>Error loading videos.</p>";
+  });
