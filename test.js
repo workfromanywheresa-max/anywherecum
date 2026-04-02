@@ -14,7 +14,7 @@ const TEST_MODE = localStorage.getItem("testMode") === "true";
 /* ---------------- CONFIG ---------------- */
 const config = window.VIDEO_CONFIG || {};
 const folderName = (config.folder || "").toLowerCase();
-const dataSource = config.dataSource || "test.json"; // ✅ FIXED
+const dataSource = config.dataSource || "test.json";
 
 /* ---------------- CACHE ---------------- */
 function saveCache(key, value) { localStorage.setItem(key, value); }
@@ -31,6 +31,7 @@ function toTitleCase(str) {
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 }
+
 document.getElementById("folderTitle").textContent =
   folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
 
@@ -51,10 +52,56 @@ async function sendToWorker(videoId) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ videoId })
     });
-  } catch (err) { console.error("Worker failed:", err); }
+  } catch (err) {
+    console.error("Worker failed:", err);
+  }
 }
+
 function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
+}
+
+/* ---------------- DOWNLOAD COLLAPSE ---------------- */
+function createDownloadDropdown(video) {
+  const wrapper = document.createElement("div");
+
+  const btn = document.createElement("button");
+  btn.className = "download";
+  btn.textContent = "Download ⬇";
+
+  const dropdown = document.createElement("div");
+  dropdown.style.display = "none";
+  dropdown.style.marginTop = "5px";
+
+  if (video.qualities && video.qualities.length > 0) {
+    video.qualities.forEach(q => {
+      const a = document.createElement("a");
+      a.href = q.download;
+      a.target = "_blank";
+      a.className = "download";
+      a.textContent = `${q.label} (${q.size || "?"})`;
+
+      dropdown.appendChild(a);
+    });
+  } else {
+    const a = document.createElement("a");
+    a.href = video.url;
+    a.target = "_blank";
+    a.className = "download";
+    a.textContent = `Download (${video.size || "?"})`;
+
+    dropdown.appendChild(a);
+  }
+
+  btn.onclick = () => {
+    dropdown.style.display =
+      dropdown.style.display === "none" ? "block" : "none";
+  };
+
+  wrapper.appendChild(btn);
+  wrapper.appendChild(dropdown);
+
+  return wrapper;
 }
 
 /* ---------------- VIDEO BOX ---------------- */
@@ -69,12 +116,11 @@ function createVideoBox(video) {
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
 
-  /* ---------------- IFRAME LOAD ---------------- */
   thumb.onclick = () => {
     increaseViews(video.id);
 
     const iframe = document.createElement("iframe");
-    iframe.src = video.qualities ? video.qualities[0].embed : video.embed; // ✅ DEFAULT 480p
+    iframe.src = video.qualities ? video.qualities[0].embed : video.embed;
     iframe.allowFullscreen = true;
 
     wrapper.innerHTML = "";
@@ -97,7 +143,7 @@ function createVideoBox(video) {
   const views = document.createElement("div");
   views.className = "views";
 
-  /* ---------------- DROPDOWN ---------------- */
+  /* ---------------- QUALITY DROPDOWN (ABOVE IFRAME) ---------------- */
   let dropdown = null;
 
   if (video.qualities && video.qualities.length > 0) {
@@ -112,45 +158,14 @@ function createVideoBox(video) {
 
     dropdown.addEventListener("change", () => {
       increaseViews(video.id);
-      wrapper.innerHTML = "";
 
       const iframe = document.createElement("iframe");
       iframe.src = dropdown.value;
       iframe.allowFullscreen = true;
 
+      wrapper.innerHTML = "";
       wrapper.appendChild(iframe);
     });
-  }
-
-  /* ---------------- DOWNLOAD (SIDE BY SIDE) ---------------- */
-  const downloadWrap = document.createElement("div");
-
-  if (video.qualities && video.qualities.length > 0) {
-
-    video.qualities.forEach((q, i) => {
-
-      const a = document.createElement("a");
-      a.className = "download";
-      a.href = q.download;
-      a.textContent = `Download ${q.label}`;
-      a.target = "_blank";
-
-      downloadWrap.appendChild(a);
-
-      if (i === 0) {
-        const sep = document.createElement("span");
-        sep.textContent = " | ";
-        downloadWrap.appendChild(sep);
-      }
-    });
-
-  } else {
-    const btn = document.createElement("a");
-    btn.className = "download";
-    btn.href = video.url;
-    btn.textContent = `Download (${video.size || "?"})`;
-    btn.target = "_blank";
-    downloadWrap.appendChild(btn);
   }
 
   /* ---------------- BUILD ---------------- */
@@ -162,7 +177,7 @@ function createVideoBox(video) {
     box.appendChild(dropdown); // ✅ ABOVE DOWNLOAD
   }
 
-  box.appendChild(downloadWrap);
+  box.appendChild(createDownloadDropdown(video));
 
   return box;
 }
@@ -202,11 +217,10 @@ function updateUI(id) {
 
   const el = videoElements[id].views;
 
-  const text = isTrending
+  el.textContent = isTrending
     ? `🔥 Trending | 👁 ${formatViews(total)}`
     : `👁 ${formatViews(total)}`;
 
-  el.textContent = text;
   el.style.color = isTrending ? "#ffcc00" : "#aaa";
 }
 
