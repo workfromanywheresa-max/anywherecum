@@ -1,10 +1,33 @@
 [
   {
-    "id": "Doggystyle01",
+    "id": "video2",
+    "title": "Second Video",
+    "folder": "Video02",
+    "thumbnail": "video02.webp",
+    "date": "2026-03-26T10:00:00Z",
+    "qualities": [
+      {
+        "label": "480p (Standard)",
+        "embed": "https://example.com/e/video2-480",
+        "download": "https://example.com/f/video2-480",
+        "size": "40 MB",
+        "default": true
+      },
+      {
+        "label": "1080p (HD - Recommended)",
+        "embed": "https://example.com/e/video2-1080",
+        "download": "https://example.com/f/video2-1080",
+        "size": "75 MB",
+        "recommended": true
+      }
+    ]
+  },
+  {
+    "id": "doggystyle01",
     "title": "My meat inside her, it feels so good",
-    "folder": "Doggystyle01",
+    "folder": "doggystyle01",
     "thumbnail": "doggystyle01.webp",
-    "date": "2026-03-25T16:48:00Z",
+    "date": "2026-04-02T21:00:00Z",
     "qualities": [
       {
         "label": "480p (Standard)",
