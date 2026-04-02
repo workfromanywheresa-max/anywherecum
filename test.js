@@ -31,7 +31,6 @@ function toTitleCase(str) {
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 }
-
 document.getElementById("folderTitle").textContent =
   folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
 
@@ -52,107 +51,85 @@ async function sendToWorker(videoId) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ videoId })
     });
-  } catch (err) {
-    console.error("Worker failed:", err);
-  }
+  } catch (err) { console.error("Worker failed:", err); }
 }
-
 function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
-/* ---------------- DOWNLOAD COLLAPSE ---------------- */
-function createDownloadDropdown(video) {
-  const wrapper = document.createElement("div");
+/* ---------------- CONTAINER ---------------- */
+const videosContainer = document.getElementById("normalVideos");
 
-  const btn = document.createElement("button");
-  btn.className = "download";
-  btn.textContent = "Download ⬇";
+/* ---------------- LOADER ---------------- */
+const videoBoxWidth = 600;
+const videoBoxHeight = 169;
 
-  const dropdown = document.createElement("div");
-  dropdown.style.display = "none";
-  dropdown.style.marginTop = "5px";
+function createLoader() {
+  const loader = document.createElement("div");
+  loader.id = "loader";
+  loader.style.position = "fixed";
+  loader.style.top = "50%";
+  loader.style.left = "50%";
+  loader.style.transform = "translate(-50%, -50%)";
+  loader.style.zIndex = "9999";
+  loader.style.display = "flex";
+  loader.style.justifyContent = "center";
+  loader.style.alignItems = "center";
+  loader.style.width = `${videoBoxWidth}px`;
+  loader.style.height = `${videoBoxHeight}px`;
 
-  if (video.qualities && video.qualities.length > 0) {
-    video.qualities.forEach(q => {
-      const a = document.createElement("a");
-      a.href = q.download;
-      a.target = "_blank";
-      a.className = "download";
-      a.textContent = `${q.label} (${q.size || "?"})`;
-      dropdown.appendChild(a);
-    });
-  } else {
-    const a = document.createElement("a");
-    a.href = video.url;
-    a.target = "_blank";
-    a.className = "download";
-    a.textContent = `Download (${video.size || "?"})`;
-    dropdown.appendChild(a);
-  }
+  const spinner = document.createElement("div");
+  spinner.style.border = "4px solid rgba(255, 255, 255, 0.3)";
+  spinner.style.borderTop = "4px solid #ffcc00";
+  spinner.style.borderRadius = "50%";
+  spinner.style.width = "50px";
+  spinner.style.height = "50px";
+  spinner.style.animation = "spin 1s linear infinite";
 
-  btn.onclick = () => {
-    dropdown.style.display =
-      dropdown.style.display === "none" ? "block" : "none";
-  };
-
-  wrapper.appendChild(btn);
-  wrapper.appendChild(dropdown);
-
-  return wrapper;
+  loader.appendChild(spinner);
+  document.body.appendChild(loader);
 }
+
+function removeLoader() {
+  const loader = document.getElementById("loader");
+  if (loader) loader.remove();
+}
+
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}`;
+document.head.appendChild(style);
 
 /* ---------------- VIDEO BOX ---------------- */
 function createVideoBox(video) {
   const box = document.createElement("div");
   box.className = "videoBox";
+  box.style.height = `${videoBoxHeight + 60}px`;
 
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
+  wrapper.style.width = "100%";
+  wrapper.style.maxWidth = `${videoBoxWidth}px`;
+  wrapper.style.aspectRatio = "16/9";
 
-  /* ---------------- QUALITY DROPDOWN ---------------- */
-  let dropdown = null;
-
-  if (video.qualities && video.qualities.length > 0) {
-    dropdown = document.createElement("select");
-
-    video.qualities.forEach(q => {
-      const opt = document.createElement("option");
-      opt.value = q.embed;
-      opt.textContent = q.label;
-      dropdown.appendChild(opt);
-    });
-
-    dropdown.addEventListener("change", () => {
-      increaseViews(video.id);
-
-      const iframe = document.createElement("iframe");
-      iframe.src = dropdown.value;
-      iframe.allowFullscreen = true;
-
-      wrapper.innerHTML = "";
-      wrapper.appendChild(iframe);
-    });
-  }
-
-  /* ---------------- THUMB ---------------- */
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
 
   thumb.onclick = () => {
     increaseViews(video.id);
-
     const iframe = document.createElement("iframe");
-    iframe.src = video.qualities ? video.qualities[0].embed : video.embed;
+    iframe.src = video.embed;
     iframe.allowFullscreen = true;
-
     wrapper.innerHTML = "";
     wrapper.appendChild(iframe);
   };
 
   wrapper.appendChild(thumb);
 
-  /* ---------------- TITLE ---------------- */
+  /* ---------------- TITLE (NOW BELOW VIDEO) ---------------- */
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
@@ -162,21 +139,24 @@ function createVideoBox(video) {
     window.open(video.url, "_blank");
   };
 
-  /* ---------------- VIEWS ---------------- */
   const views = document.createElement("div");
   views.className = "views";
 
-  /* ---------------- BUILD ---------------- */
-  box.appendChild(title);
+  const btn = document.createElement("a");
+  btn.className = "download";
+  btn.href = "#";
+  btn.textContent = `Download (${video.size || "?"})`;
+  btn.onclick = (e) => {
+    e.preventDefault();
+    increaseViews(video.id);
+    window.open(video.url, "_blank");
+  };
 
-  /* 🔥 QUALITY DROPDOWN ABOVE IFRAME */
-  if (dropdown) {
-    box.appendChild(dropdown);
-  }
-
-  box.appendChild(wrapper);
+  /* ---------------- ORDER FIX ---------------- */
+  box.appendChild(wrapper);  // video first
+  box.appendChild(title);    // title below
   box.appendChild(views);
-  box.appendChild(createDownloadDropdown(video));
+  box.appendChild(btn);
 
   return box;
 }
@@ -195,15 +175,14 @@ function renderVideos() {
     return originalOrder.indexOf(a.id) - originalOrder.indexOf(b.id);
   });
 
-  const container = document.getElementById("normalVideos");
-  container.innerHTML = "";
+  videosContainer.innerHTML = "";
 
   arr.forEach(v => {
-    container.appendChild(videoElements[v.id].box);
+    videosContainer.appendChild(videoElements[v.id].box);
   });
 }
 
-/* ---------------- UI ---------------- */
+/* ---------------- UI UPDATE ---------------- */
 function updateUI(id) {
   const v = videoDataMap[id];
   if (!v) return;
@@ -214,26 +193,31 @@ function updateUI(id) {
   saveCache("views_" + id, total);
   saveCache("cycle_" + id, v.cycleViews);
 
-  const el = videoElements[id].views;
-
-  el.textContent = isTrending
+  const newText = isTrending
     ? `🔥 Trending | 👁 ${formatViews(total)}`
     : `👁 ${formatViews(total)}`;
 
-  el.style.color = isTrending ? "#ffcc00" : "#aaa";
+  const el = videoElements[id].views;
+
+  if (el.textContent !== newText) {
+    el.textContent = newText;
+    el.style.color = isTrending ? "#ffcc00" : "#aaa";
+  }
 }
 
 /* ---------------- LOAD ---------------- */
+createLoader();
+
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
+    removeLoader();
 
     const filtered = folderName
       ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
       : videos;
 
-    filtered.forEach(v => {
-
+    filtered.forEach((v) => {
       originalOrder.push(v.id);
 
       videoDataMap[v.id] = {
@@ -243,7 +227,7 @@ fetch(dataSource)
       };
 
       const box = createVideoBox(v);
-      document.getElementById("normalVideos").appendChild(box);
+      videosContainer.appendChild(box);
 
       videoElements[v.id] = {
         box,
@@ -271,9 +255,11 @@ fetch(dataSource)
           renderVideos();
         }
       });
-
     });
 
     renderVideos();
   })
-  .catch(err => console.error(err));
+  .catch(err => {
+    console.error(err);
+    removeLoader();
+  });
