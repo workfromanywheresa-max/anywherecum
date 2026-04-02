@@ -12,9 +12,11 @@ const db = getDatabase(app);
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
 /* ---------------- CONFIG ---------------- */
-const config = window.VIDEO_CONFIG || {};
-const folderName = (config.folder || "").toLowerCase();
-const dataSource = config.dataSource || "test.json";
+/* ✅ FIXED: Read folder from URL instead of VIDEO_CONFIG */
+const params = new URLSearchParams(window.location.search);
+const folderName = (params.get("folder") || "").toLowerCase();
+
+const dataSource = "test.json";
 
 /* ---------------- SESSION TRACKING ---------------- */
 function hasViewed(id) {
@@ -188,7 +190,6 @@ function createVideoBox(video) {
   title.className = "videoTitle";
   title.textContent = video.title;
 
-  // 👉 No click event = does nothing
   title.style.cursor = "default";
 
   /* ---------------- VIEWS ---------------- */
