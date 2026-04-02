@@ -12,9 +12,10 @@ const db = getDatabase(app);
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
 /* ---------------- CONFIG ---------------- */
-/* ✅ FIXED: Read folder from URL instead of VIDEO_CONFIG */
 const params = new URLSearchParams(window.location.search);
-const folderName = (params.get("folder") || "").toLowerCase();
+
+/* ✅ FIX: keep original case */
+const folderName = params.get("folder") || "";
 
 const dataSource = "test.json";
 
@@ -143,7 +144,6 @@ function createVideoBox(video) {
     }
   }
 
-  /* ---------------- QUALITY DROPDOWN ---------------- */
   let dropdown = null;
 
   if (video.qualities && video.qualities.length > 0) {
@@ -168,7 +168,6 @@ function createVideoBox(video) {
     });
   }
 
-  /* ---------------- THUMB ---------------- */
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
 
@@ -185,18 +184,13 @@ function createVideoBox(video) {
 
   wrapper.appendChild(thumb);
 
-  /* ---------------- TITLE (NO CLICK ACTION) ---------------- */
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
 
-  title.style.cursor = "default";
-
-  /* ---------------- VIEWS ---------------- */
   const views = document.createElement("div");
   views.className = "views";
 
-  /* ---------------- BUILD ---------------- */
   if (dropdown) box.appendChild(dropdown);
 
   box.appendChild(wrapper);
@@ -229,33 +223,16 @@ function renderVideos() {
   });
 }
 
-/* ---------------- UI ---------------- */
-function updateUI(id) {
-  const v = videoDataMap[id];
-  if (!v) return;
-
-  const total = v.totalViews || 0;
-  const isTrending = v.cycleViews >= 10;
-
-  saveCache("views_" + id, total);
-  saveCache("cycle_" + id, v.cycleViews);
-
-  const el = videoElements[id].views;
-
-  el.textContent = isTrending
-    ? `🔥 Trending | 👁 ${formatViews(total)}`
-    : `👁 ${formatViews(total)}`;
-
-  el.style.color = isTrending ? "#ffcc00" : "#aaa";
-}
-
 /* ---------------- LOAD ---------------- */
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
 
+    /* ✅ FIX: case-insensitive comparison */
     const filtered = folderName
-      ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
+      ? videos.filter(v =>
+          v.folder && v.folder.toLowerCase() === folderName.toLowerCase()
+        )
       : videos;
 
     filtered.forEach(v => {
@@ -276,13 +253,10 @@ fetch(dataSource)
         views: box.querySelector(".views")
       };
 
-      updateUI(v.id);
-
       onValue(ref(db, "views/" + v.id), snap => {
         const val = snap.val();
         if (val !== null && val !== undefined) {
           videoDataMap[v.id].totalViews = val;
-          updateUI(v.id);
           saveCache("views_" + v.id, val);
           renderVideos();
         }
@@ -292,7 +266,6 @@ fetch(dataSource)
         const val = snap.val();
         if (val !== null && val !== undefined) {
           videoDataMap[v.id].cycleViews = Number(val);
-          updateUI(v.id);
           saveCache("cycle_" + v.id, val);
           renderVideos();
         }
