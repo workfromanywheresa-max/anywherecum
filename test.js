@@ -48,7 +48,7 @@ function toTitleCase(str) {
 }
 
 document.getElementById("folderTitle").textContent =
-  folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
+  folderName ? toTitleCase(folderName) : "All Folders";
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
