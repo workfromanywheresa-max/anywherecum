@@ -14,7 +14,7 @@ const TEST_MODE = localStorage.getItem("testMode") === "true";
 /* ---------------- CONFIG ---------------- */
 const config = window.VIDEO_CONFIG || {};
 const folderName = (config.folder || "").toLowerCase();
-const dataSource = config.dataSource || "test.json";
+const dataSource = config.dataSource || "videos.json";
 
 /* ---------------- CACHE ---------------- */
 function saveCache(key, value) { localStorage.setItem(key, value); }
@@ -80,7 +80,6 @@ function createDownloadDropdown(video) {
       a.target = "_blank";
       a.className = "download";
       a.textContent = `${q.label} (${q.size || "?"})`;
-
       dropdown.appendChild(a);
     });
   } else {
@@ -89,7 +88,6 @@ function createDownloadDropdown(video) {
     a.target = "_blank";
     a.className = "download";
     a.textContent = `Download (${video.size || "?"})`;
-
     dropdown.appendChild(a);
   }
 
@@ -111,6 +109,31 @@ function createVideoBox(video) {
 
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
+
+  /* ---------------- QUALITY DROPDOWN ---------------- */
+  let dropdown = null;
+
+  if (video.qualities && video.qualities.length > 0) {
+    dropdown = document.createElement("select");
+
+    video.qualities.forEach(q => {
+      const opt = document.createElement("option");
+      opt.value = q.embed;
+      opt.textContent = q.label;
+      dropdown.appendChild(opt);
+    });
+
+    dropdown.addEventListener("change", () => {
+      increaseViews(video.id);
+
+      const iframe = document.createElement("iframe");
+      iframe.src = dropdown.value;
+      iframe.allowFullscreen = true;
+
+      wrapper.innerHTML = "";
+      wrapper.appendChild(iframe);
+    });
+  }
 
   /* ---------------- THUMB ---------------- */
   const thumb = document.createElement("img");
@@ -143,40 +166,16 @@ function createVideoBox(video) {
   const views = document.createElement("div");
   views.className = "views";
 
-  /* ---------------- QUALITY DROPDOWN (ABOVE IFRAME) ---------------- */
-  let dropdown = null;
-
-  if (video.qualities && video.qualities.length > 0) {
-    dropdown = document.createElement("select");
-
-    video.qualities.forEach(q => {
-      const opt = document.createElement("option");
-      opt.value = q.embed;
-      opt.textContent = q.label;
-      dropdown.appendChild(opt);
-    });
-
-    dropdown.addEventListener("change", () => {
-      increaseViews(video.id);
-
-      const iframe = document.createElement("iframe");
-      iframe.src = dropdown.value;
-      iframe.allowFullscreen = true;
-
-      wrapper.innerHTML = "";
-      wrapper.appendChild(iframe);
-    });
-  }
-
   /* ---------------- BUILD ---------------- */
-  box.appendChild(wrapper);
   box.appendChild(title);
-  box.appendChild(views);
 
+  /* 🔥 QUALITY DROPDOWN ABOVE IFRAME */
   if (dropdown) {
-    box.appendChild(dropdown); // ✅ ABOVE DOWNLOAD
+    box.appendChild(dropdown);
   }
 
+  box.appendChild(wrapper);
+  box.appendChild(views);
   box.appendChild(createDownloadDropdown(video));
 
   return box;
