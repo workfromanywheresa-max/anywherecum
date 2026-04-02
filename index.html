@@ -591,7 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Content Folders & Latest Video
-  fetch('./test.json').then(res=>res.json()).then(videos=>{
+  fetch('./videos.json').then(res=>res.json()).then(videos=>{
     const folders={}; videos.forEach(v=>{ if(!folders[v.folder]) folders[v.folder]=[]; folders[v.folder].push(v); });
     const folderList=document.getElementById('folderList'); folderList.innerHTML='';
     Object.keys(folders).sort().forEach(folderName=>{
