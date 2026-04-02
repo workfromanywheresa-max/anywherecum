@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Folder Videos</title>
 
-<!-- YOUR CSS (UNCHANGED) -->
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -31,7 +30,6 @@ button {
 h2 {
   color: #ff4444;
   text-align: center;
-  border-bottom: 2px solid #ff4444;
 }
 
 #mainContainer {
@@ -49,17 +47,24 @@ h2 {
 .videoFrameWrapper {
   width: 100%;
   max-width: 300px;
-  margin: 0 auto;
-  aspect-ratio: 16 / 9;
+  margin: auto;
+  aspect-ratio: 16/9;
+  border-radius: 8px;
+  overflow: hidden;
+  background: black;
 }
 
-.videoFrameWrapper iframe {
+.videoFrameWrapper iframe,
+.videoFrameWrapper img {
   width: 100%;
   height: 100%;
+  border: 0;
 }
 
 .videoTitle {
   font-size: 13px;
+  margin: 6px 0;
+  cursor: pointer;
   text-decoration: underline;
 }
 
@@ -68,14 +73,22 @@ h2 {
   color: #aaa;
 }
 
+select {
+  width: 100%;
+  margin-top: 5px;
+  padding: 5px;
+}
+
 .download {
+  display: block;
+  width: fit-content;
+  margin: 6px auto;
+  padding: 5px 10px;
   background: #ff4444;
   color: #fff;
-  padding: 5px 8px;
-  font-size: 12px;
-  border-radius: 5px;
   text-decoration: none;
-  margin: 5px;
+  border-radius: 5px;
+  font-size: 12px;
 }
 </style>
 
@@ -85,108 +98,74 @@ h2 {
 
 <button onclick="history.back()">← Back</button>
 
-<h2 id="folderTitle">Folder</h2>
+<h2 id="folderTitle"></h2>
+
+<p id="folderDescription" style="text-align:center;color:#aaa;font-size:13px;">
+  Enjoy our videos, updated regularly.
+</p>
 
 <div id="mainContainer">
   <div id="normalVideos"></div>
 </div>
 
-<!-- ✅ CONFIG (IMPORTANT) -->
+<!-- CONFIG -->
 <script>
 const params = new URLSearchParams(window.location.search);
 
 window.VIDEO_CONFIG = {
-  dataSource: "test.json",   // ✅ USING test.json
+  dataSource: "test.json",   // ✅ USE YOUR test.js
   folder: params.get("folder") || ""
 };
 </script>
 
-<!-- ✅ MAIN LOGIC -->
+<!-- FIREBASE + VIDEO LOGIC -->
+<script type="module" src="test.js"></script>
+
+<!-- ================= ONE SIGNAL ================= -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
 <script>
-const container = document.getElementById("normalVideos");
+window.OneSignalDeferred = window.OneSignalDeferred || [];
 
-fetch(window.VIDEO_CONFIG.dataSource)
-.then(res => res.json())
-.then(videos => {
-
-  const folder = window.VIDEO_CONFIG.folder;
-
-  const filtered = folder
-    ? videos.filter(v => v.folder === folder)
-    : videos;
-
-  filtered.forEach(video => {
-
-    const box = document.createElement("div");
-    box.className = "videoBox";
-
-    const title = document.createElement("div");
-    title.className = "videoTitle";
-    title.innerText = video.title;
-
-    const views = document.createElement("div");
-    views.className = "views";
-    views.innerText = video.views + " views";
-
-    const frame = document.createElement("div");
-    frame.className = "videoFrameWrapper";
-
-    const iframe = document.createElement("iframe");
-
-    // DEFAULT = 480p
-    iframe.src = video.qualities[0].embed;
-
-    frame.appendChild(iframe);
-
-    // ✅ DROPDOWN
-    const select = document.createElement("select");
-
-    video.qualities.forEach(q => {
-      const opt = document.createElement("option");
-      opt.value = q.embed;
-      opt.textContent = q.label;
-      select.appendChild(opt);
-    });
-
-    select.addEventListener("change", () => {
-      iframe.src = select.value;
-    });
-
-    // ✅ DOWNLOAD SIDE BY SIDE WITH |
-    const downloadDiv = document.createElement("div");
-
-    video.qualities.forEach((q, i) => {
-
-      const a = document.createElement("a");
-      a.href = q.download;
-      a.className = "download";
-      a.innerText = "Download " + q.label;
-
-      downloadDiv.appendChild(a);
-
-      if (i === 0) {
-        const sep = document.createElement("span");
-        sep.innerText = " | ";
-        downloadDiv.appendChild(sep);
-      }
-    });
-
-    box.appendChild(title);
-    box.appendChild(views);
-    box.appendChild(frame);
-
-    // Dropdown ABOVE download (as you asked)
-    box.appendChild(select);
-
-    box.appendChild(downloadDiv);
-
-    container.appendChild(box);
+OneSignalDeferred.push(async function(OneSignal) {
+  await OneSignal.init({
+    appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f"
   });
-
 });
 </script>
 
-  <script src="test.js"></script>
+<!-- ================= ADS (KEEP SIMPLE) ================= -->
+
+<div style="text-align:center;margin-top:20px;">
+  <script async src="https://poweredby.jads.co/js/jads.js"></script>
+  <ins id="1113670" data-width="300" data-height="62"></ins>
+  <script>
+    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});
+  </script>
+</div>
+
+<div id="ad-container" style="margin-top:20px;"></div>
+
+<script>
+window.addEventListener("load", () => {
+  const adContainer = document.getElementById("ad-container");
+
+  const script = document.createElement("script");
+  script.async = true;
+  script.src = "https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js";
+
+  const div = document.createElement("div");
+  div.id = "container-c04c459f06eefec9d4eeedb2a131c1d2";
+
+  adContainer.appendChild(script);
+  adContainer.appendChild(div);
+});
+</script>
+
+<!-- ================= FOOTER ================= -->
+<footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:auto;">
+© 2026 AnywhereCum – Legal content only.
+</footer>
 
 </body>
 </html>
