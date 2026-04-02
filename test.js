@@ -79,7 +79,7 @@ function createLoader() {
   loader.style.height = `${videoBoxHeight}px`;
 
   const spinner = document.createElement("div");
-  spinner.style.border = "4px solid rgba(255,255,255,0.3)";
+  spinner.style.border = "4px solid rgba(255, 255, 255, 0.3)";
   spinner.style.borderTop = "4px solid #ffcc00";
   spinner.style.borderRadius = "50%";
   spinner.style.width = "50px";
@@ -107,7 +107,7 @@ document.head.appendChild(style);
 function createVideoBox(video) {
   const box = document.createElement("div");
   box.className = "videoBox";
-  box.style.height = `${videoBoxHeight + 80}px`;
+  box.style.height = `${videoBoxHeight + 60}px`;
 
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
@@ -115,46 +115,21 @@ function createVideoBox(video) {
   wrapper.style.maxWidth = `${videoBoxWidth}px`;
   wrapper.style.aspectRatio = "16/9";
 
-  /* ---------------- DROPDOWN (ABOVE VIDEO) ---------------- */
-  let dropdown = null;
-
-  if (video.qualities && video.qualities.length > 0) {
-    dropdown = document.createElement("select");
-
-    video.qualities.forEach(q => {
-      const opt = document.createElement("option");
-      opt.value = q.embed;
-      opt.textContent = q.label;
-      dropdown.appendChild(opt);
-    });
-
-    dropdown.addEventListener("change", () => {
-      const iframe = document.createElement("iframe");
-      iframe.src = dropdown.value;
-      iframe.allowFullscreen = true;
-
-      wrapper.innerHTML = "";
-      wrapper.appendChild(iframe);
-    });
-  }
-
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
 
   thumb.onclick = () => {
     increaseViews(video.id);
-
     const iframe = document.createElement("iframe");
-    iframe.src = dropdown ? dropdown.value : video.embed;
+    iframe.src = video.embed;
     iframe.allowFullscreen = true;
-
     wrapper.innerHTML = "";
     wrapper.appendChild(iframe);
   };
 
   wrapper.appendChild(thumb);
 
-  /* ---------------- TITLE (BELOW VIDEO) ---------------- */
+  /* ---------------- TITLE (NOW BELOW VIDEO) ---------------- */
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
@@ -177,10 +152,9 @@ function createVideoBox(video) {
     window.open(video.url, "_blank");
   };
 
-  /* ---------------- ORDER ---------------- */
-  if (dropdown) box.appendChild(dropdown); // dropdown FIRST (above video)
-  box.appendChild(wrapper);               // video
-  box.appendChild(title);                 // title BELOW
+  /* ---------------- ORDER FIX ---------------- */
+  box.appendChild(wrapper);  // video first
+  box.appendChild(title);    // title below
   box.appendChild(views);
   box.appendChild(btn);
 
