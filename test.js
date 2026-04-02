@@ -16,21 +16,6 @@ const config = window.VIDEO_CONFIG || {};
 const folderName = (config.folder || "").toLowerCase();
 const dataSource = config.dataSource || "videos.json";
 
-/* ---------------- SESSION TRACKING ---------------- */
-function hasViewed(id) {
-  return sessionStorage.getItem("viewed_" + id);
-}
-function markViewed(id) {
-  sessionStorage.setItem("viewed_" + id, "true");
-}
-
-function hasDownloaded(id) {
-  return sessionStorage.getItem("downloaded_" + id);
-}
-function markDownloaded(id) {
-  sessionStorage.setItem("downloaded_" + id, "true");
-}
-
 /* ---------------- CACHE ---------------- */
 function saveCache(key, value) { localStorage.setItem(key, value); }
 function getCache(key) { return localStorage.getItem(key); }
@@ -141,41 +126,37 @@ function createVideoBox(video) {
     }
   }
 
-  /* ---------------- QUALITY DROPDOWN ---------------- */
-  let dropdown = null;
-
-  if (video.qualities && video.qualities.length > 0) {
-    dropdown = document.createElement("select");
-
-    video.qualities.forEach(q => {
-      const opt = document.createElement("option");
-      opt.value = q.embed;
-      opt.textContent = q.label;
-      dropdown.appendChild(opt);
-    });
-
-    dropdown.addEventListener("change", () => {
-      markViewOnce();
-
-      const iframe = document.createElement("iframe");
-      iframe.src = dropdown.value;
-      iframe.allowFullscreen = true;
-
-      wrapper.innerHTML = "";
-      wrapper.appendChild(iframe);
-    });
-  }
+  /* ---------------- CSS RESPONSIVE ---------------- */
+  wrapper.style.width = "100%";
+  wrapper.style.aspectRatio = "16/9";
+  wrapper.style.position = "relative";
 
   /* ---------------- THUMB ---------------- */
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
+  thumb.style.width = "100%";
+  thumb.style.height = "100%";
+  thumb.style.objectFit = "cover";
+  thumb.style.position = "absolute";
+  thumb.style.top = "0";
+  thumb.style.left = "0";
 
   thumb.onclick = () => {
     markViewOnce();
 
     const iframe = document.createElement("iframe");
     iframe.src = video.qualities ? video.qualities[0].embed : video.embed;
+
+    /* ✅ IMPORTANT FOR FULLSCREEN */
     iframe.allowFullscreen = true;
+    iframe.setAttribute("allowfullscreen", "");
+
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    iframe.style.border = "none";
+    iframe.style.position = "absolute";
+    iframe.style.top = "0";
+    iframe.style.left = "0";
 
     wrapper.innerHTML = "";
     wrapper.appendChild(iframe);
@@ -183,12 +164,10 @@ function createVideoBox(video) {
 
   wrapper.appendChild(thumb);
 
-  /* ---------------- TITLE (NO CLICK ACTION) ---------------- */
+  /* ---------------- TITLE ---------------- */
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
-
-  // 👉 No click event = does nothing
   title.style.cursor = "default";
 
   /* ---------------- VIEWS ---------------- */
@@ -196,8 +175,6 @@ function createVideoBox(video) {
   views.className = "views";
 
   /* ---------------- BUILD ---------------- */
-  if (dropdown) box.appendChild(dropdown);
-
   box.appendChild(wrapper);
   box.appendChild(title);
   box.appendChild(views);
