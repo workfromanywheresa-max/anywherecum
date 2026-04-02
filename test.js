@@ -13,16 +13,8 @@ const TEST_MODE = localStorage.getItem("testMode") === "true";
 
 /* ---------------- CONFIG ---------------- */
 const config = window.VIDEO_CONFIG || {};
-const params = new URLSearchParams(window.location.search);
-
-/* ✅ FIX: add URL fallback + safer matching */
-const folderName = (
-  config.folder ||
-  params.get("folder") ||
-  ""
-).toLowerCase().replace(/\s+/g, "");
-
-const dataSource = config.dataSource || "videos.json";
+const folderName = (config.folder || "").toLowerCase();
+const dataSource = config.dataSource || "test.json";
 
 /* ---------------- CACHE ---------------- */
 function saveCache(key, value) { localStorage.setItem(key, value); }
@@ -39,9 +31,8 @@ function toTitleCase(str) {
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 }
-
 document.getElementById("folderTitle").textContent =
-  folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
+  folderName ? toTitleCase(folderName) : "All Videos";
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
@@ -62,7 +53,6 @@ async function sendToWorker(videoId) {
     });
   } catch (err) { console.error("Worker failed:", err); }
 }
-
 function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
@@ -70,28 +60,71 @@ function increaseViews(videoId) {
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
 
+/* ---------------- LOADER ---------------- */
+const videoBoxWidth = 600;
+const videoBoxHeight = 169;
+
+function createLoader() {
+  const loader = document.createElement("div");
+  loader.id = "loader";
+  loader.style.position = "fixed";
+  loader.style.top = "50%";
+  loader.style.left = "50%";
+  loader.style.transform = "translate(-50%, -50%)";
+  loader.style.zIndex = "9999";
+  loader.style.display = "flex";
+  loader.style.justifyContent = "center";
+  loader.style.alignItems = "center";
+  loader.style.width = `${videoBoxWidth}px`;
+  loader.style.height = `${videoBoxHeight}px`;
+
+  const spinner = document.createElement("div");
+  spinner.style.border = "4px solid rgba(255, 255, 255, 0.3)";
+  spinner.style.borderTop = "4px solid #ffcc00";
+  spinner.style.borderRadius = "50%";
+  spinner.style.width = "50px";
+  spinner.style.height = "50px";
+  spinner.style.animation = "spin 1s linear infinite";
+
+  loader.appendChild(spinner);
+  document.body.appendChild(loader);
+}
+
+function removeLoader() {
+  const loader = document.getElementById("loader");
+  if (loader) loader.remove();
+}
+
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}`;
+document.head.appendChild(style);
+
 /* ---------------- VIDEO BOX ---------------- */
 function createVideoBox(video) {
   const box = document.createElement("div");
   box.className = "videoBox";
+  box.style.height = `${videoBoxHeight + 60}px`;
 
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
+  wrapper.style.width = "100%";
+  wrapper.style.maxWidth = `${videoBoxWidth}px`;
+  wrapper.style.aspectRatio = "16/9";
 
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
-
   thumb.onclick = () => {
     increaseViews(video.id);
-
     const iframe = document.createElement("iframe");
     iframe.src = video.embed;
     iframe.allowFullscreen = true;
-
     wrapper.innerHTML = "";
     wrapper.appendChild(iframe);
   };
-
   wrapper.appendChild(thumb);
 
   const title = document.createElement("h3");
@@ -109,7 +142,6 @@ function createVideoBox(video) {
   btn.className = "download";
   btn.href = "#";
   btn.textContent = `Download (${video.size || "?"})`;
-
   btn.onclick = (e) => {
     e.preventDefault();
     increaseViews(video.id);
@@ -156,11 +188,11 @@ function updateUI(id) {
   saveCache("views_" + id, total);
   saveCache("cycle_" + id, v.cycleViews);
 
-  const el = videoElements[id].views;
-
   const newText = isTrending
     ? `🔥 Trending | 👁 ${formatViews(total)}`
     : `👁 ${formatViews(total)}`;
+
+  const el = videoElements[id].views;
 
   if (el.textContent !== newText) {
     el.textContent = newText;
@@ -169,20 +201,18 @@ function updateUI(id) {
 }
 
 /* ---------------- LOAD ---------------- */
+createLoader();
+
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
+    removeLoader();
 
-    /* ✅ FIX: flexible folder matching */
     const filtered = folderName
-      ? videos.filter(v =>
-          v.folder &&
-          v.folder.toLowerCase().replace(/\s+/g, "") === folderName
-        )
+      ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
       : videos;
 
     filtered.forEach((v) => {
-
       originalOrder.push(v.id);
 
       videoDataMap[v.id] = {
@@ -220,9 +250,11 @@ fetch(dataSource)
           renderVideos();
         }
       });
-
     });
 
     renderVideos();
   })
-  .catch(err => console.error(err));
+  .catch(err => {
+    console.error(err);
+    removeLoader();
+  });
