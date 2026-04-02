@@ -8,11 +8,28 @@ const app = initializeApp({
 });
 const db = getDatabase(app);
 
-/* ---------------- CONFIG ---------------- */
-const dataSource = "test.json"; // 🔥 ONLY test.json
-
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
+
+/* ---------------- CONFIG ---------------- */
+const config = window.VIDEO_CONFIG || {};
+const folderName = (config.folder || "").toLowerCase();
+const dataSource = config.dataSource || "videos.json";
+
+/* ---------------- SESSION TRACKING ---------------- */
+function hasViewed(id) {
+  return sessionStorage.getItem("viewed_" + id);
+}
+function markViewed(id) {
+  sessionStorage.setItem("viewed_" + id, "true");
+}
+
+function hasDownloaded(id) {
+  return sessionStorage.getItem("downloaded_" + id);
+}
+function markDownloaded(id) {
+  sessionStorage.setItem("downloaded_" + id, "true");
+}
 
 /* ---------------- CACHE ---------------- */
 function saveCache(key, value) { localStorage.setItem(key, value); }
@@ -22,7 +39,6 @@ function getCache(key) { return localStorage.getItem(key); }
 const videoDataMap = {};
 const originalOrder = [];
 const videoElements = {};
-let folderName = "";
 
 /* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
@@ -31,16 +47,8 @@ function toTitleCase(str) {
     .join(" ");
 }
 
-function setFolderTitle(videos) {
-  const folders = [...new Set(videos.map(v => v.folder).filter(Boolean))];
-
-  if (folders.length === 1) {
-    folderName = folders[0].toLowerCase();
-    document.getElementById("folderTitle").textContent = toTitleCase(folderName);
-  } else {
-    document.getElementById("folderTitle").textContent = "Videos";
-  }
-}
+document.getElementById("folderTitle").textContent =
+  folderName ? toTitleCase(folderName) : "Videos";
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
@@ -68,23 +76,52 @@ function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
-/* ---------------- CONTAINER ---------------- */
-const videosContainer = document.getElementById("normalVideos");
+/* ---------------- DOWNLOAD DROPDOWN ---------------- */
+function createDownloadDropdown(video) {
+  const wrapper = document.createElement("div");
 
-/* ---------------- LOADER ---------------- */
-function createLoader() {
-  const loader = document.createElement("div");
-  loader.style.position = "fixed";
-  loader.style.top = "50%";
-  loader.style.left = "50%";
-  loader.style.transform = "translate(-50%, -50%)";
-  loader.textContent = "Loading...";
-  document.body.appendChild(loader);
-}
+  const btn = document.createElement("button");
+  btn.className = "download";
+  btn.textContent = "Download ⬇";
 
-function removeLoader() {
-  const loader = document.querySelector("div");
-  if (loader) loader.remove();
+  const dropdown = document.createElement("div");
+  dropdown.style.display = "none";
+  dropdown.style.marginTop = "5px";
+
+  if (video.qualities && video.qualities.length > 0) {
+    video.qualities.forEach(q => {
+      const a = document.createElement("a");
+      a.href = q.download;
+      a.target = "_blank";
+      a.className = "download";
+      a.textContent = `${q.label} (${q.size || "?"})`;
+      dropdown.appendChild(a);
+    });
+  } else {
+    const a = document.createElement("a");
+    a.href = video.url;
+    a.target = "_blank";
+    a.className = "download";
+    a.textContent = `Download (${video.size || "?"})`;
+    dropdown.appendChild(a);
+  }
+
+  btn.onclick = () => {
+    const key = "downloaded_" + video.id;
+
+    if (!sessionStorage.getItem(key)) {
+      increaseViews(video.id);
+      sessionStorage.setItem(key, "true");
+    }
+
+    dropdown.style.display =
+      dropdown.style.display === "none" ? "block" : "none";
+  };
+
+  wrapper.appendChild(btn);
+  wrapper.appendChild(dropdown);
+
+  return wrapper;
 }
 
 /* ---------------- VIDEO BOX ---------------- */
@@ -95,14 +132,47 @@ function createVideoBox(video) {
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
 
+  function markViewOnce() {
+    const key = "viewed_" + video.id;
+
+    if (!sessionStorage.getItem(key)) {
+      increaseViews(video.id);
+      sessionStorage.setItem(key, "true");
+    }
+  }
+
+  let dropdown = null;
+
+  if (video.qualities && video.qualities.length > 0) {
+    dropdown = document.createElement("select");
+
+    video.qualities.forEach(q => {
+      const opt = document.createElement("option");
+      opt.value = q.embed;
+      opt.textContent = q.label;
+      dropdown.appendChild(opt);
+    });
+
+    dropdown.addEventListener("change", () => {
+      markViewOnce();
+
+      const iframe = document.createElement("iframe");
+      iframe.src = dropdown.value;
+      iframe.allowFullscreen = true;
+
+      wrapper.innerHTML = "";
+      wrapper.appendChild(iframe);
+    });
+  }
+
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
 
   thumb.onclick = () => {
-    increaseViews(video.id);
+    markViewOnce();
 
     const iframe = document.createElement("iframe");
-    iframe.src = video.embed;
+    iframe.src = video.qualities ? video.qualities[0].embed : video.embed;
     iframe.allowFullscreen = true;
 
     wrapper.innerHTML = "";
@@ -114,34 +184,44 @@ function createVideoBox(video) {
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
-  title.onclick = () => {
-    increaseViews(video.id);
-    window.open(video.url, "_blank");
-  };
+  title.style.cursor = "default";
 
   const views = document.createElement("div");
   views.className = "views";
 
-  const btn = document.createElement("a");
-  btn.className = "download";
-  btn.href = "#";
-  btn.textContent = `Download (${video.size || "?"})`;
-
-  btn.onclick = (e) => {
-    e.preventDefault();
-    increaseViews(video.id);
-    window.open(video.url, "_blank");
-  };
+  if (dropdown) box.appendChild(dropdown);
 
   box.appendChild(wrapper);
   box.appendChild(title);
   box.appendChild(views);
-  box.appendChild(btn);
+  box.appendChild(createDownloadDropdown(video));
 
   return box;
 }
 
-/* ---------------- UI UPDATE ---------------- */
+/* ---------------- RENDER ---------------- */
+function renderVideos() {
+  const arr = Object.values(videoDataMap);
+
+  arr.sort((a, b) => {
+    const aTrending = a.cycleViews >= 10;
+    const bTrending = b.cycleViews >= 10;
+
+    if (aTrending && !bTrending) return -1;
+    if (!aTrending && bTrending) return 1;
+
+    return originalOrder.indexOf(a.id) - originalOrder.indexOf(b.id);
+  });
+
+  const container = document.getElementById("normalVideos");
+  container.innerHTML = "";
+
+  arr.forEach(v => {
+    container.appendChild(videoElements[v.id].box);
+  });
+}
+
+/* ---------------- UI ---------------- */
 function updateUI(id) {
   const v = videoDataMap[id];
   if (!v) return;
@@ -161,43 +241,16 @@ function updateUI(id) {
   el.style.color = isTrending ? "#ffcc00" : "#aaa";
 }
 
-/* ---------------- RENDER ---------------- */
-function renderVideos() {
-  const arr = Object.values(videoDataMap);
-
-  arr.sort((a, b) => {
-    const aTrending = a.cycleViews >= 10;
-    const bTrending = b.cycleViews >= 10;
-
-    if (aTrending && !bTrending) return -1;
-    if (!aTrending && bTrending) return 1;
-
-    return originalOrder.indexOf(a.id) - originalOrder.indexOf(b.id);
-  });
-
-  videosContainer.innerHTML = "";
-
-  arr.forEach(v => {
-    videosContainer.appendChild(videoElements[v.id].box);
-  });
-}
-
 /* ---------------- LOAD ---------------- */
-createLoader();
-
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
-
-    removeLoader();
-
-    setFolderTitle(videos); // 🔥 set title from JSON
 
     const filtered = folderName
       ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
       : videos;
 
-    filtered.forEach((v) => {
+    filtered.forEach(v => {
 
       originalOrder.push(v.id);
 
@@ -208,7 +261,7 @@ fetch(dataSource)
       };
 
       const box = createVideoBox(v);
-      videosContainer.appendChild(box);
+      document.getElementById("normalVideos").appendChild(box);
 
       videoElements[v.id] = {
         box,
@@ -241,7 +294,4 @@ fetch(dataSource)
 
     renderVideos();
   })
-  .catch(err => {
-    console.error(err);
-    removeLoader();
-  });
+  .catch(err => console.error(err));
