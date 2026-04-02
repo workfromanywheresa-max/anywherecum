@@ -16,6 +16,21 @@ const config = window.VIDEO_CONFIG || {};
 const folderName = (config.folder || "").toLowerCase();
 const dataSource = config.dataSource || "videos.json";
 
+/* ---------------- SESSION TRACKING ---------------- */
+function hasViewed(id) {
+  return sessionStorage.getItem("viewed_" + id);
+}
+function markViewed(id) {
+  sessionStorage.setItem("viewed_" + id, "true");
+}
+
+function hasDownloaded(id) {
+  return sessionStorage.getItem("downloaded_" + id);
+}
+function markDownloaded(id) {
+  sessionStorage.setItem("downloaded_" + id, "true");
+}
+
 /* ---------------- CACHE ---------------- */
 function saveCache(key, value) { localStorage.setItem(key, value); }
 function getCache(key) { return localStorage.getItem(key); }
@@ -92,6 +107,13 @@ function createDownloadDropdown(video) {
   }
 
   btn.onclick = () => {
+    const key = "downloaded_" + video.id;
+
+    if (!sessionStorage.getItem(key)) {
+      increaseViews(video.id);
+      sessionStorage.setItem(key, "true");
+    }
+
     dropdown.style.display =
       dropdown.style.display === "none" ? "block" : "none";
   };
@@ -110,6 +132,15 @@ function createVideoBox(video) {
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
 
+  function markViewOnce() {
+    const key = "viewed_" + video.id;
+
+    if (!sessionStorage.getItem(key)) {
+      increaseViews(video.id);
+      sessionStorage.setItem(key, "true");
+    }
+  }
+
   /* ---------------- QUALITY DROPDOWN ---------------- */
   let dropdown = null;
 
@@ -124,7 +155,7 @@ function createVideoBox(video) {
     });
 
     dropdown.addEventListener("change", () => {
-      increaseViews(video.id);
+      markViewOnce();
 
       const iframe = document.createElement("iframe");
       iframe.src = dropdown.value;
@@ -140,7 +171,7 @@ function createVideoBox(video) {
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
 
   thumb.onclick = () => {
-    increaseViews(video.id);
+    markViewOnce();
 
     const iframe = document.createElement("iframe");
     iframe.src = video.qualities ? video.qualities[0].embed : video.embed;
@@ -152,30 +183,23 @@ function createVideoBox(video) {
 
   wrapper.appendChild(thumb);
 
-  /* ---------------- TITLE ---------------- */
+  /* ---------------- TITLE (NO CLICK ACTION) ---------------- */
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
 
-  title.onclick = () => {
-    increaseViews(video.id);
-    window.open(video.url, "_blank");
-  };
+  // 👉 No click event = does nothing
+  title.style.cursor = "default";
 
   /* ---------------- VIEWS ---------------- */
   const views = document.createElement("div");
   views.className = "views";
 
   /* ---------------- BUILD ---------------- */
-  if (dropdown) {
-    box.appendChild(dropdown);
-  }
+  if (dropdown) box.appendChild(dropdown);
 
   box.appendChild(wrapper);
-
-  /* 👉 TITLE BELOW VIDEO (correct placement) */
   box.appendChild(title);
-
   box.appendChild(views);
   box.appendChild(createDownloadDropdown(video));
 
