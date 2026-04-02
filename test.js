@@ -12,26 +12,17 @@ const db = getDatabase(app);
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
 /* ---------------- CONFIG ---------------- */
-/* ✅ FIXED: Read folder from URL instead of VIDEO_CONFIG */
+const config = window.VIDEO_CONFIG || {};
 const params = new URLSearchParams(window.location.search);
-const folderName = (params.get("folder") || "").toLowerCase();
 
-const dataSource = "test.json";
+/* ✅ FIX: add URL fallback + safer matching */
+const folderName = (
+  config.folder ||
+  params.get("folder") ||
+  ""
+).toLowerCase().replace(/\s+/g, "");
 
-/* ---------------- SESSION TRACKING ---------------- */
-function hasViewed(id) {
-  return sessionStorage.getItem("viewed_" + id);
-}
-function markViewed(id) {
-  sessionStorage.setItem("viewed_" + id, "true");
-}
-
-function hasDownloaded(id) {
-  return sessionStorage.getItem("downloaded_" + id);
-}
-function markDownloaded(id) {
-  sessionStorage.setItem("downloaded_" + id, "true");
-}
+const dataSource = config.dataSource || "videos.json";
 
 /* ---------------- CACHE ---------------- */
 function saveCache(key, value) { localStorage.setItem(key, value); }
@@ -50,7 +41,7 @@ function toTitleCase(str) {
 }
 
 document.getElementById("folderTitle").textContent =
-  folderName ? toTitleCase(folderName) : "All Folders";
+  folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
@@ -69,62 +60,15 @@ async function sendToWorker(videoId) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ videoId })
     });
-  } catch (err) {
-    console.error("Worker failed:", err);
-  }
+  } catch (err) { console.error("Worker failed:", err); }
 }
 
 function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
-/* ---------------- DOWNLOAD DROPDOWN ---------------- */
-function createDownloadDropdown(video) {
-  const wrapper = document.createElement("div");
-
-  const btn = document.createElement("button");
-  btn.className = "download";
-  btn.textContent = "Download ⬇";
-
-  const dropdown = document.createElement("div");
-  dropdown.style.display = "none";
-  dropdown.style.marginTop = "5px";
-
-  if (video.qualities && video.qualities.length > 0) {
-    video.qualities.forEach(q => {
-      const a = document.createElement("a");
-      a.href = q.download;
-      a.target = "_blank";
-      a.className = "download";
-      a.textContent = `${q.label} (${q.size || "?"})`;
-      dropdown.appendChild(a);
-    });
-  } else {
-    const a = document.createElement("a");
-    a.href = video.url;
-    a.target = "_blank";
-    a.className = "download";
-    a.textContent = `Download (${video.size || "?"})`;
-    dropdown.appendChild(a);
-  }
-
-  btn.onclick = () => {
-    const key = "downloaded_" + video.id;
-
-    if (!sessionStorage.getItem(key)) {
-      increaseViews(video.id);
-      sessionStorage.setItem(key, "true");
-    }
-
-    dropdown.style.display =
-      dropdown.style.display === "none" ? "block" : "none";
-  };
-
-  wrapper.appendChild(btn);
-  wrapper.appendChild(dropdown);
-
-  return wrapper;
-}
+/* ---------------- CONTAINER ---------------- */
+const videosContainer = document.getElementById("normalVideos");
 
 /* ---------------- VIDEO BOX ---------------- */
 function createVideoBox(video) {
@@ -134,49 +78,14 @@ function createVideoBox(video) {
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
 
-  function markViewOnce() {
-    const key = "viewed_" + video.id;
-
-    if (!sessionStorage.getItem(key)) {
-      increaseViews(video.id);
-      sessionStorage.setItem(key, "true");
-    }
-  }
-
-  /* ---------------- QUALITY DROPDOWN ---------------- */
-  let dropdown = null;
-
-  if (video.qualities && video.qualities.length > 0) {
-    dropdown = document.createElement("select");
-
-    video.qualities.forEach(q => {
-      const opt = document.createElement("option");
-      opt.value = q.embed;
-      opt.textContent = q.label;
-      dropdown.appendChild(opt);
-    });
-
-    dropdown.addEventListener("change", () => {
-      markViewOnce();
-
-      const iframe = document.createElement("iframe");
-      iframe.src = dropdown.value;
-      iframe.allowFullscreen = true;
-
-      wrapper.innerHTML = "";
-      wrapper.appendChild(iframe);
-    });
-  }
-
-  /* ---------------- THUMB ---------------- */
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
 
   thumb.onclick = () => {
-    markViewOnce();
+    increaseViews(video.id);
 
     const iframe = document.createElement("iframe");
-    iframe.src = video.qualities ? video.qualities[0].embed : video.embed;
+    iframe.src = video.embed;
     iframe.allowFullscreen = true;
 
     wrapper.innerHTML = "";
@@ -185,24 +94,32 @@ function createVideoBox(video) {
 
   wrapper.appendChild(thumb);
 
-  /* ---------------- TITLE (NO CLICK ACTION) ---------------- */
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
+  title.onclick = () => {
+    increaseViews(video.id);
+    window.open(video.url, "_blank");
+  };
 
-  title.style.cursor = "default";
-
-  /* ---------------- VIEWS ---------------- */
   const views = document.createElement("div");
   views.className = "views";
 
-  /* ---------------- BUILD ---------------- */
-  if (dropdown) box.appendChild(dropdown);
+  const btn = document.createElement("a");
+  btn.className = "download";
+  btn.href = "#";
+  btn.textContent = `Download (${video.size || "?"})`;
+
+  btn.onclick = (e) => {
+    e.preventDefault();
+    increaseViews(video.id);
+    window.open(video.url, "_blank");
+  };
 
   box.appendChild(wrapper);
   box.appendChild(title);
   box.appendChild(views);
-  box.appendChild(createDownloadDropdown(video));
+  box.appendChild(btn);
 
   return box;
 }
@@ -221,15 +138,14 @@ function renderVideos() {
     return originalOrder.indexOf(a.id) - originalOrder.indexOf(b.id);
   });
 
-  const container = document.getElementById("normalVideos");
-  container.innerHTML = "";
+  videosContainer.innerHTML = "";
 
   arr.forEach(v => {
-    container.appendChild(videoElements[v.id].box);
+    videosContainer.appendChild(videoElements[v.id].box);
   });
 }
 
-/* ---------------- UI ---------------- */
+/* ---------------- UI UPDATE ---------------- */
 function updateUI(id) {
   const v = videoDataMap[id];
   if (!v) return;
@@ -242,11 +158,14 @@ function updateUI(id) {
 
   const el = videoElements[id].views;
 
-  el.textContent = isTrending
+  const newText = isTrending
     ? `🔥 Trending | 👁 ${formatViews(total)}`
     : `👁 ${formatViews(total)}`;
 
-  el.style.color = isTrending ? "#ffcc00" : "#aaa";
+  if (el.textContent !== newText) {
+    el.textContent = newText;
+    el.style.color = isTrending ? "#ffcc00" : "#aaa";
+  }
 }
 
 /* ---------------- LOAD ---------------- */
@@ -254,11 +173,15 @@ fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
 
+    /* ✅ FIX: flexible folder matching */
     const filtered = folderName
-      ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
+      ? videos.filter(v =>
+          v.folder &&
+          v.folder.toLowerCase().replace(/\s+/g, "") === folderName
+        )
       : videos;
 
-    filtered.forEach(v => {
+    filtered.forEach((v) => {
 
       originalOrder.push(v.id);
 
@@ -269,7 +192,7 @@ fetch(dataSource)
       };
 
       const box = createVideoBox(v);
-      document.getElementById("normalVideos").appendChild(box);
+      videosContainer.appendChild(box);
 
       videoElements[v.id] = {
         box,
