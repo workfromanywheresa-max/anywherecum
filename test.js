@@ -94,10 +94,10 @@ function createVideoBox(video) {
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
 
-  /* DEFAULT QUALITY */
+  /* ✅ FORCE STANDARD DEFAULT */
   const defaultQuality =
-    video.qualities.find(q => q.recommended) ||
-    video.qualities.find(q => q.default) ||
+    video.qualities.find(q => q.label.toLowerCase().includes("standard")) ||
+    video.qualities.find(q => q.label.includes("480")) ||
     video.qualities[0];
 
   let currentEmbed = defaultQuality.embed;
@@ -128,7 +128,10 @@ function createVideoBox(video) {
     const option = document.createElement("option");
     option.value = index;
     option.textContent = `${q.label} • ${q.size}`;
+
+    /* ✅ SELECT STANDARD */
     if (q === defaultQuality) option.selected = true;
+
     select.appendChild(option);
   });
 
