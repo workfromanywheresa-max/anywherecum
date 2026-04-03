@@ -94,7 +94,7 @@ function createVideoBox(video) {
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
 
-  /* ✅ FORCE 480p AS DEFAULT */
+  /* FORCE 480p */
   const defaultQuality =
     video.qualities.find(q => q.label.includes("480")) ||
     video.qualities[0];
@@ -118,7 +118,7 @@ function createVideoBox(video) {
   };
   wrapper.appendChild(thumb);
 
-  /* DROPDOWN */
+  /* DROPDOWN (NO SIZE) */
   const select = document.createElement("select");
   select.style.margin = "8px auto";
   select.style.display = "block";
@@ -126,7 +126,10 @@ function createVideoBox(video) {
   video.qualities.forEach((q, index) => {
     const option = document.createElement("option");
     option.value = index;
-    option.textContent = `${q.label} • ${q.size}`;
+
+    /* ✅ ONLY LABEL */
+    option.textContent = q.label;
+
     if (q === defaultQuality) option.selected = true;
     select.appendChild(option);
   });
@@ -161,11 +164,15 @@ function createVideoBox(video) {
     const link = document.createElement("a");
     link.href = q.download;
     link.target = "_blank";
-    link.textContent = `${q.label} • ${q.size}`;
+
+    /* ✅ ONLY LABEL */
+    link.textContent = q.label;
+
     link.style.display = "block";
     link.style.margin = "5px 0";
     link.style.color = "#ff4444";
     link.onclick = () => increaseViews(video.id);
+
     downloadBox.appendChild(link);
   });
 
