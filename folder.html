@@ -22,11 +22,6 @@ body {
   box-sizing: border-box;
 }
 
-/* 🔴 HIDE EVERYTHING UNTIL JS FINISHES */
-body.loading #mainContent {
-  visibility: hidden;
-}
-
 /* BACK BUTTON CONTAINER */
 .topBar {
   display: flex;
@@ -64,7 +59,7 @@ h2 {
 /* VIDEO LIST CONTAINER */
 #normalVideos {
   margin-bottom: 40px;
-  min-height: 300px;
+  min-height: 300px; /* prevents layout jump */
 }
 
 /* VIDEO CARD */
@@ -74,7 +69,8 @@ h2 {
   border-radius: 8px;
   margin-bottom: 30px;
   text-align: center;
-  min-height: 250px;
+
+  min-height: 250px; /* prevents flicker */
 }
 
 /* PLAYER */
@@ -86,6 +82,7 @@ h2 {
   border-radius: 8px;
   overflow: hidden;
   background: #000;
+
   contain: content;
 }
 
@@ -151,25 +148,20 @@ body {
 
 </head>
 
-<body class="loading">
+<body>
 
-<!-- MAIN CONTENT WRAPPER -->
-<div id="mainContent">
-
-  <div class="topBar">
-    <button onclick="history.back()">← Back</button>
-  </div>
-
-  <h2 id="folderTitle">Folder</h2>
-
-  <p id="folderDescription">
-    Enjoy our videos, updated regularly for your viewing pleasure.
-  </p>
-
-  <!-- VIDEO CONTAINER -->
-  <div id="normalVideos"></div>
-
+<div class="topBar">
+  <button onclick="history.back()">← Back</button>
 </div>
+
+<h2 id="folderTitle">Folder</h2>
+
+<p id="folderDescription">
+  Enjoy our videos, updated regularly for your viewing pleasure.
+</p>
+
+<!-- VIDEO CONTAINER -->
+<div id="normalVideos"></div>
 
 <footer>
 © 2026 AnywhereCum – Legal content only. 18+
