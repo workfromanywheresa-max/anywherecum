@@ -11,26 +11,10 @@ const db = getDatabase(app);
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
-/* ---------------- CONFIG (FIXED) ---------------- */
-let folderName = "";
-let dataSource = "test.json";
-
-/* ---------------- WAIT FOR CONFIG ---------------- */
-function waitForConfig() {
-  if (window.VIDEO_CONFIG && window.VIDEO_CONFIG.folder !== undefined) {
-    folderName = (window.VIDEO_CONFIG.folder || "").toLowerCase();
-    dataSource = window.VIDEO_CONFIG.dataSource || "test.json";
-
-    document.getElementById("folderTitle").textContent =
-      folderName ? toTitleCase(folderName) : "All Videos";
-
-    loadApp(); // 🔥 start ONLY after config is ready
-  } else {
-    setTimeout(waitForConfig, 50);
-  }
-}
-
-waitForConfig();
+/* ---------------- CONFIG ---------------- */
+const config = window.VIDEO_CONFIG || {};
+const folderName = (config.folder || "").toLowerCase();
+const dataSource = config.dataSource || "test.json";
 
 /* ---------------- CACHE ---------------- */
 function saveCache(key, value) { localStorage.setItem(key, value); }
@@ -47,6 +31,8 @@ function toTitleCase(str) {
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 }
+document.getElementById("folderTitle").textContent =
+  folderName ? toTitleCase(folderName) : "All Videos";
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
@@ -67,7 +53,6 @@ async function sendToWorker(videoId) {
     });
   } catch (err) { console.error("Worker failed:", err); }
 }
-
 function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
@@ -96,7 +81,6 @@ function createLoader() {
   loader.appendChild(spinner);
   document.body.appendChild(loader);
 }
-
 function removeLoader() {
   const loader = document.getElementById("loader");
   if (loader) loader.remove();
@@ -129,12 +113,10 @@ function createVideoBox(video) {
   /* THUMB */
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
-
   thumb.onclick = () => {
     increaseViews(video.id);
     loadPlayer();
   };
-
   wrapper.appendChild(thumb);
 
   /* DROPDOWN */
@@ -164,7 +146,7 @@ function createVideoBox(video) {
   title.className = "videoTitle";
   title.textContent = video.title;
 
-  /* VIEWS (UNCHANGED LOGIC) */
+  /* VIEWS */
   const views = document.createElement("div");
   views.className = "views";
 
@@ -249,63 +231,60 @@ function updateUI(id) {
 }
 
 /* ---------------- LOAD ---------------- */
-function loadApp() {
-  createLoader();
+createLoader();
 
-  fetch(dataSource)
-    .then(res => res.json())
-    .then(videos => {
-      removeLoader();
+fetch(dataSource)
+  .then(res => res.json())
+  .then(videos => {
+    removeLoader();
 
-      const filtered = folderName
-        ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
-        : videos;
+    const filtered = folderName
+      ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
+      : videos;
 
-      filtered.forEach((v) => {
-        originalOrder.push(v.id);
+    filtered.forEach((v) => {
+      originalOrder.push(v.id);
 
-        videoDataMap[v.id] = {
-          ...v,
-          totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
-          cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
-        };
+      videoDataMap[v.id] = {
+        ...v,
+        totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
+        cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
+      };
 
-        const box = createVideoBox(v);
-        videosContainer.appendChild(box);
+      const box = createVideoBox(v);
+      videosContainer.appendChild(box);
 
-        videoElements[v.id] = {
-          box,
-          views: box.querySelector(".views")
-        };
+      videoElements[v.id] = {
+        box,
+        views: box.querySelector(".views")
+      };
 
-        updateUI(v.id);
+      updateUI(v.id);
 
-        /* ---------------- YOUR FIREBASE LOGIC (UNCHANGED) ---------------- */
-        onValue(ref(db, "views/" + v.id), snap => {
-          const val = snap.val();
-          if (val !== null) {
-            videoDataMap[v.id].totalViews = val;
-            updateUI(v.id);
-            saveCache("views_" + v.id, val);
-            renderVideos();
-          }
-        });
-
-        onValue(ref(db, "cycleViews/" + v.id), snap => {
-          const val = snap.val();
-          if (val !== null) {
-            videoDataMap[v.id].cycleViews = Number(val);
-            updateUI(v.id);
-            saveCache("cycle_" + v.id, val);
-            renderVideos();
-          }
-        });
+      onValue(ref(db, "views/" + v.id), snap => {
+        const val = snap.val();
+        if (val !== null) {
+          videoDataMap[v.id].totalViews = val;
+          updateUI(v.id);
+          saveCache("views_" + v.id, val);
+          renderVideos();
+        }
       });
 
-      renderVideos();
-    })
-    .catch(err => {
-      console.error(err);
-      removeLoader();
+      onValue(ref(db, "cycleViews/" + v.id), snap => {
+        const val = snap.val();
+        if (val !== null) {
+          videoDataMap[v.id].cycleViews = Number(val);
+          updateUI(v.id);
+          saveCache("cycle_" + v.id, val);
+          renderVideos();
+        }
+      });
     });
-  }
+
+    renderVideos();
+  })
+  .catch(err => {
+    console.error(err);
+    removeLoader();
+  });
