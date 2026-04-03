@@ -210,11 +210,18 @@ fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
 
-    const filtered = folderName
-      ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
+    // ✅ FIXED FILTER (robust + safe)
+    const normalizedFolder = folderName.trim().toLowerCase();
+
+    const filtered = normalizedFolder
+      ? videos.filter(v => {
+          if (!v.folder) return false;
+          return v.folder.trim().toLowerCase() === normalizedFolder;
+        })
       : videos;
 
     filtered.forEach(v => {
+
       originalOrder.push(v.id);
 
       videoDataMap[v.id] = {
