@@ -115,32 +115,43 @@ footer {
   margin-top: auto;
 }
 
-/* ===== GOOGLE TRANSLATE FIX (TOP RIGHT) ===== */
+/* ===== GOOGLE TRANSLATE FIX (FLUSH RIGHT, NO GAP) ===== */
 #google_translate_element {
   position: fixed !important;
   top: 0 !important;
   right: 0 !important;
   left: auto !important;
   z-index: 99999;
-  padding: 5px;
+  margin: 0 !important;
+  padding: 0 !important;
   background: transparent;
 }
 
-/* Force internal layout */
+/* Main container */
 .goog-te-gadget {
-  display: flex !important;
+  display: inline-flex !important;
   justify-content: flex-end !important;
   align-items: center !important;
+  width: auto !important;
+  max-width: none !important;
   margin: 0 !important;
   padding: 0 !important;
   text-align: right !important;
+  background: transparent !important;
 }
 
-/* Style dropdown */
+/* Remove inner spacing */
+.goog-te-gadget > div {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+}
+
+/* Dropdown styling */
 .goog-te-combo {
   height: 26px !important;
   font-size: 12px !important;
-  padding: 3px 6px !important;
+  padding: 2px 5px !important;
   border-radius: 4px;
   background: #333 !important;
   color: #fff !important;
@@ -148,14 +159,21 @@ footer {
   margin: 0 !important;
 }
 
-/* Hide Google branding */
+/* Hide Google branding completely */
 .goog-te-gadget span,
-.goog-te-gadget a {
+.goog-te-gadget a,
+.goog-logo-link,
+.goog-te-banner-frame {
   display: none !important;
 }
 
-.goog-te-gadget {
-  color: transparent !important;
+/* Remove leftover iframe spacing */
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
 }
 </style>
 
