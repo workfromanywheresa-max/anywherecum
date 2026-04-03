@@ -19,6 +19,8 @@ const dataSource = config.dataSource || "videos.json";
 
 /* ---------------- CACHE ---------------- */
 const cache = {};
+const ORDER_KEY = "video_order";
+
 function saveCache(key, value) {
   cache[key] = value;
   localStorage.setItem(key, value);
@@ -253,8 +255,8 @@ function updateUI(id) {
   }
 }
 
-/* ---------------- 🔥 REORDER LOGIC ---------------- */
-function reorderVideos() {
+/* ---------------- REORDER ---------------- */
+function reorderVideos(force = false) {
   const entries = Object.entries(videoDataMap);
 
   entries.sort((a, b) => {
@@ -274,7 +276,14 @@ function reorderVideos() {
     return A.originalIndex - B.originalIndex;
   });
 
-  entries.forEach(([id]) => {
+  const newOrder = entries.map(([id]) => id);
+  const oldOrder = JSON.parse(getCache(ORDER_KEY) || "[]");
+
+  if (!force && JSON.stringify(newOrder) === JSON.stringify(oldOrder)) return;
+
+  saveCache(ORDER_KEY, JSON.stringify(newOrder));
+
+  newOrder.forEach(id => {
     const el = videoElements[id]?.box;
     if (el) videosContainer.appendChild(el);
   });
@@ -304,7 +313,7 @@ fetch(dataSource)
 
       videoDataMap[v.id] = {
         ...v,
-        originalIndex: index, // ✅ important
+        originalIndex: index,
         totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
         cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
       };
@@ -318,6 +327,22 @@ fetch(dataSource)
       };
 
       updateUI(v.id);
+    });
+
+    /* ✅ RESTORE ORDER BEFORE FIREBASE */
+    const savedOrder = JSON.parse(getCache(ORDER_KEY) || "[]");
+
+    if (savedOrder.length) {
+      savedOrder.forEach(id => {
+        const el = videoElements[id]?.box;
+        if (el) videosContainer.appendChild(el);
+      });
+    } else {
+      reorderVideos(true);
+    }
+
+    /* ---------------- FIREBASE ---------------- */
+    filtered.forEach(v => {
 
       onValue(ref(db, "views/" + v.id), snap => {
         const val = snap.val();
@@ -325,20 +350,28 @@ fetch(dataSource)
           videoDataMap[v.id].totalViews = val;
           updateUI(v.id);
           saveCache("views_" + v.id, val);
-          reorderVideos();
         }
       });
 
       onValue(ref(db, "cycleViews/" + v.id), snap => {
         const val = snap.val();
         if (val !== null) {
+
+          const oldTrending = videoDataMap[v.id].cycleViews >= 10;
+
           videoDataMap[v.id].cycleViews = Number(val);
           updateUI(v.id);
           saveCache("cycle_" + v.id, val);
-          reorderVideos();
+
+          const newTrending = val >= 10;
+
+          if (oldTrending !== newTrending) {
+            reorderVideos();
+          }
         }
       });
 
     });
+
   })
   .catch(err => console.error(err));
