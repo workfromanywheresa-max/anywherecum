@@ -15,43 +15,30 @@ const TEST_MODE = localStorage.getItem("testMode") === "true";
 const urlParams = new URLSearchParams(window.location.search);
 const folderName = (urlParams.get("folder") || "").trim().toLowerCase();
 
+/* ---------------- DATA SOURCE ---------------- */
+const config = window.VIDEO_CONFIG || {};
+const dataSource = config.dataSource || "videos.json";
+
+/* ---------------- CACHE ---------------- */
+function saveCache(key, value) { localStorage.setItem(key, value); }
+function getCache(key) { return localStorage.getItem(key); }
+
+/* ---------------- STATE ---------------- */
+const videoDataMap = {};
+const originalOrder = [];
+const videoElements = {};
+
+/* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
   return str.toLowerCase().split(" ")
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 }
 
-/* ---------------- TITLE (NO BLINK) ---------------- */
 const titleEl = document.getElementById("folderTitle");
 if (titleEl) {
   titleEl.textContent = folderName ? toTitleCase(folderName) : "All Videos";
 }
-
-/* ---------------- DATA SOURCE ---------------- */
-const config = window.VIDEO_CONFIG || {};
-const dataSource = config.dataSource || "videos.json";
-
-/* ---------------- CACHE ---------------- */
-function saveCache(key, value) {
-  localStorage.setItem(key, value);
-}
-function getCache(key) {
-  return localStorage.getItem(key);
-}
-
-function saveDataCache(data) {
-  localStorage.setItem("video_data_cache", JSON.stringify(data));
-}
-
-function getDataCache() {
-  const data = localStorage.getItem("video_data_cache");
-  return data ? JSON.parse(data) : null;
-}
-
-/* ---------------- STATE ---------------- */
-const videoDataMap = {};
-const originalOrder = [];
-const videoElements = {};
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
@@ -150,6 +137,7 @@ function createVideoBox(video) {
     currentEmbed = selected.embed;
 
     countWatchOnce(video.id);
+
     loadPlayer();
   };
 
@@ -173,7 +161,7 @@ function createVideoBox(video) {
     downloadBox.style.display =
       downloadBox.style.display === "none" ? "block" : "none";
 
-    countDownloadOnce(video.id);
+    countDownloadOnce(video.id); // ✅ COUNT IMMEDIATELY
   };
 
   video.qualities.forEach(q => {
@@ -189,6 +177,7 @@ function createVideoBox(video) {
     downloadBox.appendChild(link);
   });
 
+  /* APPEND */
   box.appendChild(select);
   box.appendChild(wrapper);
   box.appendChild(title);
@@ -220,7 +209,7 @@ function updateUI(id) {
   el.style.color = isTrending ? "#ffcc00" : "#aaa";
 }
 
-/* ---------------- RENDER (NO BLINK) ---------------- */
+/* ---------------- RENDER ---------------- */
 function renderVideos() {
   const arr = Object.values(videoDataMap);
 
@@ -234,46 +223,17 @@ function renderVideos() {
     return originalOrder.indexOf(a.id) - originalOrder.indexOf(b.id);
   });
 
+  videosContainer.innerHTML = "";
+
   arr.forEach(v => {
-    const el = videoElements[v.id].box;
-    if (!videosContainer.contains(el)) {
-      videosContainer.appendChild(el);
-    }
+    videosContainer.appendChild(videoElements[v.id].box);
   });
 }
 
-/* ---------------- LOAD CACHE FIRST ---------------- */
-const cachedData = getDataCache();
-
-if (cachedData) {
-  cachedData.forEach(v => {
-
-    videoDataMap[v.id] = {
-      ...v,
-      totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
-      cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
-    };
-
-    const box = createVideoBox(v);
-    videosContainer.appendChild(box);
-
-    videoElements[v.id] = {
-      box,
-      views: box.querySelector(".views")
-    };
-
-    updateUI(v.id);
-  });
-
-  renderVideos();
-}
-
-/* ---------------- FETCH ---------------- */
+/* ---------------- LOAD ---------------- */
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
-
-    saveDataCache(videos);
 
     const filtered = folderName
       ? videos.filter(v =>
@@ -312,6 +272,7 @@ fetch(dataSource)
           videoDataMap[v.id].totalViews = val;
           updateUI(v.id);
           saveCache("views_" + v.id, val);
+          renderVideos();
         }
       });
 
@@ -321,6 +282,7 @@ fetch(dataSource)
           videoDataMap[v.id].cycleViews = Number(val);
           updateUI(v.id);
           saveCache("cycle_" + v.id, val);
+          renderVideos();
         }
       });
 
