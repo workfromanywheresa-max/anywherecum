@@ -15,13 +15,25 @@ const TEST_MODE = localStorage.getItem("testMode") === "true";
 const urlParams = new URLSearchParams(window.location.search);
 const folderName = (urlParams.get("folder") || "").trim().toLowerCase();
 
-/* ---------------- DATA SOURCE ---------------- */
 const config = window.VIDEO_CONFIG || {};
 const dataSource = config.dataSource || "videos.json";
 
 /* ---------------- CACHE ---------------- */
-function saveCache(key, value) { localStorage.setItem(key, value); }
-function getCache(key) { return localStorage.getItem(key); }
+function saveCache(key, value) {
+  localStorage.setItem(key, value);
+}
+function getCache(key) {
+  return localStorage.getItem(key);
+}
+
+function saveDataCache(data) {
+  localStorage.setItem("video_data_cache", JSON.stringify(data));
+}
+
+function getDataCache() {
+  const data = localStorage.getItem("video_data_cache");
+  return data ? JSON.parse(data) : null;
+}
 
 /* ---------------- STATE ---------------- */
 const videoDataMap = {};
@@ -137,7 +149,6 @@ function createVideoBox(video) {
     currentEmbed = selected.embed;
 
     countWatchOnce(video.id);
-
     loadPlayer();
   };
 
@@ -161,7 +172,7 @@ function createVideoBox(video) {
     downloadBox.style.display =
       downloadBox.style.display === "none" ? "block" : "none";
 
-    countDownloadOnce(video.id); // ✅ COUNT IMMEDIATELY
+    countDownloadOnce(video.id);
   };
 
   video.qualities.forEach(q => {
@@ -177,7 +188,6 @@ function createVideoBox(video) {
     downloadBox.appendChild(link);
   });
 
-  /* APPEND */
   box.appendChild(select);
   box.appendChild(wrapper);
   box.appendChild(title);
@@ -230,10 +240,40 @@ function renderVideos() {
   });
 }
 
-/* ---------------- LOAD ---------------- */
+/* ---------------- LOAD CACHE FIRST (NO BLINK) ---------------- */
+const cachedData = getDataCache();
+
+if (cachedData) {
+  cachedData.forEach(v => {
+
+    videoDataMap[v.id] = {
+      ...v,
+      totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
+      cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
+    };
+
+    const box = createVideoBox(v);
+    videosContainer.appendChild(box);
+
+    videoElements[v.id] = {
+      box,
+      views: box.querySelector(".views")
+    };
+
+    updateUI(v.id);
+  });
+
+  renderVideos();
+}
+
+/* ---------------- FETCH + UPDATE ---------------- */
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
+
+    saveDataCache(videos);
+
+    videosContainer.innerHTML = "";
 
     const filtered = folderName
       ? videos.filter(v =>
