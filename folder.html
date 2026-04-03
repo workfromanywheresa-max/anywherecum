@@ -15,6 +15,9 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+
+  /* 🔥 ADD THIS */
+  flex: 1;
 }
 
 * {
@@ -53,8 +56,11 @@ h2 {
 #normalVideos {
   margin-bottom: 40px;
   min-height: 300px;
-}
 
+  /* 🔥 ADD THIS (CRITICAL FIX) */
+  flex: 1;
+}
+  
 .videoBox {
   background: #222;
   padding: 10px;
@@ -112,7 +118,6 @@ footer {
   font-size: 12px;
   color: #aaa;
   background: #111;
-  margin-top: auto;
 }
 
 /* ===== GOOGLE TRANSLATE FIX ===== */
