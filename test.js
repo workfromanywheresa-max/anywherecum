@@ -11,9 +11,13 @@ const db = getDatabase(app);
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
-/* ---------------- CONFIG ---------------- */
+/* ---------------- CONFIG (FIXED) ---------------- */
+// ❌ DO NOT RELY ONLY ON VIDEO_CONFIG
+const urlParams = new URLSearchParams(window.location.search);
+const folderName = (urlParams.get("folder") || "").trim().toLowerCase();
+
+/* ---------------- DATA SOURCE ---------------- */
 const config = window.VIDEO_CONFIG || {};
-const folderName = (config.folder || "").toLowerCase();
 const dataSource = config.dataSource || "test.json";
 
 /* ---------------- CACHE ---------------- */
@@ -210,18 +214,21 @@ fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
 
-    // ✅ FIXED FILTER (robust + safe)
-    const normalizedFolder = folderName.trim().toLowerCase();
-
-    const filtered = normalizedFolder
-      ? videos.filter(v => {
-          if (!v.folder) return false;
-          return v.folder.trim().toLowerCase() === normalizedFolder;
-        })
+    /* ✅ FIXED FILTER */
+    const filtered = folderName
+      ? videos.filter(v =>
+          (v.folder || "").trim().toLowerCase() === folderName
+        )
       : videos;
 
-    filtered.forEach(v => {
+    console.log("FILTERED:", filtered);
 
+    if (filtered.length === 0) {
+      videosContainer.innerHTML = "<p>No videos found in this folder.</p>";
+      return;
+    }
+
+    filtered.forEach(v => {
       originalOrder.push(v.id);
 
       videoDataMap[v.id] = {
@@ -240,7 +247,7 @@ fetch(dataSource)
 
       updateUI(v.id);
 
-      /* LIVE FIREBASE UPDATES */
+      /* LIVE FIREBASE */
       onValue(ref(db, "views/" + v.id), snap => {
         const val = snap.val();
         if (val !== null) {
