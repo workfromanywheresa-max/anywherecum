@@ -219,20 +219,24 @@ OneSignalDeferred.push(async function(OneSignal) {
 
 <!-- Styling -->
 <style>
+/* Force top-right */
 #google_translate_element {
+  position: fixed !important;
+  top: 10px;
+  right: 10px;
+  left: auto !important;
+  z-index: 9999;
   display: inline-block;
-  position: fixed;
-  top: 0;
-  right: 0;
 }
 
-/* Keep dropdown inline */
+/* Inline layout */
 .goog-te-gadget {
   display: inline-block;
   font-size: 12px;
+  margin: 0 !important;
 }
 
-/* Make dropdown thinner */
+/* Thinner dropdown */
 .goog-te-combo {
   height: 26px !important;
   font-size: 12px !important;
@@ -244,17 +248,12 @@ OneSignalDeferred.push(async function(OneSignal) {
   display: none !important;
 }
 
-/* ✅ Hide "Powered by Google" */
+/* Hide "Powered by Google" */
 .goog-te-gadget .goog-logo-link {
   display: none !important;
 }
 
-/* Extra cleanup (sometimes needed) */
-.goog-te-gadget span a {
-  display: none !important;
-}
-
-/* Prevent leftover spacing */
+/* Remove extra spacing */
 .goog-te-gadget {
   color: transparent !important;
 }
