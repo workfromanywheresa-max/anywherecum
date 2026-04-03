@@ -115,7 +115,7 @@ footer {
   margin-top: auto;
 }
 
-/* ===== GOOGLE TRANSLATE FIX (FLUSH RIGHT, NO GAP) ===== */
+/* ===== GOOGLE TRANSLATE FIX ===== */
 #google_translate_element {
   position: fixed !important;
   top: 0 !important;
@@ -124,56 +124,44 @@ footer {
   z-index: 99999;
   margin: 0 !important;
   padding: 0 !important;
-  background: transparent;
 }
 
-/* Main container */
+/* Container */
 .goog-te-gadget {
-  display: inline-flex !important;
-  justify-content: flex-end !important;
-  align-items: center !important;
-  width: auto !important;
-  max-width: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  text-align: right !important;
+  font-size: 0 !important; /* hides "Select Language" */
   background: transparent !important;
-}
-
-/* Remove inner spacing */
-.goog-te-gadget > div {
   margin: 0 !important;
   padding: 0 !important;
-  width: auto !important;
 }
 
-/* Dropdown styling */
-.goog-te-combo {
-  height: 26px !important;
+/* Dropdown only */
+.goog-te-gadget select.goog-te-combo {
   font-size: 12px !important;
-  padding: 2px 5px !important;
-  border-radius: 4px;
+  padding: 3px 6px !important;
   background: #333 !important;
   color: #fff !important;
   border: none !important;
+  border-radius: 4px;
   margin: 0 !important;
 }
 
-/* Hide Google branding completely */
+/* Hide everything else */
 .goog-te-gadget span,
 .goog-te-gadget a,
 .goog-logo-link,
-.goog-te-banner-frame {
+.goog-te-banner-frame,
+.goog-te-gadget .goog-te-combo + span {
   display: none !important;
 }
 
-/* Remove leftover iframe spacing */
-.goog-te-banner-frame {
-  display: none !important;
-}
-
+/* Remove top spacing */
 body {
   top: 0 !important;
+}
+
+/* Hide translate banner */
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
 }
 </style>
 
@@ -210,67 +198,6 @@ function googleTranslateElementInit() {
 </script>
 
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-
-<!-- Banner -->
-<div id="topBanner" style="
-  position: fixed;
-  top: 0;
-  left: 50%;
-  transform: translate(-50%, -100%);
-  width: 95%;
-  max-width: 700px;
-  background: #fff;
-  color: #111;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 3px 12px;
-  font-size: 11px;
-  z-index: 9999;
-  border-radius: 5px;
-">
-  <span style="flex:1; text-align:center;">
-    🔔 Click the bell icon to receive notifications
-  </span>
-  <button id="closeBtn" style="
-    position:absolute;
-    right:8px;
-    top:-5px;
-    background:none;
-    border:none;
-    font-size:12px;
-  ">✖</button>
-</div>
-
-<script>
-const banner = document.getElementById("topBanner");
-const closeBtn = document.getElementById("closeBtn");
-
-const lastClosed = localStorage.getItem("bannerClosedTime");
-const now = Date.now();
-const day = 24 * 60 * 60 * 1000;
-
-if (!lastClosed || now - lastClosed > day) {
-  banner.style.display = "flex";
-  setTimeout(() => banner.style.transform = "translate(-50%,0)", 50);
-
-  setTimeout(() => {
-    banner.style.transform = "translate(-50%,-100%)";
-    setTimeout(() => {
-      banner.style.display = "none";
-      localStorage.setItem("bannerClosedTime", Date.now());
-    }, 500);
-  }, 30000);
-}
-
-closeBtn.addEventListener("click", () => {
-  banner.style.transform = "translate(-50%,-100%)";
-  setTimeout(() => {
-    banner.style.display = "none";
-    localStorage.setItem("bannerClosedTime", Date.now());
-  }, 500);
-});
-</script>
 
 <div class="topBar">
   <button onclick="history.back()">← Back</button>
