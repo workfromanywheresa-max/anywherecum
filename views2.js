@@ -11,8 +11,7 @@ const db = getDatabase(app);
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
-/* ---------------- CONFIG (FIXED) ---------------- */
-// ❌ DO NOT RELY ONLY ON VIDEO_CONFIG
+/* ---------------- CONFIG ---------------- */
 const urlParams = new URLSearchParams(window.location.search);
 const folderName = (urlParams.get("folder") || "").trim().toLowerCase();
 
@@ -67,6 +66,23 @@ function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
+/* ---------------- COUNT LOGIC ---------------- */
+function countWatchOnce(videoId) {
+  const key = "watch_" + videoId;
+  if (sessionStorage.getItem(key)) return;
+
+  sessionStorage.setItem(key, "true");
+  increaseViews(videoId);
+}
+
+function countDownloadOnce(videoId) {
+  const key = "download_" + videoId;
+  if (sessionStorage.getItem(key)) return;
+
+  sessionStorage.setItem(key, "true");
+  increaseViews(videoId);
+}
+
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
 
@@ -99,7 +115,7 @@ function createVideoBox(video) {
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
 
   thumb.onclick = () => {
-    increaseViews(video.id);
+    countWatchOnce(video.id);
     loadPlayer();
   };
 
@@ -119,6 +135,9 @@ function createVideoBox(video) {
   select.onchange = () => {
     const selected = video.qualities[select.value];
     currentEmbed = selected.embed;
+
+    countWatchOnce(video.id);
+
     loadPlayer();
   };
 
@@ -138,6 +157,13 @@ function createVideoBox(video) {
   const downloadBox = document.createElement("div");
   downloadBox.style.display = "none";
 
+  downloadBtn.onclick = () => {
+    downloadBox.style.display =
+      downloadBox.style.display === "none" ? "block" : "none";
+
+    countDownloadOnce(video.id); // ✅ COUNT IMMEDIATELY
+  };
+
   video.qualities.forEach(q => {
     const link = document.createElement("a");
     link.href = q.download;
@@ -146,15 +172,10 @@ function createVideoBox(video) {
     link.style.display = "block";
     link.style.color = "#ff4444";
 
-    link.onclick = () => increaseViews(video.id);
+    link.onclick = () => countDownloadOnce(video.id);
 
     downloadBox.appendChild(link);
   });
-
-  downloadBtn.onclick = () => {
-    downloadBox.style.display =
-      downloadBox.style.display === "none" ? "block" : "none";
-  };
 
   /* APPEND */
   box.appendChild(select);
@@ -214,14 +235,11 @@ fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
 
-    /* ✅ FIXED FILTER */
     const filtered = folderName
       ? videos.filter(v =>
           (v.folder || "").trim().toLowerCase() === folderName
         )
       : videos;
-
-    console.log("FILTERED:", filtered);
 
     if (filtered.length === 0) {
       videosContainer.innerHTML = "<p>No videos found in this folder.</p>";
@@ -229,6 +247,7 @@ fetch(dataSource)
     }
 
     filtered.forEach(v => {
+
       originalOrder.push(v.id);
 
       videoDataMap[v.id] = {
@@ -247,7 +266,6 @@ fetch(dataSource)
 
       updateUI(v.id);
 
-      /* LIVE FIREBASE */
       onValue(ref(db, "views/" + v.id), snap => {
         const val = snap.val();
         if (val !== null) {
