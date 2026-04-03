@@ -190,24 +190,24 @@ OneSignalDeferred.push(async function(OneSignal) {
 
 <body>
 
-<!-- Google Translate -->
+  <!-- Google Translate -->
 <div id="google_translate_element"></div>
 
 <style>
-/* ===== GOOGLE TRANSLATE LEFT POSITION ===== */
+/* ===== GOOGLE TRANSLATE FIX ===== */
 #google_translate_element {
   position: fixed !important;
-  top: 5px !important;
-  left: 5px !important;   /* LEFT SIDE */
-  right: auto !important;
+  top: 0 !important;
+  right: 0 !important;
+  left: auto !important;
   z-index: 99999;
   margin: 0 !important;
   padding: 0 !important;
 }
 
-/* Container */
+/* Main widget */
 .goog-te-gadget {
-  font-size: 0 !important;
+  font-size: 0 !important; /* hides "Select Language" text */
   background: transparent !important;
   margin: 0 !important;
   padding: 0 !important;
@@ -224,23 +224,22 @@ OneSignalDeferred.push(async function(OneSignal) {
   margin: 0 !important;
 }
 
-/* Hide extra text + branding */
+/* Hide extra branding / links */
 .goog-te-gadget span,
 .goog-te-gadget a,
 .goog-logo-link,
-.goog-te-banner-frame,
 .goog-te-gadget .goog-te-combo + span {
   display: none !important;
 }
 
-/* Remove top spacing */
-body {
-  top: 0 !important;
-}
-
-/* Hide translate banner */
+/* Hide banner */
 .goog-te-banner-frame.skiptranslate {
   display: none !important;
+}
+
+/* Prevent page shift */
+body {
+  top: 0 !important;
 }
 </style>
 
