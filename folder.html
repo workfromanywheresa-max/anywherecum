@@ -607,6 +607,34 @@ window.VIDEO_CONFIG = {
 };
 </script>
 
+  <script>
+    function fixFooter() {
+  const footer = document.querySelector("footer");
+  const body = document.body;
+
+  if (!footer) return;
+
+  // Force layout calculation after everything loads
+  requestAnimationFrame(() => {
+    const bodyHeight = body.offsetHeight;
+    const windowHeight = window.innerHeight;
+
+    if (bodyHeight < windowHeight) {
+      footer.style.marginTop = (windowHeight - bodyHeight) + "px";
+    } else {
+      footer.style.marginTop = "auto";
+    }
+  });
+}
+
+/* Run after page load */
+window.addEventListener("load", fixFooter);
+
+/* Also run after videos load */
+setTimeout(fixFooter, 1000);
+setTimeout(fixFooter, 3000);
+  </script>
+
 <script type="module" src="views2.js"></script>
 
 </body>
