@@ -15,6 +15,19 @@ const TEST_MODE = localStorage.getItem("testMode") === "true";
 const urlParams = new URLSearchParams(window.location.search);
 const folderName = (urlParams.get("folder") || "").trim().toLowerCase();
 
+function toTitleCase(str) {
+  return str.toLowerCase().split(" ")
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+/* ---------------- TITLE (NO BLINK) ---------------- */
+const titleEl = document.getElementById("folderTitle");
+if (titleEl) {
+  titleEl.textContent = folderName ? toTitleCase(folderName) : "All Videos";
+}
+
+/* ---------------- DATA SOURCE ---------------- */
 const config = window.VIDEO_CONFIG || {};
 const dataSource = config.dataSource || "videos.json";
 
@@ -39,18 +52,6 @@ function getDataCache() {
 const videoDataMap = {};
 const originalOrder = [];
 const videoElements = {};
-
-/* ---------------- TITLE ---------------- */
-function toTitleCase(str) {
-  return str.toLowerCase().split(" ")
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
-
-const titleEl = document.getElementById("folderTitle");
-if (titleEl) {
-  titleEl.textContent = folderName ? toTitleCase(folderName) : "All Videos";
-}
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
@@ -219,7 +220,7 @@ function updateUI(id) {
   el.style.color = isTrending ? "#ffcc00" : "#aaa";
 }
 
-/* ---------------- RENDER ---------------- */
+/* ---------------- RENDER (NO BLINK) ---------------- */
 function renderVideos() {
   const arr = Object.values(videoDataMap);
 
@@ -233,14 +234,15 @@ function renderVideos() {
     return originalOrder.indexOf(a.id) - originalOrder.indexOf(b.id);
   });
 
-  videosContainer.innerHTML = "";
-
   arr.forEach(v => {
-    videosContainer.appendChild(videoElements[v.id].box);
+    const el = videoElements[v.id].box;
+    if (!videosContainer.contains(el)) {
+      videosContainer.appendChild(el);
+    }
   });
 }
 
-/* ---------------- LOAD CACHE FIRST (NO BLINK) ---------------- */
+/* ---------------- LOAD CACHE FIRST ---------------- */
 const cachedData = getDataCache();
 
 if (cachedData) {
@@ -266,14 +268,12 @@ if (cachedData) {
   renderVideos();
 }
 
-/* ---------------- FETCH + UPDATE ---------------- */
+/* ---------------- FETCH ---------------- */
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
 
     saveDataCache(videos);
-
-    videosContainer.innerHTML = "";
 
     const filtered = folderName
       ? videos.filter(v =>
@@ -312,7 +312,6 @@ fetch(dataSource)
           videoDataMap[v.id].totalViews = val;
           updateUI(v.id);
           saveCache("views_" + v.id, val);
-          renderVideos();
         }
       });
 
@@ -322,7 +321,6 @@ fetch(dataSource)
           videoDataMap[v.id].cycleViews = Number(val);
           updateUI(v.id);
           saveCache("cycle_" + v.id, val);
-          renderVideos();
         }
       });
 
