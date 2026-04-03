@@ -554,32 +554,47 @@ animation:moveArrows 1s linear infinite;
 <div id="normalVideos"></div>
   </main>
 
-  <!-- ✅ BOTTOM AD (RESERVED SPACE 300x250) -->
-<div id="ad-container" style="
+  <!-- ✅ BOTTOM AD (RESERVED SPACE, NO JUMPING) -->
+<div id="bottom-ad-wrapper" style="
   width: 300px;
   height: 250px;
-  margin: 20px auto; /* centers it */
-  display: none; /* hidden until load */
-"></div>
+  margin: 20px auto;
+  position: relative;
+  background: #222;
+">
+
+  <!-- Loader (keeps space stable) -->
+  <div id="bottom-ad-container" style="
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 12px;
+  ">
+    Loading ad...
+  </div>
+
+</div>
 
 <script>
 window.addEventListener("load", function () {
 
-  const adContainer = document.getElementById("ad-container");
+  const adContainer = document.getElementById("bottom-ad-container");
 
   const script = document.createElement("script");
   script.async = true;
   script.setAttribute("data-cfasync", "false");
   script.src = "https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js";
 
-  const div = document.createElement("div");
-  div.id = "container-c04c459f06eefec9d4eeedb2a131c1d2";
+  const adDiv = document.createElement("div");
+  adDiv.id = "container-c04c459f06eefec9d4eeedb2a131c1d2";
 
+  // Replace loader with ad (NO layout shift)
+  adContainer.innerHTML = "";
+  adContainer.appendChild(adDiv);
   adContainer.appendChild(script);
-  adContainer.appendChild(div);
-
-  // Show container after load
-  adContainer.style.display = "block";
 
 });
 </script>
