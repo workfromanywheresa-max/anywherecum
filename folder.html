@@ -554,7 +554,7 @@ animation:moveArrows 1s linear infinite;
 <div id="normalVideos"></div>
   </main>
 
-  <!-- ✅ BOTTOM AD (FULL 300x250 RESERVED) -->
+  <!-- ✅ BOTTOM AD (FULL 300x250 RESERVED + DELAYED LOAD) -->
 <div style="
   width: 300px;
   height: 250px;
@@ -563,6 +563,7 @@ animation:moveArrows 1s linear infinite;
   border-radius: 10px;
   overflow: hidden;
   background: #fff;
+  display: none; /* hidden until ad loads */
 ">
 
   <div id="ad-container" style="width:100%; height:100%;"></div>
@@ -572,18 +573,27 @@ animation:moveArrows 1s linear infinite;
 <script>
 window.addEventListener("load", function () {
 
-  const adContainer = document.getElementById("ad-container");
+  // ⏱️ Delay before loading ad (2 seconds)
+  setTimeout(function () {
 
-  const script = document.createElement("script");
-  script.async = true;
-  script.setAttribute("data-cfasync", "false");
-  script.src = "https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js";
+    const wrapper = document.querySelector('div[style*="300px"]');
+    const adContainer = document.getElementById("ad-container");
 
-  const div = document.createElement("div");
-  div.id = "container-c04c459f06eefec9d4eeedb2a131c1d2";
+    const script = document.createElement("script");
+    script.async = true;
+    script.setAttribute("data-cfasync", "false");
+    script.src = "https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js";
 
-  adContainer.appendChild(script);
-  adContainer.appendChild(div);
+    const div = document.createElement("div");
+    div.id = "container-c04c459f06eefec9d4eeedb2a131c1d2";
+
+    adContainer.appendChild(script);
+    adContainer.appendChild(div);
+
+    // Show ad container AFTER inserting ad
+    wrapper.style.display = "block";
+
+  }, 2000); // adjust delay if needed
 
 });
 </script>
