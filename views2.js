@@ -12,17 +12,23 @@ const db = getDatabase(app);
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
 /* ---------------- CONFIG ---------------- */
+const urlParams = new URLSearchParams(window.location.search);
+const folderName = (urlParams.get("folder") || "").trim().toLowerCase();
 const config = window.VIDEO_CONFIG || {};
-const folderName = (config.folder || "").toLowerCase();
 const dataSource = config.dataSource || "videos.json";
 
 /* ---------------- CACHE ---------------- */
-function saveCache(key, value) { localStorage.setItem(key, value); }
-function getCache(key) { return localStorage.getItem(key); }
+const cache = {};
+function saveCache(key, value) {
+  cache[key] = value;
+  localStorage.setItem(key, value);
+}
+function getCache(key) {
+  return cache[key] || localStorage.getItem(key);
+}
 
 /* ---------------- STATE ---------------- */
 const videoDataMap = {};
-const originalOrder = [];
 const videoElements = {};
 
 /* ---------------- TITLE ---------------- */
@@ -31,8 +37,11 @@ function toTitleCase(str) {
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 }
-document.getElementById("folderTitle").textContent =
-  folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
+
+const titleEl = document.getElementById("folderTitle");
+if (titleEl) {
+  titleEl.textContent = folderName ? toTitleCase(folderName) : "All Videos";
+}
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
@@ -51,10 +60,28 @@ async function sendToWorker(videoId) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ videoId })
     });
-  } catch (err) { console.error("Worker failed:", err); }
+  } catch (err) {
+    console.error("Worker failed:", err);
+  }
 }
+
 function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
+}
+
+/* ---------------- ONE PER SESSION ---------------- */
+const sessionFlags = new Set();
+
+function countWatchOnce(videoId) {
+  if (sessionFlags.has("watch_" + videoId)) return;
+  sessionFlags.add("watch_" + videoId);
+  increaseViews(videoId);
+}
+
+function countDownloadOnce(videoId) {
+  if (sessionFlags.has("download_" + videoId)) return;
+  sessionFlags.add("download_" + videoId);
+  increaseViews(videoId);
 }
 
 /* ---------------- CONTAINER ---------------- */
@@ -62,79 +89,120 @@ const videosContainer = document.getElementById("normalVideos");
 
 /* ---------------- VIDEO BOX ---------------- */
 function createVideoBox(video) {
+
   const box = document.createElement("div");
   box.className = "videoBox";
 
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
-  wrapper.style.width = "100%";
-  wrapper.style.maxWidth = "600px";
-  wrapper.style.aspectRatio = "16/9";
 
+  const defaultQuality =
+    video.qualities.find(q => q.label.includes("480")) ||
+    video.qualities[0];
+
+  let currentEmbed = defaultQuality.embed;
+
+  /* ✅ CREATE PLAYER ONLY ONCE */
+  function loadPlayer() {
+    if (wrapper.dataset.loaded === "true") return;
+
+    wrapper.dataset.loaded = "true";
+
+    const iframe = document.createElement("iframe");
+    iframe.src = currentEmbed;
+    iframe.allowFullscreen = true;
+
+    /* REMOVE THUMB SMOOTHLY AFTER LOAD */
+    iframe.onload = () => {
+      if (thumb) thumb.style.display = "none";
+    };
+
+    wrapper.replaceChildren(iframe);
+  }
+
+  /* THUMB */
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
 
   thumb.onclick = () => {
-    increaseViews(video.id);
-
-    const iframe = document.createElement("iframe");
-    iframe.src = video.embed;
-    iframe.allowFullscreen = true;
-
-    // ✅ FIX: no flicker
-    wrapper.replaceChildren(iframe);
+    countWatchOnce(video.id);
+    loadPlayer();
   };
 
   wrapper.appendChild(thumb);
 
+  /* DROPDOWN */
+  const select = document.createElement("select");
+
+  video.qualities.forEach((q, index) => {
+    const option = document.createElement("option");
+    option.value = index;
+    option.textContent = `Stream - ${q.label}`;
+    if (q === defaultQuality) option.selected = true;
+    select.appendChild(option);
+  });
+
+  select.onchange = () => {
+    const selected = video.qualities[select.value];
+    currentEmbed = selected.embed;
+
+    countWatchOnce(video.id);
+
+    /* swap player without flicker */
+    wrapper.dataset.loaded = "false";
+    loadPlayer();
+  };
+
+  /* TITLE */
   const title = document.createElement("h3");
+  title.className = "videoTitle";
   title.textContent = video.title;
-  title.onclick = () => {
-    increaseViews(video.id);
-    window.open(video.url, "_blank");
-  };
 
+  /* VIEWS */
   const views = document.createElement("div");
+  views.className = "views";
 
-  const btn = document.createElement("a");
-  btn.href = "#";
-  btn.textContent = `Download (${video.size || "?"})`;
-  btn.onclick = (e) => {
-    e.preventDefault();
-    increaseViews(video.id);
-    window.open(video.url, "_blank");
+  /* DOWNLOAD */
+  const downloadBtn = document.createElement("button");
+  downloadBtn.textContent = "Download";
+
+  const downloadBox = document.createElement("div");
+  downloadBox.style.display = "none";
+
+  downloadBtn.onclick = () => {
+    downloadBox.style.display =
+      downloadBox.style.display === "none" ? "block" : "none";
+
+    countDownloadOnce(video.id);
   };
 
+  video.qualities.forEach(q => {
+    const link = document.createElement("a");
+    link.href = q.download;
+    link.target = "_blank";
+    link.textContent = `${q.label} • ${q.size}`;
+    link.style.display = "block";
+    link.style.color = "#ff4444";
+
+    link.onclick = () => countDownloadOnce(video.id);
+
+    downloadBox.appendChild(link);
+  });
+
+  box.appendChild(select);
   box.appendChild(wrapper);
   box.appendChild(title);
   box.appendChild(views);
-  box.appendChild(btn);
+  box.appendChild(downloadBtn);
+  box.appendChild(downloadBox);
 
   return box;
-}
-
-/* ---------------- RENDER ---------------- */
-function renderVideos() {
-  const arr = Object.values(videoDataMap);
-
-  arr.sort((a, b) => {
-    const aTrending = a.cycleViews >= 10;
-    const bTrending = b.cycleViews >= 10;
-
-    if (aTrending && !bTrending) return -1;
-    if (!aTrending && bTrending) return 1;
-
-    return originalOrder.indexOf(a.id) - originalOrder.indexOf(b.id);
-  });
-
-  videosContainer.innerHTML = "";
-  arr.forEach(v => videosContainer.appendChild(videoElements[v.id].box));
 }
 
 /* ---------------- UI UPDATE ---------------- */
 function updateUI(id) {
   const v = videoDataMap[id];
-  if (!v) return;
+  if (!v || !videoElements[id]) return;
 
   const total = v.totalViews || 0;
   const isTrending = v.cycleViews >= 10;
@@ -149,7 +217,10 @@ function updateUI(id) {
   const el = videoElements[id].views;
 
   if (el.textContent !== text) {
-    el.textContent = text;
+    requestAnimationFrame(() => {
+      el.textContent = text;
+      el.style.color = isTrending ? "#ffcc00" : "#aaa";
+    });
   }
 }
 
@@ -159,11 +230,17 @@ fetch(dataSource)
   .then(videos => {
 
     const filtered = folderName
-      ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
+      ? videos.filter(v =>
+          (v.folder || "").trim().toLowerCase() === folderName
+        )
       : videos;
 
+    if (filtered.length === 0) {
+      videosContainer.innerHTML = "<p>No videos found in this folder.</p>";
+      return;
+    }
+
     filtered.forEach(v => {
-      originalOrder.push(v.id);
 
       videoDataMap[v.id] = {
         ...v,
@@ -176,12 +253,12 @@ fetch(dataSource)
 
       videoElements[v.id] = {
         box,
-        views: box.querySelector("div")
+        views: box.querySelector(".views")
       };
 
       updateUI(v.id);
 
-      // ✅ FIX: NO renderVideos() here (prevents flicker)
+      /* FIREBASE LISTENERS */
       onValue(ref(db, "views/" + v.id), snap => {
         const val = snap.val();
         if (val !== null) {
@@ -199,8 +276,7 @@ fetch(dataSource)
           saveCache("cycle_" + v.id, val);
         }
       });
-    });
 
-    renderVideos();
+    });
   })
   .catch(err => console.error(err));
