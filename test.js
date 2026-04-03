@@ -127,11 +127,8 @@ function createVideoBox(video) {
     const option = document.createElement("option");
     option.value = index;
 
-    if (q.label.includes("480")) {
-      option.textContent = `Stream - ${q.label} (Standard)`;
-    } else {
-      option.textContent = `Stream - ${q.label}`;
-    }
+    /* ✅ ONLY THIS */
+    option.textContent = `Stream - ${q.label}`;
 
     if (q === defaultQuality) option.selected = true;
     select.appendChild(option);
@@ -168,7 +165,6 @@ function createVideoBox(video) {
     link.href = q.download;
     link.target = "_blank";
 
-    /* SIZE BACK */
     link.textContent = `${q.label} • ${q.size}`;
 
     link.style.display = "block";
