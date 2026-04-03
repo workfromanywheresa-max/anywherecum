@@ -19,23 +19,18 @@ const dataSource = config.dataSource || "videos.json";
 
 /* ---------------- CACHE ---------------- */
 const cache = {};
-
 function saveCache(key, value) {
   cache[key] = value;
   localStorage.setItem(key, value);
 }
-
 function getCache(key) {
-  if (cache[key] !== undefined) return cache[key];
-  const val = localStorage.getItem(key);
-  cache[key] = val;
-  return val;
+  return cache[key] || localStorage.getItem(key);
 }
 
 /* ---------------- STATE ---------------- */
 const videoDataMap = {};
 const videoElements = {};
-const originalOrder = [];
+const pendingUpdates = new Set(); // 🔥 batch updates
 
 /* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
@@ -44,8 +39,10 @@ function toTitleCase(str) {
     .join(" ");
 }
 
-document.getElementById("folderTitle").textContent =
-  folderName ? toTitleCase(folderName) : "All Videos";
+const titleEl = document.getElementById("folderTitle");
+if (titleEl) {
+  titleEl.textContent = folderName ? toTitleCase(folderName) : "All Videos";
+}
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
@@ -65,7 +62,7 @@ async function sendToWorker(videoId) {
       body: JSON.stringify({ videoId })
     });
   } catch (err) {
-    console.error(err);
+    console.error("Worker failed:", err);
   }
 }
 
@@ -73,19 +70,19 @@ function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
-/* ---------------- TRACKING ---------------- */
+/* ---------------- ONE PER SESSION ---------------- */
 const sessionFlags = new Set();
 
-function countWatchOnce(id) {
-  if (sessionFlags.has("watch_" + id)) return;
-  sessionFlags.add("watch_" + id);
-  increaseViews(id);
+function countWatchOnce(videoId) {
+  if (sessionFlags.has("watch_" + videoId)) return;
+  sessionFlags.add("watch_" + videoId);
+  increaseViews(videoId);
 }
 
-function countDownloadOnce(id) {
-  if (sessionFlags.has("download_" + id)) return;
-  sessionFlags.add("download_" + id);
-  increaseViews(id);
+function countDownloadOnce(videoId) {
+  if (sessionFlags.has("download_" + videoId)) return;
+  sessionFlags.add("download_" + videoId);
+  increaseViews(videoId);
 }
 
 /* ---------------- CONTAINER ---------------- */
@@ -100,7 +97,11 @@ function createVideoBox(video) {
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
 
-  let currentEmbed = video.qualities[0].embed;
+  const defaultQuality =
+    video.qualities.find(q => q.label.includes("480")) ||
+    video.qualities[0];
+
+  let currentEmbed = defaultQuality.embed;
 
   function loadPlayer() {
     if (wrapper.dataset.loaded === "true") return;
@@ -110,6 +111,10 @@ function createVideoBox(video) {
     const iframe = document.createElement("iframe");
     iframe.src = currentEmbed;
     iframe.allowFullscreen = true;
+
+    iframe.onload = () => {
+      if (thumb) thumb.style.display = "none";
+    };
 
     wrapper.replaceChildren(iframe);
   }
@@ -126,15 +131,17 @@ function createVideoBox(video) {
 
   const select = document.createElement("select");
 
-  video.qualities.forEach((q, i) => {
-    const opt = document.createElement("option");
-    opt.value = i;
-    opt.textContent = `Stream - ${q.label}`;
-    select.appendChild(opt);
+  video.qualities.forEach((q, index) => {
+    const option = document.createElement("option");
+    option.value = index;
+    option.textContent = `Stream - ${q.label}`;
+    if (q === defaultQuality) option.selected = true;
+    select.appendChild(option);
   });
 
   select.onchange = () => {
-    currentEmbed = video.qualities[select.value].embed;
+    const selected = video.qualities[select.value];
+    currentEmbed = selected.embed;
 
     countWatchOnce(video.id);
 
@@ -143,9 +150,11 @@ function createVideoBox(video) {
   };
 
   const title = document.createElement("h3");
+  title.className = "videoTitle";
   title.textContent = video.title;
 
   const views = document.createElement("div");
+  views.className = "views";
 
   const downloadBtn = document.createElement("button");
   downloadBtn.textContent = "Download";
@@ -156,14 +165,17 @@ function createVideoBox(video) {
   downloadBtn.onclick = () => {
     downloadBox.style.display =
       downloadBox.style.display === "none" ? "block" : "none";
+
     countDownloadOnce(video.id);
   };
 
   video.qualities.forEach(q => {
     const link = document.createElement("a");
     link.href = q.download;
-    link.textContent = `${q.label} • ${q.size}`;
     link.target = "_blank";
+    link.textContent = `${q.label} • ${q.size}`;
+    link.style.display = "block";
+    link.style.color = "#ff4444";
 
     link.onclick = () => countDownloadOnce(video.id);
 
@@ -180,29 +192,38 @@ function createVideoBox(video) {
   return box;
 }
 
-/* ---------------- UI UPDATE ---------------- */
+/* ---------------- UI UPDATE (FIXED) ---------------- */
 function updateUI(id) {
   const v = videoDataMap[id];
-  if (!v || !videoElements[id]) return;
+  const el = videoElements[id]?.views;
+  if (!v || !el) return;
 
-  const total = v.totalViews || 0;
-  const isTrending = v.cycleViews >= 10;
+  pendingUpdates.add(id);
 
-  saveCache("views_" + id, total);
-  saveCache("cycle_" + id, v.cycleViews);
+  requestAnimationFrame(() => {
+    pendingUpdates.forEach(pid => {
+      const vid = videoDataMap[pid];
+      const element = videoElements[pid]?.views;
+      if (!vid || !element) return;
 
-  const text = isTrending
-    ? `🔥 Trending | 👁 ${formatViews(total)}`
-    : `👁 ${formatViews(total)}`;
+      const total = vid.totalViews || 0;
+      const isTrending = vid.cycleViews >= 10;
 
-  const el = videoElements[id].views;
+      saveCache("views_" + pid, total);
+      saveCache("cycle_" + pid, vid.cycleViews);
 
-  if (el.textContent !== text) {
-    requestAnimationFrame(() => {
-      el.textContent = text;
-      el.style.color = isTrending ? "#ffcc00" : "#aaa";
+      const text = isTrending
+        ? `🔥 Trending | 👁 ${formatViews(total)}`
+        : `👁 ${formatViews(total)}`;
+
+      if (element.textContent !== text) {
+        element.textContent = text;
+        element.style.color = isTrending ? "#ffcc00" : "#aaa";
+      }
     });
-  }
+
+    pendingUpdates.clear();
+  });
 }
 
 /* ---------------- LOAD ---------------- */
@@ -211,12 +232,17 @@ fetch(dataSource)
   .then(videos => {
 
     const filtered = folderName
-      ? videos.filter(v => (v.folder || "").toLowerCase() === folderName)
+      ? videos.filter(v =>
+          (v.folder || "").trim().toLowerCase() === folderName
+        )
       : videos;
 
-    filtered.forEach(v => {
+    if (filtered.length === 0) {
+      videosContainer.innerHTML = "<p>No videos found in this folder.</p>";
+      return;
+    }
 
-      originalOrder.push(v.id);
+    filtered.forEach(v => {
 
       videoDataMap[v.id] = {
         ...v,
@@ -229,7 +255,7 @@ fetch(dataSource)
 
       videoElements[v.id] = {
         box,
-        views: box.querySelector("div")
+        views: box.querySelector(".views")
       };
 
       updateUI(v.id);
@@ -253,6 +279,5 @@ fetch(dataSource)
       });
 
     });
-
   })
-  .catch(console.error);
+  .catch(err => console.error(err));
