@@ -14,18 +14,21 @@ const TEST_MODE = localStorage.getItem("testMode") === "true";
 /* ---------------- CONFIG ---------------- */
 const urlParams = new URLSearchParams(window.location.search);
 const folderName = (urlParams.get("folder") || "").trim().toLowerCase();
-
-/* ---------------- DATA SOURCE ---------------- */
 const config = window.VIDEO_CONFIG || {};
 const dataSource = config.dataSource || "videos.json";
 
 /* ---------------- CACHE ---------------- */
-function saveCache(key, value) { localStorage.setItem(key, value); }
-function getCache(key) { return localStorage.getItem(key); }
+const cache = {};
+function saveCache(key, value) {
+  cache[key] = value;
+  localStorage.setItem(key, value);
+}
+function getCache(key) {
+  return cache[key] || localStorage.getItem(key);
+}
 
 /* ---------------- STATE ---------------- */
 const videoDataMap = {};
-const originalOrder = [];
 const videoElements = {};
 
 /* ---------------- TITLE ---------------- */
@@ -66,20 +69,18 @@ function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
-/* ---------------- COUNT LOGIC ---------------- */
-function countWatchOnce(videoId) {
-  const key = "watch_" + videoId;
-  if (sessionStorage.getItem(key)) return;
+/* ---------------- COUNT (ONE PER SESSION) ---------------- */
+const sessionFlags = new Set();
 
-  sessionStorage.setItem(key, "true");
+function countWatchOnce(videoId) {
+  if (sessionFlags.has("watch_" + videoId)) return;
+  sessionFlags.add("watch_" + videoId);
   increaseViews(videoId);
 }
 
 function countDownloadOnce(videoId) {
-  const key = "download_" + videoId;
-  if (sessionStorage.getItem(key)) return;
-
-  sessionStorage.setItem(key, "true");
+  if (sessionFlags.has("download_" + videoId)) return;
+  sessionFlags.add("download_" + videoId);
   increaseViews(videoId);
 }
 
@@ -102,6 +103,10 @@ function createVideoBox(video) {
   let currentEmbed = defaultQuality.embed;
 
   function loadPlayer() {
+    if (wrapper.dataset.loaded) return; // prevent flicker reload
+
+    wrapper.dataset.loaded = "true";
+
     const iframe = document.createElement("iframe");
     iframe.src = currentEmbed;
     iframe.allowFullscreen = true;
@@ -188,7 +193,7 @@ function createVideoBox(video) {
 /* ---------------- UI UPDATE ---------------- */
 function updateUI(id) {
   const v = videoDataMap[id];
-  if (!v) return;
+  if (!v || !videoElements[id]) return;
 
   const total = v.totalViews || 0;
   const isTrending = v.cycleViews >= 10;
@@ -203,8 +208,10 @@ function updateUI(id) {
   const el = videoElements[id].views;
 
   if (el.textContent !== text) {
-    el.textContent = text;
-    el.style.color = isTrending ? "#ffcc00" : "#aaa";
+    requestAnimationFrame(() => {
+      el.textContent = text;
+      el.style.color = isTrending ? "#ffcc00" : "#aaa";
+    });
   }
 }
 
@@ -226,8 +233,6 @@ fetch(dataSource)
 
     filtered.forEach(v => {
 
-      originalOrder.push(v.id);
-
       videoDataMap[v.id] = {
         ...v,
         totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
@@ -244,8 +249,7 @@ fetch(dataSource)
 
       updateUI(v.id);
 
-      /* 🔥 NO renderVideos() here — prevents blinking */
-
+      /* 🔥 Stable listeners */
       onValue(ref(db, "views/" + v.id), snap => {
         const val = snap.val();
         if (val !== null) {
