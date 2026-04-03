@@ -135,9 +135,7 @@ function createVideoBox(video) {
   select.onchange = () => {
     const selected = video.qualities[select.value];
     currentEmbed = selected.embed;
-
     countWatchOnce(video.id);
-
     loadPlayer();
   };
 
@@ -161,7 +159,7 @@ function createVideoBox(video) {
     downloadBox.style.display =
       downloadBox.style.display === "none" ? "block" : "none";
 
-    countDownloadOnce(video.id); // ✅ COUNT IMMEDIATELY
+    countDownloadOnce(video.id);
   };
 
   video.qualities.forEach(q => {
@@ -177,7 +175,6 @@ function createVideoBox(video) {
     downloadBox.appendChild(link);
   });
 
-  /* APPEND */
   box.appendChild(select);
   box.appendChild(wrapper);
   box.appendChild(title);
@@ -205,29 +202,10 @@ function updateUI(id) {
 
   const el = videoElements[id].views;
 
-  el.textContent = text;
-  el.style.color = isTrending ? "#ffcc00" : "#aaa";
-}
-
-/* ---------------- RENDER ---------------- */
-function renderVideos() {
-  const arr = Object.values(videoDataMap);
-
-  arr.sort((a, b) => {
-    const aTrending = a.cycleViews >= 10;
-    const bTrending = b.cycleViews >= 10;
-
-    if (aTrending && !bTrending) return -1;
-    if (!aTrending && bTrending) return 1;
-
-    return originalOrder.indexOf(a.id) - originalOrder.indexOf(b.id);
-  });
-
-  videosContainer.innerHTML = "";
-
-  arr.forEach(v => {
-    videosContainer.appendChild(videoElements[v.id].box);
-  });
+  if (el.textContent !== text) {
+    el.textContent = text;
+    el.style.color = isTrending ? "#ffcc00" : "#aaa";
+  }
 }
 
 /* ---------------- LOAD ---------------- */
@@ -266,13 +244,14 @@ fetch(dataSource)
 
       updateUI(v.id);
 
+      /* 🔥 NO renderVideos() here — prevents blinking */
+
       onValue(ref(db, "views/" + v.id), snap => {
         const val = snap.val();
         if (val !== null) {
           videoDataMap[v.id].totalViews = val;
           updateUI(v.id);
           saveCache("views_" + v.id, val);
-          renderVideos();
         }
       });
 
@@ -282,12 +261,9 @@ fetch(dataSource)
           videoDataMap[v.id].cycleViews = Number(val);
           updateUI(v.id);
           saveCache("cycle_" + v.id, val);
-          renderVideos();
         }
       });
 
     });
-
-    renderVideos();
   })
   .catch(err => console.error(err));
