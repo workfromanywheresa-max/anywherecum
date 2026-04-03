@@ -12,11 +12,14 @@ body {
   color: #fff;
   margin: 0;
   padding: 15px;
+  
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+}
 
-  /* 🔥 ADD THIS */
+/* ADD THIS */
+main {
   flex: 1;
 }
 
@@ -435,7 +438,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 </script>
-  
+
+  <main>
 <div class="topBar">
   <button onclick="history.back()">← Back</button>
 </div>
@@ -548,6 +552,7 @@ animation:moveArrows 1s linear infinite;
 </style>
 
 <div id="normalVideos"></div>
+  </main>
 
   <!-- ✅ BOTTOM AD (DELAYED LIKE TOP) -->
 <div id="ad-container"></div>
