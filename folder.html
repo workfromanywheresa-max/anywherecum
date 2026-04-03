@@ -202,7 +202,7 @@ OneSignalDeferred.push(async function(OneSignal) {
 <body>
 
   <!-- Translate Language List -->
-<div id="google_translate_element" style="position: fixed; top: 0; left: 0; z-index: 1000;"></div>
+<div id="google_translate_element"></div>
 
 <!-- Google Translate Script -->
 <script type="text/javascript">
@@ -214,8 +214,34 @@ OneSignalDeferred.push(async function(OneSignal) {
     }, 'google_translate_element');
   }
 </script>
-<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<!-- Make it inline + compact -->
+<style>
+#google_translate_element {
+  display: inline-block;
+}
+
+/* Keep dropdown inline */
+.goog-te-gadget {
+  display: inline-block;
+  font-size: 12px;
+}
+
+/* Make dropdown thinner */
+.goog-te-combo {
+  height: 26px !important;
+  font-size: 12px !important;
+  padding: 2px 6px !important;
+}
+
+/* Hide "Select Language" text */
+.goog-te-gadget span {
+  display: none !important;
+}
+</style>
+  
   <div id="topBanner" style="
   position: fixed;
   top: 0;
