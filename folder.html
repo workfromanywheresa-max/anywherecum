@@ -17,19 +17,16 @@ body {
   min-height: 100vh;
 }
 
-/* GLOBAL FIX */
 * {
   box-sizing: border-box;
 }
 
-/* BACK BUTTON CONTAINER */
 .topBar {
   display: flex;
   justify-content: flex-start;
   margin-bottom: 10px;
 }
 
-/* BUTTON */
 button {
   background: #ff4444;
   color: #fff;
@@ -38,11 +35,8 @@ button {
   border-radius: 5px;
   cursor: pointer;
   font-size: 12px;
-  display: inline-block;
-  width: auto;
 }
 
-/* TITLE */
 h2 {
   color: #ff4444;
   text-align: center;
@@ -56,24 +50,20 @@ h2 {
   font-size: 14px;
 }
 
-/* VIDEO LIST CONTAINER */
 #normalVideos {
   margin-bottom: 40px;
-  min-height: 300px; /* prevents layout jump */
+  min-height: 300px;
 }
 
-/* VIDEO CARD */
 .videoBox {
   background: #222;
   padding: 10px;
   border-radius: 8px;
   margin-bottom: 30px;
   text-align: center;
-
-  min-height: 250px; /* prevents flicker */
+  min-height: 250px;
 }
 
-/* PLAYER */
 .videoFrameWrapper {
   width: 100%;
   max-width: 600px;
@@ -82,8 +72,6 @@ h2 {
   border-radius: 8px;
   overflow: hidden;
   background: #000;
-
-  contain: content;
 }
 
 .videoFrameWrapper iframe,
@@ -95,7 +83,6 @@ h2 {
   display: block;
 }
 
-/* DROPDOWN */
 select {
   padding: 5px;
   border-radius: 5px;
@@ -104,32 +91,21 @@ select {
   color: #fff;
   font-size: 12px;
   margin-bottom: 6px;
-  min-width: 120px;
 }
 
-/* TEXT */
 .videoTitle {
   margin: 6px 0;
   font-size: 13px;
   cursor: pointer;
   text-decoration: underline;
-  min-height: 16px;
 }
 
 .views {
   color: #aaa;
   margin: 2px 0;
   font-size: 12px;
-  min-height: 16px;
 }
 
-/* DOWNLOAD LINKS */
-.videoBox a {
-  text-decoration: none;
-  font-size: 12px;
-}
-
-/* FOOTER */
 footer {
   text-align: center;
   padding: 20px;
@@ -139,134 +115,88 @@ footer {
   margin-top: auto;
 }
 
-/* SMOOTH RENDERING */
-body {
-  backface-visibility: hidden;
-  -webkit-font-smoothing: antialiased;
+/* ===== GOOGLE TRANSLATE FIX (TOP RIGHT) ===== */
+#google_translate_element {
+  position: fixed !important;
+  top: 10px !important;
+  right: 10px !important;
+  left: auto !important;
+  z-index: 99999;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.goog-te-gadget {
+  display: flex !important;
+  align-items: center;
+  font-size: 12px !important;
+  margin: 0 !important;
+}
+
+.goog-te-combo {
+  height: 28px !important;
+  font-size: 12px !important;
+  padding: 3px 6px !important;
+  border-radius: 5px;
+  background: #333 !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+/* Hide Google text */
+.goog-te-gadget span,
+.goog-te-gadget a {
+  display: none !important;
+}
+
+.goog-te-gadget {
+  color: transparent !important;
 }
 </style>
 
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<!-- OneSignal -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
 <script>
 window.OneSignalDeferred = window.OneSignalDeferred || [];
 
 OneSignalDeferred.push(async function(OneSignal) {
-
   await OneSignal.init({
     appId: "9f8d0573-08fa-4522-ab09-4a95fa2f442f"
   });
-
-  async function handleSub() {
-    const sub = OneSignal.User.PushSubscription;
-
-    if (!sub) return;
-
-    // ✅ FIX HERE
-    const id = sub.token || sub.id;
-
-    if (!id) {
-      console.log("Waiting for subscription...", sub);
-      return;
-    }
-
-    const optedIn = sub.optedIn;
-
-    const lastState = localStorage.getItem("sub_" + id);
-    if (lastState === String(optedIn)) return;
-
-    localStorage.setItem("sub_" + id, optedIn);
-
-    console.log("OneSignal Sub Update:", id, optedIn);
-
-    if (window.saveSubscriber) {
-      window.saveSubscriber(id, optedIn);
-    }
-  }
-
-  // ✅ IMPORTANT: OneSignal loads late
-  setTimeout(handleSub, 2000);
-  setTimeout(handleSub, 5000);
-
-  handleSub();
-
-  OneSignal.User.PushSubscription.addEventListener("change", handleSub);
-
 });
 </script>
 
-  <script src="https://pl28956604.profitablecpmratenetwork.com/c7/ba/1d/c7ba1d0cd42bd7cbdf437d03bd000409.js"></script>
+<script src="https://pl28956604.profitablecpmratenetwork.com/c7/ba/1d/c7ba1d0cd42bd7cbdf437d03bd000409.js"></script>
 
 </head>
 
 <body>
 
-  <!-- Translate Language List -->
+<!-- Google Translate -->
 <div id="google_translate_element"></div>
 
-<!-- Google Translate Script -->
-<script type="text/javascript">
-  function googleTranslateElementInit() {
-    new google.translate.TranslateElement({
-      pageLanguage: 'en',
-      layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL,
-      includedLanguages: 'af,ar,az,be,bg,ca,zh-CN,zh-TW,hr,cs,da,nl,en,eo,et,fi,fr,de,el,he,hi,hu,is,id,it,ja,ko,lv,lt,mk,ms,mt,no,pl,pt,ro,ru,sr,sk,sl,es,sw,sv,th,tr,uk,vi'
-    }, 'google_translate_element');
-  }
+<script>
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL,
+    includedLanguages: 'af,ar,az,be,bg,ca,zh-CN,zh-TW,hr,cs,da,nl,en,eo,et,fi,fr,de,el,he,hi,hu,is,id,it,ja,ko,lv,lt,mk,ms,mt,no,pl,pt,ro,ru,sr,sk,sl,es,sw,sv,th,tr,uk,vi'
+  }, 'google_translate_element');
+}
 </script>
 
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-<!-- Styling -->
-<style>
-/* Force top-right */
-#google_translate_element {
-  position: fixed !important;
-  top: 10px;
-  right: 10px;
-  left: auto !important;
-  z-index: 9999;
-  display: inline-block;
-}
-
-/* Inline layout */
-.goog-te-gadget {
-  display: inline-block;
-  font-size: 12px;
-  margin: 0 !important;
-}
-
-/* Thinner dropdown */
-.goog-te-combo {
-  height: 26px !important;
-  font-size: 12px !important;
-  padding: 2px 6px !important;
-}
-
-/* Hide "Select Language" text */
-.goog-te-gadget span {
-  display: none !important;
-}
-
-/* Hide "Powered by Google" */
-.goog-te-gadget .goog-logo-link {
-  display: none !important;
-}
-
-/* Remove extra spacing */
-.goog-te-gadget {
-  color: transparent !important;
-}
-</style>
-  
-  <div id="topBanner" style="
+<!-- Banner -->
+<div id="topBanner" style="
   position: fixed;
   top: 0;
   left: 50%;
   transform: translate(-50%, -100%);
   width: 95%;
   max-width: 700px;
-  background: #ffffff;
+  background: #fff;
   color: #111;
   display: none;
   align-items: center;
@@ -275,74 +205,59 @@ OneSignalDeferred.push(async function(OneSignal) {
   font-size: 11px;
   z-index: 9999;
   border-radius: 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  transition: transform 0.5s ease;
 ">
-  <span style="flex: 1; text-align: center;">
-    🔔 Click the bell icon on your bottom left to receive notifications
+  <span style="flex:1; text-align:center;">
+    🔔 Click the bell icon to receive notifications
   </span>
   <button id="closeBtn" style="
-    position: absolute;
-    right: 8px;
-    top: -5px;
-    background: transparent;
-    border: none;
-    color: #111;
-    font-size: 12px;
-    cursor: pointer;
-    line-height: 1;
+    position:absolute;
+    right:8px;
+    top:-5px;
+    background:none;
+    border:none;
+    font-size:12px;
   ">✖</button>
 </div>
 
 <script>
-  const banner = document.getElementById("topBanner");
-  const closeBtn = document.getElementById("closeBtn");
+const banner = document.getElementById("topBanner");
+const closeBtn = document.getElementById("closeBtn");
 
-  const lastClosed = localStorage.getItem("bannerClosedTime");
-  const now = Date.now();
-  const twentyFourHours = 24 * 60 * 60 * 1000;
+const lastClosed = localStorage.getItem("bannerClosedTime");
+const now = Date.now();
+const day = 24 * 60 * 60 * 1000;
 
-  if (!lastClosed || now - lastClosed > twentyFourHours) {
-    // Show banner
-    banner.style.display = "flex";
+if (!lastClosed || now - lastClosed > day) {
+  banner.style.display = "flex";
+  setTimeout(() => banner.style.transform = "translate(-50%,0)", 50);
 
-    // Slide down smoothly
-    setTimeout(() => {
-      banner.style.transform = "translate(-50%, 0)";
-    }, 50);
-
-    // Auto-hide after 30 seconds
-    setTimeout(() => {
-      banner.style.transform = "translate(-50%, -100%)";
-      setTimeout(() => {
-        banner.style.display = "none";
-        localStorage.setItem("bannerClosedTime", Date.now());
-      }, 500);
-    }, 30000);
-  }
-
-  closeBtn.addEventListener("click", () => {
-    banner.style.transform = "translate(-50%, -100%)";
+  setTimeout(() => {
+    banner.style.transform = "translate(-50%,-100%)";
     setTimeout(() => {
       banner.style.display = "none";
       localStorage.setItem("bannerClosedTime", Date.now());
     }, 500);
-  });
+  }, 30000);
+}
+
+closeBtn.addEventListener("click", () => {
+  banner.style.transform = "translate(-50%,-100%)";
+  setTimeout(() => {
+    banner.style.display = "none";
+    localStorage.setItem("bannerClosedTime", Date.now());
+  }, 500);
+});
 </script>
-  
+
 <div class="topBar">
   <button onclick="history.back()">← Back</button>
 </div>
 
 <h2 id="folderTitle">Folder</h2>
-
 <p id="folderDescription">
   Enjoy our videos, updated regularly for your viewing pleasure.
 </p>
 
-<!-- VIDEO CONTAINER -->
 <div id="normalVideos"></div>
 
 <footer>
@@ -355,7 +270,6 @@ window.VIDEO_CONFIG = {
 };
 </script>
 
-<!-- MAIN LOGIC -->
 <script type="module" src="views2.js"></script>
 
 </body>
