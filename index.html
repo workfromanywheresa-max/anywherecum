@@ -218,11 +218,11 @@ OneSignalDeferred.push(async function(OneSignal) {
 <div id="google_translate_element"></div>
 
 <style>
-/* ===== GOOGLE TRANSLATE LEFT POSITION ===== */
+/* ===== GOOGLE TRANSLATE LEFT POSITION (FLUSH) ===== */
 #google_translate_element {
   position: fixed !important;
-  top: 5px !important;
-  left: 5px !important;   /* LEFT SIDE */
+  top: 0 !important;     /* changed from 5px → 0 */
+  left: 0 !important;    /* already correct */
   right: auto !important;
   z-index: 99999;
   margin: 0 !important;
@@ -260,6 +260,8 @@ OneSignalDeferred.push(async function(OneSignal) {
 /* Remove top spacing */
 body {
   top: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 /* Hide translate banner */
