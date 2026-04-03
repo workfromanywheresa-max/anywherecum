@@ -201,7 +201,8 @@ OneSignalDeferred.push(async function(OneSignal) {
 
 <body>
 
-  <!-- Translate Language List -->
+  
+<!-- Translate Language List -->
 <div id="google_translate_element"></div>
 
 <!-- Google Translate Script -->
@@ -217,10 +218,24 @@ OneSignalDeferred.push(async function(OneSignal) {
 
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-<!-- Make it inline + compact -->
+<!-- Make it flush to top -->
 <style>
+/* Remove default spacing from page */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Pin the translate bar to the very top */
 #google_translate_element {
-  display: inline-block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
+  background: #fff; /* optional, prevents transparency */
+  padding: 2px 5px; /* small spacing inside */
+  box-sizing: border-box;
 }
 
 /* Keep dropdown inline */
