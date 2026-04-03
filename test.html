@@ -134,18 +134,6 @@ footer {
 © 2026 AnywhereCum – Legal content only. 18+
 </footer>
 
-<script>
-const params = new URLSearchParams(window.location.search);
-
-function normalize(str) {
-  return (str || "").trim().toLowerCase();
-}
-
-window.VIDEO_CONFIG = {
-  dataSource: "test.json",
-  folder: normalize(params.get("folder"))
-};
-</script>
 
 <!-- MAIN LOGIC -->
 <script type="module" src="test.js"></script>
