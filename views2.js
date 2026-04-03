@@ -253,6 +253,33 @@ function updateUI(id) {
   }
 }
 
+/* ---------------- 🔥 REORDER LOGIC ---------------- */
+function reorderVideos() {
+  const entries = Object.entries(videoDataMap);
+
+  entries.sort((a, b) => {
+    const A = a[1];
+    const B = b[1];
+
+    const ATrending = A.cycleViews >= 10;
+    const BTrending = B.cycleViews >= 10;
+
+    if (ATrending && !BTrending) return -1;
+    if (!ATrending && BTrending) return 1;
+
+    if (ATrending && BTrending) {
+      return B.cycleViews - A.cycleViews;
+    }
+
+    return A.originalIndex - B.originalIndex;
+  });
+
+  entries.forEach(([id]) => {
+    const el = videoElements[id]?.box;
+    if (el) videosContainer.appendChild(el);
+  });
+}
+
 /* ---------------- LOAD ---------------- */
 createLoader();
 
@@ -273,10 +300,11 @@ fetch(dataSource)
       return;
     }
 
-    filtered.forEach(v => {
+    filtered.forEach((v, index) => {
 
       videoDataMap[v.id] = {
         ...v,
+        originalIndex: index, // ✅ important
         totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
         cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
       };
@@ -297,6 +325,7 @@ fetch(dataSource)
           videoDataMap[v.id].totalViews = val;
           updateUI(v.id);
           saveCache("views_" + v.id, val);
+          reorderVideos();
         }
       });
 
@@ -306,6 +335,7 @@ fetch(dataSource)
           videoDataMap[v.id].cycleViews = Number(val);
           updateUI(v.id);
           saveCache("cycle_" + v.id, val);
+          reorderVideos();
         }
       });
 
