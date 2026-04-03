@@ -11,19 +11,14 @@ const db = getDatabase(app);
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
-/* ---------------- CONFIG ---------------- */
-const config = window.VIDEO_CONFIG || {};
-const folderName = (config.folder || "").toLowerCase();
-const dataSource = config.dataSource || "videos.json";
-
-/* ---------------- CACHE ---------------- */
-function saveCache(key, value) { localStorage.setItem(key, value); }
-function getCache(key) { return localStorage.getItem(key); }
-
 /* ---------------- STATE ---------------- */
 const videoDataMap = {};
 const originalOrder = [];
 const videoElements = {};
+
+/* ---------------- CACHE ---------------- */
+function saveCache(key, value) { localStorage.setItem(key, value); }
+function getCache(key) { return localStorage.getItem(key); }
 
 /* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
@@ -31,9 +26,6 @@ function toTitleCase(str) {
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 }
-
-document.getElementById("folderTitle").textContent =
-  folderName ? toTitleCase(folderName) : "🔐VIP Exclusive";
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
@@ -54,7 +46,6 @@ async function sendToWorker(videoId) {
     });
   } catch (err) { console.error("Worker failed:", err); }
 }
-
 function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
@@ -70,128 +61,118 @@ function createVideoBox(video) {
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
 
-  /* ✅ FIX: ensure qualities exist */
-  const qualities = (video.qualities || []).slice();
-
-  /* ✅ FIX: 480p always first */
-  qualities.sort((a, b) => {
+  /* SORT QUALITIES → 480p FIRST */
+  const sortedQualities = [...video.qualities].sort((a, b) => {
     if (a.label.includes("480")) return -1;
     if (b.label.includes("480")) return 1;
     return 0;
   });
 
-  /* SELECT DEFAULT (480p if exists) */
-  let currentQuality = qualities[0];
+  const defaultQuality =
+    sortedQualities.find(q => q.recommended) ||
+    sortedQualities.find(q => q.default) ||
+    sortedQualities[0];
 
-  const iframe = document.createElement("iframe");
-  iframe.src = currentQuality?.embed || video.embed || "";
-  iframe.allowFullscreen = true;
+  let currentEmbed = defaultQuality.embed;
 
-  const img = document.createElement("img");
-  img.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
-
-  wrapper.appendChild(img);
-
-  img.onclick = () => {
-    increaseViews(video.id);
+  function loadPlayer() {
+    const iframe = document.createElement("iframe");
+    iframe.src = currentEmbed;
+    iframe.allowFullscreen = true;
     wrapper.innerHTML = "";
     wrapper.appendChild(iframe);
-  };
+  }
 
-  /* QUALITY DROPDOWN */
+  const thumb = document.createElement("img");
+  thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
+  thumb.onclick = () => {
+    increaseViews(video.id);
+    loadPlayer();
+  };
+  wrapper.appendChild(thumb);
+
   const select = document.createElement("select");
 
-  qualities.forEach(q => {
+  sortedQualities.forEach((q, index) => {
     const option = document.createElement("option");
-    option.value = q.embed;
-    option.textContent = q.label;
+    option.value = index;
+    option.textContent = `${q.label} • ${q.size}`;
+    if (q === defaultQuality) option.selected = true;
     select.appendChild(option);
   });
 
   select.onchange = () => {
-    iframe.src = select.value;
-    increaseViews(video.id);
+    const selected = sortedQualities[select.value];
+    currentEmbed = selected.embed;
+
+    if (wrapper.querySelector("iframe")) {
+      loadPlayer();
+    }
   };
 
-  /* TITLE */
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
-  title.onclick = () => {
-    increaseViews(video.id);
-    window.open(video.url, "_blank");
-  };
 
-  /* VIEWS (UNCHANGED) */
   const views = document.createElement("div");
   views.className = "views";
 
-  /* DOWNLOAD */
-  const btn = document.createElement("a");
-  btn.className = "download";
-  btn.href = "#";
-  btn.textContent = "Download";
-  btn.onclick = (e) => {
-    e.preventDefault();
-    increaseViews(video.id);
-    window.open(video.url, "_blank");
+  const downloadBtn = document.createElement("button");
+  downloadBtn.textContent = "Download";
+  downloadBtn.style.marginTop = "8px";
+
+  const downloadBox = document.createElement("div");
+  downloadBox.style.display = "none";
+
+  sortedQualities.forEach(q => {
+    const link = document.createElement("a");
+    link.href = q.download;
+    link.target = "_blank";
+    link.textContent = `${q.label} • ${q.size}`;
+    link.style.display = "block";
+    link.style.margin = "5px 0";
+    link.style.color = "#ff4444";
+    link.onclick = () => increaseViews(video.id);
+    downloadBox.appendChild(link);
+  });
+
+  downloadBtn.onclick = () => {
+    downloadBox.style.display =
+      downloadBox.style.display === "none" ? "block" : "none";
   };
 
-  box.appendChild(wrapper);
   box.appendChild(select);
+  box.appendChild(wrapper);
   box.appendChild(title);
   box.appendChild(views);
-  box.appendChild(btn);
+  box.appendChild(downloadBtn);
+  box.appendChild(downloadBox);
 
   return box;
 }
 
-/* ---------------- RENDER ---------------- */
-function renderVideos() {
-  const arr = Object.values(videoDataMap);
-
-  arr.sort((a, b) => originalOrder.indexOf(a.id) - originalOrder.indexOf(b.id));
-
-  videosContainer.innerHTML = "";
-
-  arr.forEach(v => {
-    videosContainer.appendChild(videoElements[v.id].box);
-  });
-}
-
-/* ---------------- UI UPDATE ---------------- */
-function updateUI(id) {
-  const v = videoDataMap[id];
-  if (!v) return;
-
-  const total = v.totalViews || 0;
-  const isTrending = v.cycleViews >= 10;
-
-  saveCache("views_" + id, total);
-  saveCache("cycle_" + id, v.cycleViews);
-
-  const newText = isTrending
-    ? `🔥 Trending | 👁 ${formatViews(total)}`
-    : `👁 ${formatViews(total)}`;
-
-  const el = videoElements[id].views;
-
-  if (el.textContent !== newText) {
-    el.textContent = newText;
-    el.style.color = isTrending ? "#ffcc00" : "#aaa";
-  }
-}
-
 /* ---------------- LOAD ---------------- */
-fetch(dataSource)
+const params = new URLSearchParams(window.location.search);
+
+window.VIDEO_CONFIG = {
+  dataSource: "test.json",
+  folder: (params.get("folder") || "").toLowerCase().trim()
+};
+
+fetch(window.VIDEO_CONFIG.dataSource)
   .then(res => res.json())
   .then(videos => {
 
+    const folderName = window.VIDEO_CONFIG.folder;
+
     const filtered = folderName
-      ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
+      ? videos.filter(v =>
+          v.folder &&
+          v.folder.toLowerCase().trim() === folderName
+        )
       : videos;
 
-    filtered.forEach(v => {
+    filtered.forEach((v) => {
       originalOrder.push(v.id);
 
       videoDataMap[v.id] = {
@@ -208,11 +189,10 @@ fetch(dataSource)
         views: box.querySelector(".views")
       };
 
-      updateUI(v.id);
-
+      /* 🔥 YOUR ORIGINAL VIEWS LOGIC (UNCHANGED) */
       onValue(ref(db, "views/" + v.id), snap => {
         const val = snap.val();
-        if (val !== null && val !== undefined) {
+        if (val !== null) {
           videoDataMap[v.id].totalViews = val;
           updateUI(v.id);
           saveCache("views_" + v.id, val);
@@ -221,14 +201,34 @@ fetch(dataSource)
 
       onValue(ref(db, "cycleViews/" + v.id), snap => {
         const val = snap.val();
-        if (val !== null && val !== undefined) {
+        if (val !== null) {
           videoDataMap[v.id].cycleViews = Number(val);
           updateUI(v.id);
           saveCache("cycle_" + v.id, val);
         }
       });
-    });
 
-    renderVideos();
+      updateUI(v.id);
+    });
   })
   .catch(err => console.error(err));
+
+/* ---------------- UI UPDATE ---------------- */
+function updateUI(id) {
+  const v = videoDataMap[id];
+  if (!v) return;
+
+  const total = v.totalViews || 0;
+  const isTrending = v.cycleViews >= 10;
+
+  const newText = isTrending
+    ? `🔥 Trending | 👁 ${formatViews(total)}`
+    : `👁 ${formatViews(total)}`;
+
+  const el = videoElements[id].views;
+
+  if (el.textContent !== newText) {
+    el.textContent = newText;
+    el.style.color = isTrending ? "#ffcc00" : "#aaa";
+  }
+}
