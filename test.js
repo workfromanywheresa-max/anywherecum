@@ -8,6 +8,16 @@ const app = initializeApp({
 });
 const db = getDatabase(app);
 
+/* ---------------- HLS ---------------- */
+function loadHLS() {
+  if (!window.Hls) {
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/hls.js@latest";
+    document.head.appendChild(script);
+  }
+}
+loadHLS();
+
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
@@ -31,6 +41,7 @@ function toTitleCase(str) {
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 }
+
 document.getElementById("folderTitle").textContent =
   folderName ? toTitleCase(folderName) : "All Videos";
 
@@ -53,6 +64,7 @@ async function sendToWorker(videoId) {
     });
   } catch (err) { console.error("Worker failed:", err); }
 }
+
 function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
@@ -71,7 +83,7 @@ function createLoader() {
   loader.style.zIndex = "9999";
 
   const spinner = document.createElement("div");
-  spinner.style.border = "4px solid rgba(255, 255, 255, 0.3)";
+  spinner.style.border = "4px solid rgba(255,255,255,0.3)";
   spinner.style.borderTop = "4px solid #ffcc00";
   spinner.style.borderRadius = "50%";
   spinner.style.width = "50px";
@@ -81,6 +93,7 @@ function createLoader() {
   loader.appendChild(spinner);
   document.body.appendChild(loader);
 }
+
 function removeLoader() {
   const loader = document.getElementById("loader");
   if (loader) loader.remove();
@@ -94,6 +107,37 @@ function createVideoBox(video) {
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
 
+  /* ---------------- VIDEO PLAYER ---------------- */
+  const videoEl = document.createElement("video");
+  videoEl.controls = true;
+  videoEl.style.width = "100%";
+  videoEl.style.background = "#000";
+  videoEl.playsInline = true;
+
+  let hls = null;
+  let currentTime = 0;
+
+  function loadVideo(url) {
+    if (hls) {
+      hls.destroy();
+      hls = null;
+    }
+
+    if (window.Hls && Hls.isSupported()) {
+      hls = new Hls();
+      hls.loadSource(url);
+      hls.attachMedia(videoEl);
+
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        videoEl.currentTime = currentTime;
+        videoEl.play();
+      });
+
+    } else {
+      videoEl.src = url;
+    }
+  }
+
   /* DEFAULT 480p */
   const defaultQuality =
     video.qualities.find(q => q.label.includes("480")) ||
@@ -101,21 +145,17 @@ function createVideoBox(video) {
 
   let currentEmbed = defaultQuality.embed;
 
-  function loadPlayer() {
-    const iframe = document.createElement("iframe");
-    iframe.src = currentEmbed;
-    iframe.allowFullscreen = true;
-    wrapper.innerHTML = "";
-    wrapper.appendChild(iframe);
-  }
-
   /* THUMB */
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
+
   thumb.onclick = () => {
     increaseViews(video.id);
-    loadPlayer();
+    loadVideo(currentEmbed);
+    wrapper.innerHTML = "";
+    wrapper.appendChild(videoEl);
   };
+
   wrapper.appendChild(thumb);
 
   /* DROPDOWN */
@@ -126,21 +166,18 @@ function createVideoBox(video) {
   video.qualities.forEach((q, index) => {
     const option = document.createElement("option");
     option.value = index;
-
-    /* ✅ ONLY THIS */
     option.textContent = `Stream - ${q.label}`;
-
     if (q === defaultQuality) option.selected = true;
     select.appendChild(option);
   });
 
   select.onchange = () => {
     const selected = video.qualities[select.value];
+
+    currentTime = videoEl.currentTime || 0;
     currentEmbed = selected.embed;
 
-    if (wrapper.querySelector("iframe")) {
-      loadPlayer();
-    }
+    loadVideo(currentEmbed);
   };
 
   /* TITLE */
@@ -164,9 +201,7 @@ function createVideoBox(video) {
     const link = document.createElement("a");
     link.href = q.download;
     link.target = "_blank";
-
     link.textContent = `${q.label} • ${q.size}`;
-
     link.style.display = "block";
     link.style.margin = "5px 0";
     link.style.color = "#ff4444";
@@ -248,7 +283,7 @@ fetch(dataSource)
       ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
       : videos;
 
-    filtered.forEach((v) => {
+    filtered.forEach(v => {
       originalOrder.push(v.id);
 
       videoDataMap[v.id] = {
