@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <a id="adminLink" href="admin.html" style="
       position: fixed;
       top: 0px;
-      right: 0px;
+      left: 0px;
       color: yellow;
       font-weight: bold;
       font-size: 8px;
