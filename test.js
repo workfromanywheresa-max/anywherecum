@@ -11,14 +11,19 @@ const db = getDatabase(app);
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
-/* ---------------- STATE ---------------- */
-const videoDataMap = {};
-const originalOrder = [];
-const videoElements = {};
+/* ---------------- CONFIG ---------------- */
+const config = window.VIDEO_CONFIG || {};
+const folderName = (config.folder || "").toLowerCase();
+const dataSource = config.dataSource || "test.json";
 
 /* ---------------- CACHE ---------------- */
 function saveCache(key, value) { localStorage.setItem(key, value); }
 function getCache(key) { return localStorage.getItem(key); }
+
+/* ---------------- STATE ---------------- */
+const videoDataMap = {};
+const originalOrder = [];
+const videoElements = {};
 
 /* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
@@ -26,6 +31,8 @@ function toTitleCase(str) {
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 }
+document.getElementById("folderTitle").textContent =
+  folderName ? toTitleCase(folderName) : "All Videos";
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
@@ -53,6 +60,32 @@ function increaseViews(videoId) {
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
 
+/* ---------------- LOADER ---------------- */
+function createLoader() {
+  const loader = document.createElement("div");
+  loader.id = "loader";
+  loader.style.position = "fixed";
+  loader.style.top = "50%";
+  loader.style.left = "50%";
+  loader.style.transform = "translate(-50%, -50%)";
+  loader.style.zIndex = "9999";
+
+  const spinner = document.createElement("div");
+  spinner.style.border = "4px solid rgba(255, 255, 255, 0.3)";
+  spinner.style.borderTop = "4px solid #ffcc00";
+  spinner.style.borderRadius = "50%";
+  spinner.style.width = "50px";
+  spinner.style.height = "50px";
+  spinner.style.animation = "spin 1s linear infinite";
+
+  loader.appendChild(spinner);
+  document.body.appendChild(loader);
+}
+function removeLoader() {
+  const loader = document.getElementById("loader");
+  if (loader) loader.remove();
+}
+
 /* ---------------- VIDEO BOX ---------------- */
 function createVideoBox(video) {
   const box = document.createElement("div");
@@ -61,17 +94,10 @@ function createVideoBox(video) {
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
 
-  /* SORT QUALITIES → 480p FIRST */
-  const sortedQualities = [...video.qualities].sort((a, b) => {
-    if (a.label.includes("480")) return -1;
-    if (b.label.includes("480")) return 1;
-    return 0;
-  });
-
+  /* ✅ FORCE 480p AS DEFAULT */
   const defaultQuality =
-    sortedQualities.find(q => q.recommended) ||
-    sortedQualities.find(q => q.default) ||
-    sortedQualities[0];
+    video.qualities.find(q => q.label.includes("480")) ||
+    video.qualities[0];
 
   let currentEmbed = defaultQuality.embed;
 
@@ -83,6 +109,7 @@ function createVideoBox(video) {
     wrapper.appendChild(iframe);
   }
 
+  /* THUMB */
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
   thumb.onclick = () => {
@@ -91,9 +118,12 @@ function createVideoBox(video) {
   };
   wrapper.appendChild(thumb);
 
+  /* DROPDOWN */
   const select = document.createElement("select");
+  select.style.margin = "8px auto";
+  select.style.display = "block";
 
-  sortedQualities.forEach((q, index) => {
+  video.qualities.forEach((q, index) => {
     const option = document.createElement("option");
     option.value = index;
     option.textContent = `${q.label} • ${q.size}`;
@@ -102,7 +132,7 @@ function createVideoBox(video) {
   });
 
   select.onchange = () => {
-    const selected = sortedQualities[select.value];
+    const selected = video.qualities[select.value];
     currentEmbed = selected.embed;
 
     if (wrapper.querySelector("iframe")) {
@@ -110,13 +140,16 @@ function createVideoBox(video) {
     }
   };
 
+  /* TITLE */
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
 
+  /* VIEWS */
   const views = document.createElement("div");
   views.className = "views";
 
+  /* DOWNLOAD */
   const downloadBtn = document.createElement("button");
   downloadBtn.textContent = "Download";
   downloadBtn.style.marginTop = "8px";
@@ -124,7 +157,7 @@ function createVideoBox(video) {
   const downloadBox = document.createElement("div");
   downloadBox.style.display = "none";
 
-  sortedQualities.forEach(q => {
+  video.qualities.forEach(q => {
     const link = document.createElement("a");
     link.href = q.download;
     link.target = "_blank";
@@ -141,6 +174,7 @@ function createVideoBox(video) {
       downloadBox.style.display === "none" ? "block" : "none";
   };
 
+  /* APPEND */
   box.appendChild(select);
   box.appendChild(wrapper);
   box.appendChild(title);
@@ -151,25 +185,60 @@ function createVideoBox(video) {
   return box;
 }
 
+/* ---------------- RENDER ---------------- */
+function renderVideos() {
+  const arr = Object.values(videoDataMap);
+
+  arr.sort((a, b) => {
+    const aTrending = a.cycleViews >= 10;
+    const bTrending = b.cycleViews >= 10;
+
+    if (aTrending && !bTrending) return -1;
+    if (!aTrending && bTrending) return 1;
+
+    return originalOrder.indexOf(a.id) - originalOrder.indexOf(b.id);
+  });
+
+  videosContainer.innerHTML = "";
+
+  arr.forEach(v => {
+    videosContainer.appendChild(videoElements[v.id].box);
+  });
+}
+
+/* ---------------- UI UPDATE ---------------- */
+function updateUI(id) {
+  const v = videoDataMap[id];
+  if (!v) return;
+
+  const total = v.totalViews || 0;
+  const isTrending = v.cycleViews >= 10;
+
+  saveCache("views_" + id, total);
+  saveCache("cycle_" + id, v.cycleViews);
+
+  const newText = isTrending
+    ? `🔥 Trending | 👁 ${formatViews(total)}`
+    : `👁 ${formatViews(total)}`;
+
+  const el = videoElements[id].views;
+
+  if (el.textContent !== newText) {
+    el.textContent = newText;
+    el.style.color = isTrending ? "#ffcc00" : "#aaa";
+  }
+}
+
 /* ---------------- LOAD ---------------- */
-const params = new URLSearchParams(window.location.search);
+createLoader();
 
-window.VIDEO_CONFIG = {
-  dataSource: "test.json",
-  folder: (params.get("folder") || "").toLowerCase().trim()
-};
-
-fetch(window.VIDEO_CONFIG.dataSource)
+fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
-
-    const folderName = window.VIDEO_CONFIG.folder;
+    removeLoader();
 
     const filtered = folderName
-      ? videos.filter(v =>
-          v.folder &&
-          v.folder.toLowerCase().trim() === folderName
-        )
+      ? videos.filter(v => v.folder && v.folder.toLowerCase() === folderName)
       : videos;
 
     filtered.forEach((v) => {
@@ -189,13 +258,15 @@ fetch(window.VIDEO_CONFIG.dataSource)
         views: box.querySelector(".views")
       };
 
-      /* 🔥 YOUR ORIGINAL VIEWS LOGIC (UNCHANGED) */
+      updateUI(v.id);
+
       onValue(ref(db, "views/" + v.id), snap => {
         const val = snap.val();
         if (val !== null) {
           videoDataMap[v.id].totalViews = val;
           updateUI(v.id);
           saveCache("views_" + v.id, val);
+          renderVideos();
         }
       });
 
@@ -205,30 +276,14 @@ fetch(window.VIDEO_CONFIG.dataSource)
           videoDataMap[v.id].cycleViews = Number(val);
           updateUI(v.id);
           saveCache("cycle_" + v.id, val);
+          renderVideos();
         }
       });
-
-      updateUI(v.id);
     });
+
+    renderVideos();
   })
-  .catch(err => console.error(err));
-
-/* ---------------- UI UPDATE ---------------- */
-function updateUI(id) {
-  const v = videoDataMap[id];
-  if (!v) return;
-
-  const total = v.totalViews || 0;
-  const isTrending = v.cycleViews >= 10;
-
-  const newText = isTrending
-    ? `🔥 Trending | 👁 ${formatViews(total)}`
-    : `👁 ${formatViews(total)}`;
-
-  const el = videoElements[id].views;
-
-  if (el.textContent !== newText) {
-    el.textContent = newText;
-    el.style.color = isTrending ? "#ffcc00" : "#aaa";
-  }
-}
+  .catch(err => {
+    console.error(err);
+    removeLoader();
+  });
