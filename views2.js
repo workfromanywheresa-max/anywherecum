@@ -30,7 +30,6 @@ function getCache(key) {
 /* ---------------- STATE ---------------- */
 const videoDataMap = {};
 const videoElements = {};
-const pendingUpdates = new Set(); // 🔥 batch updates
 
 /* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
@@ -103,6 +102,7 @@ function createVideoBox(video) {
 
   let currentEmbed = defaultQuality.embed;
 
+  /* ✅ CREATE PLAYER ONLY ONCE */
   function loadPlayer() {
     if (wrapper.dataset.loaded === "true") return;
 
@@ -112,6 +112,7 @@ function createVideoBox(video) {
     iframe.src = currentEmbed;
     iframe.allowFullscreen = true;
 
+    /* REMOVE THUMB SMOOTHLY AFTER LOAD */
     iframe.onload = () => {
       if (thumb) thumb.style.display = "none";
     };
@@ -119,6 +120,7 @@ function createVideoBox(video) {
     wrapper.replaceChildren(iframe);
   }
 
+  /* THUMB */
   const thumb = document.createElement("img");
   thumb.src = `https://anywherecum.pages.dev/images/${encodeURIComponent(video.thumbnail)}`;
 
@@ -129,6 +131,7 @@ function createVideoBox(video) {
 
   wrapper.appendChild(thumb);
 
+  /* DROPDOWN */
   const select = document.createElement("select");
 
   video.qualities.forEach((q, index) => {
@@ -145,17 +148,21 @@ function createVideoBox(video) {
 
     countWatchOnce(video.id);
 
+    /* swap player without flicker */
     wrapper.dataset.loaded = "false";
     loadPlayer();
   };
 
+  /* TITLE */
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
 
+  /* VIEWS */
   const views = document.createElement("div");
   views.className = "views";
 
+  /* DOWNLOAD */
   const downloadBtn = document.createElement("button");
   downloadBtn.textContent = "Download";
 
@@ -192,38 +199,29 @@ function createVideoBox(video) {
   return box;
 }
 
-/* ---------------- UI UPDATE (FIXED) ---------------- */
+/* ---------------- UI UPDATE ---------------- */
 function updateUI(id) {
   const v = videoDataMap[id];
-  const el = videoElements[id]?.views;
-  if (!v || !el) return;
+  if (!v || !videoElements[id]) return;
 
-  pendingUpdates.add(id);
+  const total = v.totalViews || 0;
+  const isTrending = v.cycleViews >= 10;
 
-  requestAnimationFrame(() => {
-    pendingUpdates.forEach(pid => {
-      const vid = videoDataMap[pid];
-      const element = videoElements[pid]?.views;
-      if (!vid || !element) return;
+  saveCache("views_" + id, total);
+  saveCache("cycle_" + id, v.cycleViews);
 
-      const total = vid.totalViews || 0;
-      const isTrending = vid.cycleViews >= 10;
+  const text = isTrending
+    ? `🔥 Trending | 👁 ${formatViews(total)}`
+    : `👁 ${formatViews(total)}`;
 
-      saveCache("views_" + pid, total);
-      saveCache("cycle_" + pid, vid.cycleViews);
+  const el = videoElements[id].views;
 
-      const text = isTrending
-        ? `🔥 Trending | 👁 ${formatViews(total)}`
-        : `👁 ${formatViews(total)}`;
-
-      if (element.textContent !== text) {
-        element.textContent = text;
-        element.style.color = isTrending ? "#ffcc00" : "#aaa";
-      }
+  if (el.textContent !== text) {
+    requestAnimationFrame(() => {
+      el.textContent = text;
+      el.style.color = isTrending ? "#ffcc00" : "#aaa";
     });
-
-    pendingUpdates.clear();
-  });
+  }
 }
 
 /* ---------------- LOAD ---------------- */
@@ -260,12 +258,13 @@ fetch(dataSource)
 
       updateUI(v.id);
 
+      /* FIREBASE LISTENERS */
       onValue(ref(db, "views/" + v.id), snap => {
         const val = snap.val();
         if (val !== null) {
           videoDataMap[v.id].totalViews = val;
-          saveCache("views_" + v.id, val);
           updateUI(v.id);
+          saveCache("views_" + v.id, val);
         }
       });
 
@@ -273,8 +272,8 @@ fetch(dataSource)
         const val = snap.val();
         if (val !== null) {
           videoDataMap[v.id].cycleViews = Number(val);
-          saveCache("cycle_" + v.id, val);
           updateUI(v.id);
+          saveCache("cycle_" + v.id, val);
         }
       });
 
