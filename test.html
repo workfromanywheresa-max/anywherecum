@@ -134,13 +134,16 @@ footer {
 © 2026 AnywhereCum – Legal content only. 18+
 </footer>
 
-<!-- CONFIG -->
 <script>
 const params = new URLSearchParams(window.location.search);
 
+function normalize(str) {
+  return (str || "").trim().toLowerCase();
+}
+
 window.VIDEO_CONFIG = {
   dataSource: "test.json",
-  folder: params.get("folder") || ""
+  folder: normalize(params.get("folder"))
 };
 </script>
 
