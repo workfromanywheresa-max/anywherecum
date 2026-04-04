@@ -750,7 +750,7 @@ function googleTranslateElementInit() {
   </div>
 </footer>
 
-<script>
+  <script>
 document.addEventListener('DOMContentLoaded', () => {
 
   /* ===== AGE MODAL LOGIC ===== */
@@ -782,10 +782,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let activeVideo = null;
 
-  function createPreviewItem(video, folderURL, linkText) {
+  function createPreviewItem(video, folderURL, linkText, folderName) {
 
     const li = document.createElement('li');
 
+    // ✅ FIX: folderName now properly passed
     li.dataset.folder = folderName;
 
     const container = document.createElement('div');
@@ -828,7 +829,6 @@ document.addEventListener('DOMContentLoaded', () => {
     container.appendChild(loader);
     container.appendChild(videoEl);
 
-    // 🔥 STOP VIDEO WHEN OUT OF VIEW
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) {
@@ -950,7 +950,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const li = createPreviewItem(
           latest,
           folderURL,
-          folderName === VIP_FOLDER ? "🔒 VIP Exclusive" : folderName
+          folderName === VIP_FOLDER ? "🔒 VIP Exclusive" : folderName,
+          folderName // ✅ FIX HERE
         );
 
         folderList.appendChild(li);
@@ -969,7 +970,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const li = createPreviewItem(
           latest,
           "folder.html?folder=" + encodeURIComponent(latest.folder),
-          "Watch Now: New Video Available!!!"
+          "Watch Now: New Video Available!!!",
+          latest.folder // ✅ FIX HERE
         );
 
         latestDiv.appendChild(li);
@@ -977,41 +979,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     });
 
-  // Cookie banner logic
-const banner = document.getElementById('cookieBanner');
+  /* ===== COOKIE BANNER ===== */
+  const banner = document.getElementById('cookieBanner');
 
-// Show banner if not accepted
-if (localStorage.getItem('cookiesAccepted') !== 'true') {
-  setTimeout(() => {
-    banner.style.bottom = '0';
-  }, 300);
-}
+  if (localStorage.getItem('cookiesAccepted') !== 'true') {
+    setTimeout(() => {
+      banner.style.bottom = '0';
+    }, 300);
+  }
 
-// Accept button
-document.getElementById('acceptCookies').onclick = () => {
-  localStorage.setItem('cookiesAccepted', 'true');
-  banner.style.bottom = '-100px';
+  document.getElementById('acceptCookies').onclick = () => {
+    localStorage.setItem('cookiesAccepted', 'true');
+    banner.style.bottom = '-100px';
 
-  setTimeout(() => {
-    banner.style.display = 'none';
-  }, 500);
-};
+    setTimeout(() => {
+      banner.style.display = 'none';
+    }, 500);
+  };
 
 });
 </script>
 
-  <!-- Cookie Consent Banner -->
-<div id="cookieBanner" style="position:fixed; bottom:-100px; left:0; width:100%; background-color:#222; color:#fff; padding:12px 15px; text-align:center; font-size:10px; z-index:9998; display:flex; justify-content:center; align-items:center; gap:10px; box-sizing:border-box; transition: bottom 0.5s ease-in-out; flex-wrap: wrap;">
-  <span style="max-width: 100%; text-align: center;">
+<!-- COOKIE BANNER -->
+<div id="cookieBanner" style="position:fixed; bottom:-100px; left:0; width:100%; background:#222; color:#fff; padding:12px 15px; text-align:center; font-size:10px; z-index:9998; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; transition: bottom 0.5s;">
+  <span>
     We use cookies to improve your experience. 
-    <a href="https://anywherecum.pages.dev/terms-privacy.html" target="_blank" style="color:#ff4444; text-decoration: underline;">Privacy Policy</a>
+    <a href="https://anywherecum.pages.dev/terms-privacy.html" target="_blank" style="color:#ff4444;">Privacy Policy</a>
   </span>
-  <button id="acceptCookies" style="padding:6px 15px; font-size:14px; font-weight:bold; color:#fff; background-color:#ff4444; border:none; border-radius:5px; cursor:pointer; box-shadow:0 0 5px #ff4444;">
+  <button id="acceptCookies" style="padding:6px 15px; font-size:14px; font-weight:bold; color:#fff; background:#ff4444; border:none; border-radius:5px;">
     Accept
   </button>
 </div>
 
-  <script>
+<script>
 document.addEventListener("click", function (e) {
 
   function getFolderName(el) {
@@ -1023,11 +1023,9 @@ document.addEventListener("click", function (e) {
     );
   }
 
-  // ✅ Get the full folder item
   const item = e.target.closest("li");
   if (!item) return;
 
-  // ✅ Get folder name directly from the LI (more reliable)
   const folderName = item.dataset.folder || getFolderName(item);
 
   console.log("Folder clicked:", folderName);
@@ -1037,8 +1035,8 @@ document.addEventListener("click", function (e) {
   }
 
 });
-  </script>
-
+</script>
+      
   <script type="module" src="views.js"></script>
 
 </body>
