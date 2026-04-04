@@ -19,6 +19,7 @@ body {
   padding: 15px;
 }
 
+/* HEADER */
 header {
   text-align: center;
   padding: 5px 10px;
@@ -33,18 +34,22 @@ header h1 {
 
 #headerImage {
   width: 100%;
-  height: auto;
   display: block;
   margin-top: 5px;
   border-radius: 8px;
 }
 
-/* Latest section */
+/* 🔥 FIXED SPACES (NO JUMPING) */
 #latestVideo {
-  min-height: 190px;
+  height: 190px; /* reserved space */
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
+}
+
+#folderList {
+  min-height: 400px; /* reserves space */
 }
 
 /* TITLES */
@@ -70,8 +75,6 @@ ul {
 li {
   background: #222;
   border-radius: 8px;
-  text-align: center;
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -83,21 +86,22 @@ li img {
   width: 100%;
   height: 130px;
   object-fit: cover;
-  display: block;
   background: #333;
+  display: block;
 }
 
-/* LINK / TITLE */
+/* TEXT */
 a.folder-link {
   display: block;
-  color: #fff;
-  font-weight: bold;
-  text-decoration: none;
+  height: 50px;
   padding: 6px;
   font-size: 13px;
   text-align: center;
   background: #111;
-  min-height: 40px;
+  color: #fff;
+  font-weight: bold;
+  text-decoration: none;
+  overflow: hidden;
 }
 
 a.folder-link:hover {
@@ -105,17 +109,19 @@ a.folder-link:hover {
   text-decoration: underline;
 }
 
+/* HOVER */
 li:hover {
   background: #333;
 }
 
+/* MOBILE */
 @media(max-width:600px){
   ul {
     grid-template-columns: 1fr;
-    grid-auto-rows: 180px;
   }
 }
 
+/* FOOTER */
 footer {
   text-align: center;
   padding: 20px;
@@ -181,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const link = document.createElement('a');
         link.className = "folder-link";
         link.href = "folder.html?folder=" + encodeURIComponent(folderName);
-        link.textContent = folderName; // THIS shows folder title
+        link.textContent = folderName;
 
         li.appendChild(img);
         li.appendChild(link);
