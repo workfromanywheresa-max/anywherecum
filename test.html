@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AnywhereCum - Browse Video Folders & Exclusive Content</title>
 
-<link rel="icon" href="https://anywherecum.pages.dev/images/favicon.webp">
+<link rel="icon" type="image/png" sizes="32x32" href="https://anywherecum.pages.dev/images/favicon.webp">
+<link rel="apple-touch-icon" href="https://anywherecum.pages.dev/images/favicon.webp">
+
+<meta name="description" content="Browse categorized video folders and explore exclusive video content.">
 
 <style>
 body {
@@ -18,104 +21,102 @@ body {
 
 header {
   text-align: center;
+  padding: 5px 10px;
   background: #111;
-  padding: 10px;
 }
 
+header h1 {
+  color: #ff4444;
+  margin: 2px 0;
+  font-size: 20px;
+}
+
+/* HEADER IMAGE FIX */
 #headerImage {
   width: 100%;
+  max-width: 100%;
   height: auto;
   object-fit: contain;
-  border-radius: 8px;
+  display: block;
   margin-top: 5px;
+  border-radius: 8px;
 }
 
-/* ✅ GRID FIX */
+h2 {
+  color: #ff4444;
+  border-bottom: 2px solid #ff4444;
+  padding-bottom: 5px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* GRID FIX */
 ul {
   list-style: none;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 15px;
+
+  /* prevents jumping */
+  grid-auto-rows: 260px;
 }
 
+/* CARD */
 li {
   background: #222;
-  padding: 10px;
   border-radius: 8px;
-  min-height: 230px;
+  text-align: center;
+  cursor: pointer;
+
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-}
 
-/* ✅ IMAGE FIX */
-img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 5px;
-  display: block;
-  background: #333;
-}
-
-/* LINKS */
-a.folder-link {
-  color: #fff;
-  text-decoration: none;
-  font-weight: bold;
-  margin-top: 5px;
-}
-a.folder-link:hover {
-  color: #ff4444;
-}
-
-/* ✅ SKELETON */
-.card-skeleton {
-  background: #222;
-  border-radius: 8px;
-  min-height: 230px;
-  position: relative;
   overflow: hidden;
 }
 
-.card-skeleton::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -150%;
-  width: 150%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-  animation: shimmer 1.5s infinite;
+/* IMAGE FIX */
+li img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+  background: #333; /* prevents white flash */
 }
 
-@keyframes shimmer {
-  0% { left: -150%; }
-  100% { left: 150%; }
+/* LINK */
+a.folder-link {
+  color: #fff;
+  font-weight: bold;
+  text-decoration: none;
+  padding: 10px;
 }
 
-/* FADE IN */
-.folder-card {
-  opacity: 0;
-  transform: translateY(10px);
-  animation: fadeIn 0.4s ease forwards;
-}
-
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-h2 {
-  text-align: center;
+a.folder-link:hover {
   color: #ff4444;
+  text-decoration: underline;
+}
+
+/* HOVER */
+li:hover {
+  background: #333;
 }
 
 @media(max-width:600px){
-  ul { grid-template-columns: 1fr; }
+  ul {
+    grid-template-columns: 1fr;
+    grid-auto-rows: 260px;
+  }
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 12px;
+  color: #aaa;
+  background: #111;
+  margin-top: 10px;
 }
 </style>
 
@@ -124,8 +125,8 @@ h2 {
 <body>
 
 <header>
-  <h1>AnywhereCum</h1>
-  <img id="headerImage" src="https://anywherecum.pages.dev/images/header-image.webp">
+  <h1>AnywhereCum - Video Folders & Exclusive Content</h1>
+  <img id="headerImage" src="https://anywherecum.pages.dev/images/header-image.webp" alt="Header">
 </header>
 
 <h2>🎥 Latest Video 🎥</h2>
@@ -134,34 +135,27 @@ h2 {
 <h2>📂 Content Folders 📂</h2>
 <ul id="folderList"></ul>
 
-<footer style="text-align:center; margin-top:20px;">
-  © 2026 AnywhereCum
+<footer>
+  © 2026 AnywhereCum – Legal content only. 18+
 </footer>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
   const BASE_URL = "https://anywherecum.pages.dev/images/";
-  const folderList = document.getElementById('folderList');
-
-  // 🔥 ADD SKELETON LOADER FIRST
-  for (let i = 0; i < 6; i++) {
-    const skeleton = document.createElement('li');
-    skeleton.className = "card-skeleton";
-    folderList.appendChild(skeleton);
-  }
 
   fetch('./videos.json')
     .then(res => res.json())
     .then(videos => {
 
       const folders = {};
+
       videos.forEach(v => {
         if (!folders[v.folder]) folders[v.folder] = [];
         folders[v.folder].push(v);
       });
 
-      // Clear skeletons
+      const folderList = document.getElementById('folderList');
       folderList.innerHTML = '';
 
       Object.keys(folders).forEach(folderName => {
@@ -170,11 +164,13 @@ document.addEventListener('DOMContentLoaded', () => {
           .sort((a,b)=> new Date(b.date)-new Date(a.date))[0];
 
         const li = document.createElement('li');
-        li.className = "folder-card";
 
         const img = document.createElement('img');
         img.src = BASE_URL + latest.thumbnail;
-        img.loading = "lazy";
+
+        img.onclick = () => {
+          window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
+        };
 
         const link = document.createElement('a');
         link.className = "folder-link";
@@ -186,7 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
         folderList.appendChild(li);
       });
 
-      // Latest video
       if (videos.length) {
 
         const latest = videos.sort((a,b)=> new Date(b.date)-new Date(a.date))[0];
@@ -199,10 +194,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const img = document.createElement('img');
         img.src = BASE_URL + latest.thumbnail;
 
+        img.onclick = () => {
+          window.location.href = "folder.html?folder=" + encodeURIComponent(latest.folder);
+        };
+
         const link = document.createElement('a');
         link.className = "folder-link";
         link.href = "folder.html?folder=" + encodeURIComponent(latest.folder);
-        link.textContent = "Watch Now";
+        link.textContent = "Watch Now: New Video Available!!!";
 
         li.appendChild(img);
         li.appendChild(link);
@@ -210,6 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
     });
+
 });
 </script>
 
