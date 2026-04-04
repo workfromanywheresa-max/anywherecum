@@ -418,6 +418,26 @@ footer {
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
+  const banner = document.getElementById('cookieBanner');
+
+  // Show banner if not accepted
+  if (localStorage.getItem('cookiesAccepted') !== 'true') {
+    setTimeout(() => {
+      banner.style.bottom = '0';
+    }, 300);
+  }
+
+  // Accept button
+  document.getElementById('acceptCookies').onclick = () => { 
+    localStorage.setItem('cookiesAccepted', 'true'); 
+    banner.style.bottom = '-100px'; 
+
+    setTimeout(() => {
+      banner.style.display = 'none';
+    }, 500); 
+  };
+});
+
   /* ===== AGE MODAL LOGIC ===== */
   const modal = document.getElementById("ageModal");
   const enterBtn = document.getElementById("enterSiteBtn");
@@ -642,6 +662,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 </script>
+
+  <!-- Cookie Consent Banner -->
+<div id="cookieBanner" style="position:fixed; bottom:-100px; left:0; width:100%; background-color:#222; color:#fff; padding:12px 15px; text-align:center; font-size:14px; z-index:9998; display:flex; justify-content:center; align-items:center; gap:10px; box-sizing:border-box; transition: bottom 0.5s ease-in-out; flex-wrap: wrap;">
+  <span style="max-width: 100%; text-align: center;">
+    We use cookies to improve your experience. 
+    <a href="https://anywherecum.pages.dev/terms-privacy.html" target="_blank" style="color:#ff4444; text-decoration: underline;">Privacy Policy</a>
+  </span>
+  <button id="acceptCookies" style="padding:6px 15px; font-size:14px; font-weight:bold; color:#fff; background-color:#ff4444; border:none; border-radius:5px; cursor:pointer; box-shadow:0 0 5px #ff4444;">
+    Accept
+  </button>
+</div>
 
 </body>
 </html>
