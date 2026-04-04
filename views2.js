@@ -11,7 +11,7 @@ const db = getDatabase(app);
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
-/* ---------------- VISIT TRACKING (FIXED) ---------------- */
+/* ---------------- VISIT TRACKING ---------------- */
 const VISIT_ID_KEY = "visit_id";
 
 let visitId = localStorage.getItem(VISIT_ID_KEY);
@@ -43,6 +43,26 @@ function getCache(key) {
 const videoDataMap = {};
 const videoElements = {};
 let currentPreviewVideo = null;
+
+/* ---------------- STOP VIDEO FUNCTION ---------------- */
+function stopVideo(video) {
+  if (!video) return;
+  video.pause();
+  video.currentTime = 0;
+}
+
+/* ---------------- INTERSECTION OBSERVER ---------------- */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    const video = entry.target;
+
+    if (!entry.isIntersecting) {
+      stopVideo(video);
+    }
+  });
+}, {
+  threshold: 0.3
+});
 
 /* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
@@ -82,21 +102,17 @@ function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
-/* ---------------- FIXED: COUNT ONCE PER VISIT ---------------- */
+/* ---------------- COUNTING ---------------- */
 function countWatchOnce(videoId) {
   const key = `${visitId}_watch_${videoId}`;
-
   if (sessionStorage.getItem(key)) return;
-
   sessionStorage.setItem(key, "1");
   increaseViews(videoId);
 }
 
 function countDownloadOnce(videoId) {
   const key = `${visitId}_download_${videoId}`;
-
   if (sessionStorage.getItem(key)) return;
-
   sessionStorage.setItem(key, "1");
   increaseViews(videoId);
 }
@@ -157,7 +173,6 @@ function createVideoBox(video) {
 
   function loadPlayer() {
     if (wrapper.dataset.loaded === "true") return;
-
     wrapper.dataset.loaded = "true";
 
     const iframe = document.createElement("iframe");
@@ -178,6 +193,9 @@ function createVideoBox(video) {
   preview.style.height = "100%";
   preview.style.objectFit = "cover";
 
+  /* STOP when out of view */
+  observer.observe(preview);
+
   preview.onclick = () => {
     countWatchOnce(video.id);
     loadPlayer();
@@ -196,14 +214,14 @@ function createVideoBox(video) {
     if (diff > 30) {
 
       if (currentPreviewVideo && currentPreviewVideo !== preview) {
-        currentPreviewVideo.pause();
+        stopVideo(currentPreviewVideo);
       }
 
-      if (preview.paused) {
+      if (!preview.paused) {
+        stopVideo(preview);
+      } else {
         preview.play().catch(() => {});
         currentPreviewVideo = preview;
-      } else {
-        preview.pause();
       }
     }
   });
