@@ -80,22 +80,12 @@ li {
   overflow: hidden;
 }
 
-/* IMAGE */
-li img {
-  width: 100%;
-  height: 130px;
-  object-fit: contain;
-  background: #111;
-  display: block;
-}
-
-/* VIDEO PREVIEW */
+/* VIDEO */
 li video {
   width: 100%;
   height: 130px;
   object-fit: contain;
   background: #000;
-  display: none;
 }
 
 /* LINKS */
@@ -180,52 +170,64 @@ document.addEventListener('DOMContentLoaded', () => {
     container.style.width = "100%";
     container.style.height = "130px";
     container.style.overflow = "hidden";
-    container.style.background = "#111";
-
-    const img = document.createElement('img');
-    img.src = BASE_URL + video.thumbnail;
+    container.style.background = "#000";
 
     const videoEl = document.createElement('video');
+
     if (video.preview) {
       videoEl.src = BASE_URL + video.preview;
     }
+
     videoEl.muted = true;
     videoEl.loop = true;
     videoEl.playsInline = true;
+    videoEl.preload = "metadata";
 
-    container.appendChild(img);
+    videoEl.style.width = "100%";
+    videoEl.style.height = "100%";
+    videoEl.style.objectFit = "contain";
+
     container.appendChild(videoEl);
 
     let startX = 0;
-    let swiping = false;
+    let isPlaying = false;
 
+    /* ---------------- SWIPE ---------------- */
     container.addEventListener('touchstart', (e) => {
       startX = e.touches[0].clientX;
-      swiping = true;
     });
 
     container.addEventListener('touchmove', (e) => {
-      if (!swiping) return;
-
       let moveX = e.touches[0].clientX;
       let diff = moveX - startX;
 
       if (Math.abs(diff) > 25) {
-        img.style.display = "none";
-        videoEl.style.display = "block";
-        videoEl.play();
+        startX = moveX;
+
+        if (!isPlaying) {
+          isPlaying = true;
+          videoEl.play().catch(() => {});
+        } else {
+          isPlaying = false;
+          videoEl.pause();
+          videoEl.currentTime = 0;
+        }
       }
     });
 
-    container.addEventListener('touchend', () => {
-      swiping = false;
+    /* ---------------- HOVER (DESKTOP) ---------------- */
+    container.addEventListener('mouseenter', () => {
+      if (window.matchMedia("(pointer: fine)").matches) {
+        videoEl.play().catch(() => {});
+      }
+    });
 
-      img.style.display = "block";
-      videoEl.style.display = "none";
+    container.addEventListener('mouseleave', () => {
       videoEl.pause();
       videoEl.currentTime = 0;
     });
 
+    /* ---------------- CLICK ---------------- */
     container.addEventListener('click', () => {
       window.location.href = folderURL;
     });
