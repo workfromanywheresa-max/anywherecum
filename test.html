@@ -1014,8 +1014,8 @@ document.addEventListener("click", function (e) {
 
   function getFolderName(el) {
     return (
-      el.dataset?.folder ||                          
-      el.closest("[data-folder]")?.dataset.folder || 
+      el.dataset?.folder ||                          // ✅ hidden real name (MAIN FIX)
+      el.closest("[data-folder]")?.dataset.folder || // ✅ fallback from parent
       el.getAttribute("data-folder") ||
       el.alt || 
       el.textContent?.trim() || 
@@ -1035,7 +1035,7 @@ document.addEventListener("click", function (e) {
     }
   }
 
-  /* ---------------- Folder Videos (REPLACES IMAGES) ---------------- */
+  /* ---------------- Folder Images (ALL SECTIONS) ---------------- */
   const folderVideo = e.target.closest("#folderList video, #latestVideo video");
   if (folderVideo) {
     const folderName = getFolderName(folderVideo);
@@ -1066,7 +1066,7 @@ document.addEventListener("click", function (e) {
   }
 
 });
-                          </script>
+  </script>
 
   <script type="module" src="views.js"></script>
 
