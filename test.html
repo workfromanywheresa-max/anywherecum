@@ -8,6 +8,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="https://anywherecum.pages.dev/images/favicon.webp">
 <link rel="apple-touch-icon" href="https://anywherecum.pages.dev/images/favicon.webp">
 
+<meta name="description" content="Browse categorized video folders and explore exclusive video content.">
+
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -19,8 +21,16 @@ body {
 
 header {
   text-align: center;
-  padding: 5px 10px;
+  padding: 10px;
   background: #111;
+
+  /* ✅ MIN HEIGHT ADDED */
+  min-height: 220px;
+
+  /* ✅ CENTER CONTENT */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 header h1 {
@@ -32,22 +42,19 @@ header h1 {
 #headerImage {
   width: 100%;
   display: block;
-  margin-top: 5px;
+  margin-top: 8px;
   border-radius: 8px;
 }
 
-/* FIX: stable layout */
 #latestVideo {
   position: relative;
   height: 210px;
-  min-height: 210px;
   margin-bottom: 10px;
-  overflow: hidden;
 }
 
 #folderSection {
   position: relative;
-  min-height: 800px;
+  min-height: 620px;
 }
 
 h2 {
@@ -78,11 +85,10 @@ li {
   overflow: hidden;
 }
 
-video {
+li video {
   width: 100%;
   height: 130px;
-  object-fit: cover;
-  aspect-ratio: 16 / 9;
+  object-fit: contain;
   background: #000;
 }
 
@@ -163,13 +169,11 @@ footer {
 
 <header>
   <h1>AnywhereCum - Video Folders & Exclusive Content</h1>
-  <img id="headerImage" src="https://anywherecum.pages.dev/images/header-image.webp">
+  <img id="headerImage" src="https://anywherecum.pages.dev/images/header-image.webp" alt="Header">
 </header>
 
 <h2>🎥 Latest Video 🎥</h2>
-<div id="latestVideo">
-  <div class="loader" id="latestLoader"></div>
-</div>
+<div id="latestVideo"></div>
 
 <h2>📂 Content Folders 📂</h2>
 <div id="folderSection">
@@ -215,6 +219,10 @@ document.addEventListener('DOMContentLoaded', () => {
     videoEl.loop = true;
     videoEl.playsInline = true;
     videoEl.preload = "metadata";
+
+    videoEl.style.width = "100%";
+    videoEl.style.height = "100%";
+    videoEl.style.objectFit = "contain";
     videoEl.style.opacity = "0";
 
     videoEl.addEventListener('loadeddata', () => {
@@ -229,7 +237,40 @@ document.addEventListener('DOMContentLoaded', () => {
     container.appendChild(loader);
     container.appendChild(videoEl);
 
+    let startX = 0;
     let isPlaying = false;
+
+    container.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+    });
+
+    container.addEventListener('touchmove', (e) => {
+      let moveX = e.touches[0].clientX;
+      let diff = moveX - startX;
+
+      if (Math.abs(diff) > 25) {
+        startX = moveX;
+
+        if (!isPlaying) {
+          isPlaying = true;
+
+          if (activeVideo && activeVideo !== videoEl) {
+            activeVideo.pause();
+            activeVideo.currentTime = 0;
+          }
+
+          videoEl.play().catch(() => {});
+          activeVideo = videoEl;
+
+        } else {
+          isPlaying = false;
+          videoEl.pause();
+          videoEl.currentTime = 0;
+
+          if (activeVideo === videoEl) activeVideo = null;
+        }
+      }
+    });
 
     container.addEventListener('mouseenter', () => {
       if (window.matchMedia("(pointer: fine)").matches) {
@@ -247,6 +288,8 @@ document.addEventListener('DOMContentLoaded', () => {
     container.addEventListener('mouseleave', () => {
       videoEl.pause();
       videoEl.currentTime = 0;
+
+      if (activeVideo === videoEl) activeVideo = null;
     });
 
     container.addEventListener('click', () => {
@@ -264,76 +307,66 @@ document.addEventListener('DOMContentLoaded', () => {
     return li;
   }
 
-  // delay to avoid layout jump
-  window.addEventListener('load', () => {
+  fetch('./videos.json')
+    .then(res => res.json())
+    .then(videos => {
 
-    setTimeout(() => {
+      const folders = {};
 
-      fetch('./videos.json')
-        .then(res => res.json())
-        .then(videos => {
+      videos.forEach(v => {
+        if (!folders[v.folder]) folders[v.folder] = [];
+        folders[v.folder].push(v);
+      });
 
-          document.getElementById('latestLoader').style.display = 'none';
+      const folderList = document.getElementById('folderList');
+      folderList.innerHTML = '';
 
-          const folders = {};
+      let folderNames = Object.keys(folders);
 
-          videos.forEach(v => {
-            if (!folders[v.folder]) folders[v.folder] = [];
-            folders[v.folder].push(v);
-          });
+      folderNames.sort((a, b) => {
+        if (a === VIP_FOLDER) return -1;
+        if (b === VIP_FOLDER) return 1;
+        return 0;
+      });
 
-          const folderList = document.getElementById('folderList');
-          folderList.innerHTML = '';
+      folderNames.forEach(folderName => {
 
-          let folderNames = Object.keys(folders);
+        const latest = folders[folderName]
+          .sort((a,b)=> new Date(b.date)-new Date(a.date))[0];
 
-          folderNames.sort((a, b) => {
-            if (a === VIP_FOLDER) return -1;
-            if (b === VIP_FOLDER) return 1;
-            return 0;
-          });
+        const folderURL = folderName === VIP_FOLDER
+          ? VIP_LINK
+          : "folder.html?folder=" + encodeURIComponent(folderName);
 
-          folderNames.forEach(folderName => {
+        const li = createPreviewItem(
+          latest,
+          folderURL,
+          folderName === VIP_FOLDER ? "🔒 VIP Exclusive" : folderName
+        );
 
-            const latest = folders[folderName]
-              .sort((a,b)=> new Date(b.date)-new Date(a.date))[0];
+        folderList.appendChild(li);
+      });
 
-            const folderURL = folderName === VIP_FOLDER
-              ? VIP_LINK
-              : "folder.html?folder=" + encodeURIComponent(folderName);
+      const nonVipVideos = videos.filter(v => v.folder !== VIP_FOLDER);
 
-            const li = createPreviewItem(
-              latest,
-              folderURL,
-              folderName === VIP_FOLDER ? "🔒 VIP Exclusive" : folderName
-            );
+      if (nonVipVideos.length) {
 
-            folderList.appendChild(li);
-          });
+        const latest = nonVipVideos
+          .sort((a,b)=> new Date(b.date)-new Date(a.date))[0];
 
-          const nonVipVideos = videos.filter(v => v.folder !== VIP_FOLDER);
+        const latestDiv = document.getElementById('latestVideo');
+        latestDiv.innerHTML = '';
 
-          if (nonVipVideos.length) {
+        const li = createPreviewItem(
+          latest,
+          "folder.html?folder=" + encodeURIComponent(latest.folder),
+          "Watch Now: New Video Available!!!"
+        );
 
-            const latest = nonVipVideos
-              .sort((a,b)=> new Date(b.date)-new Date(a.date))[0];
+        latestDiv.appendChild(li);
+      }
 
-            const latestDiv = document.getElementById('latestVideo');
-
-            const li = createPreviewItem(
-              latest,
-              "folder.html?folder=" + encodeURIComponent(latest.folder),
-              "Watch Now: New Video Available!!!"
-            );
-
-            latestDiv.appendChild(li);
-          }
-
-        });
-
-    }, 50);
-
-  });
+    });
 
 });
 </script>
