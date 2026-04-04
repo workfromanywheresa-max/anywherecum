@@ -170,8 +170,37 @@ async function loadFolders() {
   const container = document.getElementById('folderList');
   container.innerHTML = '';
 
-  Object.keys(folders)
-    .sort()
+  const vipName = "🔒VIP Exclusive";
+  const allNames = Object.keys(folders).sort();
+
+  /* ================= VIP FIRST ================= */
+  if (folders[vipName]) {
+    const vids = folders[vipName].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const latest = vids[0];
+
+    const vipCard = document.createElement('div');
+    vipCard.className = 'card';
+
+    const img = document.createElement('img');
+    img.src = "https://anywherecum.pages.dev/images/" + latest.thumbnail;
+
+    const link = document.createElement('a');
+    link.href = "https://fc-lc.xyz/IIivW75";
+    link.textContent = vipName;
+
+    vipCard.onclick = () => {
+      window.location.href = link.href;
+    };
+
+    vipCard.appendChild(img);
+    vipCard.appendChild(link);
+
+    container.appendChild(vipCard);
+  }
+
+  /* ================= OTHER FOLDERS ================= */
+  allNames
+    .filter(name => name !== vipName)
     .forEach(name => {
 
       const vids = folders[name]
