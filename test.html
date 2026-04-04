@@ -157,7 +157,7 @@ footer {
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
-  const BASE_URL = "https://anywherecum.pages.dev/images/";
+  const BASE_URL = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/";
   const VIP_FOLDER = "🔒VIP Exclusive";
   const VIP_LINK = "https://fc-lc.xyz/IIivW75";
 
@@ -174,8 +174,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const videoEl = document.createElement('video');
 
+    // ✅ FIX: Support full URLs OR filenames
     if (video.preview) {
-      videoEl.src = BASE_URL + video.preview;
+      if (video.preview.startsWith("http")) {
+        videoEl.src = video.preview;
+      } else {
+        videoEl.src = BASE_URL + video.preview;
+      }
     }
 
     videoEl.muted = true;
@@ -192,7 +197,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let startX = 0;
     let isPlaying = false;
 
-    /* ---------------- SWIPE ---------------- */
     container.addEventListener('touchstart', (e) => {
       startX = e.touches[0].clientX;
     });
@@ -215,7 +219,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    /* ---------------- HOVER (DESKTOP) ---------------- */
     container.addEventListener('mouseenter', () => {
       if (window.matchMedia("(pointer: fine)").matches) {
         videoEl.play().catch(() => {});
@@ -227,7 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
       videoEl.currentTime = 0;
     });
 
-    /* ---------------- CLICK ---------------- */
     container.addEventListener('click', () => {
       window.location.href = folderURL;
     });
