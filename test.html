@@ -31,20 +31,18 @@ header h1 {
   font-size: 20px;
 }
 
-/* HEADER IMAGE FIX */
+/* HEADER IMAGE */
 #headerImage {
   width: 100%;
-  max-width: 100%;
   height: auto;
-  object-fit: contain;
   display: block;
   margin-top: 5px;
   border-radius: 8px;
 }
 
-/* ✅ FIX: Reserve space for latest video to stop jumping */
+/* ✅ FIX: Reserve large fixed space (prevents ALL jumping) */
 #latestVideo {
-  min-height: 260px;
+  min-height: 340px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -59,13 +57,14 @@ h2 {
   text-align: center;
 }
 
-/* GRID FIX */
+/* GRID */
 ul {
   list-style: none;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 15px;
+
   grid-auto-rows: 260px;
 }
 
@@ -79,17 +78,29 @@ li {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-
   overflow: hidden;
 }
 
-/* IMAGE FIX */
+/* IMAGE */
 li img {
   width: 100%;
   height: 180px;
   object-fit: cover;
   display: block;
   background: #333;
+}
+
+/* Latest card matches folder card exactly */
+#latestVideo li {
+  width: 100%;
+  max-width: 400px;
+  height: 260px;
+}
+
+#latestVideo li img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
 }
 
 /* LINK */
