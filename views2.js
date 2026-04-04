@@ -11,7 +11,7 @@ const db = getDatabase(app);
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
-/* ---------------- VISIT TRACKING (FIXED) ---------------- */
+/* ---------------- VISIT TRACKING ---------------- */
 const VISIT_ID_KEY = "visit_id";
 
 let visitId = localStorage.getItem(VISIT_ID_KEY);
@@ -82,10 +82,9 @@ function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
-/* ---------------- FIXED: COUNT ONCE PER VISIT ---------------- */
+/* ---------------- COUNT ---------------- */
 function countWatchOnce(videoId) {
   const key = `${visitId}_watch_${videoId}`;
-
   if (sessionStorage.getItem(key)) return;
 
   sessionStorage.setItem(key, "1");
@@ -94,50 +93,14 @@ function countWatchOnce(videoId) {
 
 function countDownloadOnce(videoId) {
   const key = `${visitId}_download_${videoId}`;
-
   if (sessionStorage.getItem(key)) return;
 
   sessionStorage.setItem(key, "1");
   increaseViews(videoId);
 }
 
-/* ---------------- CONTAINER ---------------- */
+/* ---------------- UI ---------------- */
 const videosContainer = document.getElementById("normalVideos");
-
-/* ---------------- LOADER ---------------- */
-function createLoader() {
-  const loader = document.createElement("div");
-  loader.id = "loader";
-  loader.style.position = "fixed";
-  loader.style.top = "50%";
-  loader.style.left = "50%";
-  loader.style.transform = "translate(-50%, -50%)";
-  loader.style.zIndex = "9999";
-
-  const spinner = document.createElement("div");
-  spinner.style.border = "4px solid rgba(255,255,255,0.3)";
-  spinner.style.borderTop = "4px solid #ffcc00";
-  spinner.style.borderRadius = "50%";
-  spinner.style.width = "50px";
-  spinner.style.height = "50px";
-  spinner.style.animation = "spin 1s linear infinite";
-
-  loader.appendChild(spinner);
-  document.body.appendChild(loader);
-}
-
-function removeLoader() {
-  const loader = document.getElementById("loader");
-  if (loader) loader.remove();
-}
-
-const style = document.createElement("style");
-style.innerHTML = `
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}`;
-document.head.appendChild(style);
 
 /* ---------------- VIDEO BOX ---------------- */
 function createVideoBox(video) {
@@ -146,7 +109,6 @@ function createVideoBox(video) {
   box.className = "videoBox";
 
   const wrapper = document.createElement("div");
-  wrapper.className = "videoFrameWrapper";
   wrapper.style.position = "relative";
 
   const defaultQuality =
@@ -173,7 +135,6 @@ function createVideoBox(video) {
   preview.muted = true;
   preview.loop = true;
   preview.playsInline = true;
-  preview.preload = "metadata";
   preview.style.width = "100%";
   preview.style.height = "100%";
   preview.style.objectFit = "cover";
@@ -183,6 +144,7 @@ function createVideoBox(video) {
     loadPlayer();
   };
 
+  /* -------- TOUCH -------- */
   let startX = 0;
 
   preview.addEventListener("touchstart", e => {
@@ -190,8 +152,7 @@ function createVideoBox(video) {
   });
 
   preview.addEventListener("touchend", e => {
-    const endX = e.changedTouches[0].clientX;
-    const diff = Math.abs(endX - startX);
+    const diff = Math.abs(e.changedTouches[0].clientX - startX);
 
     if (diff > 30) {
 
@@ -204,9 +165,28 @@ function createVideoBox(video) {
         currentPreviewVideo = preview;
       } else {
         preview.pause();
+        preview.currentTime = 0; // ✅ STOP
       }
     }
   });
+
+  /* -------- STOP WHEN OUT OF VIEW -------- */
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) {
+        preview.pause();
+        preview.currentTime = 0;
+
+        if (currentPreviewVideo === preview) {
+          currentPreviewVideo = null;
+        }
+      }
+    });
+  }, {
+    threshold: 0.25
+  });
+
+  observer.observe(preview);
 
   wrapper.appendChild(preview);
 
@@ -223,30 +203,8 @@ function createVideoBox(video) {
 
   wrapper.appendChild(views);
 
-  /* -------- QUALITY -------- */
-  const select = document.createElement("select");
-
-  video.qualities.forEach((q, index) => {
-    const option = document.createElement("option");
-    option.value = index;
-    option.textContent = `Stream - ${q.label}`;
-    if (q === defaultQuality) option.selected = true;
-    select.appendChild(option);
-  });
-
-  select.onchange = () => {
-    const selected = video.qualities[select.value];
-    currentEmbed = selected.embed;
-
-    countWatchOnce(video.id);
-
-    wrapper.dataset.loaded = "false";
-    loadPlayer();
-  };
-
   /* -------- TITLE -------- */
   const title = document.createElement("h3");
-  title.className = "videoTitle";
   title.textContent = video.title;
 
   /* -------- DOWNLOAD -------- */
@@ -269,14 +227,12 @@ function createVideoBox(video) {
     link.target = "_blank";
     link.textContent = `${q.label} • ${q.size}`;
     link.style.display = "block";
-    link.style.color = "#ff4444";
 
     link.onclick = () => countDownloadOnce(video.id);
 
     downloadBox.appendChild(link);
   });
 
-  box.appendChild(select);
   box.appendChild(wrapper);
   box.appendChild(title);
   box.appendChild(downloadBtn);
@@ -285,33 +241,26 @@ function createVideoBox(video) {
   return box;
 }
 
-/* ---------------- UI UPDATE ---------------- */
-function updateUI(id) {
-  const v = videoDataMap[id];
-  if (!v || !videoElements[id]) return;
+/* ---------------- UPDATE UI (TRENDING LOGIC) ---------------- */
+function formatAndUpdate(video) {
+  const total = video.totalViews || 0;
+  const isTrending = video.cycleViews >= 10;
 
-  const total = v.totalViews || 0;
-  const isTrending = v.cycleViews >= 10;
-
-  saveCache("views_" + id, total);
-  saveCache("cycle_" + id, v.cycleViews);
+  const el = videoElements[video.id]?.views;
+  if (!el) return;
 
   const text = isTrending
     ? `🔥 Trending | 👁 ${formatViews(total)}`
     : `👁 ${formatViews(total)}`;
 
-  const el = videoElements[id].views;
-
   if (el.textContent !== text) {
-    requestAnimationFrame(() => {
-      el.textContent = text;
-      el.style.color = isTrending ? "#ffcc00" : "#fff";
-    });
+    el.textContent = text;
+    el.style.color = isTrending ? "#ffcc00" : "#fff";
   }
 }
 
 /* ---------------- REORDER ---------------- */
-function reorderVideos(force = false) {
+function reorderVideos() {
   const entries = Object.entries(videoDataMap);
 
   entries.sort((a, b) => {
@@ -331,38 +280,22 @@ function reorderVideos(force = false) {
     return A.originalIndex - B.originalIndex;
   });
 
-  const newOrder = entries.map(([id]) => id);
-  const oldOrder = JSON.parse(getCache(ORDER_KEY) || "[]");
-
-  if (!force && JSON.stringify(newOrder) === JSON.stringify(oldOrder)) return;
-
-  saveCache(ORDER_KEY, JSON.stringify(newOrder));
-
-  newOrder.forEach(id => {
+  entries.forEach(([id]) => {
     const el = videoElements[id]?.box;
     if (el) videosContainer.appendChild(el);
   });
 }
 
 /* ---------------- LOAD ---------------- */
-createLoader();
-
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
-
-    removeLoader();
 
     const filtered = folderName
       ? videos.filter(v =>
           (v.folder || "").trim().toLowerCase() === folderName
         )
       : videos;
-
-    if (filtered.length === 0) {
-      videosContainer.innerHTML = "<p>No videos found.</p>";
-      return;
-    }
 
     filtered.forEach((v, index) => {
 
@@ -381,19 +314,19 @@ fetch(dataSource)
         views: box.querySelector(".views")
       };
 
-      updateUI(v.id);
+      formatAndUpdate(videoDataMap[v.id]);
     });
 
-    reorderVideos(true);
+    reorderVideos();
 
-    /* FIREBASE */
+    /* FIREBASE LISTENERS */
     filtered.forEach(v => {
 
       onValue(ref(db, "views/" + v.id), snap => {
         const val = snap.val();
         if (val !== null) {
           videoDataMap[v.id].totalViews = val;
-          updateUI(v.id);
+          formatAndUpdate(videoDataMap[v.id]);
         }
       });
 
@@ -401,7 +334,7 @@ fetch(dataSource)
         const val = snap.val();
         if (val !== null) {
           videoDataMap[v.id].cycleViews = Number(val);
-          updateUI(v.id);
+          formatAndUpdate(videoDataMap[v.id]);
           reorderVideos();
         }
       });
@@ -409,4 +342,4 @@ fetch(dataSource)
     });
 
   })
-  .catch(err => console.error(err));
+  .catch(console.error);
