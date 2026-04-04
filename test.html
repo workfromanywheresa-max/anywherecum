@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnywhereCum - Browse Video Folders & Exclusive Content</title>
+
+<link rel="icon" type="image/png" sizes="32x32" href="https://anywherecum.pages.dev/images/favicon.webp">
+<link rel="apple-touch-icon" href="https://anywherecum.pages.dev/images/favicon.webp">
+
+<meta name="description" content="Browse categorized video folders and explore exclusive video content.">
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #1a1a1a;
+  color: #fff;
+  margin: 0;
+  padding: 15px;
+}
+
+header {
+  text-align: center;
+  padding: 10px;
+  background: #111;
+}
+
+h2 {
+  color: #ff4444;
+  text-align: center;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 15px;
+}
+
+li {
+  background: #222;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+}
+
+li:hover {
+  background: #333;
+}
+
+a.folder-link {
+  color: #fff;
+  text-decoration: none;
+  display: block;
+  margin-top: 5px;
+}
+
+img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+@media(max-width:600px){
+  ul { grid-template-columns: 1fr; }
+}
+</style>
+
+</head>
+
+<body>
+
+<header>
+  <h1>AnywhereCum - Video Folders & Exclusive Content</h1>
+</header>
+
+<h2>🎥 Latest Video</h2>
+<div id="latestVideo"></div>
+
+<h2>📂 Content Folders</h2>
+<ul id="folderList"></ul>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const BASE_URL = "https://anywherecum.pages.dev/images/";
+
+  fetch('./videos.json')
+    .then(res => res.json())
+    .then(videos => {
+
+      const folders = {};
+
+      videos.forEach(v => {
+        if (!folders[v.folder]) folders[v.folder] = [];
+        folders[v.folder].push(v);
+      });
+
+      const folderList = document.getElementById('folderList');
+      folderList.innerHTML = '';
+
+      Object.keys(folders).sort().forEach(folderName => {
+
+        const latest = folders[folderName].sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        )[0];
+
+        const li = document.createElement('li');
+
+        const img = document.createElement('img');
+        img.src = BASE_URL + latest.thumbnail;
+        img.onclick = () => {
+          window.location.href = "folder.html?folder=" + encodeURIComponent(folderName);
+        };
+
+        const link = document.createElement('a');
+        link.className = "folder-link";
+        link.href = "folder.html?folder=" + encodeURIComponent(folderName);
+        link.textContent = folderName;
+
+        li.appendChild(img);
+        li.appendChild(link);
+        folderList.appendChild(li);
+      });
+
+      // Latest video
+      if (videos.length) {
+        const latestVideo = videos.sort(
+          (a, b) => new Date(b.date) - new Date(a.date)
+        )[0];
+
+        const latestDiv = document.getElementById('latestVideo');
+        latestDiv.innerHTML = "";
+
+        const ul = document.createElement("ul");
+        const li = document.createElement("li");
+
+        const img = document.createElement("img");
+        img.src = BASE_URL + latestVideo.thumbnail;
+
+        img.onclick = () => {
+          window.location.href = "folder.html?folder=" + encodeURIComponent(latestVideo.folder);
+        };
+
+        const link = document.createElement("a");
+        link.className = "folder-link";
+        link.href = "folder.html?folder=" + encodeURIComponent(latestVideo.folder);
+        link.textContent = "Watch Now: New Video Available!!!";
+
+        li.appendChild(img);
+        li.appendChild(link);
+        ul.appendChild(li);
+        latestDiv.appendChild(ul);
+      }
+
+    });
+
+});
+</script>
+
+</body>
+</html>
