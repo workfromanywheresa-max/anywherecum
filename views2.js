@@ -72,18 +72,16 @@ function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
-/* ---------------- SESSION LIMIT ---------------- */
+/* ---------------- SESSION VIEW (FIX) ---------------- */
 const sessionFlags = new Set();
 
-function countWatchOnce(videoId) {
-  if (sessionFlags.has("watch_" + videoId)) return;
-  sessionFlags.add("watch_" + videoId);
-  increaseViews(videoId);
-}
+function countUserView(videoId) {
+  const key = "view_" + videoId;
 
-/* 🔥 DOWNLOAD NOW COUNTS AS VIEW */
-function countDownload(videoId) {
-  countWatchOnce(videoId);
+  if (sessionFlags.has(key)) return;
+
+  sessionFlags.add(key);
+  increaseViews(videoId);
 }
 
 /* ---------------- CONTAINER ---------------- */
@@ -158,55 +156,20 @@ function createVideoBox(video) {
   preview.muted = true;
   preview.loop = true;
   preview.playsInline = true;
-  preview.preload = "metadata";
   preview.style.width = "100%";
   preview.style.height = "100%";
   preview.style.objectFit = "cover";
 
   preview.onclick = () => {
-    countWatchOnce(video.id);
+    countUserView(video.id);
     loadPlayer();
   };
-
-  /* SWIPE */
-  let startX = 0;
-
-  preview.addEventListener("touchstart", e => {
-    startX = e.touches[0].clientX;
-  });
-
-  preview.addEventListener("touchend", e => {
-    const endX = e.changedTouches[0].clientX;
-    const diff = Math.abs(endX - startX);
-
-    if (diff > 30) {
-
-      if (currentPreviewVideo && currentPreviewVideo !== preview) {
-        currentPreviewVideo.pause();
-      }
-
-      if (preview.paused) {
-        preview.play().catch(() => {});
-        currentPreviewVideo = preview;
-      } else {
-        preview.pause();
-      }
-    }
-  });
 
   wrapper.appendChild(preview);
 
   /* -------- VIEWS -------- */
   const views = document.createElement("div");
   views.className = "views";
-  views.style.position = "absolute";
-  views.style.bottom = "8px";
-  views.style.left = "8px";
-  views.style.background = "rgba(0,0,0,0.6)";
-  views.style.padding = "4px 8px";
-  views.style.borderRadius = "6px";
-  views.style.fontSize = "12px";
-
   wrapper.appendChild(views);
 
   /* -------- QUALITY -------- */
@@ -224,7 +187,7 @@ function createVideoBox(video) {
     const selected = video.qualities[select.value];
     currentEmbed = selected.embed;
 
-    countWatchOnce(video.id);
+    countUserView(video.id);
 
     wrapper.dataset.loaded = "false";
     loadPlayer();
@@ -245,7 +208,7 @@ function createVideoBox(video) {
     downloadBox.style.display =
       downloadBox.style.display === "none" ? "block" : "none";
 
-    countDownload(video.id);
+    countUserView(video.id);
   };
 
   video.qualities.forEach(q => {
@@ -256,7 +219,7 @@ function createVideoBox(video) {
     link.style.display = "block";
     link.style.color = "#ff4444";
 
-    link.onclick = () => countDownload(video.id);
+    link.onclick = () => {}; // ❌ NO COUNT
 
     downloadBox.appendChild(link);
   });
@@ -270,7 +233,7 @@ function createVideoBox(video) {
   return box;
 }
 
-/* ---------------- UI ---------------- */
+/* ---------------- UI UPDATE ---------------- */
 function updateUI(id) {
   const v = videoDataMap[id];
   if (!v || !videoElements[id]) return;
@@ -333,27 +296,6 @@ fetch(dataSource)
       };
 
       updateUI(v.id);
-    });
-
-    /* FIREBASE */
-    filtered.forEach(v => {
-
-      onValue(ref(db, "views/" + v.id), snap => {
-        const val = snap.val();
-        if (val !== null) {
-          videoDataMap[v.id].totalViews = val;
-          updateUI(v.id);
-        }
-      });
-
-      onValue(ref(db, "cycleViews/" + v.id), snap => {
-        const val = snap.val();
-        if (val !== null) {
-          videoDataMap[v.id].cycleViews = Number(val);
-          updateUI(v.id);
-        }
-      });
-
     });
 
   })
