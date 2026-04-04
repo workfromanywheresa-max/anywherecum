@@ -32,7 +32,7 @@ function getCache(key) {
 /* ---------------- STATE ---------------- */
 const videoDataMap = {};
 const videoElements = {};
-let currentPreviewVideo = null; // 🔥 only one preview plays
+let currentPreviewVideo = null;
 
 /* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
@@ -72,18 +72,15 @@ function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
-/* ---------------- SESSION LIMIT ---------------- */
+/* ---------------- SESSION VIEW (FIX) ---------------- */
 const sessionFlags = new Set();
 
-function countWatchOnce(videoId) {
-  if (sessionFlags.has("watch_" + videoId)) return;
-  sessionFlags.add("watch_" + videoId);
-  increaseViews(videoId);
-}
+function countUserView(videoId) {
+  const key = "view_" + videoId;
 
-function countDownloadOnce(videoId) {
-  if (sessionFlags.has("download_" + videoId)) return;
-  sessionFlags.add("download_" + videoId);
+  if (sessionFlags.has(key)) return;
+
+  sessionFlags.add(key);
   increaseViews(videoId);
 }
 
@@ -153,65 +150,29 @@ function createVideoBox(video) {
     wrapper.replaceChildren(iframe);
   }
 
-  /* -------- PREVIEW VIDEO -------- */
+  /* -------- PREVIEW -------- */
   const preview = document.createElement("video");
   preview.src = video.preview;
   preview.muted = true;
   preview.loop = true;
   preview.playsInline = true;
-  preview.preload = "metadata";
   preview.style.width = "100%";
   preview.style.height = "100%";
   preview.style.objectFit = "cover";
 
-  /* CLICK → LOAD PLAYER */
   preview.onclick = () => {
-    countWatchOnce(video.id);
+    countUserView(video.id);
     loadPlayer();
   };
 
-  /* SWIPE CONTROL */
-  let startX = 0;
-
-  preview.addEventListener("touchstart", e => {
-    startX = e.touches[0].clientX;
-  });
-
-  preview.addEventListener("touchend", e => {
-    const endX = e.changedTouches[0].clientX;
-    const diff = Math.abs(endX - startX);
-
-    if (diff > 30) {
-
-      if (currentPreviewVideo && currentPreviewVideo !== preview) {
-        currentPreviewVideo.pause();
-      }
-
-      if (preview.paused) {
-        preview.play().catch(() => {});
-        currentPreviewVideo = preview;
-      } else {
-        preview.pause();
-      }
-    }
-  });
-
   wrapper.appendChild(preview);
 
-  /* -------- VIEWS OVERLAY -------- */
+  /* -------- VIEWS -------- */
   const views = document.createElement("div");
   views.className = "views";
-  views.style.position = "absolute";
-  views.style.bottom = "8px";
-  views.style.left = "8px";
-  views.style.background = "rgba(0,0,0,0.6)";
-  views.style.padding = "4px 8px";
-  views.style.borderRadius = "6px";
-  views.style.fontSize = "12px";
-
   wrapper.appendChild(views);
 
-  /* -------- QUALITY SELECT -------- */
+  /* -------- QUALITY -------- */
   const select = document.createElement("select");
 
   video.qualities.forEach((q, index) => {
@@ -226,7 +187,7 @@ function createVideoBox(video) {
     const selected = video.qualities[select.value];
     currentEmbed = selected.embed;
 
-    countWatchOnce(video.id);
+    countUserView(video.id);
 
     wrapper.dataset.loaded = "false";
     loadPlayer();
@@ -234,7 +195,6 @@ function createVideoBox(video) {
 
   /* -------- TITLE -------- */
   const title = document.createElement("h3");
-  title.className = "videoTitle";
   title.textContent = video.title;
 
   /* -------- DOWNLOAD -------- */
@@ -248,7 +208,7 @@ function createVideoBox(video) {
     downloadBox.style.display =
       downloadBox.style.display === "none" ? "block" : "none";
 
-    countDownloadOnce(video.id);
+    countUserView(video.id);
   };
 
   video.qualities.forEach(q => {
@@ -259,7 +219,7 @@ function createVideoBox(video) {
     link.style.display = "block";
     link.style.color = "#ff4444";
 
-    link.onclick = () => countDownloadOnce(video.id);
+    link.onclick = () => {}; // ❌ NO COUNT
 
     downloadBox.appendChild(link);
   });
@@ -296,40 +256,6 @@ function updateUI(id) {
       el.style.color = isTrending ? "#ffcc00" : "#fff";
     });
   }
-}
-
-/* ---------------- REORDER ---------------- */
-function reorderVideos(force = false) {
-  const entries = Object.entries(videoDataMap);
-
-  entries.sort((a, b) => {
-    const A = a[1];
-    const B = b[1];
-
-    const ATrending = A.cycleViews >= 10;
-    const BTrending = B.cycleViews >= 10;
-
-    if (ATrending && !BTrending) return -1;
-    if (!ATrending && BTrending) return 1;
-
-    if (ATrending && BTrending) {
-      return B.cycleViews - A.cycleViews;
-    }
-
-    return A.originalIndex - B.originalIndex;
-  });
-
-  const newOrder = entries.map(([id]) => id);
-  const oldOrder = JSON.parse(getCache(ORDER_KEY) || "[]");
-
-  if (!force && JSON.stringify(newOrder) === JSON.stringify(oldOrder)) return;
-
-  saveCache(ORDER_KEY, JSON.stringify(newOrder));
-
-  newOrder.forEach(id => {
-    const el = videoElements[id]?.box;
-    if (el) videosContainer.appendChild(el);
-  });
 }
 
 /* ---------------- LOAD ---------------- */
@@ -370,30 +296,6 @@ fetch(dataSource)
       };
 
       updateUI(v.id);
-    });
-
-    reorderVideos(true);
-
-    /* FIREBASE */
-    filtered.forEach(v => {
-
-      onValue(ref(db, "views/" + v.id), snap => {
-        const val = snap.val();
-        if (val !== null) {
-          videoDataMap[v.id].totalViews = val;
-          updateUI(v.id);
-        }
-      });
-
-      onValue(ref(db, "cycleViews/" + v.id), snap => {
-        const val = snap.val();
-        if (val !== null) {
-          videoDataMap[v.id].cycleViews = Number(val);
-          updateUI(v.id);
-          reorderVideos();
-        }
-      });
-
     });
 
   })
