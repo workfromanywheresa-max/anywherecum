@@ -11,6 +11,17 @@ const db = getDatabase(app);
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
+/* ---------------- VISIT TRACKING ---------------- */
+const VISIT_ID_KEY = "visit_id";
+let visitId = sessionStorage.getItem(VISIT_ID_KEY);
+
+if (!visitId) {
+  visitId = Date.now().toString() + "_" + Math.random().toString(36).substr(2, 9);
+  sessionStorage.setItem(VISIT_ID_KEY, visitId);
+}
+
+const countedVideos = new Set();
+
 /* ---------------- CONFIG ---------------- */
 const urlParams = new URLSearchParams(window.location.search);
 const folderName = (urlParams.get("folder") || "").trim().toLowerCase();
@@ -32,7 +43,7 @@ function getCache(key) {
 /* ---------------- STATE ---------------- */
 const videoDataMap = {};
 const videoElements = {};
-let currentPreviewVideo = null; // 🔥 only one preview plays
+let currentPreviewVideo = null;
 
 /* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
@@ -72,18 +83,24 @@ function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
-/* ---------------- SESSION LIMIT ---------------- */
-const sessionFlags = new Set();
-
+/* ---------------- COUNT ONCE PER VISIT ---------------- */
 function countWatchOnce(videoId) {
-  if (sessionFlags.has("watch_" + videoId)) return;
-  sessionFlags.add("watch_" + videoId);
+  const key = `${visitId}_watch_${videoId}`;
+  if (countedVideos.has(key)) return;
+
+  countedVideos.add(key);
+  sessionStorage.setItem(key, "1");
+
   increaseViews(videoId);
 }
 
 function countDownloadOnce(videoId) {
-  if (sessionFlags.has("download_" + videoId)) return;
-  sessionFlags.add("download_" + videoId);
+  const key = `${visitId}_download_${videoId}`;
+  if (countedVideos.has(key)) return;
+
+  countedVideos.add(key);
+  sessionStorage.setItem(key, "1");
+
   increaseViews(videoId);
 }
 
@@ -153,7 +170,7 @@ function createVideoBox(video) {
     wrapper.replaceChildren(iframe);
   }
 
-  /* -------- PREVIEW VIDEO -------- */
+  /* -------- PREVIEW -------- */
   const preview = document.createElement("video");
   preview.src = video.preview;
   preview.muted = true;
@@ -164,13 +181,11 @@ function createVideoBox(video) {
   preview.style.height = "100%";
   preview.style.objectFit = "cover";
 
-  /* CLICK → LOAD PLAYER */
   preview.onclick = () => {
     countWatchOnce(video.id);
     loadPlayer();
   };
 
-  /* SWIPE CONTROL */
   let startX = 0;
 
   preview.addEventListener("touchstart", e => {
@@ -198,7 +213,7 @@ function createVideoBox(video) {
 
   wrapper.appendChild(preview);
 
-  /* -------- VIEWS OVERLAY -------- */
+  /* -------- VIEWS -------- */
   const views = document.createElement("div");
   views.className = "views";
   views.style.position = "absolute";
@@ -211,7 +226,7 @@ function createVideoBox(video) {
 
   wrapper.appendChild(views);
 
-  /* -------- QUALITY SELECT -------- */
+  /* -------- QUALITY -------- */
   const select = document.createElement("select");
 
   video.qualities.forEach((q, index) => {
@@ -234,7 +249,6 @@ function createVideoBox(video) {
 
   /* -------- TITLE -------- */
   const title = document.createElement("h3");
-  title.className = "videoTitle";
   title.textContent = video.title;
 
   /* -------- DOWNLOAD -------- */
