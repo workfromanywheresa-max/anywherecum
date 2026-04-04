@@ -83,9 +83,10 @@ function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
-/* ---------------- COUNT ONCE PER VISIT ---------------- */
+/* ---------------- FIXED: COUNT ONCE PER VISIT ---------------- */
 function countWatchOnce(videoId) {
   const key = `${visitId}_watch_${videoId}`;
+
   if (countedVideos.has(key)) return;
 
   countedVideos.add(key);
@@ -96,6 +97,7 @@ function countWatchOnce(videoId) {
 
 function countDownloadOnce(videoId) {
   const key = `${visitId}_download_${videoId}`;
+
   if (countedVideos.has(key)) return;
 
   countedVideos.add(key);
@@ -249,6 +251,7 @@ function createVideoBox(video) {
 
   /* -------- TITLE -------- */
   const title = document.createElement("h3");
+  title.className = "videoTitle";
   title.textContent = video.title;
 
   /* -------- DOWNLOAD -------- */
