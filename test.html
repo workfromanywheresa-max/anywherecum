@@ -1021,14 +1021,12 @@ document.addEventListener("click", function (e) {
     );
   }
 
-  // ✅ Track ANY click inside a folder item (video OR link)
+  // ✅ Get the full folder item
   const item = e.target.closest("li");
   if (!item) return;
 
-  const folderLink = item.querySelector("a.folder-link");
-  if (!folderLink) return;
-
-  const folderName = getFolderName(folderLink);
+  // ✅ Get folder name directly from the LI (more reliable)
+  const folderName = item.dataset.folder || getFolderName(item);
 
   console.log("Folder clicked:", folderName);
 
