@@ -11,16 +11,34 @@ const db = getDatabase(app);
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
-/* ---------------- VISIT TRACKING ---------------- */
-const VISIT_ID_KEY = "visit_id";
-let visitId = sessionStorage.getItem(VISIT_ID_KEY);
+/* ---------------- USER + VISIT TRACKING ---------------- */
+const USER_ID_KEY = "user_id";
+const VISIT_FLAG_KEY = "visit_active";
 
-if (!visitId) {
-  visitId = Date.now().toString() + "_" + Math.random().toString(36).substr(2, 9);
-  sessionStorage.setItem(VISIT_ID_KEY, visitId);
+/* Persistent user id (survives refresh + tab close) */
+let userId = localStorage.getItem(USER_ID_KEY);
+
+if (!userId) {
+  userId = Date.now().toString() + "_" + Math.random().toString(36).substr(2, 9);
+  localStorage.setItem(USER_ID_KEY, userId);
 }
 
-const countedVideos = new Set();
+/* Session visit flag */
+if (!sessionStorage.getItem(VISIT_FLAG_KEY)) {
+  sessionStorage.setItem(VISIT_FLAG_KEY, "true");
+}
+
+/* Track counted videos per session */
+const countedVideos = new Set(
+  JSON.parse(sessionStorage.getItem("countedVideos") || "[]")
+);
+
+function saveCountedVideos() {
+  sessionStorage.setItem(
+    "countedVideos",
+    JSON.stringify([...countedVideos])
+  );
+}
 
 /* ---------------- CONFIG ---------------- */
 const urlParams = new URLSearchParams(window.location.search);
@@ -72,7 +90,7 @@ async function sendToWorker(videoId) {
     await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ videoId })
+      body: JSON.stringify({ videoId, userId })
     });
   } catch (err) {
     console.error("Worker failed:", err);
@@ -83,25 +101,25 @@ function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
-/* ---------------- FIXED: COUNT ONCE PER VISIT ---------------- */
+/* ---------------- COUNT ONCE PER SESSION ---------------- */
 function countWatchOnce(videoId) {
-  const key = `${visitId}_watch_${videoId}`;
+  const key = `watch_${videoId}`;
 
   if (countedVideos.has(key)) return;
 
   countedVideos.add(key);
-  sessionStorage.setItem(key, "1");
+  saveCountedVideos();
 
   increaseViews(videoId);
 }
 
 function countDownloadOnce(videoId) {
-  const key = `${visitId}_download_${videoId}`;
+  const key = `download_${videoId}`;
 
   if (countedVideos.has(key)) return;
 
   countedVideos.add(key);
-  sessionStorage.setItem(key, "1");
+  saveCountedVideos();
 
   increaseViews(videoId);
 }
@@ -228,27 +246,6 @@ function createVideoBox(video) {
 
   wrapper.appendChild(views);
 
-  /* -------- QUALITY -------- */
-  const select = document.createElement("select");
-
-  video.qualities.forEach((q, index) => {
-    const option = document.createElement("option");
-    option.value = index;
-    option.textContent = `Stream - ${q.label}`;
-    if (q === defaultQuality) option.selected = true;
-    select.appendChild(option);
-  });
-
-  select.onchange = () => {
-    const selected = video.qualities[select.value];
-    currentEmbed = selected.embed;
-
-    countWatchOnce(video.id);
-
-    wrapper.dataset.loaded = "false";
-    loadPlayer();
-  };
-
   /* -------- TITLE -------- */
   const title = document.createElement("h3");
   title.className = "videoTitle";
@@ -281,7 +278,6 @@ function createVideoBox(video) {
     downloadBox.appendChild(link);
   });
 
-  box.appendChild(select);
   box.appendChild(wrapper);
   box.appendChild(title);
   box.appendChild(downloadBtn);
@@ -313,40 +309,6 @@ function updateUI(id) {
       el.style.color = isTrending ? "#ffcc00" : "#fff";
     });
   }
-}
-
-/* ---------------- REORDER ---------------- */
-function reorderVideos(force = false) {
-  const entries = Object.entries(videoDataMap);
-
-  entries.sort((a, b) => {
-    const A = a[1];
-    const B = b[1];
-
-    const ATrending = A.cycleViews >= 10;
-    const BTrending = B.cycleViews >= 10;
-
-    if (ATrending && !BTrending) return -1;
-    if (!ATrending && BTrending) return 1;
-
-    if (ATrending && BTrending) {
-      return B.cycleViews - A.cycleViews;
-    }
-
-    return A.originalIndex - B.originalIndex;
-  });
-
-  const newOrder = entries.map(([id]) => id);
-  const oldOrder = JSON.parse(getCache(ORDER_KEY) || "[]");
-
-  if (!force && JSON.stringify(newOrder) === JSON.stringify(oldOrder)) return;
-
-  saveCache(ORDER_KEY, JSON.stringify(newOrder));
-
-  newOrder.forEach(id => {
-    const el = videoElements[id]?.box;
-    if (el) videosContainer.appendChild(el);
-  });
 }
 
 /* ---------------- LOAD ---------------- */
@@ -389,9 +351,6 @@ fetch(dataSource)
       updateUI(v.id);
     });
 
-    reorderVideos(true);
-
-    /* FIREBASE */
     filtered.forEach(v => {
 
       onValue(ref(db, "views/" + v.id), snap => {
@@ -407,7 +366,6 @@ fetch(dataSource)
         if (val !== null) {
           videoDataMap[v.id].cycleViews = Number(val);
           updateUI(v.id);
-          reorderVideos();
         }
       });
 
