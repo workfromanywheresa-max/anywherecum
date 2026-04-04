@@ -187,14 +187,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (folderName === VIP_FOLDER) {
           link.href = VIP_LINK;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+
           img.onclick = () => {
-            window.location.href = VIP_LINK;
+            window.open(VIP_LINK, "_blank");
           };
+
           link.textContent = "🔒 VIP Exclusive";
         } else {
           const folderURL = "folder.html?folder=" + encodeURIComponent(folderName);
 
           link.href = folderURL;
+
           img.onclick = () => {
             window.location.href = folderURL;
           };
@@ -229,6 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const folderURL = "folder.html?folder=" + encodeURIComponent(latest.folder);
 
         link.href = folderURL;
+
         img.onclick = () => {
           window.location.href = folderURL;
         };
