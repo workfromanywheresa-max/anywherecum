@@ -19,13 +19,13 @@ body {
   padding: 15px;
 }
 
-/* 🔥 FIX: Prevent layout shift */
+/* HEADER */
 header {
   text-align: center;
   padding: 10px;
   background: #111;
 
-  height: 200px; /* FIXED HEIGHT */
+  height: 220px; /* slightly increased for better fit */
 
   display: flex;
   flex-direction: column;
@@ -40,17 +40,18 @@ header h1 {
   font-size: 20px;
 }
 
-/* 🔥 FIX: Reserve image space */
+/* FIXED IMAGE (NO ZOOM) */
 #headerImage {
   width: 100%;
-  height: 120px;   /* FIXED HEIGHT */
-  object-fit: cover;
+  height: 120px;
+  object-fit: contain; /* 🔥 FIX: removes zoom */
   display: block;
   margin-top: 8px;
   border-radius: 8px;
+  background: #000; /* fills empty space */
 }
 
-/* 🔥 FIX: Lock video container height */
+/* VIDEO */
 #latestVideo {
   position: relative;
   height: 210px;
