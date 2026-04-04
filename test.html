@@ -640,6 +640,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     });
 
+  // Cookie banner logic
+const banner = document.getElementById('cookieBanner');
+
+// Show banner if not accepted
+if (localStorage.getItem('cookiesAccepted') !== 'true') {
+  setTimeout(() => {
+    banner.style.bottom = '0';
+  }, 300);
+}
+
+// Accept button
+document.getElementById('acceptCookies').onclick = () => {
+  localStorage.setItem('cookiesAccepted', 'true');
+  banner.style.bottom = '-100px';
+
+  setTimeout(() => {
+    banner.style.display = 'none';
+  }, 500);
+};
+
 });
 </script>
 
