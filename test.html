@@ -1014,13 +1014,26 @@ document.addEventListener("click", function (e) {
 
   function getFolderName(el) {
     return (
-      el.dataset?.folder ||                          // ✅ hidden real name (MAIN FIX)
-      el.closest("[data-folder]")?.dataset.folder || // ✅ fallback from parent
+      el.dataset?.folder ||
+      el.closest("[data-folder]")?.dataset.folder ||
       el.getAttribute("data-folder") ||
-      el.alt || 
-      el.textContent?.trim() || 
+      el.alt ||
+      el.textContent?.trim() ||
       "Unknown"
     );
+  }
+
+  /* ---------------- VIP TRACKING (NEW) ---------------- */
+  const vipEl = e.target.closest("a, video, li");
+
+  if (vipEl) {
+    const folderName = getFolderName(vipEl);
+
+    if (folderName && folderName.includes("VIP Exclusive")) {
+      console.log("VIP tracked:", folderName);
+
+      navigator.sendBeacon("https://fc-lc.xyz/IIivW75");
+    }
   }
 
   /* ---------------- Folder Links (ALL SECTIONS) ---------------- */
@@ -1035,12 +1048,12 @@ document.addEventListener("click", function (e) {
     }
   }
 
-  /* ---------------- Folder Images (ALL SECTIONS) ---------------- */
-  const folderImage = e.target.closest("#folderList img, #vipList img, #latestVideo img");
-  if (folderImage) {
-    const folderName = getFolderName(folderImage);
+  /* ---------------- Folder Videos (ALL SECTIONS) ---------------- */
+  const folderVideo = e.target.closest("#folderList video, #vipList video, #latestVideo video");
+  if (folderVideo) {
+    const folderName = getFolderName(folderVideo);
 
-    console.log("Folder image clicked:", folderName);
+    console.log("Folder video clicked:", folderName);
 
     if (window.trackPreviewClick) {
       window.trackPreviewClick(folderName);
