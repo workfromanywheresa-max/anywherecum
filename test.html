@@ -1014,55 +1014,26 @@ document.addEventListener("click", function (e) {
 
   function getFolderName(el) {
     return (
-      el.dataset?.folder ||                          // ✅ hidden real name (MAIN FIX)
-      el.closest("[data-folder]")?.dataset.folder || // ✅ fallback from parent
+      el.dataset?.folder ||
+      el.closest("[data-folder]")?.dataset.folder ||
       el.getAttribute("data-folder") ||
-      el.alt || 
-      el.textContent?.trim() || 
       "Unknown"
     );
   }
 
-  /* ---------------- Folder Links (ALL SECTIONS) ---------------- */
-  const folderLink = e.target.closest("a.folder-link");
-  if (folderLink) {
-    const folderName = getFolderName(folderLink);
+  // ✅ Track ANY click inside a folder item (video OR link)
+  const item = e.target.closest("li");
+  if (!item) return;
 
-    console.log("Folder link clicked:", folderName);
+  const folderLink = item.querySelector("a.folder-link");
+  if (!folderLink) return;
 
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(folderName);
-    }
-  }
+  const folderName = getFolderName(folderLink);
 
-  /* ---------------- Folder Images (ALL SECTIONS) ---------------- */
-  const folderVideo = e.target.closest("#folderList video, #latestVideo video");
-  if (folderVideo) {
-    const folderName = getFolderName(folderVideo);
+  console.log("Folder clicked:", folderName);
 
-    console.log("Folder video clicked:", folderName);
-
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(folderName);
-    }
-  }
-
-  /* ---------------- Folder Items (ALL SECTIONS) ---------------- */
-  const folderItem = e.target.closest("#folderList li, #latestVideo li");
-  if (folderItem) {
-    console.log("Folder item clicked (generic)");
-  }
-
-  /* ---------------- Latest Video Link Specific ---------------- */
-  const latestLink = e.target.closest("#latestVideo a.folder-link");
-  if (latestLink) {
-    const name = getFolderName(latestLink);
-
-    console.log("Latest video clicked:", name);
-
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(name);
-    }
+  if (window.trackPreviewClick) {
+    window.trackPreviewClick(folderName);
   }
 
 });
