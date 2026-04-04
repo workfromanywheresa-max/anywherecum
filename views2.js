@@ -32,7 +32,7 @@ function getCache(key) {
 /* ---------------- STATE ---------------- */
 const videoDataMap = {};
 const videoElements = {};
-let currentPreviewVideo = null; // 🔥 only one preview plays
+let currentPreviewVideo = null;
 
 /* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
@@ -56,74 +56,55 @@ function formatViews(num) {
 }
 
 /* ---------------- WORKER ---------------- */
-async function sendToWorker(videoId) {
+async function sendToWorker(videoId, type = "clicked") {
   try {
     await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ videoId })
+      body: JSON.stringify({ videoId, type })
     });
   } catch (err) {
     console.error("Worker failed:", err);
   }
 }
 
-function increaseViews(videoId) {
-  if (!TEST_MODE) sendToWorker("clicked_" + videoId);
-}
-
-/* ---------------- SESSION LIMIT ---------------- */
+/* ---------------- SESSION (FIXED) ---------------- */
 const sessionFlags = new Set();
 
-function countWatchOnce(videoId) {
-  if (sessionFlags.has("watch_" + videoId)) return;
-  sessionFlags.add("watch_" + videoId);
-  increaseViews(videoId);
+function hasCounted(videoId, type) {
+  return sessionFlags.has(type + "_" + videoId);
 }
 
+function markCounted(videoId, type) {
+  sessionFlags.add(type + "_" + videoId);
+}
+
+/* ---------------- COUNT LOGIC ---------------- */
+
+/* ✔️ SHARED WATCH (preview OR dropdown) */
+function countWatchOnce(videoId) {
+  if (hasCounted(videoId, "watch")) return;
+
+  markCounted(videoId, "watch");
+
+  if (!TEST_MODE) {
+    sendToWorker(videoId, "watch");
+  }
+}
+
+/* ✔️ DOWNLOAD (once per visit) */
 function countDownloadOnce(videoId) {
-  if (sessionFlags.has("download_" + videoId)) return;
-  sessionFlags.add("download_" + videoId);
-  increaseViews(videoId);
+  if (hasCounted(videoId, "download")) return;
+
+  markCounted(videoId, "download");
+
+  if (!TEST_MODE) {
+    sendToWorker(videoId, "download");
+  }
 }
 
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
-
-/* ---------------- LOADER ---------------- */
-function createLoader() {
-  const loader = document.createElement("div");
-  loader.id = "loader";
-  loader.style.position = "fixed";
-  loader.style.top = "50%";
-  loader.style.left = "50%";
-  loader.style.transform = "translate(-50%, -50%)";
-  loader.style.zIndex = "9999";
-
-  const spinner = document.createElement("div");
-  spinner.style.border = "4px solid rgba(255,255,255,0.3)";
-  spinner.style.borderTop = "4px solid #ffcc00";
-  spinner.style.borderRadius = "50%";
-  spinner.style.width = "50px";
-  spinner.style.height = "50px";
-  spinner.style.animation = "spin 1s linear infinite";
-
-  loader.appendChild(spinner);
-  document.body.appendChild(loader);
-}
-
-function removeLoader() {
-  const loader = document.getElementById("loader");
-  if (loader) loader.remove();
-}
-
-const style = document.createElement("style");
-style.innerHTML = `
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}`;
-document.head.appendChild(style);
 
 /* ---------------- VIDEO BOX ---------------- */
 function createVideoBox(video) {
@@ -153,7 +134,7 @@ function createVideoBox(video) {
     wrapper.replaceChildren(iframe);
   }
 
-  /* -------- PREVIEW VIDEO -------- */
+  /* -------- PREVIEW -------- */
   const preview = document.createElement("video");
   preview.src = video.preview;
   preview.muted = true;
@@ -164,13 +145,12 @@ function createVideoBox(video) {
   preview.style.height = "100%";
   preview.style.objectFit = "cover";
 
-  /* CLICK → LOAD PLAYER */
   preview.onclick = () => {
     countWatchOnce(video.id);
     loadPlayer();
   };
 
-  /* SWIPE CONTROL */
+  /* -------- SWIPE -------- */
   let startX = 0;
 
   preview.addEventListener("touchstart", e => {
@@ -198,7 +178,7 @@ function createVideoBox(video) {
 
   wrapper.appendChild(preview);
 
-  /* -------- VIEWS OVERLAY -------- */
+  /* -------- VIEWS -------- */
   const views = document.createElement("div");
   views.className = "views";
   views.style.position = "absolute";
@@ -211,7 +191,7 @@ function createVideoBox(video) {
 
   wrapper.appendChild(views);
 
-  /* -------- QUALITY SELECT -------- */
+  /* -------- QUALITY -------- */
   const select = document.createElement("select");
 
   video.qualities.forEach((q, index) => {
@@ -226,7 +206,7 @@ function createVideoBox(video) {
     const selected = video.qualities[select.value];
     currentEmbed = selected.embed;
 
-    countWatchOnce(video.id);
+    countWatchOnce(video.id); // ✔️ SAME COUNT
 
     wrapper.dataset.loaded = "false";
     loadPlayer();
@@ -259,8 +239,6 @@ function createVideoBox(video) {
     link.style.display = "block";
     link.style.color = "#ff4444";
 
-    link.onclick = () => countDownloadOnce(video.id);
-
     downloadBox.appendChild(link);
   });
 
@@ -279,7 +257,7 @@ function updateUI(id) {
   if (!v || !videoElements[id]) return;
 
   const total = v.totalViews || 0;
-  const isTrending = v.cycleViews >= 10;
+  const isTrending = (v.cycleViews || 0) >= 10;
 
   saveCache("views_" + id, total);
   saveCache("cycle_" + id, v.cycleViews);
@@ -306,8 +284,8 @@ function reorderVideos(force = false) {
     const A = a[1];
     const B = b[1];
 
-    const ATrending = A.cycleViews >= 10;
-    const BTrending = B.cycleViews >= 10;
+    const ATrending = (A.cycleViews || 0) >= 10;
+    const BTrending = (B.cycleViews || 0) >= 10;
 
     if (ATrending && !BTrending) return -1;
     if (!ATrending && BTrending) return 1;
@@ -320,11 +298,6 @@ function reorderVideos(force = false) {
   });
 
   const newOrder = entries.map(([id]) => id);
-  const oldOrder = JSON.parse(getCache(ORDER_KEY) || "[]");
-
-  if (!force && JSON.stringify(newOrder) === JSON.stringify(oldOrder)) return;
-
-  saveCache(ORDER_KEY, JSON.stringify(newOrder));
 
   newOrder.forEach(id => {
     const el = videoElements[id]?.box;
@@ -333,24 +306,15 @@ function reorderVideos(force = false) {
 }
 
 /* ---------------- LOAD ---------------- */
-createLoader();
-
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
-
-    removeLoader();
 
     const filtered = folderName
       ? videos.filter(v =>
           (v.folder || "").trim().toLowerCase() === folderName
         )
       : videos;
-
-    if (filtered.length === 0) {
-      videosContainer.innerHTML = "<p>No videos found.</p>";
-      return;
-    }
 
     filtered.forEach((v, index) => {
 
@@ -374,7 +338,6 @@ fetch(dataSource)
 
     reorderVideos(true);
 
-    /* FIREBASE */
     filtered.forEach(v => {
 
       onValue(ref(db, "views/" + v.id), snap => {
