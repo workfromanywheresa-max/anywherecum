@@ -30,6 +30,8 @@
 <meta name="twitter:description" content="Browse video folders and exclusive content easily.">
 <meta name="twitter:image" content="https://anywherecum.pages.dev/images/header-image.webp">
 
+<meta name="description" content="Browse categorized video folders and explore exclusive video content.">
+
 <meta name="juicyads-site-verification" content="fedca85ac4a54612547b4245f3a820ff">
   
 <!-- Structured Data -->
@@ -48,119 +50,247 @@
 }
 </script>
 
-  <style>
-    #vipList {
-  margin-bottom: 0;
-  padding: 0;
-}
-
-#vipCTA {
-  margin-top: 10px;
-}
-    </Style>
-
 <style>
-body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; margin: 0; padding: 15px; }
-header { text-align: center; padding: 5px 10px; background: #111; }
-header h1 { color: #ff4444; margin: 2px 0; font-size: 20px; }
-header p { margin: 0 0 2px 0; font-size: 12px; }
-
-#visitSite { font-size: 12px; text-align: center; margin-bottom: 10px; }
-#visitSite a { color: #ff4444; text-decoration: none; font-weight: bold; animation: flash 1s infinite alternate; position: relative; padding: 0 25px; display: inline-block; font-size: 12px; }
-#visitSite a::before { content: "➤"; position: absolute; left: 5px; animation: bounceLeft 1s infinite alternate; }
-#visitSite a::after { content: "◀"; position: absolute; right: 5px; animation: bounceRight 1s infinite alternate; }
-#visitSite a:hover { color: #fff; text-decoration: underline; }
-
-h2 { color: #ff4444; border-bottom: 2px solid #ff4444; padding-bottom: 5px; margin-top:20px; margin-bottom: 5px; text-align: center; }
-
-ul { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; }
-li { background: #222; padding: 10px; border-radius: 8px; text-align: center; transition: 0.3s; cursor: pointer; }
-li:hover { background: #333; }
-
-a.folder-link { color: #fff; font-weight: bold; text-decoration: none; display: block; margin-top: 5px; }
-a.folder-link:hover { color: #ff4444; text-decoration: underline; }
-
-.blogspot-style-link { color: #fff; font-weight: bold; text-decoration: none; font-size: 12px; display: inline-block; animation: flash 1s infinite alternate; position: relative; padding: 0 25px; }
-.blogspot-style-link::before { content: "➤"; position: absolute; left: 5px; animation: bounceLeft 1s infinite alternate; }
-.blogspot-style-link::after { content: "◀"; position: absolute; right: 5px; animation: bounceRight 1s infinite alternate; }
-.blogspot-style-link:hover { color: #ff4444; text-decoration: underline; }
-
-#latestVideo { margin-bottom: 20px; }
-#vipList li img, #folderList li img { width: 100%; height: 180px; border-radius: 5px; object-fit: cover; margin-bottom: 5px; }
-
-/* Skeleton Loader Styles */
-.skeleton { background: #333; border-radius: 5px; position: relative; overflow: hidden; }
-.skeleton::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); animation: loading 1.5s infinite; }
-
-/* Header Skeleton for header image only */
-#headerSkeleton {
-  background: #333;           
-  border-radius: 8px;         
-  width: 720px;               
-  max-width: 100%;            
-  height: 90px;              
-  margin: 5px auto;           
-  position: relative;
-  overflow: hidden;
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #1a1a1a;
+  color: #fff;
+  margin: 0;
+  padding: 15px;
 }
-#headerSkeleton::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
+
+/* ✅ FIXED HEADER */
+header {
+  text-align: center;
+  padding: 10px;
+  background: #111;
+  min-height: 180px; /* instead of fixed height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+nav {
+  margin-top: 10px;
+  font-size: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  min-height: 20px; /* prevents nav shift */
+}
+
+nav a {
+  color: #fff;
+  text-decoration: none;
+}
+
+nav a:hover {
+  color: #ff4444;
+}
+
+header h1 {
+  color: #ff4444;
+  margin: 2px 0;
+  font-size: 20px;
+}
+
+/* ✅ IMAGE FIX */
+#headerImage {
   width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  animation: loading 1.5s infinite;
+  height: 120px;
+  object-fit: contain;
+  display: block;
+  margin-top: 8px;
+  border-radius: 8px;
+  background: #000;
 }
-
-@keyframes loading { 0% { left: -100%; } 50% { left: 100%; } 100% { left: 100%; } }
-
-footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; background: #111; margin-top: 10px; }
-@media(max-width:600px){ ul { grid-template-columns: 1fr; } }
-.folder-grid { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2,1fr); gap: 15px; margin: 0; }
-@media(max-width:600px){ .folder-grid { grid-template-columns: 1fr; } }
-
-@keyframes flash { 0% { text-shadow: 0 0 5px #ff4444; } 50% { text-shadow: 0 0 20px #ff4444, 0 0 30px #ff8888; } 100% { text-shadow: 0 0 5px #ff4444; } }
-@keyframes bounceLeft { 0% { transform: translateX(0); } 50% { transform: translateX(5px); } 100% { transform: translateX(0); } }
-@keyframes bounceRight { 0% { transform: translateX(0); } 50% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
-.blink { animation: blink 1s infinite; }
-@keyframes blink { 0% {opacity:1;} 50% {opacity:0;} 100% {opacity:1;} }
-
-.ad-wrapper { width:100%; display:flex; justify-content:center; margin-top:20px; }
-.ad-container { text-align:center; border:1px solid #ff0000; border-radius:10px; background-color:#1a1a1a; display:inline-block; cursor:default; overflow:hidden; transition:transform 0.2s, box-shadow 0.2s; padding-top:6px; }
-.ad-container:hover { transform:scale(1.05); box-shadow:0 0 12px #ff0000; }
-.ad-text { display:block; margin:0 0 4px 0; font-size:14px; font-weight:bold; color:#fff; user-select:none; pointer-events:none; }
-.ad-container ins { display:block; margin:0 auto; }
-
-/* Popup Fix for Mobile Centering */
+  /* ===== AGE MODAL ===== */
 #ageModal {
   position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.95);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.96);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
-  text-align: center;
-  padding: 15px;
-  box-sizing: border-box;
+  z-index: 99999;
   opacity: 0;
-  transition: opacity 0.8s ease-in-out;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
 }
+
+#ageModal.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
 #popupContent {
-  max-width: 400px;
   width: 90%;
+  max-width: 380px;
   background: #111;
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 0 15px #ff4444;
+  text-align: center;
+  box-shadow: 0 0 20px #ff4444;
+  animation: popupZoom 0.3s ease;
+}
+
+#popupContent img {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+#popupContent h2 {
+  color: #ff4444;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+#enterSiteBtn {
+  background: #ff4444;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#leaveSiteBtn {
+  background: #333;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+@keyframes popupZoom {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+  
+#latestVideo {
+  position: relative;
+  height: 210px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+#folderSection {
+  position: relative;
+  min-height: 620px;
+}
+
+h2 {
+  color: #ff4444;
+  border-bottom: 2px solid #ff4444;
+  padding-bottom: 5px;
+  margin-top: 20px;
   text-align: center;
 }
-#popupImage { width:100%; height:auto; border-radius:10px; margin-bottom:15px; }
-#popupContent button { flex:1 1 45%; min-width:120px; margin-top:8px; }
-@media(max-width:500px){ #popupContent button { flex:1 1 100%; } }
-  </style>
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  grid-auto-rows: 180px;
+}
+
+li {
+  background: #222;
+  border-radius: 8px;
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+}
+
+li video {
+  width: 100%;
+  height: 130px;
+  object-fit: contain;
+  background: #000;
+}
+
+a.folder-link {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  text-align: center;
+  background: #111;
+  color: #fff;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+a.folder-link:hover {
+  color: #ff4444;
+  text-decoration: underline;
+}
+
+li:hover {
+  background: #333;
+}
+
+@media(max-width:600px){
+  ul {
+    grid-template-columns: 1fr;
+  }
+}
+
+.loader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 130px;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader::after {
+  content: "";
+  width: 25px;
+  height: 25px;
+  border: 3px solid #444;
+  border-top: 3px solid #ff4444;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 12px;
+  color: #aaa;
+  background: #111;
+  margin-top: 10px;
+}
+</style>
 
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
@@ -210,9 +340,14 @@ OneSignalDeferred.push(async function(OneSignal) {
 
 });
 </script>
-  
+
 </head>
+
 <body>
+
+  <!-- JuicyAds PopUnders v3 Start -->
+<script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p29423b414&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
+<!-- JuicyAds PopUnders v3 End -->
 
   <!-- Google Translate -->
 <div id="google_translate_element"></div>
@@ -227,28 +362,34 @@ OneSignalDeferred.push(async function(OneSignal) {
   z-index: 99999;
   margin: 0 !important;
   padding: 0 !important;
+  line-height: 1 !important;
+  height: auto !important;
 }
 
 /* Main widget */
 .goog-te-gadget {
-  font-size: 0 !important; /* hides "Select Language" text */
+  font-size: 0 !important;
   background: transparent !important;
   margin: 0 !important;
   padding: 0 !important;
+  line-height: 1 !important;
 }
 
 /* Dropdown only */
 .goog-te-gadget select.goog-te-combo {
-  font-size: 12px !important;
-  padding: 3px 6px !important;
+  font-size: 10px !important;
+  padding: 2px 4px !important;   /* reduced padding */
+  height: 16px !important;       /* smaller height */
+  line-height: 1 !important;
   background: #333 !important;
   color: #fff !important;
   border: none !important;
   border-radius: 4px;
   margin: 0 !important;
+  outline: none !important;
 }
 
-/* Hide extra branding / links */
+/* Remove extra spacing */
 .goog-te-gadget span,
 .goog-te-gadget a,
 .goog-logo-link,
@@ -278,7 +419,7 @@ function googleTranslateElementInit() {
 </script>
 
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-  
+
   <div id="topBanner" style="
   position: fixed;
   top: 0;
@@ -349,30 +490,26 @@ function googleTranslateElementInit() {
       localStorage.setItem("bannerClosedTime", Date.now());
     }, 500);
   });
-</script>
+    </script>
 
-  <!-- JuicyAds PopUnders v3 Start -->
-<script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p29423b414&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
-<!-- JuicyAds PopUnders v3 End -->
-
-<!-- 18+ Age Verification Modal -->
+  <!-- AGE MODAL -->
 <div id="ageModal">
   <div id="popupContent">
-    <img id="popupImage" src="" alt="AnywhereCum" style="display:none; border-radius:10px; margin-bottom:15px;">
-    <h2 id="popupTitle" style="color:#ff4444; font-size:24px; margin-bottom:10px; display:none;">⚠️ 18+ ONLY ⚠️</h2>
-    <p id="popupDesc" style="color:#fff; font-size:16px; margin-bottom:20px; display:none;">
-      You must be 18 years or older to enter this site. Click below to confirm your age or leave the site if you are under 18.
-    </p>
-    <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
-      <button id="enterSiteBtn" style="display:none;">I am 18+</button>
-      <button id="leaveSiteBtn" style="display:none;">Leave Site</button>
+    <img src="https://anywherecum.pages.dev/images/header-image.webp" alt="Preview">
+
+    <h2>⚠️ 18+ ONLY ⚠️</h2>
+
+    <p>You must be 18 years or older to enter this site.</p>
+
+    <div class="modal-buttons">
+      <button id="enterSiteBtn">I am 18+</button>
+      <button id="leaveSiteBtn">Leave Site</button>
     </div>
   </div>
 </div>
 
-<div id="adminContainer"></div>
-  
-<!-- Header -->
+  <div id="adminContainer"></div>
+
 <header>
   <h1>AnywhereCum - Video Folders & Exclusive Content</h1>
 
@@ -382,13 +519,9 @@ function googleTranslateElementInit() {
   <a href="terms-privacy.html" style="color:#fff; margin:0 8px;">⚖️Terms & Privacy</a>
   </nav>
   
-  <!-- Header Skeleton -->
-  <div id="headerSkeleton" class="skeleton"></div>
-
-  <!-- Actual Header Image -->
-  <img src="" alt="AnywhereCum" style="display:none; border-radius:8px; margin-top:5px; max-width:100%;" id="headerImage">
+  <img id="headerImage" src="https://anywherecum.pages.dev/images/header-image.webp" alt="Header">
 </header>
-  
+
   <!-- Ad1 (Top Ad) -->
 <div style="
   text-align: center;
@@ -454,92 +587,137 @@ function googleTranslateElementInit() {
 }
 </style>
 
-  <!-- Latest Video Skeleton -->
-  <h2>🎥Latest Video🎥</h2>
-  
+<h2>🎥 Latest Video 🎥</h2>
 <div id="latestVideo"></div>
-                   
-<h2>📂Content Folders📂</h2>
-  <!-- VIP Section Skeleton -->
-<section id="vipSection">
-  
-  <ul id="vipList">
-    <li class="skeleton" style="height:180px;"></li>
-  </ul>
-</section>
 
-<div id="vipCTA" style="text-align:center; margin-bottom:50px;">
-  <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4" target="_blank" class="blogspot-style-link">
-    Click & Watch how to unlock VIP Exclusive for Free 
+<h2>📂 Content Folders 📂</h2>
+
+  <!-- VIP CTA STYLE -->
+<style>
+.blogspot-style-link {
+  color: #fff;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 11px;
+  display: inline-block;
+  animation: flash 1s infinite alternate;
+  position: relative;
+  padding: 0 8px; /* reduced padding */
+  line-height: 1;  /* tighter height */
+}
+
+.blogspot-style-link::before {
+  content: "➤";
+  position: absolute;
+  left: -4px;
+  animation: bounceLeft 1s infinite alternate;
+}
+
+.blogspot-style-link::after {
+  content: "◀";
+  position: absolute;
+  right: -4px;
+  animation: bounceRight 1s infinite alternate;
+}
+
+.blogspot-style-link:hover {
+  color: #ff4444;
+  text-decoration: underline;
+}
+
+/* Animations */
+@keyframes flash {
+  0% { text-shadow: 0 0 5px #ff4444; }
+  50% { text-shadow: 0 0 15px #ff4444, 0 0 20px #ff8888; }
+  100% { text-shadow: 0 0 5px #ff4444; }
+}
+
+@keyframes bounceLeft {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes bounceRight {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(-3px); }
+  100% { transform: translateX(0); }
+}
+
+/* CTA container */
+#vipCTA {
+  text-align: center;
+  margin-bottom: 10px; /* reduced height */
+}
+</style>
+
+<!-- VIP CTA -->
+<div id="vipCTA">
+  <a href="https://streamtape.com/v/84Lgxedm03F2lV/AnywhereCum_20260315_100916372.mp4" 
+     target="_blank" 
+     class="blogspot-style-link">
+    Click & Watch how to unlock VIP Exclusive for Free
   </a>
 </div>
   
-<ul id="folderList">
-  <li class="skeleton" style="height:180px;"></li>
-  <li class="skeleton" style="height:180px;"></li>
-</ul>
-
-  <style>
-body {
-  background: #1a1a1a;
-  color: #fff;
-  font-family: Arial, sans-serif;
-  padding: 20px;
-}
-
-/* Skeleton loader */
-.skeleton {
-  width: 100%;
-  height: 250px;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-/* Ad hidden initially */
-#ad-container {
-  display: none;
-}
-</style>
-</head>
-
-<body>
-
-<!-- Skeleton -->
-<div id="skeleton" class="skeleton"></div>
-
-<!-- Ad -->
-<div id="ad-container">
-  <script async="async" data-cfasync="false"
-    src="https://pl28956586.profitablecpmratenetwork.com/c04c459f06eefec9d4eeedb2a131c1d2/invoke.js">
-  </script>
-  <div id="container-c04c459f06eefec9d4eeedb2a131c1d2"></div>
+<div id="folderSection">
+  <ul id="folderList"></ul>
 </div>
 
-<script>
-const skeleton = document.getElementById("skeleton");
-const adContainer = document.getElementById("container-c04c459f06eefec9d4eeedb2a131c1d2");
-const adWrapper = document.getElementById("ad-container");
+  <!-- AD -->
+<div class="ad-space" style="text-align:center;">
 
-// Observe changes inside the ad container
-const observer = new MutationObserver((mutations, obs) => {
-  if (adContainer.children.length > 0) {
-    skeleton.style.display = "none";
-    adWrapper.style.display = "block";
-    obs.disconnect();
-  }
-});
+  <div style="display:inline-block; position:relative;">
 
-observer.observe(adContainer, { childList: true, subtree: true });
-</script>
-  
-  <footer style="text-align:center; padding:15px; color:#fff; font-size:12px;">
+    <!-- 🔴 LIVE badge -->
+    <div style="
+      position:absolute;
+      top:-12px;
+      left:50%;
+      transform:translateX(-50%);
+      background:red;
+      color:white;
+      font-size:11px;
+      font-weight:bold;
+      padding:3px 10px;
+      border-radius:12px;
+      animation:blink 1s infinite;
+      z-index:9999;
+      pointer-events:none;
+    ">
+      🔴 Live
+    </div>
+
+    <!-- Border wrapper -->
+    <div style="
+      border:1.5px solid red;
+      border-radius:12px;
+      padding:3px;
+      background:#1a1a1a;
+      line-height:0;
+      overflow:visible; /* IMPORTANT */
+    ">
+
+      <!-- Ad -->
+      <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+      <ins id="1113665" data-width="300" data-height="112" style="display:block;"></ins>
+      <script type="text/javascript" data-cfasync="false" async>
+        (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113665});
+      </script>
+
+    </div>
+
+  </div>
+</div>
+
+<style>
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+</style>
+
+<footer style="text-align:center; padding:15px; color:#fff; font-size:12px;">
   © 2026 AnywhereCum – Legal content only. 18+<br>
 
   <div style="margin-top:8px; font-size:10px;">
@@ -570,237 +748,296 @@ observer.observe(adContainer, { childList: true, subtree: true });
     </a>
 
   </div>
-  </footer>
-  
-<!-- Cookie Consent Banner -->
-<div id="cookieBanner" style="position:fixed; bottom:-100px; left:0; width:100%; background-color:#222; color:#fff; padding:12px 15px; text-align:center; font-size:14px; z-index:9998; display:flex; justify-content:center; align-items:center; gap:10px; box-sizing:border-box; transition: bottom 0.5s ease-in-out; flex-wrap: wrap;">
-  <span style="max-width: 100%; text-align: center;">
-    We use cookies to improve your experience. 
-    <a href="https://anywherecum.pages.dev/terms-privacy.html" target="_blank" style="color:#ff4444; text-decoration: underline;">Privacy Policy</a>
-  </span>
-  <button id="acceptCookies" style="padding:6px 15px; font-size:14px; font-weight:bold; color:#fff; background-color:#ff4444; border:none; border-radius:5px; cursor:pointer; box-shadow:0 0 5px #ff4444;">Accept</button>
-</div>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const BASE_URL = "https://anywherecum.pages.dev/images/";
-
-  // Header Image
-  const headerImg = document.getElementById('headerImage');
-  const headerSkeleton = document.getElementById('headerSkeleton');
-  headerImg.onload = () => { headerSkeleton.style.display = 'none'; headerImg.style.display = 'block'; }
-  headerImg.src = BASE_URL + "header-image.webp";
-
-  // Popup Image & Age Modal
-  const popupImg = document.getElementById('popupImage');
-  const popupTitle = document.getElementById('popupTitle');
-  const popupDesc = document.getElementById('popupDesc');
-  const enterBtn = document.getElementById('enterSiteBtn');
-  const leaveBtn = document.getElementById('leaveSiteBtn');
-  const ageModal = document.getElementById('ageModal');
-
-  popupImg.onload = () => {
-    popupImg.style.display = 'block';
-    popupTitle.style.display = 'block';
-    popupDesc.style.display = 'block';
-    enterBtn.style.display = 'inline-block';
-    leaveBtn.style.display = 'inline-block';
-  };
-  popupImg.src = BASE_URL + "header-image.webp";
-
-  setTimeout(() => {
-    if(localStorage.getItem('ageConfirmed')!=='true') ageModal.style.opacity='1'; 
-    else ageModal.style.display='none';
-  }, 100);
-
-  enterBtn.onclick = () => {
-    localStorage.setItem('ageConfirmed','true'); 
-    ageModal.style.opacity='0'; 
-    setTimeout(() => { ageModal.style.display='none'; }, 500);
-  }
-  leaveBtn.onclick = () => window.location.href="https://www.google.com";
-
-  // Cookies
-  const banner=document.getElementById('cookieBanner');
-  if(localStorage.getItem('cookiesAccepted')!=='true'){ setTimeout(()=>{banner.style.bottom='0';},300);}
-  document.getElementById('acceptCookies').onclick=()=>{ 
-    localStorage.setItem('cookiesAccepted','true'); 
-    banner.style.bottom='-100px'; 
-    setTimeout(()=>{banner.style.display='none';},500); 
-  }
-
-  // VIP Videos (unchanged)
-  fetch('./vip.json').then(res=>res.json()).then(videos=>{
-    if(!videos.length) return;
-    const container=document.getElementById('vipList'); container.innerHTML='';
-    videos.sort((a,b)=>new Date(b.date)-new Date(a.date));
-    const latestVIP=videos[0]; const li=document.createElement('li');
-    const thumb=document.createElement('img'); thumb.src=BASE_URL+latestVIP.thumbnail; thumb.alt=latestVIP.folder;
-    thumb.onclick=()=>window.open("https://fc-lc.xyz/al0L8qyP","_blank");
-    const link=document.createElement('a'); link.className="folder-link"; link.href="https://fc-lc.xyz/al0L8qyP"; link.target="_blank"; link.textContent=latestVIP.folder;
-    li.appendChild(thumb); li.appendChild(link); container.appendChild(li);
-  });
-
-  // Content Folders & Latest Video
-  fetch('./videos.json').then(res=>res.json()).then(videos=>{
-    const folders={}; videos.forEach(v=>{ if(!folders[v.folder]) folders[v.folder]=[]; folders[v.folder].push(v); });
-    const folderList=document.getElementById('folderList'); folderList.innerHTML='';
-    Object.keys(folders).sort().forEach(folderName=>{
-      const folderVideos=folders[folderName]; folderVideos.sort((a,b)=>new Date(b.date)-new Date(a.date));
-      const latest=folderVideos[0]; const li=document.createElement('li');
-
-      const thumb=document.createElement('img'); 
-      thumb.src=BASE_URL + latest.thumbnail; 
-      thumb.alt=folderName; 
-      thumb.onclick=()=>window.open("folder.html?folder="+encodeURIComponent(folderName), "_self");
-
-      const link=document.createElement('a'); 
-      link.className="folder-link"; 
-      link.href="folder.html?folder="+encodeURIComponent(folderName); 
-      link.target="_self";
-      link.textContent=folderName;
-
-      li.appendChild(thumb); 
-      li.appendChild(link); 
-      folderList.appendChild(li);
-    });
-
-    // Latest Video (FIXED - H2 REMOVED)
-    if (videos.length) {
-      const latestVideo = videos.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-
-      const latestDiv = document.getElementById('latestVideo');
-
-      // Clear existing content safely
-      latestDiv.innerHTML = "";
-
-      const ul = document.createElement("ul");
-      ul.className = "folder-grid";
-
-      const li = document.createElement("li");
-      li.dataset.folder = latestVideo.folder;
-
-      const img = document.createElement("img");
-      img.src = BASE_URL + latestVideo.thumbnail;
-      img.alt = latestVideo.folder;
-      img.style.cssText = "width:100%;height:180px;border-radius:5px;object-fit:cover;cursor:pointer;margin-bottom:5px;";
-
-      const link = document.createElement("a");
-      link.className = "folder-link latest-link";
-      link.href = "folder.html?folder=" + encodeURIComponent(latestVideo.folder);
-      link.textContent = "Watch Now: New Video Available!!!";
-      link.dataset.folder = latestVideo.folder;
-
-      img.onclick = (e) => {
-        e.stopPropagation();
-        if (window.trackPreviewClick) {
-          window.trackPreviewClick(latestVideo.folder);
-        }
-        setTimeout(() => {
-          window.location.href = link.href;
-        }, 200);
-      };
-
-      link.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (window.trackPreviewClick) {
-          window.trackPreviewClick(latestVideo.folder);
-        }
-        setTimeout(() => {
-          window.location.href = link.href;
-        }, 200);
-      };
-
-      li.appendChild(img);
-      li.appendChild(link);
-      ul.appendChild(li);
-
-      latestDiv.appendChild(ul);
-    }
-  });
-});
-                                        </script>
+</footer>
 
   <script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  /* ===== AGE MODAL LOGIC ===== */
+  const modal = document.getElementById("ageModal");
+  const enterBtn = document.getElementById("enterSiteBtn");
+  const leaveBtn = document.getElementById("leaveSiteBtn");
+
+  if (localStorage.getItem("ageConfirmed") !== "true") {
+    document.body.style.overflow = "hidden";
+
+    setTimeout(() => {
+      modal.classList.add("active");
+    }, 300);
+  }
+
+  enterBtn.onclick = () => {
+    localStorage.setItem("ageConfirmed", "true");
+    modal.classList.remove("active");
+    document.body.style.overflow = "";
+  };
+
+  leaveBtn.onclick = () => {
+    window.location.href = "https://www.google.com";
+  };
+
+  const BASE_URL = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/";
+  const VIP_FOLDER = "🔒VIP Exclusive";
+  const VIP_LINK = "https://fc-lc.xyz/IIivW75";
+
+  let activeVideo = null;
+
+  function createPreviewItem(video, folderURL, linkText, folderName) {
+
+    const li = document.createElement('li');
+
+    // ✅ FIX: folderName now properly passed
+    li.dataset.folder = folderName;
+
+    const container = document.createElement('div');
+    container.style.position = "relative";
+    container.style.width = "100%";
+    container.style.height = "130px";
+    container.style.overflow = "hidden";
+    container.style.background = "#000";
+
+    const loader = document.createElement('div');
+    loader.className = "loader";
+
+    const videoEl = document.createElement('video');
+
+    if (video.preview) {
+      videoEl.src = video.preview.startsWith("http")
+        ? video.preview
+        : BASE_URL + video.preview;
+    }
+
+    videoEl.muted = true;
+    videoEl.loop = true;
+    videoEl.playsInline = true;
+    videoEl.preload = "metadata";
+
+    videoEl.style.width = "100%";
+    videoEl.style.height = "100%";
+    videoEl.style.objectFit = "contain";
+    videoEl.style.opacity = "0";
+
+    videoEl.addEventListener('loadeddata', () => {
+      loader.style.display = "none";
+      videoEl.style.opacity = "1";
+    });
+
+    videoEl.addEventListener('error', () => {
+      loader.innerHTML = "<span style='color:#aaa;font-size:12px'>Failed to load</span>";
+    });
+
+    container.appendChild(loader);
+    container.appendChild(videoEl);
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) {
+          videoEl.pause();
+          videoEl.currentTime = 0;
+
+          if (activeVideo === videoEl) {
+            activeVideo = null;
+          }
+        }
+      });
+    }, {
+      threshold: 0.25
+    });
+
+    observer.observe(container);
+
+    let startX = 0;
+    let isPlaying = false;
+
+    container.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+    });
+
+    container.addEventListener('touchmove', (e) => {
+      let moveX = e.touches[0].clientX;
+      let diff = moveX - startX;
+
+      if (Math.abs(diff) > 25) {
+        startX = moveX;
+
+        if (!isPlaying) {
+          isPlaying = true;
+
+          if (activeVideo && activeVideo !== videoEl) {
+            activeVideo.pause();
+            activeVideo.currentTime = 0;
+          }
+
+          videoEl.play().catch(() => {});
+          activeVideo = videoEl;
+
+        } else {
+          isPlaying = false;
+          videoEl.pause();
+          videoEl.currentTime = 0;
+
+          if (activeVideo === videoEl) activeVideo = null;
+        }
+      }
+    });
+
+    container.addEventListener('mouseenter', () => {
+      if (window.matchMedia("(pointer: fine)").matches) {
+
+        if (activeVideo && activeVideo !== videoEl) {
+          activeVideo.pause();
+          activeVideo.currentTime = 0;
+        }
+
+        videoEl.play().catch(() => {});
+        activeVideo = videoEl;
+      }
+    });
+
+    container.addEventListener('mouseleave', () => {
+      videoEl.pause();
+      videoEl.currentTime = 0;
+
+      if (activeVideo === videoEl) activeVideo = null;
+    });
+
+    container.addEventListener('click', () => {
+      window.location.href = folderURL;
+    });
+
+    const link = document.createElement('a');
+    link.className = "folder-link";
+    link.href = folderURL;
+    link.textContent = linkText;
+
+    li.appendChild(container);
+    li.appendChild(link);
+
+    return li;
+  }
+
+  fetch('./videos.json')
+    .then(res => res.json())
+    .then(videos => {
+
+      const folders = {};
+
+      videos.forEach(v => {
+        if (!folders[v.folder]) folders[v.folder] = [];
+        folders[v.folder].push(v);
+      });
+
+      const folderList = document.getElementById('folderList');
+      folderList.innerHTML = '';
+
+      let folderNames = Object.keys(folders);
+
+      folderNames.sort((a, b) => {
+        if (a === VIP_FOLDER) return -1;
+        if (b === VIP_FOLDER) return 1;
+        return 0;
+      });
+
+      folderNames.forEach(folderName => {
+
+        const latest = folders[folderName]
+          .sort((a,b)=> new Date(b.date)-new Date(a.date))[0];
+
+        const folderURL = folderName === VIP_FOLDER
+          ? VIP_LINK
+          : "folder.html?folder=" + encodeURIComponent(folderName);
+
+        const li = createPreviewItem(
+          latest,
+          folderURL,
+          folderName === VIP_FOLDER ? "🔒 VIP Exclusive" : folderName,
+          folderName // ✅ FIX HERE
+        );
+
+        folderList.appendChild(li);
+      });
+
+      const nonVipVideos = videos.filter(v => v.folder !== VIP_FOLDER);
+
+      if (nonVipVideos.length) {
+
+        const latest = nonVipVideos
+          .sort((a,b)=> new Date(b.date)-new Date(a.date))[0];
+
+        const latestDiv = document.getElementById('latestVideo');
+        latestDiv.innerHTML = '';
+
+        const li = createPreviewItem(
+          latest,
+          "folder.html?folder=" + encodeURIComponent(latest.folder),
+          "Watch Now: New Video Available!!!",
+          latest.folder // ✅ FIX HERE
+        );
+
+        latestDiv.appendChild(li);
+      }
+
+    });
+
+  /* ===== COOKIE BANNER ===== */
+  const banner = document.getElementById('cookieBanner');
+
+  if (localStorage.getItem('cookiesAccepted') !== 'true') {
+    setTimeout(() => {
+      banner.style.bottom = '0';
+    }, 300);
+  }
+
+  document.getElementById('acceptCookies').onclick = () => {
+    localStorage.setItem('cookiesAccepted', 'true');
+    banner.style.bottom = '-100px';
+
+    setTimeout(() => {
+      banner.style.display = 'none';
+    }, 500);
+  };
+
+});
+</script>
+
+<!-- COOKIE BANNER -->
+<div id="cookieBanner" style="position:fixed; bottom:-100px; left:0; width:100%; background:#222; color:#fff; padding:12px 15px; text-align:center; font-size:10px; z-index:9998; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; transition: bottom 0.5s;">
+  <span>
+    We use cookies to improve your experience. 
+    <a href="https://anywherecum.pages.dev/terms-privacy.html" target="_blank" style="color:#ff4444;">Privacy Policy</a>
+  </span>
+  <button id="acceptCookies" style="padding:6px 15px; font-size:14px; font-weight:bold; color:#fff; background:#ff4444; border:none; border-radius:5px;">
+    Accept
+  </button>
+</div>
+
+<script>
 document.addEventListener("click", function (e) {
 
   function getFolderName(el) {
     return (
-      el.dataset?.folder ||                          // ✅ hidden real name (MAIN FIX)
-      el.closest("[data-folder]")?.dataset.folder || // ✅ fallback from parent
+      el.dataset?.folder ||
+      el.closest("[data-folder]")?.dataset.folder ||
       el.getAttribute("data-folder") ||
-      el.alt || 
-      el.textContent?.trim() || 
       "Unknown"
     );
   }
 
-  /* ---------------- Folder Links (ALL SECTIONS) ---------------- */
-  const folderLink = e.target.closest("a.folder-link");
-  if (folderLink) {
-    const folderName = getFolderName(folderLink);
+  const item = e.target.closest("li");
+  if (!item) return;
 
-    console.log("Folder link clicked:", folderName);
+  const folderName = item.dataset.folder || getFolderName(item);
 
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(folderName);
-    }
-  }
+  console.log("Folder clicked:", folderName);
 
-  /* ---------------- Folder Images (ALL SECTIONS) ---------------- */
-  const folderImage = e.target.closest("#folderList img, #vipList img, #latestVideo img");
-  if (folderImage) {
-    const folderName = getFolderName(folderImage);
-
-    console.log("Folder image clicked:", folderName);
-
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(folderName);
-    }
-  }
-
-  /* ---------------- Folder Items (ALL SECTIONS) ---------------- */
-  const folderItem = e.target.closest("#folderList li, #vipList li, #latestVideo li");
-  if (folderItem) {
-    console.log("Folder item clicked (generic)");
-  }
-
-  /* ---------------- Latest Video Link Specific ---------------- */
-  const latestLink = e.target.closest("#latestVideo a.folder-link");
-  if (latestLink) {
-    const name = getFolderName(latestLink);
-
-    console.log("Latest video clicked:", name);
-
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(name);
-    }
-  }
-
-  /* ---------------- VIP Section Link Specific ---------------- */
-  const vipLink = e.target.closest("#vipList a.folder-link");
-  if (vipLink) {
-    const name = getFolderName(vipLink);
-
-    console.log("VIP clicked:", name);
-
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(name);
-    }
+  if (window.trackPreviewClick) {
+    window.trackPreviewClick(folderName);
   }
 
 });
-  </script>
-  
+</script>
+      
   <script type="module" src="views.js"></script>
 
-  <script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/service-worker.js")
-    .then(() => console.log("Service Worker registered"))
-    .catch((err) => console.error("SW registration failed:", err));
-}
-  </script>
-  
 </body>
 </html>
