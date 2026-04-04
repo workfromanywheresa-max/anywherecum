@@ -42,6 +42,15 @@ header h1 {
   border-radius: 8px;
 }
 
+/* ✅ FIX: Reserve space for latest video to stop jumping */
+#latestVideo {
+  min-height: 260px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* TITLES */
 h2 {
   color: #ff4444;
   border-bottom: 2px solid #ff4444;
@@ -57,8 +66,6 @@ ul {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 15px;
-
-  /* prevents jumping */
   grid-auto-rows: 260px;
 }
 
@@ -82,7 +89,7 @@ li img {
   height: 180px;
   object-fit: cover;
   display: block;
-  background: #333; /* prevents white flash */
+  background: #333;
 }
 
 /* LINK */
