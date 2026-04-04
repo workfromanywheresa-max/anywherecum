@@ -1014,26 +1014,13 @@ document.addEventListener("click", function (e) {
 
   function getFolderName(el) {
     return (
-      el.dataset?.folder ||
-      el.closest("[data-folder]")?.dataset.folder ||
+      el.dataset?.folder ||                          
+      el.closest("[data-folder]")?.dataset.folder || 
       el.getAttribute("data-folder") ||
-      el.alt ||
-      el.textContent?.trim() ||
+      el.alt || 
+      el.textContent?.trim() || 
       "Unknown"
     );
-  }
-
-  /* ---------------- VIP TRACKING (NEW) ---------------- */
-  const vipEl = e.target.closest("a, video, li");
-
-  if (vipEl) {
-    const folderName = getFolderName(vipEl);
-
-    if (folderName && folderName.includes("VIP Exclusive")) {
-      console.log("VIP tracked:", folderName);
-
-      navigator.sendBeacon("https://fc-lc.xyz/IIivW75");
-    }
   }
 
   /* ---------------- Folder Links (ALL SECTIONS) ---------------- */
@@ -1048,8 +1035,8 @@ document.addEventListener("click", function (e) {
     }
   }
 
-  /* ---------------- Folder Videos (ALL SECTIONS) ---------------- */
-  const folderVideo = e.target.closest("#folderList video, #vipList video, #latestVideo video");
+  /* ---------------- Folder Videos (REPLACES IMAGES) ---------------- */
+  const folderVideo = e.target.closest("#folderList video, #latestVideo video");
   if (folderVideo) {
     const folderName = getFolderName(folderVideo);
 
@@ -1061,7 +1048,7 @@ document.addEventListener("click", function (e) {
   }
 
   /* ---------------- Folder Items (ALL SECTIONS) ---------------- */
-  const folderItem = e.target.closest("#folderList li, #vipList li, #latestVideo li");
+  const folderItem = e.target.closest("#folderList li, #latestVideo li");
   if (folderItem) {
     console.log("Folder item clicked (generic)");
   }
@@ -1078,20 +1065,8 @@ document.addEventListener("click", function (e) {
     }
   }
 
-  /* ---------------- VIP Section Link Specific ---------------- */
-  const vipLink = e.target.closest("#vipList a.folder-link");
-  if (vipLink) {
-    const name = getFolderName(vipLink);
-
-    console.log("VIP clicked:", name);
-
-    if (window.trackPreviewClick) {
-      window.trackPreviewClick(name);
-    }
-  }
-
 });
-  </script>
+                          </script>
 
   <script type="module" src="views.js"></script>
 
