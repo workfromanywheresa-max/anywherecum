@@ -1009,6 +1009,77 @@ document.getElementById('acceptCookies').onclick = () => {
   </button>
 </div>
 
+  <script>
+document.addEventListener("click", function (e) {
+
+  function getFolderName(el) {
+    return (
+      el.dataset?.folder ||                          // ✅ hidden real name (MAIN FIX)
+      el.closest("[data-folder]")?.dataset.folder || // ✅ fallback from parent
+      el.getAttribute("data-folder") ||
+      el.alt || 
+      el.textContent?.trim() || 
+      "Unknown"
+    );
+  }
+
+  /* ---------------- Folder Links (ALL SECTIONS) ---------------- */
+  const folderLink = e.target.closest("a.folder-link");
+  if (folderLink) {
+    const folderName = getFolderName(folderLink);
+
+    console.log("Folder link clicked:", folderName);
+
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(folderName);
+    }
+  }
+
+  /* ---------------- Folder Images (ALL SECTIONS) ---------------- */
+  const folderImage = e.target.closest("#folderList img, #vipList img, #latestVideo img");
+  if (folderImage) {
+    const folderName = getFolderName(folderImage);
+
+    console.log("Folder image clicked:", folderName);
+
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(folderName);
+    }
+  }
+
+  /* ---------------- Folder Items (ALL SECTIONS) ---------------- */
+  const folderItem = e.target.closest("#folderList li, #vipList li, #latestVideo li");
+  if (folderItem) {
+    console.log("Folder item clicked (generic)");
+  }
+
+  /* ---------------- Latest Video Link Specific ---------------- */
+  const latestLink = e.target.closest("#latestVideo a.folder-link");
+  if (latestLink) {
+    const name = getFolderName(latestLink);
+
+    console.log("Latest video clicked:", name);
+
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(name);
+    }
+  }
+
+  /* ---------------- VIP Section Link Specific ---------------- */
+  const vipLink = e.target.closest("#vipList a.folder-link");
+  if (vipLink) {
+    const name = getFolderName(vipLink);
+
+    console.log("VIP clicked:", name);
+
+    if (window.trackPreviewClick) {
+      window.trackPreviewClick(name);
+    }
+  }
+
+});
+  </script>
+
   <script type="module" src="views.js"></script>
 
 </body>
