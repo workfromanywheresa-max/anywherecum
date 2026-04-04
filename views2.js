@@ -56,55 +56,73 @@ function formatViews(num) {
 }
 
 /* ---------------- WORKER ---------------- */
-async function sendToWorker(videoId, type = "clicked") {
+async function sendToWorker(videoId) {
   try {
     await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ videoId, type })
+      body: JSON.stringify({ videoId })
     });
   } catch (err) {
     console.error("Worker failed:", err);
   }
 }
 
-/* ---------------- SESSION (FIXED) ---------------- */
+function increaseViews(videoId) {
+  if (!TEST_MODE) sendToWorker("clicked_" + videoId);
+}
+
+/* ---------------- SESSION LIMIT ---------------- */
 const sessionFlags = new Set();
 
-function hasCounted(videoId, type) {
-  return sessionFlags.has(type + "_" + videoId);
-}
-
-function markCounted(videoId, type) {
-  sessionFlags.add(type + "_" + videoId);
-}
-
-/* ---------------- COUNT LOGIC ---------------- */
-
-/* ✔️ SHARED WATCH (preview OR dropdown) */
 function countWatchOnce(videoId) {
-  if (hasCounted(videoId, "watch")) return;
-
-  markCounted(videoId, "watch");
-
-  if (!TEST_MODE) {
-    sendToWorker(videoId, "watch");
-  }
+  if (sessionFlags.has("watch_" + videoId)) return;
+  sessionFlags.add("watch_" + videoId);
+  increaseViews(videoId);
 }
 
-/* ✔️ DOWNLOAD (once per visit) */
-function countDownloadOnce(videoId) {
-  if (hasCounted(videoId, "download")) return;
-
-  markCounted(videoId, "download");
-
-  if (!TEST_MODE) {
-    sendToWorker(videoId, "download");
-  }
+/* 🔥 DOWNLOAD NOW COUNTS AS VIEW */
+function countDownload(videoId) {
+  countWatchOnce(videoId);
 }
 
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
+
+/* ---------------- LOADER ---------------- */
+function createLoader() {
+  const loader = document.createElement("div");
+  loader.id = "loader";
+  loader.style.position = "fixed";
+  loader.style.top = "50%";
+  loader.style.left = "50%";
+  loader.style.transform = "translate(-50%, -50%)";
+  loader.style.zIndex = "9999";
+
+  const spinner = document.createElement("div");
+  spinner.style.border = "4px solid rgba(255,255,255,0.3)";
+  spinner.style.borderTop = "4px solid #ffcc00";
+  spinner.style.borderRadius = "50%";
+  spinner.style.width = "50px";
+  spinner.style.height = "50px";
+  spinner.style.animation = "spin 1s linear infinite";
+
+  loader.appendChild(spinner);
+  document.body.appendChild(loader);
+}
+
+function removeLoader() {
+  const loader = document.getElementById("loader");
+  if (loader) loader.remove();
+}
+
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}`;
+document.head.appendChild(style);
 
 /* ---------------- VIDEO BOX ---------------- */
 function createVideoBox(video) {
@@ -150,7 +168,7 @@ function createVideoBox(video) {
     loadPlayer();
   };
 
-  /* -------- SWIPE -------- */
+  /* SWIPE */
   let startX = 0;
 
   preview.addEventListener("touchstart", e => {
@@ -206,7 +224,7 @@ function createVideoBox(video) {
     const selected = video.qualities[select.value];
     currentEmbed = selected.embed;
 
-    countWatchOnce(video.id); // ✔️ SAME COUNT
+    countWatchOnce(video.id);
 
     wrapper.dataset.loaded = "false";
     loadPlayer();
@@ -214,7 +232,6 @@ function createVideoBox(video) {
 
   /* -------- TITLE -------- */
   const title = document.createElement("h3");
-  title.className = "videoTitle";
   title.textContent = video.title;
 
   /* -------- DOWNLOAD -------- */
@@ -228,7 +245,7 @@ function createVideoBox(video) {
     downloadBox.style.display =
       downloadBox.style.display === "none" ? "block" : "none";
 
-    countDownloadOnce(video.id);
+    countDownload(video.id);
   };
 
   video.qualities.forEach(q => {
@@ -238,6 +255,8 @@ function createVideoBox(video) {
     link.textContent = `${q.label} • ${q.size}`;
     link.style.display = "block";
     link.style.color = "#ff4444";
+
+    link.onclick = () => countDownload(video.id);
 
     downloadBox.appendChild(link);
   });
@@ -251,13 +270,13 @@ function createVideoBox(video) {
   return box;
 }
 
-/* ---------------- UI UPDATE ---------------- */
+/* ---------------- UI ---------------- */
 function updateUI(id) {
   const v = videoDataMap[id];
   if (!v || !videoElements[id]) return;
 
   const total = v.totalViews || 0;
-  const isTrending = (v.cycleViews || 0) >= 10;
+  const isTrending = v.cycleViews >= 10;
 
   saveCache("views_" + id, total);
   saveCache("cycle_" + id, v.cycleViews);
@@ -276,45 +295,25 @@ function updateUI(id) {
   }
 }
 
-/* ---------------- REORDER ---------------- */
-function reorderVideos(force = false) {
-  const entries = Object.entries(videoDataMap);
-
-  entries.sort((a, b) => {
-    const A = a[1];
-    const B = b[1];
-
-    const ATrending = (A.cycleViews || 0) >= 10;
-    const BTrending = (B.cycleViews || 0) >= 10;
-
-    if (ATrending && !BTrending) return -1;
-    if (!ATrending && BTrending) return 1;
-
-    if (ATrending && BTrending) {
-      return B.cycleViews - A.cycleViews;
-    }
-
-    return A.originalIndex - B.originalIndex;
-  });
-
-  const newOrder = entries.map(([id]) => id);
-
-  newOrder.forEach(id => {
-    const el = videoElements[id]?.box;
-    if (el) videosContainer.appendChild(el);
-  });
-}
-
 /* ---------------- LOAD ---------------- */
+createLoader();
+
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
+
+    removeLoader();
 
     const filtered = folderName
       ? videos.filter(v =>
           (v.folder || "").trim().toLowerCase() === folderName
         )
       : videos;
+
+    if (filtered.length === 0) {
+      videosContainer.innerHTML = "<p>No videos found.</p>";
+      return;
+    }
 
     filtered.forEach((v, index) => {
 
@@ -336,8 +335,7 @@ fetch(dataSource)
       updateUI(v.id);
     });
 
-    reorderVideos(true);
-
+    /* FIREBASE */
     filtered.forEach(v => {
 
       onValue(ref(db, "views/" + v.id), snap => {
@@ -353,7 +351,6 @@ fetch(dataSource)
         if (val !== null) {
           videoDataMap[v.id].cycleViews = Number(val);
           updateUI(v.id);
-          reorderVideos();
         }
       });
 
