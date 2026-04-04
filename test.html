@@ -45,7 +45,79 @@ header h1 {
   border-radius: 8px;
   background: #000;
 }
+  /* ===== AGE MODAL ===== */
+#ageModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.96);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
 
+#ageModal.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+#popupContent {
+  width: 90%;
+  max-width: 380px;
+  background: #111;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 0 20px #ff4444;
+  animation: popupZoom 0.3s ease;
+}
+
+#popupContent img {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+#popupContent h2 {
+  color: #ff4444;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+#enterSiteBtn {
+  background: #ff4444;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#leaveSiteBtn {
+  background: #333;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+@keyframes popupZoom {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+  
 #latestVideo {
   position: relative;
   height: 210px;
@@ -162,6 +234,22 @@ footer {
 </head>
 
 <body>
+
+  <!-- AGE MODAL -->
+<div id="ageModal">
+  <div id="popupContent">
+    <img src="https://anywherecum.pages.dev/images/header-image.webp" alt="Preview">
+
+    <h2>⚠️ 18+ ONLY ⚠️</h2>
+
+    <p>You must be 18 years or older to enter this site.</p>
+
+    <div class="modal-buttons">
+      <button id="enterSiteBtn">I am 18+</button>
+      <button id="leaveSiteBtn">Leave Site</button>
+    </div>
+  </div>
+</div>
 
 <header>
   <h1>AnywhereCum - Video Folders & Exclusive Content</h1>
@@ -329,6 +417,29 @@ footer {
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+
+  /* ===== AGE MODAL LOGIC ===== */
+  const modal = document.getElementById("ageModal");
+  const enterBtn = document.getElementById("enterSiteBtn");
+  const leaveBtn = document.getElementById("leaveSiteBtn");
+
+  if (localStorage.getItem("ageConfirmed") !== "true") {
+    document.body.style.overflow = "hidden";
+
+    setTimeout(() => {
+      modal.classList.add("active");
+    }, 300);
+  }
+
+  enterBtn.onclick = () => {
+    localStorage.setItem("ageConfirmed", "true");
+    modal.classList.remove("active");
+    document.body.style.overflow = "";
+  };
+
+  leaveBtn.onclick = () => {
+    window.location.href = "https://www.google.com";
+  };
 
   const BASE_URL = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/";
   const VIP_FOLDER = "🔒VIP Exclusive";
