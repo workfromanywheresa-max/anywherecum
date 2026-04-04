@@ -77,11 +77,13 @@ li {
   height: 180px;
 }
 
+/* ✅ FIX: NO MORE ZOOMED IMAGES */
 li img {
   width: 100%;
   height: 130px;
-  object-fit: cover;
-  background: #333;
+  object-fit: contain;  /* <-- changed from cover */
+  object-position: center;
+  background: #111;
   display: block;
 }
 
@@ -163,7 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const folderList = document.getElementById('folderList');
       folderList.innerHTML = '';
 
-      // Get folder names and pin VIP first
       let folderNames = Object.keys(folders);
 
       folderNames.sort((a, b) => {
@@ -212,7 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
         folderList.appendChild(li);
       });
 
-      // 🔥 Latest video (VIP excluded)
       const nonVipVideos = videos.filter(v => v.folder !== VIP_FOLDER);
 
       if (nonVipVideos.length) {
