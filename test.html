@@ -64,7 +64,6 @@ ul {
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 
-  /* reduced but stable height */
   grid-auto-rows: 170px;
 }
 
@@ -77,31 +76,25 @@ li {
 
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 
   overflow: hidden;
+  height: 170px;
 }
 
 /* IMAGE */
 li img {
   width: 100%;
-  height: 110px;
+  flex: 1;
   object-fit: cover;
   display: block;
   background: #333;
 }
 
-/* Latest card matches grid */
+/* Latest card */
 #latestVideo li {
   width: 100%;
   max-width: 350px;
   height: 170px;
-}
-
-#latestVideo li img {
-  width: 100%;
-  height: 110px;
-  object-fit: cover;
 }
 
 /* LINK */
@@ -111,6 +104,8 @@ a.folder-link {
   text-decoration: none;
   padding: 6px;
   font-size: 13px;
+  text-align: center;
+  flex-shrink: 0;
 }
 
 a.folder-link:hover {
