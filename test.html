@@ -7,25 +7,25 @@
 
 <link rel="icon" type="image/png" sizes="32x32" href="https://anywherecum.pages.dev/images/favicon.webp">
 <link rel="apple-touch-icon" href="https://anywherecum.pages.dev/images/favicon.webp">
-<link rel="shortcut icon" href="https://anywherecum.pages.dev/images/favicon.webp">
 
-<meta name="description" content="Browse categorized video folders and explore exclusive video content. Fast, organized video library with easy navigation and latest uploads.">
-<meta name="keywords" content="video folders, browse video collections, exclusive video content, online video library, categorized videos, media streaming folders, video directory">
-<meta name="robots" content="index, follow">
-<meta name="author" content="AnywhereCum">
-
-<meta property="og:title" content="AnywhereCum - Video Folders & Exclusive Content">
-<meta property="og:description" content="Browse categorized video folders and discover exclusive video content in a fast and organized layout.">
-<meta property="og:url" content="https://anywherecum.pages.dev/">
-<meta property="og:type" content="website">
-
-<meta name="twitter:card" content="summary_large_image">
+<meta name="description" content="Browse categorized video folders and explore exclusive video content.">
 
 <style>
 body { font-family: Arial, sans-serif; background: #1a1a1a; color: #fff; margin: 0; padding: 15px; }
 
 header { text-align: center; padding: 5px 10px; background: #111; }
 header h1 { color: #ff4444; margin: 2px 0; font-size: 20px; }
+
+/* ✅ FIXED HEADER IMAGE */
+#headerImage {
+  width: 100%;
+  max-width: 100%;
+  height: auto;        /* IMPORTANT */
+  object-fit: contain; /* NO ZOOM */
+  display: block;
+  margin-top: 5px;
+  border-radius: 8px;
+}
 
 h2 { color: #ff4444; border-bottom: 2px solid #ff4444; padding-bottom: 5px; margin-top:20px; text-align: center; }
 
@@ -47,18 +47,11 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 
 <body>
 
-<div id="google_translate_element"></div>
-
 <header>
   <h1>AnywhereCum - Video Folders & Exclusive Content</h1>
 
-  <nav style="margin-top:10px; font-size:10px;">
-    <a href="folders.html" style="color:#fff;">📂All Folders</a> |
-    <a href="contact.html" style="color:#fff;">📨Contact</a> |
-    <a href="terms-privacy.html" style="color:#fff;">⚖️Terms & Privacy</a>
-  </nav>
+  <img id="headerImage" src="https://anywherecum.pages.dev/images/header-image.webp" alt="AnywhereCum Header">
 
-  <img src="" id="headerImage" style="max-width:100%; border-radius:8px; margin-top:5px;">
 </header>
 
 <h2>🎥 Latest Video 🎥</h2>
@@ -74,9 +67,6 @@ footer { text-align: center; padding: 20px; font-size: 12px; color: #aaa; backgr
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const BASE_URL = "https://anywherecum.pages.dev/images/";
-
-  const headerImg = document.getElementById('headerImage');
-  headerImg.src = BASE_URL + "header-image.webp";
 
   fetch('./videos.json')
     .then(res => res.json())
