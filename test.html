@@ -14,21 +14,32 @@ body {
   justify-content: center;
 }
 
-/* 🔥 Wrapper (600px container) */
+/* 🔥 Wrapper (safe, no overflow) */
 .wrapper {
   width: 100%;
   max-width: 600px;
-  overflow-x: auto;
+  overflow: hidden;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
 /* 🔥 Scrollable row */
 .live-container {
   display: flex;
   gap: 15px;
-  padding: 10px;
-  width: max-content;
+  padding: 10px 0;
+
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+
+  -webkit-overflow-scrolling: touch;
 }
 
+/* Hide scrollbar */
 .live-container::-webkit-scrollbar {
   display: none;
 }
@@ -42,8 +53,8 @@ body {
 
 /* 🔥 SMALLER CIRCLE */
 .live-ring {
-  width: 60px;   /* reduced */
-  height: 60px;  /* reduced */
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   padding: 3px;
   background: linear-gradient(45deg, red, orange, red);
@@ -78,6 +89,7 @@ body {
   color: #ccc;
 }
 
+/* 🔥 Pulse animation */
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); }
   70% { box-shadow: 0 0 0 12px rgba(255,0,0,0); }
@@ -129,10 +141,10 @@ async function loadLives() {
 /* 👁️ Random viewers */
 function randomViews() {
   const num = Math.floor(Math.random() * 9000 + 100);
-  return num > 1000 ? (num/1000).toFixed(1) + "k" : num;
+  return num > 1000 ? (num / 1000).toFixed(1) + "k" : num;
 }
 
-/* 🔥 Click */
+/* 🔥 Click handler */
 function openLive(streamUrl) {
   window.open("https://www.juicyads.rocks", "_blank");
 
