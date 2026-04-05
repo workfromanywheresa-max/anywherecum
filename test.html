@@ -87,21 +87,27 @@ body {
   color: #ccc;
 }
 
-/* ➡️ Arrow button */
+/* 🔥 BIG AD ARROW */
 .arrow-btn {
-  min-width: 50px;
+  min-width: 70px;
   height: 65px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 22px;
+  font-size: 30px;
+  font-weight: bold;
   cursor: pointer;
   flex-shrink: 0;
+  background: linear-gradient(135deg, #ff0000, #ff5c00);
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(255,0,0,0.7);
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .arrow-btn:hover {
-  color: red;
+  transform: scale(1.1);
+  box-shadow: 0 0 18px rgba(255,0,0,1);
 }
 
 /* Pulse */
@@ -152,11 +158,16 @@ async function loadLives() {
       container.appendChild(div);
     });
 
-    // ➡️ Arrow button
+    // ➡️ BIG ARROW BUTTON (AD TRIGGER)
     const arrow = document.createElement("div");
     arrow.className = "arrow-btn";
     arrow.innerHTML = "➡️";
+
     arrow.onclick = () => {
+      // 🔥 Trigger ad FIRST
+      window.open("https://www.juicyads.rocks", "_blank");
+
+      // Optional scroll
       container.scrollBy({ left: 200, behavior: "smooth" });
     };
 
