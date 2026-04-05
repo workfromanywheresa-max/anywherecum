@@ -28,24 +28,13 @@ body {
   box-shadow: 0 0 8px rgba(255,0,0,0.15);
 }
 
-/* 🔥 SCROLL CONTAINER */
+/* SCROLL CONTAINER */
 .live-container {
   display: flex;
-  flex-wrap: nowrap;
-  overflow-x: hidden;
   gap: 8px;
   padding: 3px 6px;
   align-items: center;
-}
-
-/* Hide scrollbar */
-.live-container::-webkit-scrollbar {
-  display: none;
-}
-
-.live-container {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  transition: transform 0.8s ease;
 }
 
 .live-user {
@@ -93,6 +82,21 @@ body {
   color: #ccc;
 }
 
+/* Arrow */
+.arrow-ring {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(45deg, #ff0000, #ff7b00);
+  font-size: 20px;
+  font-weight: bold;
+  animation: none;
+}
+
+.arrow {
+  transform: translateX(2px);
+}
+
 /* Pulse */
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); }
@@ -116,9 +120,8 @@ const API_URL = "https://anywherecum.pages.dev/videos.json";
 let fullData = [];
 let startIndex = 0;
 
-const VISIBLE_COUNT = 7;
-const SLIDE_INTERVAL = 3600000; // 1 hour
-const SLIDE_DURATION = 800;
+const VISIBLE_COUNT = 4;
+const SLIDE_INTERVAL = 3600000;
 
 async function loadLives() {
   try {
@@ -140,6 +143,7 @@ function renderLives() {
   const container = document.getElementById("liveContainer");
   container.innerHTML = "";
 
+  // 4 LIVE ITEMS
   for (let i = 0; i < VISIBLE_COUNT; i++) {
     const index = (startIndex + i) % fullData.length;
     const item = fullData[index];
@@ -159,24 +163,28 @@ function renderLives() {
 
     container.appendChild(div);
   }
+
+  // 5TH ITEM = ARROW (ADS)
+  const arrow = document.createElement("div");
+  arrow.className = "live-user";
+
+  arrow.innerHTML = `
+    <div class="live-ring arrow-ring">
+      <span class="arrow">➜</span>
+    </div>
+    <span class="viewers">More</span>
+  `;
+
+  // 🔥 TRIGGER ADS HERE
+  arrow.onclick = () => window.open("https://www.juicyads.rocks", "_blank");
+
+  container.appendChild(arrow);
 }
 
-/* 🔥 Smooth slide */
+/* Smooth slide */
 function smoothSlideNext() {
-  const container = document.getElementById("liveContainer");
-
-  const scrollAmount = container.children[0].offsetWidth + 8;
-
-  container.style.transition = `transform ${SLIDE_DURATION}ms ease`;
-  container.style.transform = `translateX(-${scrollAmount}px)`;
-
-  setTimeout(() => {
-    container.style.transition = "none";
-    container.style.transform = "translateX(0px)";
-
-    startIndex = (startIndex + VISIBLE_COUNT) % fullData.length;
-    renderLives();
-  }, SLIDE_DURATION);
+  startIndex = (startIndex + VISIBLE_COUNT) % fullData.length;
+  renderLives();
 }
 
 function randomViews() {
