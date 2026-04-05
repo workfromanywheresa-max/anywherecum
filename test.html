@@ -653,6 +653,97 @@ animation:moveArrows 1s linear infinite;
 </footer>
 
 <script>
+/* ================= GLOBAL VIDEO CONTROL ================= */
+let currentPlayingVideo = null;
+
+/* ================= INTERSECTION OBSERVER ================= */
+const videoObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    const video = entry.target;
+
+    if (!entry.isIntersecting) {
+      video.pause();
+      video.currentTime = 0;
+      video.dataset.playing = "false";
+
+      if (currentPlayingVideo === video) {
+        currentPlayingVideo = null;
+      }
+    }
+  });
+}, { threshold: 0.3 });
+
+/* ================= CREATE VIDEO ================= */
+function createVideo(url) {
+  const video = document.createElement("video");
+
+  video.src = url;
+  video.muted = true;
+  video.loop = true;
+  video.playsInline = true;
+  video.preload = "metadata";
+
+  video.style.width = "80px";
+  video.style.height = "55px";
+  video.style.objectFit = "cover";
+  video.style.borderRadius = "5px";
+
+  video.dataset.playing = "false";
+
+  videoObserver.observe(video);
+
+  return video;
+}
+
+/* ================= SWIPE LOGIC ================= */
+function addSwipe(card, video, onClick) {
+
+  let startX = 0;
+  let isSwiping = false;
+  const THRESHOLD = 30;
+
+  card.addEventListener("touchstart", (e) => {
+    startX = e.touches[0].clientX;
+    isSwiping = false;
+  });
+
+  card.addEventListener("touchmove", (e) => {
+    if (Math.abs(e.touches[0].clientX - startX) > THRESHOLD) {
+      isSwiping = true;
+    }
+  });
+
+  card.addEventListener("touchend", (e) => {
+    let diff = e.changedTouches[0].clientX - startX;
+
+    if (isSwiping && Math.abs(diff) > THRESHOLD) {
+
+      if (video.dataset.playing === "false") {
+
+        if (currentPlayingVideo && currentPlayingVideo !== video) {
+          currentPlayingVideo.pause();
+          currentPlayingVideo.currentTime = 0;
+          currentPlayingVideo.dataset.playing = "false";
+        }
+
+        video.play();
+        video.dataset.playing = "true";
+        currentPlayingVideo = video;
+
+      } else {
+
+        video.pause();
+        video.currentTime = 0;
+        video.dataset.playing = "false";
+        currentPlayingVideo = null;
+
+      }
+
+    } else {
+      if (onClick) onClick();
+    }
+  });
+}
 
 /* ================= FOLDERS ================= */
 async function loadFolders() {
@@ -672,29 +763,32 @@ async function loadFolders() {
   const vipName = "🔒VIP Exclusive";
   const allNames = Object.keys(folders).sort();
 
-  /* ================= VIP FIRST ================= */
+  /* ================= VIP ================= */
   if (folders[vipName]) {
     const vids = folders[vipName].sort((a,b)=>new Date(b.date)-new Date(a.date));
     const latest = vids[0];
 
-    const vipCard = document.createElement('div');
-    vipCard.className = 'card';
+    const card = document.createElement('div');
+    card.className = 'card';
 
-    const img = document.createElement('img');
-    img.src = "https://anywherecum.pages.dev/images/" + latest.thumbnail;
+    const video = createVideo(latest.preview);
 
     const link = document.createElement('a');
     link.href = "https://fc-lc.xyz/IIivW75";
     link.textContent = vipName;
 
-    vipCard.onclick = () => {
+    card.onclick = () => {
       window.location.href = link.href;
     };
 
-    vipCard.appendChild(img);
-    vipCard.appendChild(link);
+    card.appendChild(video);
+    card.appendChild(link);
 
-    container.appendChild(vipCard);
+    addSwipe(card, video, () => {
+      window.location.href = link.href;
+    });
+
+    container.appendChild(card);
   }
 
   /* ================= OTHER FOLDERS ================= */
@@ -710,8 +804,7 @@ async function loadFolders() {
       const card = document.createElement('div');
       card.className = 'card';
 
-      const img = document.createElement('img');
-      img.src = "https://anywherecum.pages.dev/images/" + latest.thumbnail;
+      const video = createVideo(latest.preview);
 
       const link = document.createElement('a');
       link.href = "folder.html?folder=" + encodeURIComponent(name);
@@ -721,8 +814,12 @@ async function loadFolders() {
         window.location.href = link.href;
       };
 
-      card.appendChild(img);
+      card.appendChild(video);
       card.appendChild(link);
+
+      addSwipe(card, video, () => {
+        window.location.href = link.href;
+      });
 
       container.appendChild(card);
     });
@@ -732,7 +829,6 @@ async function loadFolders() {
 window.addEventListener('load', () => {
   loadFolders();
 });
-
 </script>
 
   <script type="module" src="views.js"></script>
