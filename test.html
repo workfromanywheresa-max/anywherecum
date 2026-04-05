@@ -14,7 +14,6 @@ body {
   justify-content: center;
 }
 
-/* 🔥 Banner container */
 .wrapper {
   width: 100%;
   max-width: 600px;
@@ -22,25 +21,23 @@ body {
   box-sizing: border-box;
 }
 
-/* 🔥 Banner */
 .banner {
   background: #1a1a1a;
   border-radius: 12px;
   padding: 5px;
   box-shadow: 0 0 8px rgba(255,0,0,0.15);
+  position: relative;
 }
 
-/* 🔥 Scroll row */
+/* Scroll row */
 .live-container {
   display: flex;
   gap: 8px;
   overflow-x: auto;
   padding: 3px 6px;
   scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
 }
 
-/* Hide scrollbar */
 .live-container::-webkit-scrollbar {
   display: none;
 }
@@ -53,7 +50,6 @@ body {
   flex-shrink: 0;
 }
 
-/* 🔥 Circle */
 .live-ring {
   width: 45px;
   height: 45px;
@@ -65,7 +61,6 @@ body {
   margin: 0 auto;
 }
 
-/* Profile image */
 .live-ring img {
   width: 100%;
   height: 100%;
@@ -73,7 +68,6 @@ body {
   object-fit: cover;
 }
 
-/* 🔴 LIVE badge */
 .live-badge {
   position: absolute;
   top: -4px;
@@ -84,10 +78,8 @@ body {
   padding: 1px 4px;
   border-radius: 4px;
   font-weight: bold;
-  z-index: 2;
 }
 
-/* Viewers text */
 .viewers {
   display: block;
   font-size: 9px;
@@ -95,7 +87,24 @@ body {
   color: #ccc;
 }
 
-/* 🔥 Pulse animation */
+/* ➡️ Arrow button */
+.arrow-btn {
+  min-width: 50px;
+  height: 65px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.arrow-btn:hover {
+  color: red;
+}
+
+/* Pulse */
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); }
   70% { box-shadow: 0 0 0 8px rgba(255,0,0,0); }
@@ -115,7 +124,6 @@ body {
 <script>
 const API_URL = "https://anywherecum.pages.dev/videos.json";
 
-/* 🔴 Load JSON */
 async function loadLives() {
   try {
     const res = await fetch(API_URL);
@@ -124,8 +132,10 @@ async function loadLives() {
     const container = document.getElementById("liveContainer");
     container.innerHTML = "";
 
-    data.forEach(item => {
+    // 🔥 LIMIT TO 7 USERS
+    const limitedData = data.slice(0, 7);
 
+    limitedData.forEach(item => {
       const div = document.createElement("div");
       div.className = "live-user";
       div.onclick = () => openLive(item.stream);
@@ -142,18 +152,26 @@ async function loadLives() {
       container.appendChild(div);
     });
 
+    // ➡️ Arrow button
+    const arrow = document.createElement("div");
+    arrow.className = "arrow-btn";
+    arrow.innerHTML = "➡️";
+    arrow.onclick = () => {
+      container.scrollBy({ left: 200, behavior: "smooth" });
+    };
+
+    container.appendChild(arrow);
+
   } catch (err) {
     console.error("Error loading JSON:", err);
   }
 }
 
-/* 👁️ Random viewers */
 function randomViews() {
   const num = Math.floor(Math.random() * 9000 + 100);
   return num > 1000 ? (num / 1000).toFixed(1) + "k" : num;
 }
 
-/* 🔥 Click handler */
 function openLive(streamUrl) {
   window.open("https://www.juicyads.rocks", "_blank");
 
