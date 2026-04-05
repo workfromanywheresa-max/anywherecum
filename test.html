@@ -12,6 +12,7 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
+  margin: 0;
 }
 
 .preview {
@@ -26,16 +27,27 @@ body {
   object-fit: cover;
 }
 
+/* Ad overlay */
 .ad-overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  display: none;
+  display: flex;
   justify-content: center;
   align-items: center;
   background: rgba(0,0,0,0.7);
+
+  /* Hidden by default */
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ad-overlay.show {
+  visibility: visible;
+  opacity: 1;
 }
 </style>
 </head>
@@ -46,7 +58,7 @@ body {
   <video id="video" src="https://www.w3schools.com/html/mov_bbb.mp4" controls></video>
 
   <div class="ad-overlay" id="adOverlay">
-    <!-- JuicyAds -->
+    <!-- JuicyAds Ad -->
     <ins id="1113664" data-width="308" data-height="298"></ins>
   </div>
 </div>
@@ -60,20 +72,28 @@ window.addEventListener("load", () => {
   const video = document.getElementById("video");
   const ad = document.getElementById("adOverlay");
 
-  function showAd() {
-    ad.style.display = "flex";
+  let adShown = false;
 
-    // Give DOM time before loading ad
+  function showAd() {
+    ad.classList.add("show");
+
     setTimeout(() => {
-      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone': 1113664});
+      window.adsbyjuicy = window.adsbyjuicy || [];
+      window.adsbyjuicy.push({ adzone: 1113664 });
     }, 100);
   }
 
   function hideAd() {
-    ad.style.display = "none";
+    ad.classList.remove("show");
   }
 
-  video.addEventListener("play", showAd);
+  video.addEventListener("play", () => {
+    if (!adShown) {
+      showAd();
+      adShown = true;
+    }
+  });
+
   video.addEventListener("pause", hideAd);
 
 });
