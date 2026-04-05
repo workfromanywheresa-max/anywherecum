@@ -32,11 +32,10 @@ body {
 .live-container {
   display: flex;
   flex-wrap: nowrap;
-  overflow-x: auto;
+  overflow-x: hidden;
   gap: 8px;
   padding: 3px 6px;
   align-items: center;
-  scroll-behavior: smooth;
 }
 
 /* Hide scrollbar */
@@ -114,21 +113,37 @@ body {
 <script>
 const API_URL = "https://anywherecum.pages.dev/videos.json";
 
+let fullData = [];
+let startIndex = 0;
+
+const VISIBLE_COUNT = 7;
+const SLIDE_INTERVAL = 3600000; // 1 hour
+const SLIDE_DURATION = 800;
+
 async function loadLives() {
   try {
     const res = await fetch(API_URL);
-    const fullData = await res.json();
-    renderLives(fullData);
+    fullData = await res.json();
+
+    renderLives();
+
+    setInterval(() => {
+      smoothSlideNext();
+    }, SLIDE_INTERVAL);
+
   } catch (err) {
     console.error("Error loading JSON:", err);
   }
 }
 
-function renderLives(data) {
+function renderLives() {
   const container = document.getElementById("liveContainer");
   container.innerHTML = "";
 
-  data.forEach(item => {
+  for (let i = 0; i < VISIBLE_COUNT; i++) {
+    const index = (startIndex + i) % fullData.length;
+    const item = fullData[index];
+
     const div = document.createElement("div");
     div.className = "live-user";
     div.onclick = () => openLive(item.stream);
@@ -143,16 +158,32 @@ function renderLives(data) {
     `;
 
     container.appendChild(div);
-  });
+  }
 }
 
-// Random views fallback
+/* 🔥 Smooth slide */
+function smoothSlideNext() {
+  const container = document.getElementById("liveContainer");
+
+  const scrollAmount = container.children[0].offsetWidth + 8;
+
+  container.style.transition = `transform ${SLIDE_DURATION}ms ease`;
+  container.style.transform = `translateX(-${scrollAmount}px)`;
+
+  setTimeout(() => {
+    container.style.transition = "none";
+    container.style.transform = "translateX(0px)";
+
+    startIndex = (startIndex + VISIBLE_COUNT) % fullData.length;
+    renderLives();
+  }, SLIDE_DURATION);
+}
+
 function randomViews() {
   const num = Math.floor(Math.random() * 9000 + 100);
   return num > 1000 ? (num / 1000).toFixed(1) + "k" : num;
 }
 
-// Open live
 function openLive(streamUrl) {
   window.open("https://www.juicyads.rocks", "_blank");
 
