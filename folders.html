@@ -27,7 +27,8 @@ body {
   padding-bottom: 6px;
   border-bottom: 2px solid #ff4444;
 }
-  button {
+
+button {
   background: #444;
   color: #fff;
   border: none;
@@ -35,7 +36,7 @@ body {
   border-radius: 5px;
   cursor: pointer;
   margin-bottom: 15px;
-  }
+}
 
 /* LIST */
 .list {
@@ -44,7 +45,7 @@ body {
   gap: 10px;
 }
 
-/* CARD (CLICKABLE) */
+/* CARD */
 .card {
   display: flex;
   align-items: center;
@@ -55,7 +56,6 @@ body {
   cursor: pointer;
 }
 
-/* THUMB */
 .card img {
   width: 80px;
   height: 55px;
@@ -63,7 +63,6 @@ body {
   border-radius: 5px;
 }
 
-/* TEXT */
 .card a {
   color: #fff;
   text-decoration: none;
@@ -110,20 +109,6 @@ body {
   display: flex;
   justify-content: center;
   margin-top: 20px;
-}
-
-.ad-lock {
-  width: 300px;
-  height: 112px;
-  overflow: hidden;
-  position: relative;
-  background: #fff;
-  border-radius: 8px;
-}
-
-.ad-lock * {
-  max-width: 300px !important;
-  max-height: 112px !important;
 }
 
 /* FOOTER */
@@ -185,10 +170,14 @@ OneSignalDeferred.push(async function(OneSignal) {
 
 });
 </script>
-  
+
 </head>
 
 <body>
+
+  <!-- JuicyAds PopUnders v3 Start -->
+<script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p29423b414&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
+<!-- JuicyAds PopUnders v3 End -->
 
   <!-- Google Translate -->
 <div id="google_translate_element"></div>
@@ -200,7 +189,7 @@ OneSignalDeferred.push(async function(OneSignal) {
   top: 0 !important;
   right: 0 !important;
   left: auto !important;
-  z-index: 99999;
+  z-index: 9999;
   margin: 0 !important;
   padding: 0 !important;
 }
@@ -382,7 +371,7 @@ transition: top 0.5s ease;
     font-size:11px;
     padding:1px 6px;
     border-radius:4px;
-    z-index:1000;
+    z-index:100000;
     animation: blink 1s infinite;
   ">
     🔴 Live
@@ -485,13 +474,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 </script>
+  
+<button onclick="history.back()">← Back</button>
 
-  <button onclick="history.back()">← Back</button>
-
-<!-- TITLE -->
 <h2 class="pageTitle">Folders</h2>
 
-  <!-- AD 1 -->
+<!-- AD 1 -->
 <div style="
 text-align: center;
 position: relative;
@@ -562,33 +550,28 @@ animation:moveArrows 1s linear infinite;
   100% { transform: translateX(0); opacity: 1; }
 }
 </style>
-  
-<!-- VIP (LOADER) -->
-<div id="vipList" class="list">
-  <div class="skeleton-card">
-    <div class="skeleton-thumb"></div>
-    <div class="skeleton-text"></div>
-  </div>
-</div>
 
-<!-- FOLDERS (8 LOADERS) -->
+<!-- FOLDERS -->
 <div id="folderList" class="list" style="margin-top:15px;">
 
   <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
   <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
   <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
-  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
-  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
-  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
-  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
-  <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-text"></div></div>
 
 </div>
 
-<!-- AD -->
-<div class="ad-space" style="text-align:center;">
+  <!-- AD -->
+<div class="ad-space" style="
+  text-align:center;
+  min-height:130px; /* ✅ reserves space BEFORE ad loads */
+">
 
-  <div style="display:inline-block; position:relative;">
+  <div style="
+    display:inline-block;
+    position:relative;
+    width:300px;
+    height:112px; /* ✅ fixed ad size */
+  ">
 
     <!-- 🔴 LIVE badge -->
     <div style="
@@ -602,7 +585,7 @@ animation:moveArrows 1s linear infinite;
       font-weight:bold;
       padding:3px 10px;
       border-radius:12px;
-      animation:blink 1s infinite;
+      animation:blinkBottom 1.2s infinite;
       z-index:9999;
       pointer-events:none;
     ">
@@ -615,13 +598,21 @@ animation:moveArrows 1s linear infinite;
       border-radius:12px;
       padding:3px;
       background:#1a1a1a;
+      width:100%;
+      height:100%;
+      overflow:hidden;
       line-height:0;
-      overflow:visible; /* IMPORTANT */
     ">
 
-      <!-- Ad -->
+      <!-- Ad Script -->
       <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-      <ins id="1113665" data-width="300" data-height="112" style="display:block;"></ins>
+
+      <ins id="1113665"
+           data-width="300"
+           data-height="112"
+           style="display:block; width:100%; height:100%;">
+      </ins>
+
       <script type="text/javascript" data-cfasync="false" async>
         (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113665});
       </script>
@@ -631,8 +622,9 @@ animation:moveArrows 1s linear infinite;
   </div>
 </div>
 
+<!-- ✅ UNIQUE animation (no conflicts) -->
 <style>
-@keyframes blink {
+@keyframes blinkBottom {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
@@ -661,43 +653,96 @@ animation:moveArrows 1s linear infinite;
 </footer>
 
 <script>
+/* ================= GLOBAL VIDEO CONTROL ================= */
+let currentPlayingVideo = null;
 
-/* ================= VIP ================= */
-async function loadVIP() {
-  const res = await fetch('./vip.json');
-  const data = await res.json();
+/* ================= INTERSECTION OBSERVER ================= */
+const videoObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    const video = entry.target;
 
-  const container = document.getElementById('vipList');
-  container.innerHTML = '';
+    if (!entry.isIntersecting) {
+      video.pause();
+      video.currentTime = 0;
+      video.dataset.playing = "false";
 
-  if (!data.length) return;
+      if (currentPlayingVideo === video) {
+        currentPlayingVideo = null;
+      }
+    }
+  });
+}, { threshold: 0.3 });
 
-  data.sort((a, b) => new Date(b.date) - new Date(a.date));
+/* ================= CREATE VIDEO ================= */
+function createVideo(url) {
+  const video = document.createElement("video");
 
-  const vip = data[0];
+  video.src = url;
+  video.muted = true;
+  video.loop = true;
+  video.playsInline = true;
+  video.preload = "metadata";
 
-  const card = document.createElement('div');
-  card.className = 'card';
+  video.style.width = "80px";
+  video.style.height = "55px";
+  video.style.objectFit = "cover";
+  video.style.borderRadius = "5px";
 
-  const img = document.createElement('img');
-  img.src = "https://anywherecum.pages.dev/images/" + vip.thumbnail;
+  video.dataset.playing = "false";
 
-  const link = document.createElement('a');
+  videoObserver.observe(video);
 
-  const shortlink = "https://fc-lc.xyz/al0L8qyP";
+  return video;
+}
 
-  link.href = shortlink;
-  link.target = "_blank";
-  link.textContent = vip.folder;
+/* ================= SWIPE LOGIC ================= */
+function addSwipe(card, video, onClick) {
 
-  card.onclick = () => {
-    window.open(shortlink, "_blank");
-  };
+  let startX = 0;
+  let isSwiping = false;
+  const THRESHOLD = 30;
 
-  card.appendChild(img);
-  card.appendChild(link);
+  card.addEventListener("touchstart", (e) => {
+    startX = e.touches[0].clientX;
+    isSwiping = false;
+  });
 
-  container.appendChild(card);
+  card.addEventListener("touchmove", (e) => {
+    if (Math.abs(e.touches[0].clientX - startX) > THRESHOLD) {
+      isSwiping = true;
+    }
+  });
+
+  card.addEventListener("touchend", (e) => {
+    let diff = e.changedTouches[0].clientX - startX;
+
+    if (isSwiping && Math.abs(diff) > THRESHOLD) {
+
+      if (video.dataset.playing === "false") {
+
+        if (currentPlayingVideo && currentPlayingVideo !== video) {
+          currentPlayingVideo.pause();
+          currentPlayingVideo.currentTime = 0;
+          currentPlayingVideo.dataset.playing = "false";
+        }
+
+        video.play();
+        video.dataset.playing = "true";
+        currentPlayingVideo = video;
+
+      } else {
+
+        video.pause();
+        video.currentTime = 0;
+        video.dataset.playing = "false";
+        currentPlayingVideo = null;
+
+      }
+
+    } else {
+      if (onClick) onClick();
+    }
+  });
 }
 
 /* ================= FOLDERS ================= */
@@ -715,8 +760,40 @@ async function loadFolders() {
   const container = document.getElementById('folderList');
   container.innerHTML = '';
 
-  Object.keys(folders)
-    .sort()
+  const vipName = "🔒VIP Exclusive";
+  const allNames = Object.keys(folders).sort();
+
+  /* ================= VIP ================= */
+  if (folders[vipName]) {
+    const vids = folders[vipName].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    const latest = vids[0];
+
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const video = createVideo(latest.preview);
+
+    const link = document.createElement('a');
+    link.href = "https://fc-lc.xyz/IIivW75";
+    link.textContent = vipName;
+
+    card.onclick = () => {
+      window.location.href = link.href;
+    };
+
+    card.appendChild(video);
+    card.appendChild(link);
+
+    addSwipe(card, video, () => {
+      window.location.href = link.href;
+    });
+
+    container.appendChild(card);
+  }
+
+  /* ================= OTHER FOLDERS ================= */
+  allNames
+    .filter(name => name !== vipName)
     .forEach(name => {
 
       const vids = folders[name]
@@ -727,8 +804,7 @@ async function loadFolders() {
       const card = document.createElement('div');
       card.className = 'card';
 
-      const img = document.createElement('img');
-      img.src = "https://anywherecum.pages.dev/images/" + latest.thumbnail;
+      const video = createVideo(latest.preview);
 
       const link = document.createElement('a');
       link.href = "folder.html?folder=" + encodeURIComponent(name);
@@ -738,8 +814,12 @@ async function loadFolders() {
         window.location.href = link.href;
       };
 
-      card.appendChild(img);
+      card.appendChild(video);
       card.appendChild(link);
+
+      addSwipe(card, video, () => {
+        window.location.href = link.href;
+      });
 
       container.appendChild(card);
     });
@@ -747,10 +827,8 @@ async function loadFolders() {
 
 /* ================= INIT ================= */
 window.addEventListener('load', () => {
-  loadVIP();
   loadFolders();
 });
-
 </script>
 
   <script type="module" src="views.js"></script>
