@@ -99,7 +99,8 @@ async function loadLives() {
 
       div.innerHTML = `
         <div class="live-ring">
-          <img src="${item.preview}" alt="">
+          <img src="https://anywherecum.pages.dev/images/${item.thumbnail}" 
+               onerror="this.src='https://anywherecum.pages.dev/default.webp'">
         </div>
         <span class="viewers">👁️ ${item.viewers || randomViews()}</span>
       `;
