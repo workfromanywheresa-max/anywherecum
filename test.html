@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live Circles</title>
+<title>Live Banner</title>
 
 <style>
 body {
@@ -14,28 +14,39 @@ body {
   justify-content: center;
 }
 
-/* 🔥 Wrapper (safe, no overflow) */
+/* 🔥 Banner container */
 .wrapper {
   width: 100%;
   max-width: 600px;
-  overflow: hidden;
-  padding: 10px;
+  padding: 8px;
   box-sizing: border-box;
 }
 
-/* 🔥 Scrollable row */
+/* 🔥 Banner style */
+.banner {
+  background: #1a1a1a;
+  border-radius: 15px;
+  padding: 8px 5px;
+  box-shadow: 0 0 10px rgba(255,0,0,0.2);
+}
+
+/* 🔥 Header */
+.banner-title {
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 5px 10px;
+  margin-bottom: 5px;
+}
+
+/* 🔥 Scroll row */
 .live-container {
   display: flex;
-  gap: 15px;
-  padding: 10px 0;
-
-  width: 100%;
+  gap: 10px;
   overflow-x: auto;
-  overflow-y: hidden;
+  padding: 5px 10px;
 
-  box-sizing: border-box;
   scroll-behavior: smooth;
-
   -webkit-overflow-scrolling: touch;
 }
 
@@ -45,21 +56,23 @@ body {
 }
 
 .live-user {
-  min-width: 90px;
+  min-width: 75px;
   text-align: center;
   color: white;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
-/* 🔥 SMALLER CIRCLE */
+/* 🔥 Smaller circles for banner */
 .live-ring {
-  width: 60px;
-  height: 60px;
+  width: 55px;
+  height: 55px;
   border-radius: 50%;
   padding: 3px;
   background: linear-gradient(45deg, red, orange, red);
   animation: pulse 1.5s infinite;
   position: relative;
+  margin: 0 auto;
 }
 
 .live-ring img {
@@ -72,27 +85,27 @@ body {
 .live-ring::after {
   content: "LIVE";
   position: absolute;
-  bottom: -5px;
+  bottom: -6px;
   left: 50%;
   transform: translateX(-50%);
   background: red;
   color: white;
-  font-size: 9px;
-  padding: 2px 5px;
-  border-radius: 5px;
+  font-size: 8px;
+  padding: 1px 4px;
+  border-radius: 4px;
 }
 
 .viewers {
   display: block;
-  font-size: 11px;
-  margin-top: 6px;
+  font-size: 10px;
+  margin-top: 5px;
   color: #ccc;
 }
 
 /* 🔥 Pulse animation */
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); }
-  70% { box-shadow: 0 0 0 12px rgba(255,0,0,0); }
+  70% { box-shadow: 0 0 0 10px rgba(255,0,0,0); }
   100% { box-shadow: 0 0 0 0 rgba(255,0,0,0); }
 }
 </style>
@@ -101,7 +114,13 @@ body {
 <body>
 
 <div class="wrapper">
-  <div class="live-container" id="liveContainer"></div>
+  <div class="banner">
+
+    <div class="banner-title">🔴 Live Now</div>
+
+    <div class="live-container" id="liveContainer"></div>
+
+  </div>
 </div>
 
 <script>
