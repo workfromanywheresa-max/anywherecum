@@ -291,28 +291,47 @@ footer {
   margin-top: 10px;
 }
 </style>
+  
   <style>
-    .wrapper {
+body {
+  background: #111;
+  margin: 0;
+  font-family: Arial;
+  display: flex;
+  justify-content: center;
+}
+
+/* 🔥 Wrapper with stable height */
+.wrapper {
   width: 100%;
   max-width: 600px;
   padding: 4px;
   box-sizing: border-box;
+
+  min-height: 120px; /* prevents layout jump */
 }
 
+/* 🔥 Banner */
 .banner {
   background: #1a1a1a;
   border-radius: 12px;
   padding: 5px;
   box-shadow: 0 0 8px rgba(255,0,0,0.15);
+
+  min-height: 100px; /* extra stability */
 }
 
+/* 🔥 Container */
 .live-container {
   display: flex;
   gap: 8px;
   padding: 3px 6px;
   align-items: center;
+
+  min-height: 90px; /* locks height */
 }
 
+/* 🔥 Each user */
 .live-user {
   min-width: 65px;
   text-align: center;
@@ -321,6 +340,7 @@ footer {
   flex-shrink: 0;
 }
 
+/* 🔥 Ring */
 .live-ring {
   width: 45px;
   height: 45px;
@@ -330,6 +350,7 @@ footer {
   animation: pulse 1.5s infinite;
   position: relative;
   margin: 0 auto;
+  overflow: hidden; /* prevents flicker */
 }
 
 .live-ring img {
@@ -337,8 +358,10 @@ footer {
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
+  display: block; /* prevents image gap */
 }
 
+/* 🔴 LIVE badge */
 .live-badge {
   position: absolute;
   top: -4px;
@@ -351,6 +374,7 @@ footer {
   font-weight: bold;
 }
 
+/* 👁️ viewers */
 .viewers {
   display: block;
   font-size: 9px;
@@ -358,6 +382,7 @@ footer {
   color: #ccc;
 }
 
+/* ➜ arrow */
 .arrow-ring {
   display: flex;
   align-items: center;
@@ -371,12 +396,13 @@ footer {
   transform: translateX(2px);
 }
 
+/* 🔥 Pulse animation */
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); }
   70% { box-shadow: 0 0 0 8px rgba(255,0,0,0); }
   100% { box-shadow: 0 0 0 0 rgba(255,0,0,0); }
 }
-    </style>
+  </style>
 
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
