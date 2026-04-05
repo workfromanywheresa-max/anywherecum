@@ -305,6 +305,11 @@ footer {
   border-radius: 12px;
   padding: 5px;
   box-shadow: 0 0 8px rgba(255,0,0,0.15);
+
+  height: 130px;            /* 🔒 fixed height */
+  overflow: hidden;         /* prevents overflow shifting */
+  display: flex;
+  align-items: center;      /* vertically centers content */
 }
 
 .live-container {
@@ -312,6 +317,7 @@ footer {
   gap: 8px;
   padding: 3px 6px;
   align-items: center;
+  width: 100%;
 }
 
 .live-user {
