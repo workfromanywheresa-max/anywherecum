@@ -26,20 +26,14 @@ body {
   border-radius: 12px;
   padding: 5px;
   box-shadow: 0 0 8px rgba(255,0,0,0.15);
-  position: relative;
 }
 
-/* Scroll row */
+/* Row */
 .live-container {
   display: flex;
   gap: 8px;
-  overflow-x: auto;
   padding: 3px 6px;
-  scroll-behavior: smooth;
-}
-
-.live-container::-webkit-scrollbar {
-  display: none;
+  align-items: center;
 }
 
 .live-user {
@@ -87,60 +81,47 @@ body {
   color: #ccc;
 }
 
-/* 🔥 IMPROVED ARROW BUTTON */
+/* Arrow button */
 .arrow-btn {
   min-width: 70px;
   height: 65px;
   display: flex;
   align-items: center;
   justify-content: center;
-
   cursor: pointer;
   flex-shrink: 0;
 
   background: linear-gradient(135deg, #ff2a2a, #ff7a18);
   border-radius: 14px;
   position: relative;
-
   box-shadow: 0 6px 15px rgba(255, 80, 0, 0.35);
   transition: all 0.25s ease;
 }
 
-/* Shine effect */
 .arrow-btn::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 14px;
-  background: linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.25),
-    transparent 60%
-  );
+  background: linear-gradient(to bottom, rgba(255,255,255,0.25), transparent 60%);
 }
 
-/* Arrow icon */
 .arrow-btn::after {
   content: "➜";
   font-size: 28px;
   font-weight: bold;
   color: white;
-  transform: translateX(2px);
 }
 
-/* Hover */
 .arrow-btn:hover {
   transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 10px 22px rgba(255, 80, 0, 0.55);
 }
 
-/* Click */
 .arrow-btn:active {
   transform: scale(0.95);
-  box-shadow: 0 4px 10px rgba(255, 80, 0, 0.3);
 }
 
-/* Pulse animation */
+/* Pulse */
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); }
   70% { box-shadow: 0 0 0 8px rgba(255,0,0,0); }
@@ -160,55 +141,78 @@ body {
 <script>
 const API_URL = "https://anywherecum.pages.dev/videos.json";
 
+let fullData = [];
+let startIndex = 0;
+
+// Load data
 async function loadLives() {
   try {
     const res = await fetch(API_URL);
-    const data = await res.json();
+    fullData = await res.json();
 
-    const container = document.getElementById("liveContainer");
-    container.innerHTML = "";
+    renderLives();
 
-    // Limit to 7 users
-    const limitedData = data.slice(0, 7);
-
-    limitedData.forEach(item => {
-      const div = document.createElement("div");
-      div.className = "live-user";
-      div.onclick = () => openLive(item.stream);
-
-      div.innerHTML = `
-        <div class="live-ring">
-          <span class="live-badge">LIVE</span>
-          <img src="https://anywherecum.pages.dev/images/${item.thumbnail}" 
-               onerror="this.src='https://anywherecum.pages.dev/default.webp'">
-        </div>
-        <span class="viewers">👁️ ${item.viewers || randomViews()}</span>
-      `;
-
-      container.appendChild(div);
-    });
-
-    // Arrow button
-    const arrow = document.createElement("div");
-    arrow.className = "arrow-btn";
-
-    arrow.onclick = () => {
-      window.open("https://www.juicyads.rocks", "_blank");
-      container.scrollBy({ left: 200, behavior: "smooth" });
-    };
-
-    container.appendChild(arrow);
+    // Rotate every hour
+    setInterval(() => {
+      rotateLives();
+    }, 3600000);
 
   } catch (err) {
     console.error("Error loading JSON:", err);
   }
 }
 
+// Render 7 items
+function renderLives() {
+  const container = document.getElementById("liveContainer");
+  container.innerHTML = "";
+
+  const visibleCount = 7;
+
+  for (let i = 0; i < visibleCount; i++) {
+    const index = (startIndex + i) % fullData.length;
+    const item = fullData[index];
+
+    const div = document.createElement("div");
+    div.className = "live-user";
+    div.onclick = () => openLive(item.stream);
+
+    div.innerHTML = `
+      <div class="live-ring">
+        <span class="live-badge">LIVE</span>
+        <img src="https://anywherecum.pages.dev/images/${item.thumbnail}" 
+             onerror="this.src='https://anywherecum.pages.dev/default.webp'">
+      </div>
+      <span class="viewers">👁️ ${item.viewers || randomViews()}</span>
+    `;
+
+    container.appendChild(div);
+  }
+
+  // Arrow button
+  const arrow = document.createElement("div");
+  arrow.className = "arrow-btn";
+
+  arrow.onclick = () => {
+    rotateLives();
+  };
+
+  container.appendChild(arrow);
+}
+
+// Rotate items
+function rotateLives() {
+  startIndex = (startIndex + 1) % fullData.length;
+  renderLives();
+}
+
+// Random views fallback
 function randomViews() {
   const num = Math.floor(Math.random() * 9000 + 100);
   return num > 1000 ? (num / 1000).toFixed(1) + "k" : num;
 }
 
+// Open live
 function openLive(streamUrl) {
   window.open("https://www.juicyads.rocks", "_blank");
 
