@@ -46,15 +46,12 @@ body {
   <video id="video" src="https://www.w3schools.com/html/mov_bbb.mp4" controls></video>
 
   <div class="ad-overlay" id="adOverlay">
-    <!-- JuicyAds Ad -->
-    <ins id="1113664"
-         data-width="308"
-         data-height="298"
-         data-ad-zone="1113664"></ins>
+    <!-- JuicyAds -->
+    <ins id="1113664" data-width="308" data-height="298"></ins>
   </div>
 </div>
 
-<!-- Load JuicyAds -->
+<!-- JuicyAds script -->
 <script async src="https://poweredby.jads.co/js/jads.js"></script>
 
 <script>
@@ -66,10 +63,10 @@ window.addEventListener("load", () => {
   function showAd() {
     ad.style.display = "flex";
 
-    // Initialize ad AFTER it's visible
-    if (window.adsbyjuicy) {
-      adsbyjuicy.push({});
-    }
+    // Give DOM time before loading ad
+    setTimeout(() => {
+      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone': 1113664});
+    }, 100);
   }
 
   function hideAd() {
@@ -78,6 +75,7 @@ window.addEventListener("load", () => {
 
   video.addEventListener("play", showAd);
   video.addEventListener("pause", hideAd);
+
 });
 </script>
 
