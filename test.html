@@ -26,7 +26,7 @@ body {
   display: flex;
   gap: 15px;
   padding: 10px;
-  width: max-content; /* allows horizontal scroll */
+  width: max-content;
 }
 
 .live-container::-webkit-scrollbar {
@@ -40,9 +40,10 @@ body {
   cursor: pointer;
 }
 
+/* 🔥 SMALLER CIRCLE */
 .live-ring {
-  width: 80px;
-  height: 80px;
+  width: 60px;   /* reduced */
+  height: 60px;  /* reduced */
   border-radius: 50%;
   padding: 3px;
   background: linear-gradient(45deg, red, orange, red);
@@ -65,15 +66,15 @@ body {
   transform: translateX(-50%);
   background: red;
   color: white;
-  font-size: 10px;
-  padding: 2px 6px;
+  font-size: 9px;
+  padding: 2px 5px;
   border-radius: 5px;
 }
 
 .viewers {
   display: block;
-  font-size: 12px;
-  margin-top: 8px;
+  font-size: 11px;
+  margin-top: 6px;
   color: #ccc;
 }
 
