@@ -2,44 +2,63 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Animated Circles</title>
+<title>Live Stream</title>
+
 <style>
 body {
   margin: 0;
-  background: #0d0d0d;
-  overflow: hidden;
+  background: #111;
+  color: white;
+  font-family: Arial;
+  text-align: center;
 }
 
-.circle {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  animation: float 10s infinite ease-in-out;
+#adScreen {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
-@keyframes float {
-  0%   { transform: translateY(0) scale(1); }
-  50%  { transform: translateY(-100px) scale(1.2); }
-  100% { transform: translateY(0) scale(1); }
+button {
+  padding: 12px 20px;
+  margin-top: 20px;
+  cursor: pointer;
 }
 </style>
 </head>
+
 <body>
 
+<h2>Live Stream Page</h2>
+
+<button onclick="showAd()">Enter Live</button>
+
+<!-- Ad Screen -->
+<div id="adScreen">
+
+  <p>Advertisement</p>
+
+  <!-- Your ad script goes HERE -->
+  <script type="text/javascript" src="https://js.juicyads.com/jp.php?c=446423z2s214u4r2p29423b414&u=https%3A%2F%2Fwww.juicyads.rocks"></script>
+
+  <button onclick="enterStream()">Continue to Stream</button>
+
+</div>
+
 <script>
-// Create random circles
-for (let i = 0; i < 20; i++) {
-  let circle = document.createElement("div");
-  circle.className = "circle";
+function showAd() {
+  document.getElementById("adScreen").style.display = "flex";
+}
 
-  let size = Math.random() * 80 + 20;
-  circle.style.width = size + "px";
-  circle.style.height = size + "px";
-  circle.style.left = Math.random() * window.innerWidth + "px";
-  circle.style.top = Math.random() * window.innerHeight + "px";
-  circle.style.animationDuration = (Math.random() * 10 + 5) + "s";
-
-  document.body.appendChild(circle);
+function enterStream() {
+  window.location.href = "stream.html"; // your live stream page
 }
 </script>
 
