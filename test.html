@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Animated Circles</title>
+<style>
+body {
+  margin: 0;
+  background: #0d0d0d;
+  overflow: hidden;
+}
+
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  animation: float 10s infinite ease-in-out;
+}
+
+@keyframes float {
+  0%   { transform: translateY(0) scale(1); }
+  50%  { transform: translateY(-100px) scale(1.2); }
+  100% { transform: translateY(0) scale(1); }
+}
+</style>
+</head>
+<body>
+
+<script>
+// Create random circles
+for (let i = 0; i < 20; i++) {
+  let circle = document.createElement("div");
+  circle.className = "circle";
+
+  let size = Math.random() * 80 + 20;
+  circle.style.width = size + "px";
+  circle.style.height = size + "px";
+  circle.style.left = Math.random() * window.innerWidth + "px";
+  circle.style.top = Math.random() * window.innerHeight + "px";
+  circle.style.animationDuration = (Math.random() * 10 + 5) + "s";
+
+  document.body.appendChild(circle);
+}
+</script>
+
+</body>
+</html>
