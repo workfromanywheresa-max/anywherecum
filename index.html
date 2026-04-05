@@ -291,6 +291,92 @@ footer {
   margin-top: 10px;
 }
 </style>
+  <style>
+    .wrapper {
+  width: 100%;
+  max-width: 600px;
+  padding: 4px;
+  box-sizing: border-box;
+}
+
+.banner {
+  background: #1a1a1a;
+  border-radius: 12px;
+  padding: 5px;
+  box-shadow: 0 0 8px rgba(255,0,0,0.15);
+}
+
+.live-container {
+  display: flex;
+  gap: 8px;
+  padding: 3px 6px;
+  align-items: center;
+}
+
+.live-user {
+  min-width: 65px;
+  text-align: center;
+  color: white;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.live-ring {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(45deg, red, orange, red);
+  animation: pulse 1.5s infinite;
+  position: relative;
+  margin: 0 auto;
+}
+
+.live-ring img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.live-badge {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  background: red;
+  color: white;
+  font-size: 8px;
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.viewers {
+  display: block;
+  font-size: 9px;
+  margin-top: 3px;
+  color: #ccc;
+}
+
+.arrow-ring {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(45deg, #ff0000, #ff7b00);
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.arrow {
+  transform: translateX(2px);
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); }
+  70% { box-shadow: 0 0 0 8px rgba(255,0,0,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,0,0,0); }
+}
+    </style>
 
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
@@ -522,71 +608,12 @@ function googleTranslateElementInit() {
   <img id="headerImage" src="https://anywherecum.pages.dev/images/header-image.webp" alt="Header">
 </header>
 
-  <!-- Ad1 (Top Ad) -->
-<div style="
-  text-align: center;
-  position: relative;
-  width: 320px;
-  height: 50px;
-  margin: auto;
-  border: 2px solid red;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #fff;
-  z-index: 1;
-">
-
-  <!-- 🔴 LIVE Badge (Blinking + Glow) -->
-  <div style="
-    position: absolute;
-    top: 4px;
-    left: 6px;
-    background: red;
-    color: white;
-    font-size: 10px;
-    font-weight: bold;
-    padding: 3px 8px;
-    border-radius: 999px;
-    z-index: 9999;
-    pointer-events: none;
-    animation: blinkLive 1s infinite;
-  ">
-    🔴 LIVE
+  <div class="wrapper">
+  <div class="banner">
+    <div class="live-container" id="liveContainer"></div>
   </div>
-
-  <div id="adContainer" style="width:100%; height:100%; position: relative;">
-    <!-- JuicyAds v3.0 -->
-    <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-    <ins id="1113670" data-width="300" data-height="62"></ins>
-    <script type="text/javascript" data-cfasync="false" async>
-      (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113670});
-    </script>
-    <!--JuicyAds END-->
   </div>
-
-</div>
-
-<!-- Blinking Animation -->
-<style>
-@keyframes blinkLive {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-    box-shadow: 0 0 0px rgba(255, 0, 0, 0);
-  }
-  50% {
-    opacity: 0.4;
-    transform: scale(1.1);
-    box-shadow: 0 0 8px rgba(255, 0, 0, 0.9);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-    box-shadow: 0 0 0px rgba(255, 0, 0, 0);
-  }
-}
-</style>
-
+  
 <h2>🎥 Latest Video 🎥</h2>
 <div id="latestVideo"></div>
 
@@ -995,6 +1022,88 @@ document.addEventListener("click", function (e) {
 
 });
 </script>
+
+  <script>
+const API_URL = "https://anywherecum.pages.dev/live.json";
+
+let fullData = [];
+let startIndex = 0;
+
+const VISIBLE_COUNT = 4;
+const SLIDE_INTERVAL = 3600000;
+
+async function loadLives() {
+  try {
+    const res = await fetch(API_URL);
+    fullData = await res.json();
+
+    renderLives();
+
+    setInterval(() => {
+      startIndex = (startIndex + VISIBLE_COUNT) % fullData.length;
+      renderLives();
+    }, SLIDE_INTERVAL);
+
+  } catch (err) {
+    console.error("Error loading JSON:", err);
+  }
+}
+
+function renderLives() {
+  const container = document.getElementById("liveContainer");
+  container.innerHTML = "";
+
+  for (let i = 0; i < VISIBLE_COUNT; i++) {
+    const index = (startIndex + i) % fullData.length;
+    const item = fullData[index];
+
+    const div = document.createElement("div");
+    div.className = "live-user";
+
+    div.onclick = () => {
+      window.open("https://www.juicyads.rocks", "_blank");
+      setTimeout(() => {
+        window.location.href = item.stream;
+      }, 1000);
+    };
+
+    div.innerHTML = `
+      <div class="live-ring">
+        <span class="live-badge">LIVE</span>
+        <img src="https://anywherecum.pages.dev/images/${item.thumbnail}"
+             onerror="this.src='https://anywherecum.pages.dev/default.webp'">
+      </div>
+      <span class="viewers">👁️ ${item.viewers || randomViews()}</span>
+    `;
+
+    container.appendChild(div);
+  }
+
+  // Arrow (ADS)
+  const arrow = document.createElement("div");
+  arrow.className = "live-user";
+
+  arrow.innerHTML = `
+    <div class="live-ring arrow-ring">
+      <span class="arrow">➜</span>
+    </div>
+    <span class="viewers">More</span>
+  `;
+
+  arrow.onclick = () => {
+    window.open("https://www.juicyads.rocks", "_blank");
+  };
+
+  container.appendChild(arrow);
+}
+
+function randomViews() {
+  const num = Math.floor(Math.random() * 9000 + 100);
+  return num > 1000 ? (num / 1000).toFixed(1) + "k" : num;
+}
+
+loadLives();
+  </script>
       
   <script type="module" src="views.js"></script>
 
