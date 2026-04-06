@@ -1039,21 +1039,28 @@ let fullData = [];
 let startIndex = 0;
 
 const VISIBLE_COUNT = 4;
-const SLIDE_INTERVAL = 5000; // 1 minute
+const SLIDE_INTERVAL = 5000; // ✅ 5 seconds
 
 let intervalStarted = false;
 
 async function loadLives() {
   try {
-    const res = await fetch(API_URL + "?t=" + Date.now()); // prevent cache
+    const res = await fetch(API_URL + "?t=" + Date.now());
     fullData = await res.json();
-
-    console.log("Total items:", fullData.length); // debug
 
     if (!Array.isArray(fullData) || fullData.length === 0) {
       console.error("JSON invalid or empty");
       return;
     }
+
+    // ✅ RESTORE POSITION AFTER REFRESH
+    const savedIndex = parseInt(localStorage.getItem("liveIndex")) || 0;
+    const savedTime = parseInt(localStorage.getItem("liveTime")) || Date.now();
+
+    const elapsed = Date.now() - savedTime;
+    const stepsPassed = Math.floor(elapsed / SLIDE_INTERVAL);
+
+    startIndex = (savedIndex + stepsPassed) % fullData.length;
 
     renderLives();
 
@@ -1062,14 +1069,18 @@ async function loadLives() {
 
       setInterval(async () => {
 
-        // refresh JSON every cycle
+        // refresh JSON
         try {
           const res = await fetch(API_URL + "?t=" + Date.now());
           fullData = await res.json();
         } catch(e){}
 
-        // ✅ FIX: move ONE step (not 4)
+        // move 1 step
         startIndex = (startIndex + 1) % fullData.length;
+
+        // ✅ SAVE STATE
+        localStorage.setItem("liveIndex", startIndex);
+        localStorage.setItem("liveTime", Date.now());
 
         renderLives();
 
@@ -1084,7 +1095,6 @@ async function loadLives() {
 function renderLives() {
   const container = document.getElementById("liveContainer");
 
-  // fade out
   container.style.opacity = "0";
 
   setTimeout(() => {
@@ -1119,7 +1129,7 @@ function renderLives() {
       container.appendChild(div);
     }
 
-    // ➜ Arrow button
+    // Arrow
     const arrow = document.createElement("div");
     arrow.className = "live-user";
 
@@ -1136,7 +1146,6 @@ function renderLives() {
 
     container.appendChild(arrow);
 
-    // fade in
     container.style.opacity = "1";
 
   }, 200);
@@ -1148,7 +1157,7 @@ function randomViews() {
 }
 
 loadLives();
-         </script>
+        </script>
       
   <script type="module" src="views.js"></script>
 
