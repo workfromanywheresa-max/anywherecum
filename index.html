@@ -1039,9 +1039,22 @@ let fullData = [];
 let startIndex = 0;
 
 const VISIBLE_COUNT = 4;
-const SLIDE_INTERVAL = 10000; // ✅ 10 seconds
+const SLIDE_INTERVAL = 10000; // 10 seconds
 
 let intervalStarted = false;
+
+// ✅ PRELOAD IMAGES
+function preloadImages(data) {
+  const promises = data.map(item => {
+    return new Promise(resolve => {
+      const img = new Image();
+      img.src = `https://anywherecum.pages.dev/images/${item.thumbnail}`;
+      img.onload = resolve;
+      img.onerror = resolve;
+    });
+  });
+  return Promise.all(promises);
+}
 
 async function loadLives() {
   try {
@@ -1052,6 +1065,9 @@ async function loadLives() {
       console.error("JSON invalid or empty");
       return;
     }
+
+    // ✅ PRELOAD BEFORE FIRST RENDER
+    await preloadImages(fullData);
 
     // ✅ RESTORE POSITION AFTER REFRESH
     const savedIndex = parseInt(localStorage.getItem("liveIndex")) || 0;
@@ -1069,10 +1085,14 @@ async function loadLives() {
 
       setInterval(async () => {
 
-        // refresh JSON
+        // ✅ refresh JSON
         try {
           const res = await fetch(API_URL + "?t=" + Date.now());
           fullData = await res.json();
+
+          // ✅ preload new images (background)
+          preloadImages(fullData);
+
         } catch(e){}
 
         // move 1 step
@@ -1095,7 +1115,8 @@ async function loadLives() {
 function renderLives() {
   const container = document.getElementById("liveContainer");
 
-  container.style.opacity = "0";
+  // smoother than opacity flicker
+  container.style.visibility = "hidden";
 
   setTimeout(() => {
 
@@ -1129,7 +1150,7 @@ function renderLives() {
       container.appendChild(div);
     }
 
-    // Arrow
+    // ✅ Arrow button
     const arrow = document.createElement("div");
     arrow.className = "live-user";
 
@@ -1146,9 +1167,9 @@ function renderLives() {
 
     container.appendChild(arrow);
 
-    container.style.opacity = "1";
+    container.style.visibility = "visible";
 
-  }, 200);
+  }, 100);
 }
 
 function randomViews() {
@@ -1157,7 +1178,7 @@ function randomViews() {
 }
 
 loadLives();
-        </script>
+    </script>
       
   <script type="module" src="views.js"></script>
 
