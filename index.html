@@ -1037,17 +1037,22 @@ let fullData = [];
 let startIndex = 0;
 
 const VISIBLE_COUNT = 4;
-const SLIDE_INTERVAL = 3600000;
+const SLIDE_INTERVAL = 60000; // ✅ 1 minute
 
 async function loadLives() {
   try {
     const res = await fetch(API_URL);
     fullData = await res.json();
 
+    if (!Array.isArray(fullData) || fullData.length === 0) {
+      console.error("JSON is empty or invalid");
+      return;
+    }
+
     renderLives();
 
     setInterval(() => {
-      startIndex = (startIndex + VISIBLE_COUNT) % fullData.length;
+      startIndex = (startIndex + 1) % fullData.length; // ✅ FIXED (move 1 step)
       renderLives();
     }, SLIDE_INTERVAL);
 
@@ -1060,7 +1065,11 @@ function renderLives() {
   const container = document.getElementById("liveContainer");
   container.innerHTML = "";
 
-  for (let i = 0; i < VISIBLE_COUNT; i++) {
+  if (!fullData.length) return;
+
+  const count = Math.min(VISIBLE_COUNT, fullData.length);
+
+  for (let i = 0; i < count; i++) {
     const index = (startIndex + i) % fullData.length;
     const item = fullData[index];
 
@@ -1086,7 +1095,7 @@ function renderLives() {
     container.appendChild(div);
   }
 
-  // Arrow (ADS)
+  // ➜ Arrow (ADS trigger)
   const arrow = document.createElement("div");
   arrow.className = "live-user";
 
