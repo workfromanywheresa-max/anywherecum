@@ -306,18 +306,20 @@ footer {
   padding: 5px;
   box-shadow: 0 0 8px rgba(255,0,0,0.15);
 
-  height: 55px;            /* 🔒 fixed height */
-  overflow: hidden;         /* prevents overflow shifting */
+  height: 55px;
+  overflow: hidden;
   display: flex;
-  align-items: center;      /* vertically centers content */
+  align-items: center;
 }
 
+/* ✅ IMPORTANT (animation fix) */
 .live-container {
   display: flex;
   gap: 8px;
   padding: 3px 6px;
   align-items: center;
   width: 100%;
+  transition: opacity 0.4s ease; /* smooth change */
 }
 
 .live-user {
@@ -1037,17 +1039,19 @@ let fullData = [];
 let startIndex = 0;
 
 const VISIBLE_COUNT = 4;
-const SLIDE_INTERVAL = 60000; // ✅ 1 minute
+const SLIDE_INTERVAL = 60000; // 1 minute
 
 let intervalStarted = false;
 
 async function loadLives() {
   try {
-    const res = await fetch(API_URL);
+    const res = await fetch(API_URL + "?t=" + Date.now()); // prevent cache
     fullData = await res.json();
 
+    console.log("Total items:", fullData.length); // debug
+
     if (!Array.isArray(fullData) || fullData.length === 0) {
-      console.error("JSON is empty or invalid");
+      console.error("JSON invalid or empty");
       return;
     }
 
@@ -1056,10 +1060,19 @@ async function loadLives() {
     if (!intervalStarted) {
       intervalStarted = true;
 
-      setInterval(() => {
-        // ✅ Move by full visible count (BIG FIX)
-        startIndex = (startIndex + VISIBLE_COUNT) % fullData.length;
+      setInterval(async () => {
+
+        // refresh JSON every cycle
+        try {
+          const res = await fetch(API_URL + "?t=" + Date.now());
+          fullData = await res.json();
+        } catch(e){}
+
+        // ✅ FIX: move ONE step (not 4)
+        startIndex = (startIndex + 1) % fullData.length;
+
         renderLives();
+
       }, SLIDE_INTERVAL);
     }
 
@@ -1070,52 +1083,63 @@ async function loadLives() {
 
 function renderLives() {
   const container = document.getElementById("liveContainer");
-  container.innerHTML = "";
 
-  const count = Math.min(VISIBLE_COUNT, fullData.length);
+  // fade out
+  container.style.opacity = "0";
 
-  for (let i = 0; i < count; i++) {
-    const index = (startIndex + i) % fullData.length;
-    const item = fullData[index];
+  setTimeout(() => {
 
-    const div = document.createElement("div");
-    div.className = "live-user";
+    container.innerHTML = "";
 
-    div.onclick = () => {
-      window.open("https://www.juicyads.rocks", "_blank");
-      setTimeout(() => {
-        window.location.href = item.stream;
-      }, 1000);
-    };
+    const count = Math.min(VISIBLE_COUNT, fullData.length);
 
-    div.innerHTML = `
-      <div class="live-ring">
-        <span class="live-badge">LIVE</span>
-        <img src="https://anywherecum.pages.dev/images/${item.thumbnail}"
-             onerror="this.src='https://anywherecum.pages.dev/default.webp'">
+    for (let i = 0; i < count; i++) {
+      const index = (startIndex + i) % fullData.length;
+      const item = fullData[index];
+
+      const div = document.createElement("div");
+      div.className = "live-user";
+
+      div.onclick = () => {
+        window.open("https://www.juicyads.rocks", "_blank");
+        setTimeout(() => {
+          window.location.href = item.stream;
+        }, 1000);
+      };
+
+      div.innerHTML = `
+        <div class="live-ring">
+          <span class="live-badge">LIVE</span>
+          <img src="https://anywherecum.pages.dev/images/${item.thumbnail}"
+               onerror="this.src='https://anywherecum.pages.dev/default.webp'">
+        </div>
+        <span class="viewers">👁️ ${item.viewers || randomViews()}</span>
+      `;
+
+      container.appendChild(div);
+    }
+
+    // ➜ Arrow button
+    const arrow = document.createElement("div");
+    arrow.className = "live-user";
+
+    arrow.innerHTML = `
+      <div class="live-ring arrow-ring">
+        <span class="arrow">➜</span>
       </div>
-      <span class="viewers">👁️ ${item.viewers || randomViews()}</span>
+      <span class="viewers">More</span>
     `;
 
-    container.appendChild(div);
-  }
+    arrow.onclick = () => {
+      window.open("https://www.juicyads.rocks", "_blank");
+    };
 
-  // ➜ Arrow (ADS trigger)
-  const arrow = document.createElement("div");
-  arrow.className = "live-user";
+    container.appendChild(arrow);
 
-  arrow.innerHTML = `
-    <div class="live-ring arrow-ring">
-      <span class="arrow">➜</span>
-    </div>
-    <span class="viewers">More</span>
-  `;
+    // fade in
+    container.style.opacity = "1";
 
-  arrow.onclick = () => {
-    window.open("https://www.juicyads.rocks", "_blank");
-  };
-
-  container.appendChild(arrow);
+  }, 200);
 }
 
 function randomViews() {
@@ -1124,7 +1148,7 @@ function randomViews() {
 }
 
 loadLives();
-  </script>
+         </script>
       
   <script type="module" src="views.js"></script>
 
