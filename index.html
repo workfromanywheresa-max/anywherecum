@@ -1039,6 +1039,8 @@ let startIndex = 0;
 const VISIBLE_COUNT = 4;
 const SLIDE_INTERVAL = 60000; // ✅ 1 minute
 
+let intervalStarted = false;
+
 async function loadLives() {
   try {
     const res = await fetch(API_URL);
@@ -1051,10 +1053,15 @@ async function loadLives() {
 
     renderLives();
 
-    setInterval(() => {
-      startIndex = (startIndex + 1) % fullData.length; // ✅ FIXED (move 1 step)
-      renderLives();
-    }, SLIDE_INTERVAL);
+    if (!intervalStarted) {
+      intervalStarted = true;
+
+      setInterval(() => {
+        // ✅ Move by full visible count (BIG FIX)
+        startIndex = (startIndex + VISIBLE_COUNT) % fullData.length;
+        renderLives();
+      }, SLIDE_INTERVAL);
+    }
 
   } catch (err) {
     console.error("Error loading JSON:", err);
@@ -1064,8 +1071,6 @@ async function loadLives() {
 function renderLives() {
   const container = document.getElementById("liveContainer");
   container.innerHTML = "";
-
-  if (!fullData.length) return;
 
   const count = Math.min(VISIBLE_COUNT, fullData.length);
 
