@@ -652,7 +652,7 @@ animation:moveArrows 1s linear infinite;
 </div>
 </footer>
 
-<script>
+  <script>
 /* ================= GLOBAL VIDEO CONTROL ================= */
 let currentPlayingVideo = null;
 
@@ -778,14 +778,14 @@ async function loadFolders() {
     link.textContent = vipName;
 
     card.onclick = () => {
-      window.open(link.href, "_blank"); // ✅ OPEN IN NEW TAB
+      window.open(link.href, "_blank");
     };
 
     card.appendChild(video);
     card.appendChild(link);
 
     addSwipe(card, video, () => {
-      window.open(link.href, "_blank"); // ✅ OPEN IN NEW TAB
+      window.open(link.href, "_blank");
     });
 
     container.appendChild(card);
@@ -829,7 +829,7 @@ async function loadFolders() {
 window.addEventListener('load', () => {
   loadFolders();
 });
-      </script>
+  </script>
 
   <script type="module" src="views.js"></script>
 
