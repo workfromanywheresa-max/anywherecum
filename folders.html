@@ -718,7 +718,6 @@ function addSwipe(card, video, onClick) {
 
     if (isSwiping && Math.abs(diff) > THRESHOLD) {
 
-      /* ================= SWIPE → PLAY/PAUSE ONLY ================= */
       if (video.dataset.playing === "false") {
 
         if (currentPlayingVideo && currentPlayingVideo !== video) {
@@ -741,7 +740,6 @@ function addSwipe(card, video, onClick) {
       }
 
     } else {
-      /* ================= TAP → NAVIGATION ================= */
       if (onClick) onClick();
     }
   });
@@ -779,18 +777,17 @@ async function loadFolders() {
     link.href = "https://fc-lc.xyz/IIivW75";
     link.textContent = vipName;
 
-    /* TAP → SAME TAB */
-    addSwipe(card, video, () => {
-      window.location.href = link.href;
-    });
-
-    card.addEventListener("click", (e) => {
-      e.stopPropagation();
-      window.location.href = link.href;
-    });
+    /* OPEN IN NEW TAB (ONLY ON CLICK) */
+    card.onclick = () => {
+      window.open(link.href, "_blank");
+    };
 
     card.appendChild(video);
     card.appendChild(link);
+
+    addSwipe(card, video, () => {
+      window.open(link.href, "_blank");
+    });
 
     container.appendChild(card);
   }
@@ -814,18 +811,16 @@ async function loadFolders() {
       link.href = "folder.html?folder=" + encodeURIComponent(name);
       link.textContent = name;
 
-      /* TAP → SAME TAB */
-      addSwipe(card, video, () => {
+      card.onclick = () => {
         window.location.href = link.href;
-      });
-
-      card.addEventListener("click", (e) => {
-        e.stopPropagation();
-        window.location.href = link.href;
-      });
+      };
 
       card.appendChild(video);
       card.appendChild(link);
+
+      addSwipe(card, video, () => {
+        window.location.href = link.href;
+      });
 
       container.appendChild(card);
     });
@@ -835,7 +830,7 @@ async function loadFolders() {
 window.addEventListener('load', () => {
   loadFolders();
 });
-  </script>      
+        </script>
     
   <script type="module" src="views.js"></script>
 
