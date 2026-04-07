@@ -778,9 +778,19 @@ async function loadFolders() {
     link.href = "https://fc-lc.xyz/IIivW75";
     link.textContent = vipName;
 
-    /* CLICK → NEW TAB */
+    /* CLICK → ALWAYS NEW TAB */
     card.addEventListener("click", (e) => {
       e.preventDefault();
+      e.stopPropagation();
+
+      window.open(link.href, "_blank", "noopener,noreferrer");
+    });
+
+    /* ALSO FORCE LINK TO NEW TAB */
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
       window.open(link.href, "_blank", "noopener,noreferrer");
     });
 
@@ -835,7 +845,7 @@ async function loadFolders() {
 window.addEventListener('load', () => {
   loadFolders();
 });
-             </script>
+  </script>
   
   <script type="module" src="views.js"></script>
 
