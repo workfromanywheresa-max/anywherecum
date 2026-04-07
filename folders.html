@@ -778,14 +778,14 @@ async function loadFolders() {
     link.textContent = vipName;
 
     card.onclick = () => {
-      window.location.href = link.href;
+      window.open(link.href, "_blank"); // ✅ OPEN IN NEW TAB
     };
 
     card.appendChild(video);
     card.appendChild(link);
 
     addSwipe(card, video, () => {
-      window.location.href = link.href;
+      window.open(link.href, "_blank"); // ✅ OPEN IN NEW TAB
     });
 
     container.appendChild(card);
@@ -829,7 +829,7 @@ async function loadFolders() {
 window.addEventListener('load', () => {
   loadFolders();
 });
-</script>
+      </script>
 
   <script type="module" src="views.js"></script>
 
