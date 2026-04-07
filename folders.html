@@ -652,7 +652,7 @@ animation:moveArrows 1s linear infinite;
 </div>
 </footer>
 
-      <script>
+<script>
 /* ================= GLOBAL VIDEO CONTROL ================= */
 let currentPlayingVideo = null;
 
@@ -696,7 +696,7 @@ function createVideo(url) {
 }
 
 /* ================= SWIPE LOGIC ================= */
-function addSwipe(card, video, onClick) {
+function addSwipe(card, video, onSwipe) {
 
   let startX = 0;
   let isSwiping = false;
@@ -717,8 +717,7 @@ function addSwipe(card, video, onClick) {
     let diff = e.changedTouches[0].clientX - startX;
 
     if (isSwiping && Math.abs(diff) > THRESHOLD) {
-
-      e.stopPropagation(); // 🔥 FIX: prevent click firing after swipe
+      e.stopPropagation();
 
       if (video.dataset.playing === "false") {
 
@@ -733,22 +732,21 @@ function addSwipe(card, video, onClick) {
         currentPlayingVideo = video;
 
       } else {
-
         video.pause();
         video.currentTime = 0;
         video.dataset.playing = "false";
         currentPlayingVideo = null;
-
       }
 
     } else {
-      if (onClick) onClick();
+      if (onSwipe) onSwipe();
     }
   });
 }
 
-/* ================= FOLDERS ================= */
+/* ================= MAIN ================= */
 async function loadFolders() {
+
   const res = await fetch('./videos.json');
   const data = await res.json();
 
@@ -767,6 +765,7 @@ async function loadFolders() {
 
   /* ================= VIP ================= */
   if (folders[vipName]) {
+
     const vids = folders[vipName].sort((a,b)=>new Date(b.date)-new Date(a.date));
     const latest = vids[0];
 
@@ -777,12 +776,15 @@ async function loadFolders() {
 
     const link = document.createElement('a');
     link.href = "https://fc-lc.xyz/IIivW75";
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
     link.textContent = vipName;
 
-    /* CLICK → NEW TAB */
-    card.onclick = () => {
-      window.open(link.href, "_blank");
-    };
+    /* CLICK → REAL LINK (NEW TAB) */
+    card.addEventListener("click", (e) => {
+      e.preventDefault();
+      link.click(); // ✅ fixes double back issue
+    });
 
     card.appendChild(video);
     card.appendChild(link);
@@ -814,9 +816,9 @@ async function loadFolders() {
       link.href = "folder.html?folder=" + encodeURIComponent(name);
       link.textContent = name;
 
-      card.onclick = () => {
+      card.addEventListener("click", () => {
         window.location.href = link.href;
-      };
+      });
 
       card.appendChild(video);
       card.appendChild(link);
