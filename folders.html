@@ -652,7 +652,7 @@ animation:moveArrows 1s linear infinite;
 </div>
 </footer>
 
-  <script>
+      <script>
 /* ================= GLOBAL VIDEO CONTROL ================= */
 let currentPlayingVideo = null;
 
@@ -740,7 +740,7 @@ function addSwipe(card, video, onClick) {
       }
 
     } else {
-      if (onClick) onClick();
+      if (onClick) onClick(); // ONLY tap triggers navigation
     }
   });
 }
@@ -776,17 +776,17 @@ async function loadFolders() {
     const link = document.createElement('a');
     link.href = "https://fc-lc.xyz/IIivW75";
     link.textContent = vipName;
-    link.target = "_blank"; // ✅ open in new tab
 
+    /* TAP → OPEN IN NEW TAB */
     card.onclick = () => {
-      window.open(link.href, "_blank"); // ✅ open VIP in new tab
+      window.open(link.href, "_blank");
     };
 
     card.appendChild(video);
     card.appendChild(link);
 
     addSwipe(card, video, () => {
-      window.open(link.href, "_blank"); // ✅ swipe also opens new tab
+      window.open(link.href, "_blank"); // tap only
     });
 
     container.appendChild(card);
@@ -830,7 +830,7 @@ async function loadFolders() {
 window.addEventListener('load', () => {
   loadFolders();
 });
-            </script>
+      </script>
     
   <script type="module" src="views.js"></script>
 
