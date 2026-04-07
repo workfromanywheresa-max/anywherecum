@@ -777,7 +777,7 @@ async function loadFolders() {
     link.href = "https://fc-lc.xyz/IIivW75";
     link.textContent = vipName;
 
-    /* OPEN IN NEW TAB (ONLY ON CLICK) */
+    /* CLICK → NEW TAB */
     card.onclick = () => {
       window.open(link.href, "_blank");
     };
@@ -785,8 +785,9 @@ async function loadFolders() {
     card.appendChild(video);
     card.appendChild(link);
 
+    /* SWIPE → SAME TAB */
     addSwipe(card, video, () => {
-      window.open(link.href, "_blank");
+      window.location.href = link.href;
     });
 
     container.appendChild(card);
@@ -830,7 +831,7 @@ async function loadFolders() {
 window.addEventListener('load', () => {
   loadFolders();
 });
-        </script>
+  </script>
     
   <script type="module" src="views.js"></script>
 
