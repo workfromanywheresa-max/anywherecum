@@ -652,7 +652,7 @@ animation:moveArrows 1s linear infinite;
 </div>
 </footer>
 
-  <script>
+      <script>
 /* ================= GLOBAL VIDEO CONTROL ================= */
 let currentPlayingVideo = null;
 
@@ -717,6 +717,8 @@ function addSwipe(card, video, onClick) {
     let diff = e.changedTouches[0].clientX - startX;
 
     if (isSwiping && Math.abs(diff) > THRESHOLD) {
+
+      e.stopPropagation(); // 🔥 FIX: prevent click firing after swipe
 
       if (video.dataset.playing === "false") {
 
@@ -831,7 +833,7 @@ async function loadFolders() {
 window.addEventListener('load', () => {
   loadFolders();
 });
-  </script>
+      </script>
     
   <script type="module" src="views.js"></script>
 
