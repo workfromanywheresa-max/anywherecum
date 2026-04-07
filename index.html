@@ -780,8 +780,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function createPreviewItem(video, folderURL, linkText, folderName) {
 
     const li = document.createElement('li');
-
-    // ✅ FIX: folderName now properly passed
     li.dataset.folder = folderName;
 
     const container = document.createElement('div');
@@ -897,13 +895,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     container.addEventListener('click', () => {
-      window.location.href = folderURL;
+      if (folderName === VIP_FOLDER) {
+        window.open(folderURL, '_blank'); // ✅ VIP opens new tab
+      } else {
+        window.location.href = folderURL;
+      }
     });
 
     const link = document.createElement('a');
     link.className = "folder-link";
     link.href = folderURL;
     link.textContent = linkText;
+
+    // ✅ Make VIP link open in new tab
+    if (folderName === VIP_FOLDER) {
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+    }
 
     li.appendChild(container);
     li.appendChild(link);
@@ -946,7 +954,7 @@ document.addEventListener('DOMContentLoaded', () => {
           latest,
           folderURL,
           folderName === VIP_FOLDER ? "🔒 VIP Exclusive" : folderName,
-          folderName // ✅ FIX HERE
+          folderName
         );
 
         folderList.appendChild(li);
@@ -966,7 +974,7 @@ document.addEventListener('DOMContentLoaded', () => {
           latest,
           "folder.html?folder=" + encodeURIComponent(latest.folder),
           "Watch Now: New Video Available!!!",
-          latest.folder // ✅ FIX HERE
+          latest.folder
         );
 
         latestDiv.appendChild(li);
@@ -993,7 +1001,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
 });
-</script>
+            </script>
 
 <!-- COOKIE BANNER -->
 <div id="cookieBanner" style="position:fixed; bottom:-100px; left:0; width:100%; background:#222; color:#fff; padding:12px 15px; text-align:center; font-size:10px; z-index:9998; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; transition: bottom 0.5s;">
