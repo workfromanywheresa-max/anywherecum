@@ -93,38 +93,39 @@
 </div>
 
 <script>
-let exchangeRate = 0;
+let zarToUsdRate = 0;
 
 const donateBtn = document.getElementById("donateBtn");
 const customInput = document.getElementById("customAmount");
 const usdDisplay = document.getElementById("usdDisplay");
 
-// Your API key
-const API_KEY = "b8e212b46ce1104a38b2d216223cad93";
+const API_URL = "https://v6.exchangerate-api.com/v6/30db43baae500e2f09681cdf/latest/USD";
 
-// Fetch live rate from exchangerate.host
+// Fetch live rates
 async function fetchRate() {
   try {
-    const res = await fetch(`https://api.exchangerate.host/latest?base=ZAR&symbols=USD&access_key=${API_KEY}`);
+    const res = await fetch(API_URL);
     const data = await res.json();
 
-    if (data && data.rates && data.rates.USD) {
-      exchangeRate = data.rates.USD;
-    }
+    // USD → ZAR rate
+    const usdToZar = data.conversion_rates.ZAR;
+
+    // Convert ZAR → USD
+    zarToUsdRate = 1 / usdToZar;
   } catch (err) {
-    console.log("Rate fetch failed:", err);
+    console.log("Error fetching rate:", err);
   }
 
   handleInput();
 }
 
-// Run once on load
+// Run once
 fetchRate();
 
 // Update every 30 seconds
 setInterval(fetchRate, 30000);
 
-// Update when user types
+// Input listener
 customInput.addEventListener("input", handleInput);
 
 function handleInput() {
@@ -140,11 +141,11 @@ function handleInput() {
   donateBtn.disabled = false;
   donateBtn.classList.add("active");
 
-  if (exchangeRate > 0) {
-    const usd = (value * exchangeRate).toFixed(2);
+  if (zarToUsdRate > 0) {
+    const usd = (value * zarToUsdRate).toFixed(2);
     usdDisplay.innerText = `$${usd} USD`;
   } else {
-    usdDisplay.innerText = "Loading USD...";
+    usdDisplay.innerText = "Loading...";
   }
 }
 
