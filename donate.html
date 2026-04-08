@@ -68,6 +68,22 @@
   .donate-btn:hover.active {
     background: #333;
   }
+
+  .paypal-btn {
+    margin-top: 15px;
+    width: 100%;
+    font-size: 18px;
+    background: #0070ba;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .paypal-btn:hover {
+    background: #005c99;
+  }
 </style>
 </head>
 
@@ -89,6 +105,11 @@
 
   <button id="donateBtn" class="donate-btn" onclick="goDonate()" disabled>
     💰 Donate Now
+  </button>
+
+  <!-- PayPal Button -->
+  <button class="paypal-btn" onclick="goPayPal()">
+    💳 Donate with PayPal
   </button>
 </div>
 
@@ -157,6 +178,11 @@ function goDonate() {
 
   window.location.href =
     "https://donation.workfromanywhere-sa.workers.dev/?amount=" + amount;
+}
+
+// PayPal redirect
+function goPayPal() {
+  window.location.href = "https://paypal.me/anywherecum";
 }
 </script>
 
