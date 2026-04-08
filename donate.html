@@ -35,6 +35,11 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
 
+  .logo {
+    width: 140px;
+    margin-bottom: 10px;
+  }
+
   input {
     width: 80%;
     padding: 12px;
@@ -82,19 +87,10 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
   }
 
   .paypal-btn:hover {
     background: #005c99;
-  }
-
-  .logo {
-    height: 22px;
   }
 </style>
 </head>
@@ -102,16 +98,16 @@
 <body>
 
 <div class="box">
-  <h2>Support Our Work</h2>
+  <h2>🙏 Support Our Work</h2>
 
   <p>
     Your support helps us keep this project running and growing.
-    Every donation makes a real difference.
+    Every donation makes a real difference ❤️
   </p>
 
-  <!-- PayFast Card -->
+  <!-- 💰 PayFast Card -->
   <div class="card">
-    <h3>Donate with PayFast (ZAR)</h3>
+    <img class="logo" src="https://www.payfast.co.za/wp-content/uploads/2019/05/payfast-logo.png" alt="PayFast">
 
     <div id="usdDisplay">$0.00 USD</div>
 
@@ -122,12 +118,11 @@
     </button>
   </div>
 
-  <!-- PayPal Card -->
+  <!-- 💳 PayPal Card -->
   <div class="card">
-    <h3>Donate with PayPal</h3>
+    <img class="logo" src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg" alt="PayPal">
 
     <button class="paypal-btn" onclick="goPayPal()">
-      <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" class="logo" alt="PayPal">
       Donate with PayPal
     </button>
   </div>
@@ -142,6 +137,7 @@ const usdDisplay = document.getElementById("usdDisplay");
 
 const API_URL = "https://donation.workfromanywhere-sa.workers.dev/rate";
 
+// Fetch exchange rate
 async function fetchRate() {
   try {
     const res = await fetch(API_URL);
@@ -160,6 +156,7 @@ async function fetchRate() {
 fetchRate();
 setInterval(fetchRate, 30000);
 
+// Input listener
 customInput.addEventListener("input", handleInput);
 
 function handleInput() {
@@ -183,6 +180,7 @@ function handleInput() {
   }
 }
 
+// PayFast redirect
 function goDonate() {
   const amount = parseFloat(customInput.value);
 
@@ -192,6 +190,7 @@ function goDonate() {
     "https://donation.workfromanywhere-sa.workers.dev/?amount=" + amount;
 }
 
+// PayPal redirect (NO AMOUNT)
 function goPayPal() {
   window.location.href = "https://www.paypal.me/anywherecum";
 }
