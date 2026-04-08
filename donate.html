@@ -99,14 +99,19 @@ const donateBtn = document.getElementById("donateBtn");
 const customInput = document.getElementById("customAmount");
 const usdDisplay = document.getElementById("usdDisplay");
 
-// 🔥 Fetch live rate
+// 🔥 Fetch live rate every second
 async function fetchRate() {
   const res = await fetch("https://api.frankfurter.app/latest?from=ZAR&to=USD");
   const data = await res.json();
   exchangeRate = data.rates.USD;
+
+  handleInput();
 }
 
-// Load rate once
+// Start live updates every 1 second
+setInterval(fetchRate, 1000);
+
+// Run once on load
 fetchRate();
 
 function handleInput() {
