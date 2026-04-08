@@ -99,12 +99,18 @@ const donateBtn = document.getElementById("donateBtn");
 const customInput = document.getElementById("customAmount");
 const usdDisplay = document.getElementById("usdDisplay");
 
-// Fetch live rate (every 30 seconds)
+// Your API key
+const API_KEY = "b8e212b46ce1104a38b2d216223cad93";
+
+// Fetch live rate from exchangerate.host
 async function fetchRate() {
   try {
-    const res = await fetch("https://api.frankfurter.app/latest?from=ZAR&to=USD");
+    const res = await fetch(`https://api.exchangerate.host/latest?base=ZAR&symbols=USD&access_key=${API_KEY}`);
     const data = await res.json();
-    exchangeRate = data.rates.USD || 0;
+
+    if (data && data.rates && data.rates.USD) {
+      exchangeRate = data.rates.USD;
+    }
   } catch (err) {
     console.log("Rate fetch failed:", err);
   }
@@ -115,7 +121,7 @@ async function fetchRate() {
 // Run once on load
 fetchRate();
 
-// Update every 30 seconds (not 1 second)
+// Update every 30 seconds
 setInterval(fetchRate, 30000);
 
 // Update when user types
