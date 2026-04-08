@@ -32,20 +32,20 @@
     margin-bottom: 20px;
   }
 
+  #usdDisplay {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+
   input {
     width: 80%;
     padding: 12px;
-    margin-top: 20px;
     font-size: 16px;
     border-radius: 5px;
     border: 1px solid #ccc;
     text-align: center;
-  }
-
-  #usdDisplay {
-    margin-top: 10px;
-    font-weight: bold;
-    color: #333;
   }
 
   .donate-btn {
@@ -81,61 +81,60 @@
     Every donation makes a real difference ❤️
   </p>
 
-  <h3>Enter Donation Amount (ZAR)</h3>
+  <!-- USD ABOVE INPUT -->
+  <div id="usdDisplay"></div>
 
-  <input type="number" id="customAmount" placeholder="Enter amount (R)" oninput="handleInput()">
+  <input type="number" id="customAmount" placeholder="Enter amount (R)">
 
-  <!-- USD display -->
-  <div id="usdDisplay">≈ $0.00 USD</div>
-
-  <button id="donateBtn" class="donate-btn" onclick="goDonate()" disabled>
+  <button id="donateBtn" class="donate-btn" disabled>
     💰 Donate Now
   </button>
 </div>
 
 <script>
+let exchangeRate = null;
+
 const donateBtn = document.getElementById("donateBtn");
 const customInput = document.getElementById("customAmount");
 const usdDisplay = document.getElementById("usdDisplay");
 
-let exchangeRate = 0;
-
-// Default display
-usdDisplay.innerText = "≈ $0.00 USD";
-
 // 🔥 Fetch live exchange rate (ZAR → USD)
-fetch("https://api.exchangerate.host/latest?base=ZAR&symbols=USD")
-  .then(res => res.json())
-  .then(data => {
-    if (data && data.rates && data.rates.USD) {
-      exchangeRate = data.rates.USD;
-      handleInput(); // update if user already typed something
-    }
-  })
-  .catch(err => {
-    console.error("Failed to fetch exchange rate", err);
-  });
-
-function handleInput() {
-  const value = parseFloat(customInput.value);
-
-  if (!isNaN(value) && value > 0) {
-    donateBtn.disabled = false;
-    donateBtn.classList.add("active");
-
-    const usd = exchangeRate
-      ? (value * exchangeRate).toFixed(2)
-      : "…";
-
-    usdDisplay.innerText = `≈ $${usd} USD`;
-  } else {
-    donateBtn.disabled = true;
-    donateBtn.classList.remove("active");
-    usdDisplay.innerText = "≈ $0.00 USD";
+async function fetchRate() {
+  try {
+    const res = await fetch("https://api.exchangerate.host/latest?base=ZAR&symbols=USD");
+    const data = await res.json();
+    exchangeRate = data.rates.USD;
+  } catch (err) {
+    exchangeRate = null;
   }
 }
 
-function goDonate() {
+fetchRate();
+
+// ⚡ Auto update while typing
+customInput.addEventListener("input", () => {
+  const value = parseFloat(customInput.value);
+
+  if (value && value > 0) {
+    donateBtn.disabled = false;
+    donateBtn.classList.add("active");
+
+    if (exchangeRate) {
+      const usd = (value * exchangeRate).toFixed(2);
+      usdDisplay.innerText = `≈ $${usd} USD`;
+    } else {
+      usdDisplay.innerText = "";
+    }
+
+  } else {
+    donateBtn.disabled = true;
+    donateBtn.classList.remove("active");
+    usdDisplay.innerText = "";
+  }
+});
+
+// 💰 Donate action
+donateBtn.addEventListener("click", () => {
   const value = parseFloat(customInput.value);
 
   if (!value || value <= 0) {
@@ -145,7 +144,7 @@ function goDonate() {
 
   window.location.href =
     "https://donation.workfromanywhere-sa.workers.dev/?amount=" + value;
-}
+});
 </script>
 
 </body>
