@@ -99,19 +99,20 @@ const donateBtn = document.getElementById("donateBtn");
 const customInput = document.getElementById("customAmount");
 const usdDisplay = document.getElementById("usdDisplay");
 
-const API_URL = "https://v6.exchangerate-api.com/v6/30db43baae500e2f09681cdf/latest/USD";
+// Your Cloudflare Worker
+const API_URL = "https://donation.workfromanywhere-sa.workers.dev/rate";
 
-// Fetch live rates
+// Fetch rate from Worker
 async function fetchRate() {
   try {
     const res = await fetch(API_URL);
     const data = await res.json();
 
-    // USD → ZAR rate
-    const usdToZar = data.conversion_rates.ZAR;
+    const usdToZar = data.usdToZar;
 
     // Convert ZAR → USD
     zarToUsdRate = 1 / usdToZar;
+
   } catch (err) {
     console.log("Error fetching rate:", err);
   }
