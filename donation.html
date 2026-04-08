@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Support Us</title>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 40px;
+    background: #f5f5f5;
+  }
+
+  .box {
+    max-width: 350px;
+    margin: auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  h2 {
+    margin-bottom: 10px;
+  }
+
+  p {
+    color: #555;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  button {
+    padding: 10px 15px;
+    margin: 10px;
+    border: none;
+    background: black;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+  }
+
+  button:hover {
+    background: #333;
+  }
+
+  .donate-btn {
+    margin-top: 20px;
+    width: 100%;
+    font-size: 18px;
+    background: #000;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>🙏 Support Our Work</h2>
+
+  <p>
+    Your support helps us keep this project running and growing.
+    Every donation, big or small, makes a real difference ❤️
+  </p>
+
+  <h3>Select an Amount</h3>
+
+  <button onclick="donate(20)">R20</button>
+  <button onclick="donate(50)">R50</button>
+  <button onclick="donate(100)">R100</button>
+
+  <button class="donate-btn" onclick="goDonate()">💰 Donate Now</button>
+</div>
+
+<script>
+let selectedAmount = 50;
+
+function donate(amount) {
+  selectedAmount = amount;
+}
+
+function goDonate() {
+  window.location.href = "https://donation.workfromanywhere-sa.workers.dev/?amount=" + selectedAmount;
+}
+</script>
+
+</body>
+</html>
