@@ -185,12 +185,17 @@ function goDonate() {
     "https://donation.workfromanywhere-sa.workers.dev/?amount=" + amount;
 }
 
-// PayPal redirect (dynamic amount in ZAR not supported directly)
+// PayPal redirect using your link + amount
 function goPayPal() {
+  const amount = parseFloat(customInput.value);
+
+  if (!amount || amount <= 0) {
+    alert("Enter an amount first");
+    return;
+  }
+
   window.location.href =
-    "https://www.paypal.com/cgi-bin/webscr?cmd=_xclick" +
-    "&business=your-paypal-email@example.com" +
-    "&currency_code=ZAR";
+    "https://paypal.me/anywherecum/" + amount;
 }
 </script>
 
