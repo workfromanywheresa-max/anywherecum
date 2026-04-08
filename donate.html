@@ -115,7 +115,7 @@
 
   <!-- 💳 PayPal Card -->
   <div class="card">
-    <h3>💳 Donate with PayPal (USD)</h3>
+    <h3>💳 Donate with PayPal</h3>
 
     <button class="paypal-btn" onclick="goPayPal()">
       Donate with PayPal
@@ -185,17 +185,9 @@ function goDonate() {
     "https://donation.workfromanywhere-sa.workers.dev/?amount=" + amount;
 }
 
-// PayPal redirect using your link + amount
+// PayPal redirect (NO AMOUNT)
 function goPayPal() {
-  const amount = parseFloat(customInput.value);
-
-  if (!amount || amount <= 0) {
-    alert("Enter an amount first");
-    return;
-  }
-
-  window.location.href =
-    "https://paypal.me/anywherecum/" + amount;
+  window.location.href = "https://www.paypal.me/anywherecum";
 }
 </script>
 
