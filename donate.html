@@ -14,12 +14,8 @@
   }
 
   .box {
-    max-width: 350px;
+    max-width: 400px;
     margin: auto;
-    background: #fff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
 
   h2 {
@@ -29,13 +25,20 @@
   p {
     color: #555;
     font-size: 14px;
-    margin-bottom: 20px;
+  }
+
+  .card {
+    background: #fff;
+    padding: 25px;
+    margin-top: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
 
   input {
     width: 80%;
     padding: 12px;
-    margin-top: 20px;
+    margin-top: 15px;
     font-size: 16px;
     border-radius: 5px;
     border: 1px solid #ccc;
@@ -49,7 +52,7 @@
   }
 
   .donate-btn {
-    margin-top: 20px;
+    margin-top: 15px;
     width: 100%;
     font-size: 18px;
     background: #888;
@@ -97,20 +100,27 @@
     Every donation makes a real difference ❤️
   </p>
 
-  <h3>Enter Donation Amount (ZAR)</h3>
+  <!-- 💰 PayFast Card -->
+  <div class="card">
+    <h3>💰 Donate with PayFast (ZAR)</h3>
 
-  <div id="usdDisplay">$0.00 USD</div>
+    <div id="usdDisplay">$0.00 USD</div>
 
-  <input type="number" id="customAmount" placeholder="Enter amount (R)">
+    <input type="number" id="customAmount" placeholder="Enter amount (R)">
 
-  <button id="donateBtn" class="donate-btn" onclick="goDonate()" disabled>
-    💰 Donate Now
-  </button>
+    <button id="donateBtn" class="donate-btn" onclick="goDonate()" disabled>
+      Donate with PayFast
+    </button>
+  </div>
 
-  <!-- PayPal Button -->
-  <button class="paypal-btn" onclick="goPayPal()">
-    💳 Donate with PayPal
-  </button>
+  <!-- 💳 PayPal Card -->
+  <div class="card">
+    <h3>💳 Donate with PayPal (USD)</h3>
+
+    <button class="paypal-btn" onclick="goPayPal()">
+      Donate with PayPal
+    </button>
+  </div>
 </div>
 
 <script>
@@ -120,18 +130,15 @@ const donateBtn = document.getElementById("donateBtn");
 const customInput = document.getElementById("customAmount");
 const usdDisplay = document.getElementById("usdDisplay");
 
-// Your Cloudflare Worker
 const API_URL = "https://donation.workfromanywhere-sa.workers.dev/rate";
 
-// Fetch rate from Worker
+// Fetch exchange rate
 async function fetchRate() {
   try {
     const res = await fetch(API_URL);
     const data = await res.json();
 
     const usdToZar = data.usdToZar;
-
-    // Convert ZAR → USD
     zarToUsdRate = 1 / usdToZar;
 
   } catch (err) {
@@ -141,10 +148,7 @@ async function fetchRate() {
   handleInput();
 }
 
-// Run once
 fetchRate();
-
-// Update every 30 seconds
 setInterval(fetchRate, 30000);
 
 // Input listener
@@ -171,6 +175,7 @@ function handleInput() {
   }
 }
 
+// PayFast redirect
 function goDonate() {
   const amount = parseFloat(customInput.value);
 
@@ -180,9 +185,12 @@ function goDonate() {
     "https://donation.workfromanywhere-sa.workers.dev/?amount=" + amount;
 }
 
-// PayPal redirect
+// PayPal redirect (dynamic amount in ZAR not supported directly)
 function goPayPal() {
-  window.location.href = "https://paypal.me/anywherecum";
+  window.location.href =
+    "https://www.paypal.com/cgi-bin/webscr?cmd=_xclick" +
+    "&business=your-paypal-email@example.com" +
+    "&currency_code=ZAR";
 }
 </script>
 
