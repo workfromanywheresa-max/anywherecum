@@ -83,10 +83,10 @@
 
   <h3>Enter Donation Amount (ZAR)</h3>
 
-  <!-- USD display -->
-  <div id="usdDisplay"></div>
-
   <input type="number" id="customAmount" placeholder="Enter amount (R)" oninput="handleInput()">
+
+  <!-- USD display -->
+  <div id="usdDisplay">≈ $0.00 USD</div>
 
   <button id="donateBtn" class="donate-btn" onclick="goDonate()" disabled>
     💰 Donate Now
@@ -94,43 +94,57 @@
 </div>
 
 <script>
-let selectedAmount = null;
-
 const donateBtn = document.getElementById("donateBtn");
 const customInput = document.getElementById("customAmount");
 const usdDisplay = document.getElementById("usdDisplay");
 
-// ⚡ Example exchange rate (update if needed)
-const ZAR_TO_USD = 18.5;
+let exchangeRate = 0;
+
+// Default display
+usdDisplay.innerText = "≈ $0.00 USD";
+
+// 🔥 Fetch live exchange rate (ZAR → USD)
+fetch("https://api.exchangerate.host/latest?base=ZAR&symbols=USD")
+  .then(res => res.json())
+  .then(data => {
+    if (data && data.rates && data.rates.USD) {
+      exchangeRate = data.rates.USD;
+      handleInput(); // update if user already typed something
+    }
+  })
+  .catch(err => {
+    console.error("Failed to fetch exchange rate", err);
+  });
 
 function handleInput() {
   const value = parseFloat(customInput.value);
 
-  if (value && value > 0) {
-    selectedAmount = value;
+  if (!isNaN(value) && value > 0) {
     donateBtn.disabled = false;
     donateBtn.classList.add("active");
 
-    // Convert to USD
-    const usd = (value / ZAR_TO_USD).toFixed(2);
+    const usd = exchangeRate
+      ? (value * exchangeRate).toFixed(2)
+      : "…";
 
     usdDisplay.innerText = `≈ $${usd} USD`;
   } else {
-    selectedAmount = null;
     donateBtn.disabled = true;
     donateBtn.classList.remove("active");
-    usdDisplay.innerText = "";
+    usdDisplay.innerText = "≈ $0.00 USD";
   }
 }
 
 function goDonate() {
-  if (!selectedAmount) {
+  const value = parseFloat(customInput.value);
+
+  if (!value || value <= 0) {
     alert("Please enter a valid amount.");
     return;
   }
 
   window.location.href =
-    "https://donation.workfromanywhere-sa.workers.dev/?amount=" + selectedAmount;
+    "https://donation.workfromanywhere-sa.workers.dev/?amount=" + value;
 }
 </script>
 
