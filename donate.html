@@ -42,6 +42,12 @@
     text-align: center;
   }
 
+  #usdDisplay {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #333;
+  }
+
   .donate-btn {
     margin-top: 20px;
     width: 100%;
@@ -75,9 +81,12 @@
     Every donation makes a real difference ❤️
   </p>
 
-  <h3>Enter Donation Amount</h3>
+  <h3>Enter Donation Amount (ZAR)</h3>
 
   <input type="number" id="customAmount" placeholder="Enter amount (R)" oninput="handleInput()">
+
+  <!-- USD display -->
+  <div id="usdDisplay"></div>
 
   <button id="donateBtn" class="donate-btn" onclick="goDonate()" disabled>
     💰 Donate Now
@@ -89,18 +98,28 @@ let selectedAmount = null;
 
 const donateBtn = document.getElementById("donateBtn");
 const customInput = document.getElementById("customAmount");
+const usdDisplay = document.getElementById("usdDisplay");
+
+// ⚡ Example exchange rate (update if needed)
+const ZAR_TO_USD = 18.5;
 
 function handleInput() {
-  const value = parseInt(customInput.value);
+  const value = parseFloat(customInput.value);
 
   if (value && value > 0) {
     selectedAmount = value;
     donateBtn.disabled = false;
     donateBtn.classList.add("active");
+
+    // Convert to USD
+    const usd = (value / ZAR_TO_USD).toFixed(2);
+
+    usdDisplay.innerText = `≈ $${usd} USD`;
   } else {
     selectedAmount = null;
     donateBtn.disabled = true;
     donateBtn.classList.remove("active");
+    usdDisplay.innerText = "";
   }
 }
 
