@@ -84,7 +84,7 @@
   <h3>Enter Donation Amount (ZAR)</h3>
 
   <!-- USD display -->
-  <div id="usdDisplay"></div>
+  <div id="usdDisplay">$0.00 USD</div>
 
   <input type="number" id="customAmount" placeholder="Enter amount (R)" oninput="handleInput()">
 
@@ -100,27 +100,33 @@ const donateBtn = document.getElementById("donateBtn");
 const customInput = document.getElementById("customAmount");
 const usdDisplay = document.getElementById("usdDisplay");
 
-// ⚡ Example exchange rate (update if needed)
+// ⚡ Exchange rate (you can update this anytime)
 const ZAR_TO_USD = 18.5;
+
+// ✅ Default display
+usdDisplay.innerText = "$0.00 USD";
 
 function handleInput() {
   const value = parseFloat(customInput.value);
 
-  if (value && value > 0) {
-    selectedAmount = value;
-    donateBtn.disabled = false;
-    donateBtn.classList.add("active");
-
-    // Convert to USD
-    const usd = (value / ZAR_TO_USD).toFixed(2);
-
-    usdDisplay.innerText = `≈ $${usd} USD`;
-  } else {
+  if (!value || value <= 0) {
     selectedAmount = null;
     donateBtn.disabled = true;
     donateBtn.classList.remove("active");
-    usdDisplay.innerText = "";
+
+    // Reset display
+    usdDisplay.innerText = "$0.00 USD";
+    return;
   }
+
+  selectedAmount = value;
+  donateBtn.disabled = false;
+  donateBtn.classList.add("active");
+
+  // Convert ZAR → USD
+  const usd = (value / ZAR_TO_USD).toFixed(2);
+
+  usdDisplay.innerText = `$${usd} USD`;
 }
 
 function goDonate() {
