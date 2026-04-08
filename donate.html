@@ -93,61 +93,48 @@
 </div>
 
 <script>
-let selectedAmount = null;
 let exchangeRate = null;
 
 const donateBtn = document.getElementById("donateBtn");
 const customInput = document.getElementById("customAmount");
 const usdDisplay = document.getElementById("usdDisplay");
 
-// 🔥 Fetch live exchange rate (ZAR → USD)
+// 🔥 Fetch live rate
 async function fetchRate() {
-  try {
-    const res = await fetch("https://api.exchangerate.host/latest?base=ZAR&symbols=USD");
-    const data = await res.json();
-    exchangeRate = data.rates.USD;
-  } catch (err) {
-    console.error("Failed to fetch rate:", err);
-    exchangeRate = null;
-  }
+  const res = await fetch("https://api.frankfurter.app/latest?from=ZAR&to=USD");
+  const data = await res.json();
+  exchangeRate = data.rates.USD;
 }
 
-// Run once on page load
+// Load rate once
 fetchRate();
 
 function handleInput() {
   const value = parseFloat(customInput.value);
 
   if (!value || value <= 0) {
-    selectedAmount = null;
     donateBtn.disabled = true;
     donateBtn.classList.remove("active");
     usdDisplay.innerText = "$0.00 USD";
     return;
   }
 
-  selectedAmount = value;
   donateBtn.disabled = false;
   donateBtn.classList.add("active");
 
-  // If rate not loaded yet, show loading
-  if (!exchangeRate) {
-    usdDisplay.innerText = "Loading rate...";
-    return;
+  if (exchangeRate) {
+    const usd = (value * exchangeRate).toFixed(2);
+    usdDisplay.innerText = `$${usd} USD`;
   }
-
-  const usd = (value * exchangeRate).toFixed(2);
-  usdDisplay.innerText = `$${usd} USD`;
 }
 
 function goDonate() {
-  if (!selectedAmount) {
-    alert("Please enter a valid amount.");
-    return;
-  }
+  const amount = parseFloat(customInput.value);
+
+  if (!amount || amount <= 0) return;
 
   window.location.href =
-    "https://donation.workfromanywhere-sa.workers.dev/?amount=" + selectedAmount;
+    "https://donation.workfromanywhere-sa.workers.dev/?amount=" + amount;
 }
 </script>
 
