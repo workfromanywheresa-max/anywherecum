@@ -32,20 +32,20 @@
     margin-bottom: 20px;
   }
 
-  #usdDisplay {
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 10px;
-    font-size: 18px;
-  }
-
   input {
     width: 80%;
     padding: 12px;
+    margin-top: 20px;
     font-size: 16px;
     border-radius: 5px;
     border: 1px solid #ccc;
     text-align: center;
+  }
+
+  #usdDisplay {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #333;
   }
 
   .donate-btn {
@@ -81,70 +81,57 @@
     Every donation makes a real difference ❤️
   </p>
 
-  <!-- USD ABOVE INPUT -->
+  <h3>Enter Donation Amount (ZAR)</h3>
+
+  <!-- USD display -->
   <div id="usdDisplay"></div>
 
-  <input type="number" id="customAmount" placeholder="Enter amount (R)">
+  <input type="number" id="customAmount" placeholder="Enter amount (R)" oninput="handleInput()">
 
-  <button id="donateBtn" class="donate-btn" disabled>
+  <button id="donateBtn" class="donate-btn" onclick="goDonate()" disabled>
     💰 Donate Now
   </button>
 </div>
 
 <script>
-let exchangeRate = null;
+let selectedAmount = null;
 
 const donateBtn = document.getElementById("donateBtn");
 const customInput = document.getElementById("customAmount");
 const usdDisplay = document.getElementById("usdDisplay");
 
-// 🔥 Fetch live exchange rate (ZAR → USD)
-async function fetchRate() {
-  try {
-    const res = await fetch("https://api.exchangerate.host/latest?base=ZAR&symbols=USD");
-    const data = await res.json();
-    exchangeRate = data.rates.USD;
-  } catch (err) {
-    exchangeRate = null;
-  }
-}
+// ⚡ Example exchange rate (update if needed)
+const ZAR_TO_USD = 18.5;
 
-fetchRate();
-
-// ⚡ Auto update while typing
-customInput.addEventListener("input", () => {
+function handleInput() {
   const value = parseFloat(customInput.value);
 
   if (value && value > 0) {
+    selectedAmount = value;
     donateBtn.disabled = false;
     donateBtn.classList.add("active");
 
-    if (exchangeRate) {
-      const usd = (value * exchangeRate).toFixed(2);
-      usdDisplay.innerText = `≈ $${usd} USD`;
-    } else {
-      usdDisplay.innerText = "";
-    }
+    // Convert to USD
+    const usd = (value / ZAR_TO_USD).toFixed(2);
 
+    usdDisplay.innerText = `≈ $${usd} USD`;
   } else {
+    selectedAmount = null;
     donateBtn.disabled = true;
     donateBtn.classList.remove("active");
     usdDisplay.innerText = "";
   }
-});
+}
 
-// 💰 Donate action
-donateBtn.addEventListener("click", () => {
-  const value = parseFloat(customInput.value);
-
-  if (!value || value <= 0) {
+function goDonate() {
+  if (!selectedAmount) {
     alert("Please enter a valid amount.");
     return;
   }
 
   window.location.href =
-    "https://donation.workfromanywhere-sa.workers.dev/?amount=" + value;
-});
+    "https://donation.workfromanywhere-sa.workers.dev/?amount=" + selectedAmount;
+}
 </script>
 
 </body>
