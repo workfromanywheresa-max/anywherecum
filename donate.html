@@ -85,7 +85,7 @@
 
   <div id="usdDisplay">$0.00 USD</div>
 
-  <input type="number" id="customAmount" placeholder="Enter amount (R)" oninput="handleInput()">
+  <input type="number" id="customAmount" placeholder="Enter amount (R)">
 
   <button id="donateBtn" class="donate-btn" onclick="goDonate()" disabled>
     💰 Donate Now
@@ -93,26 +93,33 @@
 </div>
 
 <script>
-let exchangeRate = null;
+let exchangeRate = 0;
 
 const donateBtn = document.getElementById("donateBtn");
 const customInput = document.getElementById("customAmount");
 const usdDisplay = document.getElementById("usdDisplay");
 
-// 🔥 Fetch live rate every second
+// Fetch live rate (every 30 seconds)
 async function fetchRate() {
-  const res = await fetch("https://api.frankfurter.app/latest?from=ZAR&to=USD");
-  const data = await res.json();
-  exchangeRate = data.rates.USD;
+  try {
+    const res = await fetch("https://api.frankfurter.app/latest?from=ZAR&to=USD");
+    const data = await res.json();
+    exchangeRate = data.rates.USD || 0;
+  } catch (err) {
+    console.log("Rate fetch failed:", err);
+  }
 
   handleInput();
 }
 
-// Start live updates every 1 second
-setInterval(fetchRate, 1000);
-
 // Run once on load
 fetchRate();
+
+// Update every 30 seconds (not 1 second)
+setInterval(fetchRate, 30000);
+
+// Update when user types
+customInput.addEventListener("input", handleInput);
 
 function handleInput() {
   const value = parseFloat(customInput.value);
@@ -127,9 +134,11 @@ function handleInput() {
   donateBtn.disabled = false;
   donateBtn.classList.add("active");
 
-  if (exchangeRate) {
+  if (exchangeRate > 0) {
     const usd = (value * exchangeRate).toFixed(2);
     usdDisplay.innerText = `$${usd} USD`;
+  } else {
+    usdDisplay.innerText = "Loading USD...";
   }
 }
 
