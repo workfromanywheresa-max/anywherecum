@@ -122,7 +122,7 @@
   <h2>💎 VIP Access</h2>
 
   <p>
-    Unlock exclusive VIP access for a one-time payment of <strong>$5 USD</strong>.
+    Unlock VIP access for $5 USD (valid for 30 days). This includes no ads or hidden charges. After payment, you will receive your access password and full VIP entry details.
   </p>
 
   <!-- VIP INPUT -->
@@ -166,10 +166,7 @@
 </div>
 
 <script>
-/* =========================
-   VIP KEY SYSTEM
-========================= */
-const VIP_KEY = "1234"; // change anytime
+const VIP_KEY = "1234";
 const VIP_FOLDER = "🔒VIP Exclusive";
 
 function enterVIP() {
@@ -184,11 +181,7 @@ function enterVIP() {
   }
 }
 
-/* =========================
-   PAYMENT LOGIC
-========================= */
 let usdToZar = 0;
-
 const API_URL = "https://donation.workfromanywhere-sa.workers.dev/rate";
 
 const zarInput = document.getElementById("zarAmount");
