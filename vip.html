@@ -33,6 +33,7 @@
     margin-top: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+
     height: 120px;
     display: flex;
     flex-direction: column;
@@ -56,8 +57,22 @@
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     transform: translateZ(0);
-    -webkit-transform: translateZ(0);
-    will-change: transform;
+  }
+
+  input {
+    width: 80%;
+    padding: 12px;
+    margin-top: 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    text-align: center;
+  }
+
+  #usdDisplay {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #333;
   }
 
   .donate-btn {
@@ -103,12 +118,6 @@
   .crypto-btn:hover {
     background: #333;
   }
-
-  #usdDisplay {
-    margin-top: 10px;
-    font-weight: bold;
-    color: #333;
-  }
 </style>
 </head>
 
@@ -132,7 +141,7 @@
 
   <!-- Crypto -->
   <div class="card">
-    <img class="crypto-logo" src="https://anywherecum.pages.dev/images/crypto-logo.webp" alt="Crypto">
+    <img class="crypto-logo" src="https://anywherecum.pages.dev/images/crypto-logo.webp" alt="Crypto" loading="eager">
 
     <button class="crypto-btn" onclick="goCrypto()">
       Access VIP Monthly ($5)
@@ -145,6 +154,9 @@
 
     <div id="usdDisplay">Loading...</div>
 
+    <!-- ZAR (auto updated) -->
+    <input type="number" id="customAmount" disabled>
+
     <button class="donate-btn" onclick="goDonate()">
       Unlock VIP Monthly ($5)
     </button>
@@ -155,8 +167,10 @@
 let usdToZar = 0;
 const USD_AMOUNT = 5;
 
-const API_URL = "https://donation.workfromanywhere-sa.workers.dev/rate";
 const usdDisplay = document.getElementById("usdDisplay");
+const customInput = document.getElementById("customAmount");
+
+const API_URL = "https://donation.workfromanywhere-sa.workers.dev/rate";
 
 async function fetchRate() {
   try {
@@ -169,14 +183,16 @@ async function fetchRate() {
 
   } catch (err) {
     console.log("Error fetching rate:", err);
-    usdDisplay.innerText = "R? (Rate unavailable)";
   }
 }
 
 function updateDisplay() {
   if (usdToZar > 0) {
     const zar = (USD_AMOUNT * usdToZar).toFixed(2);
-    usdDisplay.innerText = `$${USD_AMOUNT} USD ≈ R${zar} ZAR / month`;
+
+    usdDisplay.innerText = `$${USD_AMOUNT.toFixed(2)} USD ≈ R${zar} ZAR / month`;
+
+    customInput.value = zar;
   } else {
     usdDisplay.innerText = "Loading...";
   }
