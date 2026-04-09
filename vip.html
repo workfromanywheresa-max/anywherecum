@@ -33,7 +33,6 @@
     margin-top: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-
     height: 120px;
     display: flex;
     flex-direction: column;
@@ -86,10 +85,6 @@
     cursor: pointer;
   }
 
-  .donate-btn:hover.active {
-    background: #333;
-  }
-
   .paypal-btn,
   .crypto-btn,
   .vip-btn {
@@ -130,9 +125,11 @@
     Unlock exclusive VIP access for a one-time payment of <strong>$5 USD</strong>.
   </p>
 
-  <!-- 🔐 VIP ENTER BUTTON -->
+  <!-- VIP INPUT -->
+  <input type="password" id="vipKey" placeholder="Enter password">
+
   <button class="vip-btn" onclick="enterVIP()">
-     Enter 🔐VIP Exclusive
+    Enter 🔐 VIP Exclusive
   </button>
 
   <!-- PayPal -->
@@ -172,18 +169,18 @@
 /* =========================
    VIP KEY SYSTEM
 ========================= */
-const VIP_KEY = "1234"; // 🔑 change this anytime
+const VIP_KEY = "1234"; // change anytime
 const VIP_FOLDER = "🔒VIP Exclusive";
 
 function enterVIP() {
-  const key = prompt("Enter VIP Access Key:");
+  const key = document.getElementById("vipKey").value;
 
   if (!key) return;
 
   if (key === VIP_KEY) {
     window.location.href = "folder.html?folder=" + encodeURIComponent(VIP_FOLDER);
   } else {
-    alert("❌ Invalid key. Access denied.");
+    alert("❌ Invalid password");
   }
 }
 
