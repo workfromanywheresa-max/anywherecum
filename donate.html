@@ -92,6 +92,23 @@
   .paypal-btn:hover {
     background: #005c99;
   }
+
+  /* Crypto button */
+  .crypto-btn {
+    margin-top: 15px;
+    width: 100%;
+    font-size: 18px;
+    background: #111;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .crypto-btn:hover {
+    background: #333;
+  }
 </style>
 </head>
 
@@ -114,15 +131,19 @@
     </button>
   </div>
 
-  <a href="https://nowpayments.io/donation?api_key=0683f49a-65da-47f1-963c-108fb1daacf3" target="_blank" rel="noreferrer noopener">
-    <img src="https://nowpayments.io/images/embeds/donation-button-white.svg" alt="Cryptocurrency & Bitcoin donation button by NOWPayments">
-  </a>
+  <!-- 💰 Crypto Card -->
+  <div class="card">
+    <img class="logo" src="https://cdn-icons-png.flaticon.com/512/825/825454.png" alt="Crypto">
+
+    <button class="crypto-btn" onclick="goCrypto()">
+      Donate with Crypto
+    </button>
+  </div>
 
   <!-- 💰 PayFast Card -->
   <div class="card">
     <img class="logo" src="https://anywherecum.pages.dev/images/payfast.webp" alt="PayFast">
 
-    <!-- ✅ FIXED DEFAULT TEXT -->
     <div id="usdDisplay">≈ $0.00 USD (Est.)</div>
     
     <input type="number" id="customAmount" placeholder="Enter amount (R)">
@@ -179,10 +200,7 @@ function handleInput() {
 
   if (zarToUsdRate > 0) {
     const usd = (value * zarToUsdRate).toFixed(2);
-
-    // ✅ FIXED FORMAT (ALWAYS SAME)
     usdDisplay.innerText = `≈ $${usd} USD (Est.)`;
-
   } else {
     usdDisplay.innerText = "Loading...";
   }
@@ -201,6 +219,11 @@ function goDonate() {
 // PayPal redirect
 function goPayPal() {
   window.location.href = "https://www.paypal.me/anywherecum";
+}
+
+// Crypto redirect
+function goCrypto() {
+  window.location.href = "crypto.html";
 }
 </script>
 
