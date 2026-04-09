@@ -120,10 +120,10 @@
 
   <!-- 💰 PayFast Card -->
   <div class="card">
-    <!-- FIXED: Working PayFast logo -->
     <img class="logo" src="https://anywherecum.pages.dev/images/payfast.webp" alt="PayFast">
 
-    <div id="usdDisplay">$0.00 USD</div>
+    <!-- ✅ FIXED DEFAULT TEXT -->
+    <div id="usdDisplay">≈ $0.00 USD (Est.)</div>
     
     <input type="number" id="customAmount" placeholder="Enter amount (R)">
 
@@ -179,7 +179,10 @@ function handleInput() {
 
   if (zarToUsdRate > 0) {
     const usd = (value * zarToUsdRate).toFixed(2);
-    usdDisplay.innerText = `$${usd} USD`;
+
+    // ✅ FIXED FORMAT (ALWAYS SAME)
+    usdDisplay.innerText = `≈ $${usd} USD (Est.)`;
+
   } else {
     usdDisplay.innerText = "Loading...";
   }
@@ -195,7 +198,7 @@ function goDonate() {
     "https://donation.workfromanywhere-sa.workers.dev/?amount=" + amount;
 }
 
-// PayPal redirect (NO AMOUNT)
+// PayPal redirect
 function goPayPal() {
   window.location.href = "https://www.paypal.me/anywherecum";
 }
