@@ -134,8 +134,9 @@
     padding: 5px;
   }
 
-  .price-label {
+  .crypto-row {
     margin-top: 10px;
+    font-size: 14px;
     font-weight: bold;
   }
 </style>
@@ -202,7 +203,9 @@ let currentCoin = null;
 
 async function getPriceFromWorker() {
   const res = await fetch("https://dontate.workfromanywhere-sa.workers.dev/");
-  return await res.json();
+  return await res.json(); 
+  // expected format:
+  // { btc: 60000, eth: 3000, ltc: 100, bnb: 400, usdt: 1 }
 }
 
 function openCoin(type) {
@@ -215,12 +218,7 @@ function openCoin(type) {
       <h3>${c.name}</h3>
     </div>
 
-    <div class="price-label">$5 / month</div>
-
-    <div id="cryptoAmountRow" class="address-row">
-      <div class="address">Loading...</div>
-      <button onclick="copyCrypto()">Copy</button>
-    </div>
+    <div id="cryptoDisplay" class="crypto-row">Loading...</div>
 
     <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${c.address}">
 
@@ -236,8 +234,6 @@ function openCoin(type) {
   setInterval(updateCrypto, 10000);
 }
 
-let latestCrypto = "";
-
 async function updateCrypto() {
   if (!currentCoin) return;
 
@@ -246,21 +242,15 @@ async function updateCrypto() {
   try {
     const prices = await getPriceFromWorker();
     const price = prices[currentCoin];
-    latestCrypto = (usd / price).toFixed(6);
+    const crypto = (usd / price).toFixed(6);
 
-    document.getElementById("cryptoAmountRow").innerHTML = `
-      <div class="address">${latestCrypto} ${currentCoin.toUpperCase()}</div>
-      <button onclick="copyCrypto()">Copy</button>
+    document.getElementById("cryptoDisplay").innerHTML = `
+      Pay: <b>$5 USD</b> = <b>${crypto} ${currentCoin.toUpperCase()}</b>
+      <br><button onclick="copyText('${crypto}')">Copy Amount</button>
     `;
   } catch {
-    document.getElementById("cryptoAmountRow").innerHTML = `
-      <div class="address">Error loading</div>
-    `;
+    document.getElementById("cryptoDisplay").innerText = "Error loading price";
   }
-}
-
-function copyCrypto() {
-  navigator.clipboard.writeText(latestCrypto);
 }
 
 function closeModal() {
@@ -288,7 +278,7 @@ async function sendEmail() {
       email,
       country,
       wallet,
-      fixedAmount: "$5/month"
+      fixedAmount: "$5"
     })
   });
 
