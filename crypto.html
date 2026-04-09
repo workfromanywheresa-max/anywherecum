@@ -26,6 +26,13 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
 
+  .title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
   .qr {
     width: 160px;
     margin-top: 10px;
@@ -35,6 +42,21 @@
     font-size: 12px;
     word-break: break-all;
     margin-top: 10px;
+  }
+
+  .copy-btn {
+    margin-top: 10px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    background: #007bff;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .copy-btn:active {
+    transform: scale(0.96);
   }
 </style>
 </head>
@@ -46,33 +68,46 @@
 
   <!-- Bitcoin -->
   <div class="card">
-    <h3>Bitcoin</h3>
+    <div class="title">🟠 <h3>Bitcoin</h3></div>
     <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=121jjoVvDBVDudoUeHzXvSL9V3tMz6r9CX">
-    <div class="address">121jjoVvDBVDudoUeHzXvSL9V3tMz6r9CX</div>
+    <div class="address" id="btc">121jjoVvDBVDudoUeHzXvSL9V3tMz6r9CX</div>
+    <button class="copy-btn" onclick="copyText('btc')">Copy Address</button>
   </div>
 
   <!-- Litecoin -->
   <div class="card">
-    <h3>Litecoin</h3>
+    <div class="title">⚪ <h3>Litecoin</h3></div>
     <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=LYVGRTt1VBFXRbuqYxTAXKdmyeU44Q4kvQ">
-    <div class="address">LYVGRTt1VBFXRbuqYxTAXKdmyeU44Q4kvQ</div>
+    <div class="address" id="ltc">LYVGRTt1VBFXRbuqYxTAXKdmyeU44Q4kvQ</div>
+    <button class="copy-btn" onclick="copyText('ltc')">Copy Address</button>
   </div>
 
   <!-- Ethereum / BNB -->
   <div class="card">
-    <h3>Ethereum / BNB</h3>
+    <div class="title">🔵 <h3>Ethereum / BNB</h3></div>
     <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=0xb38839dfbee320badf35db258625463521da7577">
-    <div class="address">0xb38839dfbee320badf35db258625463521da7577</div>
+    <div class="address" id="eth">0xb38839dfbee320badf35db258625463521da7577</div>
+    <button class="copy-btn" onclick="copyText('eth')">Copy Address</button>
   </div>
 
   <!-- USDT TRC20 -->
   <div class="card">
-    <h3>USDT (TRC20)</h3>
+    <div class="title">🟢 <h3>USDT (TRC20)</h3></div>
     <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=TCLtokamwWrbLvifZ3z2SYmBute7EjdiUN">
-    <div class="address">TCLtokamwWrbLvifZ3z2SYmBute7EjdiUN</div>
+    <div class="address" id="usdt">TCLtokamwWrbLvifZ3z2SYmBute7EjdiUN</div>
+    <button class="copy-btn" onclick="copyText('usdt')">Copy Address</button>
   </div>
 
 </div>
+
+<script>
+function copyText(id) {
+  const text = document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    alert("Copied: " + text);
+  });
+}
+</script>
 
 </body>
 </html>
