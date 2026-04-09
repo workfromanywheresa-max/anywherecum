@@ -48,7 +48,7 @@
     margin-top: 20px;
   }
 
-  .form-box input {
+  .form-box input, .form-box select {
     width: 90%;
     padding: 10px;
     margin: 8px 0;
@@ -186,7 +186,19 @@
 
     <input type="text" id="country" placeholder="Enter your country" required>
     <input type="text" id="wallet" placeholder="Wallet used (e.g. Luno, Trust Wallet)" required>
-    <input type="number" id="amount" placeholder="Enter amount" required>
+
+    <!-- AMOUNT + CURRENCY -->
+    <div style="display:flex; gap:10px; justify-content:center; align-items:center;">
+      <input type="number" id="amount" placeholder="Enter amount" required style="width:60%; padding:10px; border-radius:6px; border:1px solid #ccc;">
+      
+      <select id="currency" style="width:30%; padding:10px; border-radius:6px; border:1px solid #ccc;">
+        <option value="BTC">BTC</option>
+        <option value="LTC">LTC</option>
+        <option value="ETH">ETH</option>
+        <option value="BNB">BNB</option>
+        <option value="USDT">USDT</option>
+      </select>
+    </div>
 
     <button onclick="sendEmail()">Send</button>
   </div>
@@ -269,13 +281,14 @@ function sendEmail() {
   const country = document.getElementById("country").value;
   const wallet = document.getElementById("wallet").value;
   const amount = document.getElementById("amount").value;
+  const currency = document.getElementById("currency").value;
 
   const subject = "Donation Details";
-  const body = `Country: ${country}%0D%0AWallet Used: ${wallet}%0D%0AAmount: ${amount}`;
+  const body = `Country: ${country}%0D%0AWallet Used: ${wallet}%0D%0AAmount: ${amount} ${currency}`;
 
   window.location.href = `mailto:workfromanywhere.sa@gmail.com?subject=${subject}&body=${body}`;
 }
 </script>
 
 </body>
-    </html>
+          </html>
