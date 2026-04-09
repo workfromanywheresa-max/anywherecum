@@ -132,14 +132,6 @@
     background: none;
     cursor: pointer;
     padding: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .copy-icon svg {
-    width: 18px;
-    height: 18px;
   }
 
   .crypto-row {
@@ -182,7 +174,6 @@
     </div>
   </div>
 
-  <!-- FORM -->
   <div class="form-box">
     <h3>Confirm Payment</h3>
 
@@ -193,7 +184,6 @@
     <button onclick="sendEmail()">Submit</button>
   </div>
 
-  <!-- MODAL -->
   <div id="modal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal()">&times;</span>
@@ -205,34 +195,16 @@
 
 <script>
 const coins = {
-  btc: {
-    name: "Bitcoin",
-    address: "121jjoVvDBVDudoUeHzXvSL9V3tMz6r9CX",
-    logo: "https://assets.coingecko.com/coins/images/1/small/bitcoin.png"
-  },
-  ltc: {
-    name: "Litecoin",
-    address: "LYVGRTt1VBFXRbuqYxTAXKdmyeU44Q4kvQ",
-    logo: "https://assets.coingecko.com/coins/images/2/small/litecoin.png"
-  },
-  eth: {
-    name: "Ethereum (ETH)",
-    address: "0xb38839dfbee320badf35db258625463521da7577",
-    logo: "https://assets.coingecko.com/coins/images/279/small/ethereum.png"
-  },
-  bnb: {
-    name: "BNB (BEP20)",
-    address: "0xb38839dfbee320badf35db258625463521da7577",
-    logo: "https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png"
-  },
-  usdt: {
-    name: "USDT (TRC20)",
-    address: "TCLtokamwWrbLvifZ3z2SYmBute7EjdiUN",
-    logo: "https://assets.coingecko.com/coins/images/325/small/tether.png"
-  }
+  btc: { name: "Bitcoin", address: "121jjoVvDBVDudoUeHzXvSL9V3tMz6r9CX", logo: "https://assets.coingecko.com/coins/images/1/small/bitcoin.png" },
+  ltc: { name: "Litecoin", address: "LYVGRTt1VBFXRbuqYxTAXKdmyeU44Q4kvQ", logo: "https://assets.coingecko.com/coins/images/2/small/litecoin.png" },
+  eth: { name: "Ethereum", address: "0xb38839dfbee320badf35db258625463521da7577", logo: "https://assets.coingecko.com/coins/images/279/small/ethereum.png" },
+  bnb: { name: "BNB", address: "0xb38839dfbee320badf35db258625463521da7577", logo: "https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png" },
+  usdt: { name: "USDT", address: "TCLtokamwWrbLvifZ3z2SYmBute7EjdiUN", logo: "https://assets.coingecko.com/coins/images/325/small/tether.png" }
 };
 
 let currentCoin = null;
+let priceInterval = null;
+let isUpdating = false;
 
 function coinId(type) {
   return {
@@ -245,14 +217,24 @@ function coinId(type) {
 }
 
 async function getPrice(coin) {
-  const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${coin}&vs_currencies=usd`);
+  const res = await fetch(`https://your-worker-url.workers.dev/price?coin=${coin}`);
+
+  if (!res.ok) throw new Error("Worker failed");
+
   const data = await res.json();
-  return data[coin].usd;
+
+  if (!data || typeof data.usd !== "number") {
+    throw new Error("Invalid response");
+  }
+
+  return data.usd;
 }
 
 function openCoin(type) {
   currentCoin = type;
   const c = coins[type];
+
+  if (priceInterval) clearInterval(priceInterval);
 
   document.getElementById("content").innerHTML = `
     <div class="title">
@@ -260,32 +242,26 @@ function openCoin(type) {
       <h3>${c.name}</h3>
     </div>
 
-    <div id="cryptoDisplay" class="crypto-row">
-      Loading...
-    </div>
+    <div id="cryptoDisplay" class="crypto-row">Loading...</div>
 
     <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${c.address}">
 
     <div class="address-row">
       <div class="address">${c.address}</div>
-
-      <button class="copy-icon" onclick="copyText('${c.address}')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="5" width="13" height="13" rx="2"></rect>
-          <rect x="9" y="1" width="13" height="13" rx="2"></rect>
-        </svg>
-      </button>
+      <button class="copy-icon" onclick="copyText('${c.address}')">📋</button>
     </div>
   `;
 
   document.getElementById("modal").style.display = "flex";
 
   updateCrypto();
-  setInterval(updateCrypto, 10000);
+  priceInterval = setInterval(updateCrypto, 15000);
 }
 
 async function updateCrypto() {
-  if (!currentCoin) return;
+  if (!currentCoin || isUpdating) return;
+
+  isUpdating = true;
 
   const usd = 5;
   const coin = coinId(currentCoin);
@@ -298,13 +274,16 @@ async function updateCrypto() {
       Pay: <b>$5 USD</b> = <b>${crypto} ${currentCoin.toUpperCase()}</b>
       <br><button onclick="copyText('${crypto}')">Copy Amount</button>
     `;
-  } catch {
-    document.getElementById("cryptoDisplay").innerHTML = "Error loading price";
+  } catch (err) {
+    document.getElementById("cryptoDisplay").innerHTML = "❌ Price error";
   }
+
+  isUpdating = false;
 }
 
 function closeModal() {
   document.getElementById("modal").style.display = "none";
+  if (priceInterval) clearInterval(priceInterval);
 }
 
 function copyText(text) {
@@ -324,12 +303,7 @@ async function sendEmail() {
   await fetch("https://email.workfromanywhere-sa.workers.dev/", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({
-      email,
-      country,
-      wallet,
-      fixedAmount: "$5"
-    })
+    body: JSON.stringify({ email, country, wallet, fixedAmount: "$5" })
   });
 
   alert("✅ Payment submitted!");
@@ -337,4 +311,4 @@ async function sendEmail() {
 </script>
 
 </body>
-  </html>
+</html>
