@@ -182,6 +182,7 @@
     </div>
   </div>
 
+  <!-- FORM -->
   <div class="form-box">
     <h3>Confirm Payment</h3>
 
@@ -192,6 +193,7 @@
     <button onclick="sendEmail()">Submit</button>
   </div>
 
+  <!-- MODAL -->
   <div id="modal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal()">&times;</span>
@@ -258,14 +260,15 @@ function openCoin(type) {
       <h3>${c.name}</h3>
     </div>
 
-    <!-- AMOUNT DISPLAY (NOW ABOVE ADDRESS) -->
-    <div id="cryptoDisplay" class="crypto-row">Loading...</div>
+    <div id="cryptoDisplay" class="crypto-row">
+      Loading...
+    </div>
 
     <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${c.address}">
 
-    <!-- ADDRESS -->
     <div class="address-row">
       <div class="address">${c.address}</div>
+
       <button class="copy-icon" onclick="copyText('${c.address}')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="5" width="13" height="13" rx="2"></rect>
@@ -293,13 +296,7 @@ async function updateCrypto() {
 
     document.getElementById("cryptoDisplay").innerHTML = `
       Pay: <b>$5 USD</b> = <b>${crypto} ${currentCoin.toUpperCase()}</b>
-
-      <button class="copy-icon" onclick="copyText('${crypto}')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="5" width="13" height="13" rx="2"></rect>
-          <rect x="9" y="1" width="13" height="13" rx="2"></rect>
-        </svg>
-      </button>
+      <br><button onclick="copyText('${crypto}')">Copy Amount</button>
     `;
   } catch {
     document.getElementById("cryptoDisplay").innerHTML = "Error loading price";
@@ -340,4 +337,4 @@ async function sendEmail() {
 </script>
 
 </body>
-</html>
+  </html>
