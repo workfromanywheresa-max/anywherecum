@@ -91,7 +91,8 @@
   }
 
   .paypal-btn,
-  .crypto-btn {
+  .crypto-btn,
+  .vip-btn {
     margin-top: 15px;
     width: 100%;
     font-size: 18px;
@@ -107,12 +108,27 @@
 
   .crypto-btn { background: #111; }
   .crypto-btn:hover { background: #333; }
+
+  .vip-btn {
+    background: #ff4444;
+    font-weight: bold;
+  }
+
+  .vip-btn:hover {
+    background: #cc0000;
+  }
 </style>
 </head>
 
 <body>
 
 <div class="box">
+
+  <!-- 🔐 VIP ENTER BUTTON -->
+  <button class="vip-btn" onclick="enterVIP()">
+    🔐 Enter VIP Exclusive
+  </button>
+
   <h2>🔒 VIP Access</h2>
 
   <p>
@@ -141,19 +157,39 @@
   <div class="card payfast-card">
     <img class="logo" src="https://anywherecum.pages.dev/images/payfast.webp" alt="PayFast">
 
-    <!-- Fixed USD -->
     <div id="usdDisplay">$5.00 USD</div>
 
-    <!-- ZAR input (auto updates) -->
     <input type="number" id="zarAmount" placeholder="Loading ZAR...">
 
     <button id="donateBtn" class="donate-btn" onclick="goDonate()" disabled>
       Pay with PayFast
     </button>
   </div>
+
 </div>
 
 <script>
+/* =========================
+   VIP KEY SYSTEM
+========================= */
+const VIP_KEY = "1234"; // 🔑 change this anytime
+const VIP_FOLDER = "🔒VIP Exclusive";
+
+function enterVIP() {
+  const key = prompt("Enter VIP Access Key:");
+
+  if (!key) return;
+
+  if (key === VIP_KEY) {
+    window.location.href = "folder.html?folder=" + encodeURIComponent(VIP_FOLDER);
+  } else {
+    alert("❌ Invalid key. Access denied.");
+  }
+}
+
+/* =========================
+   PAYMENT LOGIC
+========================= */
 let usdToZar = 0;
 
 const API_URL = "https://donation.workfromanywhere-sa.workers.dev/rate";
@@ -167,8 +203,8 @@ async function fetchRate() {
     const data = await res.json();
 
     usdToZar = data.usdToZar;
-
     updateZAR();
+
   } catch (err) {
     console.log("Rate error:", err);
   }
