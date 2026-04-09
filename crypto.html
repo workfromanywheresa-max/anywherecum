@@ -288,7 +288,7 @@ async function sendEmail() {
   }
 
   try {
-    const res = await fetch("https://YOUR-WORKER-URL.workers.dev", {
+    const res = await fetch("https://email.workfromanywhere-sa.workers.dev/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
