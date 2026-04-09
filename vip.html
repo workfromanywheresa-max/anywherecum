@@ -41,7 +41,7 @@
   }
 
   .payfast-card {
-    height: 210px;
+    height: 240px;
   }
 
   .logo,
@@ -51,12 +51,6 @@
     display: block;
     margin: 0 auto;
     object-fit: contain;
-  }
-
-  .crypto-logo {
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    transform: translateZ(0);
   }
 
   input {
@@ -79,35 +73,28 @@
     margin-top: 15px;
     width: 100%;
     font-size: 18px;
+    background: #888;
+    color: white;
+    cursor: not-allowed;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+  }
+
+  .donate-btn.active {
     background: #000;
-    color: white;
-    padding: 12px;
-    border: none;
-    border-radius: 5px;
     cursor: pointer;
   }
 
-  .paypal-btn {
-    margin-top: 15px;
-    width: 100%;
-    font-size: 18px;
-    background: #0070ba;
-    color: white;
-    padding: 12px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+  .donate-btn:hover.active {
+    background: #333;
   }
 
-  .paypal-btn:hover {
-    background: #005c99;
-  }
-
+  .paypal-btn,
   .crypto-btn {
     margin-top: 15px;
     width: 100%;
     font-size: 18px;
-    background: #111;
     color: white;
     padding: 12px;
     border: none;
@@ -115,9 +102,11 @@
     cursor: pointer;
   }
 
-  .crypto-btn:hover {
-    background: #333;
-  }
+  .paypal-btn { background: #0070ba; }
+  .paypal-btn:hover { background: #005c99; }
+
+  .crypto-btn { background: #111; }
+  .crypto-btn:hover { background: #333; }
 </style>
 </head>
 
@@ -127,7 +116,7 @@
   <h2>🔒 VIP Access</h2>
 
   <p>
-    Unlock exclusive content, enjoy an uninterrupted experience, and gain full access to all premium features.
+    Unlock exclusive VIP access for a one-time payment of <strong>$5 USD</strong>.
   </p>
 
   <!-- PayPal -->
@@ -135,16 +124,16 @@
     <img class="logo" src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg" alt="PayPal">
 
     <button class="paypal-btn" onclick="goPayPal()">
-      Access VIP Monthly ($5)
+      Pay $5 with PayPal
     </button>
   </div>
 
   <!-- Crypto -->
   <div class="card">
-    <img class="crypto-logo" src="https://anywherecum.pages.dev/images/crypto-logo.webp" alt="Crypto" loading="eager">
+    <img class="crypto-logo" src="https://anywherecum.pages.dev/images/crypto-logo.webp" alt="Crypto">
 
     <button class="crypto-btn" onclick="goCrypto()">
-      Access VIP Monthly ($5)
+      Pay $5 with Crypto
     </button>
   </div>
 
@@ -152,25 +141,25 @@
   <div class="card payfast-card">
     <img class="logo" src="https://anywherecum.pages.dev/images/payfast.webp" alt="PayFast">
 
-    <div id="usdDisplay">Loading...</div>
+    <!-- Fixed USD -->
+    <div id="usdDisplay">$5.00 USD (Fixed)</div>
 
-    <!-- ZAR (auto updated) -->
-    <input type="number" id="customAmount" disabled>
+    <!-- ZAR input (auto updates) -->
+    <input type="number" id="zarAmount" placeholder="Loading ZAR...">
 
-    <button class="donate-btn" onclick="goDonate()">
-      Unlock VIP Monthly ($5)
+    <button id="donateBtn" class="donate-btn" onclick="goDonate()" disabled>
+      Pay with PayFast
     </button>
   </div>
 </div>
 
 <script>
 let usdToZar = 0;
-const USD_AMOUNT = 5;
-
-const usdDisplay = document.getElementById("usdDisplay");
-const customInput = document.getElementById("customAmount");
 
 const API_URL = "https://donation.workfromanywhere-sa.workers.dev/rate";
+
+const zarInput = document.getElementById("zarAmount");
+const donateBtn = document.getElementById("donateBtn");
 
 async function fetchRate() {
   try {
@@ -179,31 +168,32 @@ async function fetchRate() {
 
     usdToZar = data.usdToZar;
 
-    updateDisplay();
-
+    updateZAR();
   } catch (err) {
-    console.log("Error fetching rate:", err);
-  }
-}
-
-function updateDisplay() {
-  if (usdToZar > 0) {
-    const zar = (USD_AMOUNT * usdToZar).toFixed(2);
-
-    usdDisplay.innerText = `$${USD_AMOUNT.toFixed(2)} USD ≈ R${zar} ZAR / month`;
-
-    customInput.value = zar;
-  } else {
-    usdDisplay.innerText = "Loading...";
+    console.log("Rate error:", err);
   }
 }
 
 fetchRate();
 setInterval(fetchRate, 30000);
 
+function updateZAR() {
+  if (!usdToZar) return;
+
+  const zar = (5 * usdToZar).toFixed(2);
+  zarInput.value = zar;
+
+  donateBtn.disabled = false;
+  donateBtn.classList.add("active");
+}
+
 function goDonate() {
+  const amount = parseFloat(zarInput.value);
+
+  if (!amount || amount <= 0) return;
+
   window.location.href =
-    "https://donation.workfromanywhere-sa.workers.dev/?amount=" + USD_AMOUNT;
+    "https://donation.workfromanywhere-sa.workers.dev/?amount=" + amount;
 }
 
 function goPayPal() {
