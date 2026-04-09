@@ -68,7 +68,7 @@
     color: #333;
   }
 
-  .donate-btn {
+  .pay-btn {
     margin-top: 15px;
     width: 100%;
     font-size: 18px;
@@ -80,7 +80,7 @@
     border-radius: 5px;
   }
 
-  .donate-btn.active {
+  .pay-btn.active {
     background: #000;
     cursor: pointer;
   }
@@ -104,12 +104,11 @@
   .crypto-btn { background: #111; }
   .crypto-btn:hover { background: #333; }
 
-  /* VIP BUTTON */
   .vip-btn {
     background: #6a00ff;
     font-weight: bold;
     width: 60%;
-    margin: 0px auto 0 auto; /* 👈 reduced space */
+    margin: 0px auto 0 auto;
     display: block;
     font-size: 10px;
     padding: 10px;
@@ -165,7 +164,7 @@
 
     <input type="number" id="zarAmount" placeholder="Loading ZAR...">
 
-    <button id="donateBtn" class="donate-btn" onclick="goDonate()" disabled>
+    <button id="payBtn" class="pay-btn" onclick="goPayment()" disabled>
       Pay with PayFast
     </button>
   </div>
@@ -189,10 +188,10 @@ function enterVIP() {
 }
 
 let usdToZar = 0;
-const API_URL = "https://donation.workfromanywhere-sa.workers.dev/rate";
+const API_URL = "https://payments.workfromanywhere-sa.workers.dev/rate";
 
 const zarInput = document.getElementById("zarAmount");
-const donateBtn = document.getElementById("donateBtn");
+const payBtn = document.getElementById("payBtn");
 
 async function fetchRate() {
   try {
@@ -216,17 +215,17 @@ function updateZAR() {
   const zar = (5 * usdToZar).toFixed(2);
   zarInput.value = zar;
 
-  donateBtn.disabled = false;
-  donateBtn.classList.add("active");
+  payBtn.disabled = false;
+  payBtn.classList.add("active");
 }
 
-function goDonate() {
+function goPayment() {
   const amount = parseFloat(zarInput.value);
 
   if (!amount || amount <= 0) return;
 
   window.location.href =
-    "https://donation.workfromanywhere-sa.workers.dev/?amount=" + amount;
+    "https://payments.workfromanywhere-sa.workers.dev/?amount=" + amount;
 }
 
 function goPayPal() {
