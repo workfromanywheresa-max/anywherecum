@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crypto & Contact</title>
+<title>Support</title>
 
 <style>
   body {
@@ -39,6 +39,32 @@
   .coin-icon {
     width: 24px;
     height: 24px;
+  }
+
+  /* FORM */
+  .form-box {
+    background: #fff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-top: 20px;
+  }
+
+  .form-box input {
+    width: 90%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+
+  .form-box button {
+    padding: 10px 20px;
+    border: none;
+    background: black;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
   }
 
   /* MODAL */
@@ -122,49 +148,16 @@
   .copy-icon:active {
     transform: scale(0.9);
   }
-
-  /* CONTACT CARD */
-  .contact {
-    background: #fff;
-    padding: 20px;
-    margin-top: 25px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-
-  .btn {
-    margin-top: 15px;
-    padding: 12px;
-    width: 100%;
-    border: none;
-    background: #000;
-    color: #fff;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-  }
 </style>
 </head>
 
 <body>
 
 <div class="box">
+  <h2>Support</h2>
 
-  <!-- CONTACT SECTION -->
-  <div class="contact">
-    <h2>Contact Us</h2>
-
-    <p><strong>Country:</strong> South Africa</p>
-    <p><strong>Wallet:</strong> Crypto Wallet (BTC, ETH, LTC, USDT, BNB)</p>
-
-    <button class="btn" onclick="continueEmail()">
-      Continue
-    </button>
-  </div>
-
-  <!-- LIST ONLY -->
+  <!-- LIST -->
   <div class="coin-list">
-
     <div class="coin-item" onclick="openCoin('btc')">
       <img class="coin-icon" src="https://assets.coingecko.com/coins/images/1/small/bitcoin.png">
       Bitcoin (BTC)
@@ -189,7 +182,16 @@
       <img class="coin-icon" src="https://assets.coingecko.com/coins/images/325/small/tether.png">
       USDT (TRC20)
     </div>
+  </div>
 
+  <!-- FORM -->
+  <div class="form-box">
+    <h3>Submit Donation Details</h3>
+
+    <input type="text" id="country" placeholder="Enter your country" required>
+    <input type="text" id="wallet" placeholder="Wallet used (e.g. Luno, Trust Wallet)" required>
+
+    <button onclick="sendEmail()">Send</button>
   </div>
 
   <!-- MODAL -->
@@ -203,7 +205,6 @@
 </div>
 
 <script>
-
 const coins = {
   btc: {
     name: "Bitcoin",
@@ -246,7 +247,6 @@ function openCoin(type) {
     <div class="address-row">
       <div class="address">${c.address}</div>
 
-      <!-- YOUR COPY BUTTON UNCHANGED -->
       <button class="copy-icon" onclick="copyText('${c.address}')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="3" y="5" width="13" height="13" rx="2"></rect>
@@ -267,10 +267,16 @@ function copyText(text) {
   navigator.clipboard.writeText(text);
 }
 
-function continueEmail() {
-  window.location.href = "mailto:workfromanywhere.sa@gmail.com";
-}
+/* SEND EMAIL */
+function sendEmail() {
+  const country = document.getElementById("country").value;
+  const wallet = document.getElementById("wallet").value;
 
+  const subject = "Donation Details";
+  const body = `Country: ${country}%0D%0AWallet Used: ${wallet}`;
+
+  window.location.href = `mailto:workfromanywhere.sa@gmail.com?subject=${subject}&body=${body}`;
+}
 </script>
 
 </body>
