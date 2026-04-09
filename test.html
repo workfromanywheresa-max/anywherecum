@@ -3,204 +3,133 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Live Banner</title>
+<title>AnywhereCum - Browse Video Folders & Exclusive Content</title>
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" sizes="32x32" href="https://anywherecum.pages.dev/images/favicon.webp">
+<link rel="apple-touch-icon" href="https://anywherecum.pages.dev/images/favicon.webp">
+<link rel="shortcut icon" href="https://anywherecum.pages.dev/images/favicon.webp">
+
+<!-- SEO Meta -->
+<meta name="description" content="Browse categorized video folders and explore exclusive video content. Fast, organized video library with easy navigation and latest uploads.">
+<meta name="keywords" content="video folders, browse video collections, exclusive video content, online video library, categorized videos, media streaming folders, video directory">
+<meta name="robots" content="index, follow">
+<meta name="author" content="AnywhereCum">
+<link rel="canonical" href="https://anywherecum.pages.dev/">
+
+<!-- Open Graph -->
+<meta property="og:title" content="AnywhereCum - Video Folders & Exclusive Content">
+<meta property="og:description" content="Browse categorized video folders and discover exclusive video content in a fast and organized layout.">
+<meta property="og:url" content="https://anywherecum.pages.dev/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://anywherecum.pages.dev/images/header-image.webp">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AnywhereCum">
+<meta name="twitter:description" content="Browse video folders and exclusive content easily.">
+<meta name="twitter:image" content="https://anywherecum.pages.dev/images/header-image.webp">
+
+<meta name="juicyads-site-verification" content="fedca85ac4a54612547b4245f3a820ff">
 
 <style>
 body {
-  background: #111;
-  margin: 0;
-  font-family: Arial;
-  display: flex;
-  justify-content: center;
-}
-
-.wrapper {
-  width: 100%;
-  max-width: 600px;
-  padding: 4px;
-  box-sizing: border-box;
-}
-
-.banner {
+  font-family: Arial, Helvetica, sans-serif;
   background: #1a1a1a;
-  border-radius: 12px;
-  padding: 5px;
-  box-shadow: 0 0 8px rgba(255,0,0,0.15);
+  color: #fff;
+  margin: 0;
+  padding: 15px;
 }
 
-/* SCROLL CONTAINER */
-.live-container {
-  display: flex;
-  gap: 8px;
-  padding: 3px 6px;
-  align-items: center;
-  transition: transform 0.8s ease;
-}
-
-.live-user {
-  min-width: 65px;
+header {
   text-align: center;
-  color: white;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.live-ring {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%;
-  padding: 2px;
-  background: linear-gradient(45deg, red, orange, red);
-  animation: pulse 1.5s infinite;
-  position: relative;
-  margin: 0 auto;
-}
-
-.live-ring img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.live-badge {
-  position: absolute;
-  top: -4px;
-  left: -4px;
-  background: red;
-  color: white;
-  font-size: 8px;
-  padding: 1px 4px;
-  border-radius: 4px;
-  font-weight: bold;
-}
-
-.viewers {
-  display: block;
-  font-size: 9px;
-  margin-top: 3px;
-  color: #ccc;
-}
-
-/* Arrow */
-.arrow-ring {
+  padding: 10px;
+  background: #111;
+  min-height: 180px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  background: linear-gradient(45deg, #ff0000, #ff7b00);
+}
+
+header h1 {
+  color: #ff4444;
+  margin: 2px 0;
   font-size: 20px;
-  font-weight: bold;
-  animation: none;
 }
 
-.arrow {
-  transform: translateX(2px);
+#headerImage {
+  width: 100%;
+  height: 120px;
+  object-fit: contain;
+  margin-top: 8px;
+  border-radius: 8px;
+  background: #000;
 }
 
-/* Pulse */
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); }
-  70% { box-shadow: 0 0 0 8px rgba(255,0,0,0); }
-  100% { box-shadow: 0 0 0 0 rgba(255,0,0,0); }
-}
+/* REMOVE AGE MODAL COMPLETELY */
 </style>
+
 </head>
 
 <body>
 
-<div class="wrapper">
-  <div class="banner">
-    <div class="live-container" id="liveContainer"></div>
-  </div>
+<header>
+  <h1>AnywhereCum - Video Folders & Exclusive Content</h1>
+  <img id="headerImage" src="https://anywherecum.pages.dev/images/header-image.webp">
+</header>
+
+<h2>📂 Content Folders 📂</h2>
+
+<div id="folderSection">
+  <ul id="folderList"></ul>
 </div>
 
 <script>
-const API_URL = "https://anywherecum.pages.dev/live.json";
+const BASE_URL = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/";
+const VIP_FOLDER = "🔒VIP Exclusive";
 
-let fullData = [];
-let startIndex = 0;
+function createPreviewItem(folderName, folderURL) {
 
-const VISIBLE_COUNT = 4;
-const SLIDE_INTERVAL = 3600000;
+  const li = document.createElement('li');
 
-async function loadLives() {
-  try {
-    const res = await fetch(API_URL);
-    fullData = await res.json();
-
-    renderLives();
-
-    setInterval(() => {
-      smoothSlideNext();
-    }, SLIDE_INTERVAL);
-
-  } catch (err) {
-    console.error("Error loading JSON:", err);
-  }
-}
-
-function renderLives() {
-  const container = document.getElementById("liveContainer");
-  container.innerHTML = "";
-
-  // 4 LIVE ITEMS
-  for (let i = 0; i < VISIBLE_COUNT; i++) {
-    const index = (startIndex + i) % fullData.length;
-    const item = fullData[index];
-
-    const div = document.createElement("div");
-    div.className = "live-user";
-    div.onclick = () => openLive(item.stream);
-
-    div.innerHTML = `
-      <div class="live-ring">
-        <span class="live-badge">LIVE</span>
-        <img src="https://anywherecum.pages.dev/images/${item.thumbnail}" 
-             onerror="this.src='https://anywherecum.pages.dev/default.webp'">
-      </div>
-      <span class="viewers">👁️ ${item.viewers || randomViews()}</span>
-    `;
-
-    container.appendChild(div);
-  }
-
-  // 5TH ITEM = ARROW (ADS)
-  const arrow = document.createElement("div");
-  arrow.className = "live-user";
-
-  arrow.innerHTML = `
-    <div class="live-ring arrow-ring">
-      <span class="arrow">➜</span>
-    </div>
-    <span class="viewers">More</span>
+  li.innerHTML = `
+    <a class="folder-link">${folderName}</a>
   `;
 
-  // 🔥 TRIGGER ADS HERE
-  arrow.onclick = () => window.open("https://www.juicyads.rocks", "_blank");
+  li.addEventListener('click', () => {
+    if (folderName === VIP_FOLDER) {
+      // ✅ VIP FIX
+      window.location.href = "vip.html";
+    } else {
+      window.location.href = folderURL;
+    }
+  });
 
-  container.appendChild(arrow);
+  return li;
 }
 
-/* Smooth slide */
-function smoothSlideNext() {
-  startIndex = (startIndex + VISIBLE_COUNT) % fullData.length;
-  renderLives();
-}
+fetch('./videos.json')
+.then(res => res.json())
+.then(videos => {
 
-function randomViews() {
-  const num = Math.floor(Math.random() * 9000 + 100);
-  return num > 1000 ? (num / 1000).toFixed(1) + "k" : num;
-}
+  const folders = {};
+  videos.forEach(v => {
+    if (!folders[v.folder]) folders[v.folder] = [];
+    folders[v.folder].push(v);
+  });
 
-function openLive(streamUrl) {
-  window.open("https://www.juicyads.rocks", "_blank");
+  const folderList = document.getElementById('folderList');
 
-  setTimeout(() => {
-    window.location.href = streamUrl;
-  }, 1000);
-}
+  Object.keys(folders).forEach(folderName => {
 
-loadLives();
+    const folderURL = "folder.html?folder=" + encodeURIComponent(folderName);
+
+    folderList.appendChild(
+      createPreviewItem(folderName, folderURL)
+    );
+  });
+
+});
 </script>
 
 </body>
