@@ -3,147 +3,114 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VIP Payment</title>
+<title>VIP Access</title>
 
 <style>
   body {
     font-family: Arial, sans-serif;
     text-align: center;
-    padding: 30px;
+    padding: 40px;
     background: #f5f5f5;
   }
 
   .box {
-    max-width: 500px;
+    max-width: 400px;
     margin: auto;
   }
 
-  .coin-list {
-    margin-bottom: 20px;
+  h2 {
+    margin-bottom: 10px;
   }
 
-  .coin-item {
+  p {
+    color: #555;
+    font-size: 14px;
+  }
+
+  .card {
     background: #fff;
-    padding: 12px;
-    margin: 10px 0;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    justify-content: center;
-  }
-
-  .coin-icon {
-    width: 24px;
-    height: 24px;
-  }
-
-  .form-box {
-    background: #fff;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 25px;
     margin-top: 20px;
-  }
-
-  .form-box input, .form-box select {
-    width: 90%;
-    padding: 10px;
-    margin: 8px 0;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-  }
-
-  .form-box button {
-    padding: 10px 20px;
-    border: none;
-    background: black;
-    color: white;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 999;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-content {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    max-width: 400px;
-    width: 90%;
-    position: relative;
-  }
-
-  .close {
-    position: absolute;
-    right: 15px;
-    top: 10px;
-    font-size: 22px;
-    cursor: pointer;
-  }
-
-  .logo {
-    width: 30px;
-    height: 30px;
-  }
-
-  .title {
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    height: 120px;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-
-  .qr {
-    width: 160px;
-    margin-top: 10px;
-  }
-
-  .address-row {
-    display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: space-between;
-    gap: 10px;
+  }
+
+  .payfast-card {
+    height: 210px;
+  }
+
+  .logo,
+  .crypto-logo {
+    height: 60px;
+    width: auto;
+    display: block;
+    margin: 0 auto;
+    object-fit: contain;
+  }
+
+  .crypto-logo {
+    backface-visibility: hidden;
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  input {
+    width: 80%;
+    padding: 12px;
+    margin-top: 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    text-align: center;
+  }
+
+  #usdDisplay {
     margin-top: 10px;
+    font-weight: bold;
+    color: #333;
   }
 
-  .address {
-    font-size: 12px;
-    word-break: break-all;
-    text-align: left;
-    flex: 1;
-  }
-
-  .copy-icon {
+  .btn {
+    margin-top: 15px;
+    width: 100%;
+    font-size: 18px;
+    padding: 12px;
     border: none;
-    background: none;
+    border-radius: 5px;
     cursor: pointer;
-    padding: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 
-  .copy-icon svg {
-    width: 18px;
-    height: 18px;
+  .paypal-btn {
+    background: #0070ba;
+    color: white;
   }
 
-  .copy-icon:active {
-    transform: scale(0.9);
+  .crypto-btn {
+    background: #111;
+    color: white;
+  }
+
+  .donate-btn {
+    background: #888;
+    color: white;
+    cursor: not-allowed;
+  }
+
+  .donate-btn.active {
+    background: #000;
+    cursor: pointer;
+  }
+
+  .paypal-btn:hover {
+    background: #005c99;
+  }
+
+  .crypto-btn:hover {
+    background: #333;
   }
 </style>
 </head>
@@ -151,171 +118,105 @@
 <body>
 
 <div class="box">
-  <h2>💎 VIP Payment (30 Days Access)</h2>
 
-  <div class="coin-list">
-    <div class="coin-item" onclick="openCoin('btc')">
-      <img class="coin-icon" src="https://assets.coingecko.com/coins/images/1/small/bitcoin.png">
-      Bitcoin (BTC)
-    </div>
+  <h2>🙏 VIP Support</h2>
 
-    <div class="coin-item" onclick="openCoin('ltc')">
-      <img class="coin-icon" src="https://assets.coingecko.com/coins/images/2/small/litecoin.png">
-      Litecoin (LTC)
-    </div>
+  <p>Your support helps us keep this project running and growing.</p>
 
-    <div class="coin-item" onclick="openCoin('eth')">
-      <img class="coin-icon" src="https://assets.coingecko.com/coins/images/279/small/ethereum.png">
-      Ethereum (ETH)
-    </div>
-
-    <div class="coin-item" onclick="openCoin('bnb')">
-      <img class="coin-icon" src="https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png">
-      BNB (BEP20)
-    </div>
-
-    <div class="coin-item" onclick="openCoin('usdt')">
-      <img class="coin-icon" src="https://assets.coingecko.com/coins/images/325/small/tether.png">
-      USDT (TRC20)
-    </div>
+  <!-- PayPal -->
+  <div class="card">
+    <img class="logo" src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg">
+    <button class="btn paypal-btn" onclick="goPayPal()">Donate with PayPal</button>
   </div>
 
-  <!-- FORM -->
-  <div class="form-box">
-    <h3>Confirm VIP Payment</h3>
-
-    <input type="email" id="email" placeholder="Enter your email" required>
-
-    <input type="text" id="country" placeholder="Enter your country" required>
-    <input type="text" id="wallet" placeholder="Wallet used (e.g. Trust Wallet)" required>
-
-    <div style="display:flex; gap:10px; justify-content:center; align-items:center;">
-      <input type="number" id="amount" placeholder="Enter amount" required style="width:60%;">
-      
-      <select id="currency" style="width:30%;">
-        <option value="BTC">BTC</option>
-        <option value="LTC">LTC</option>
-        <option value="ETH">ETH</option>
-        <option value="BNB">BNB</option>
-        <option value="USDT">USDT</option>
-      </select>
-    </div>
-
-    <button onclick="sendEmail()">Activate VIP Access</button>
+  <!-- Crypto -->
+  <div class="card">
+    <img class="crypto-logo" src="https://anywherecum.pages.dev/images/crypto-logo.webp">
+    <button class="btn crypto-btn" onclick="goCrypto()">Donate with Crypto</button>
   </div>
 
-  <!-- MODAL -->
-  <div id="modal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span>
-      <div id="content"></div>
-    </div>
+  <!-- PayFast -->
+  <div class="card payfast-card">
+    <img class="logo" src="https://anywherecum.pages.dev/images/payfast.webp">
+
+    <div id="usdDisplay">≈ $0.00 USD (Est.)</div>
+
+    <input type="number" id="customAmount" placeholder="Enter amount (R)">
+
+    <button id="donateBtn" class="btn donate-btn" onclick="goDonate()" disabled>
+      Donate with PayFast
+    </button>
   </div>
 
 </div>
 
 <script>
-const coins = {
-  btc: {
-    name: "Bitcoin",
-    address: "121jjoVvDBVDudoUeHzXvSL9V3tMz6r9CX",
-    logo: "https://assets.coingecko.com/coins/images/1/small/bitcoin.png"
-  },
-  ltc: {
-    name: "Litecoin",
-    address: "LYVGRTt1VBFXRbuqYxTAXKdmyeU44Q4kvQ",
-    logo: "https://assets.coingecko.com/coins/images/2/small/litecoin.png"
-  },
-  eth: {
-    name: "Ethereum (ETH)",
-    address: "0xb38839dfbee320badf35db258625463521da7577",
-    logo: "https://assets.coingecko.com/coins/images/279/small/ethereum.png"
-  },
-  bnb: {
-    name: "BNB (BEP20)",
-    address: "0xb38839dfbee320badf35db258625463521da7577",
-    logo: "https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png"
-  },
-  usdt: {
-    name: "USDT (TRC20)",
-    address: "TCLtokamwWrbLvifZ3z2SYmBute7EjdiUN",
-    logo: "https://assets.coingecko.com/coins/images/325/small/tether.png"
+let zarToUsdRate = 0;
+
+const donateBtn = document.getElementById("donateBtn");
+const customInput = document.getElementById("customAmount");
+const usdDisplay = document.getElementById("usdDisplay");
+
+const API_URL = "https://donation.workfromanywhere-sa.workers.dev/rate";
+
+async function fetchRate() {
+  try {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+
+    const usdToZar = data.usdToZar;
+    zarToUsdRate = 1 / usdToZar;
+
+  } catch (err) {
+    console.log(err);
   }
-};
 
-function openCoin(type) {
-  const c = coins[type];
-
-  document.getElementById("content").innerHTML = `
-    <div class="title">
-      <img class="logo" src="${c.logo}">
-      <h3>${c.name}</h3>
-    </div>
-
-    <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${c.address}">
-
-    <div class="address-row">
-      <div class="address">${c.address}</div>
-
-      <button class="copy-icon" onclick="copyText('${c.address}')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="5" width="13" height="13" rx="2"></rect>
-          <rect x="9" y="1" width="13" height="13" rx="2"></rect>
-        </svg>
-      </button>
-    </div>
-  `;
-
-  document.getElementById("modal").style.display = "flex";
+  handleInput();
 }
 
-function closeModal() {
-  document.getElementById("modal").style.display = "none";
-}
+fetchRate();
+setInterval(fetchRate, 30000);
 
-function copyText(text) {
-  navigator.clipboard.writeText(text);
-}
+customInput.addEventListener("input", handleInput);
 
-async function sendEmail() {
-  const email = document.getElementById("email").value;
-  const country = document.getElementById("country").value;
-  const wallet = document.getElementById("wallet").value;
-  const amount = document.getElementById("amount").value;
-  const currency = document.getElementById("currency").value;
+function handleInput() {
+  const value = parseFloat(customInput.value);
 
-  if (!email || !country || !wallet || !amount) {
-    alert("Please fill all fields");
+  if (!value || value <= 0) {
+    donateBtn.disabled = true;
+    donateBtn.classList.remove("active");
+    usdDisplay.innerText = "≈ $0.00 USD (Est.)";
     return;
   }
 
-  try {
-    const res = await fetch("https://email.workfromanywhere-sa.workers.dev/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        email,
-        country,
-        wallet,
-        amount,
-        currency,
-        type: "VIP 30 Days"
-      })
-    });
+  donateBtn.disabled = false;
+  donateBtn.classList.add("active");
 
-    if (res.ok) {
-      alert("✅ VIP Access Request Sent!");
-    } else {
-      alert("❌ Failed to send");
-    }
-
-  } catch (err) {
-    alert("❌ Error sending request");
+  if (zarToUsdRate > 0) {
+    const usd = (value * zarToUsdRate).toFixed(2);
+    usdDisplay.innerText = `≈ $${usd} USD (Est.)`;
+  } else {
+    usdDisplay.innerText = "Loading...";
   }
+}
+
+function goDonate() {
+  const amount = parseFloat(customInput.value);
+
+  if (!amount || amount <= 0) return;
+
+  window.location.href =
+    "https://donation.workfromanywhere-sa.workers.dev/?amount=" + amount;
+}
+
+function goPayPal() {
+  window.location.href = "https://www.paypal.me/anywherecum";
+}
+
+function goCrypto() {
+  window.location.href = "crypto.html";
 }
 </script>
 
 </body>
-  </html>
+</html>
