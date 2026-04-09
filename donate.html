@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Support Us</title>
 
+<!-- ✅ Preload crypto logo to prevent blinking -->
+<link rel="preload" as="image" href="https://anywherecum.pages.dev/images/crypto-logo.webp">
+
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -35,16 +38,19 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
 
-  /* ✅ FIX: remove circle look */
+  /* Logos */
   .logo {
     width: 140px;
-    height: auto;
-    margin-bottom: 10px;
-    border-radius: 0 !important;
+    height: 140px;
     object-fit: contain;
     display: block;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto 10px auto;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .logo.loaded {
+    opacity: 1;
   }
 
   input {
@@ -130,7 +136,7 @@
 
   <!-- PayPal -->
   <div class="card">
-    <img class="logo" src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg" alt="PayPal">
+    <img class="logo" src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg" alt="PayPal" onload="this.classList.add('loaded')">
 
     <button class="paypal-btn" onclick="goPayPal()">
       Donate with PayPal
@@ -139,7 +145,7 @@
 
   <!-- Crypto -->
   <div class="card">
-    <img class="logo" src="https://anywherecum.pages.dev/images/crypto-logo.webp" alt="Crypto">
+    <img class="logo" id="cryptoLogo" src="https://anywherecum.pages.dev/images/crypto-logo.webp" alt="Crypto">
 
     <button class="crypto-btn" onclick="goCrypto()">
       Donate with Crypto
@@ -148,7 +154,7 @@
 
   <!-- PayFast -->
   <div class="card">
-    <img class="logo" src="https://anywherecum.pages.dev/images/payfast.webp" alt="PayFast">
+    <img class="logo" src="https://anywherecum.pages.dev/images/payfast.webp" alt="PayFast" onload="this.classList.add('loaded')">
 
     <div id="usdDisplay">≈ $0.00 USD (Est.)</div>
     
@@ -226,6 +232,12 @@ function goPayPal() {
 function goCrypto() {
   window.location.href = "crypto.html";
 }
+
+/* ✅ Fade-in when crypto image loads */
+const cryptoLogo = document.getElementById("cryptoLogo");
+cryptoLogo.addEventListener("load", () => {
+  cryptoLogo.classList.add("loaded");
+});
 </script>
 
 </body>
