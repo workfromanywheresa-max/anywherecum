@@ -135,6 +135,10 @@
   }
 
   .crypto-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
     margin-top: 10px;
     font-size: 14px;
     font-weight: bold;
@@ -200,12 +204,12 @@ const coins = {
 };
 
 let currentCoin = null;
+let interval = null;
+let lastAmount = "";
 
 async function getPriceFromWorker() {
   const res = await fetch("https://dontate.workfromanywhere-sa.workers.dev/");
   return await res.json(); 
-  // expected format:
-  // { btc: 60000, eth: 3000, ltc: 100, bnb: 400, usdt: 1 }
 }
 
 function openCoin(type) {
@@ -218,7 +222,10 @@ function openCoin(type) {
       <h3>${c.name}</h3>
     </div>
 
-    <div id="cryptoDisplay" class="crypto-row">Loading...</div>
+    <div id="cryptoRow" class="crypto-row">
+      <div id="cryptoText">Loading...</div>
+      <button onclick="copyAmount()">Copy</button>
+    </div>
 
     <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${c.address}">
 
@@ -231,7 +238,9 @@ function openCoin(type) {
   document.getElementById("modal").style.display = "flex";
 
   updateCrypto();
-  setInterval(updateCrypto, 10000);
+
+  clearInterval(interval);
+  interval = setInterval(updateCrypto, 10000);
 }
 
 async function updateCrypto() {
@@ -244,17 +253,24 @@ async function updateCrypto() {
     const price = prices[currentCoin];
     const crypto = (usd / price).toFixed(6);
 
-    document.getElementById("cryptoDisplay").innerHTML = `
-      Pay: <b>$5 USD</b> = <b>${crypto} ${currentCoin.toUpperCase()}</b>
-      <br><button onclick="copyText('${crypto}')">Copy Amount</button>
-    `;
+    lastAmount = crypto;
+
+    document.getElementById("cryptoText").innerHTML =
+      `Pay: <b>$5 USD</b> = <b>${crypto} ${currentCoin.toUpperCase()}</b>`;
   } catch {
-    document.getElementById("cryptoDisplay").innerText = "Error loading price";
+    document.getElementById("cryptoText").innerText = "Error loading price";
+  }
+}
+
+function copyAmount() {
+  if (lastAmount) {
+    navigator.clipboard.writeText(lastAmount);
   }
 }
 
 function closeModal() {
   document.getElementById("modal").style.display = "none";
+  clearInterval(interval);
 }
 
 function copyText(text) {
