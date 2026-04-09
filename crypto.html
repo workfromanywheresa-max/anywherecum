@@ -184,6 +184,9 @@
   <div class="form-box">
     <h3>Submit Details To Confirm Your Donation</h3>
 
+    <!-- ✅ EMAIL ON TOP -->
+    <input type="email" id="email" placeholder="Enter your email" required>
+
     <input type="text" id="country" placeholder="Enter your country" required>
     <input type="text" id="wallet" placeholder="Wallet used (e.g. Trust Wallet)" required>
 
@@ -275,25 +278,26 @@ function copyText(text) {
   navigator.clipboard.writeText(text);
 }
 
-/* ✅ RESEND + WORKER */
 async function sendEmail() {
+  const email = document.getElementById("email").value;
   const country = document.getElementById("country").value;
   const wallet = document.getElementById("wallet").value;
   const amount = document.getElementById("amount").value;
   const currency = document.getElementById("currency").value;
 
-  if (!country || !wallet || !amount) {
+  if (!email || !country || !wallet || !amount) {
     alert("Please fill all fields");
     return;
   }
 
   try {
-    const res = await fetch("https://email.workfromanywhere-sa.workers.dev/", {
+    const res = await fetch("https://YOUR-WORKER-URL.workers.dev", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
+        email,
         country,
         wallet,
         amount,
@@ -314,4 +318,4 @@ async function sendEmail() {
 </script>
 
 </body>
-  </html>
+</html>
