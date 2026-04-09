@@ -40,26 +40,23 @@
     justify-content: space-between;
   }
 
-  /* ✅ PayFast custom height */
+  /* PayFast taller */
   .payfast-card {
     height: 220px;
   }
 
-  .logo {
-    width: 140px;
-    height: auto;
-    border-radius: 0 !important;
-    object-fit: contain;
+  /* ✅ Fixed logo height for ALL */
+  .logo,
+  .crypto-logo {
+    height: 60px;
+    width: auto;
     display: block;
     margin: 0 auto;
+    object-fit: contain;
   }
 
+  /* Prevent crypto flicker */
   .crypto-logo {
-    width: 140px;
-    height: auto;
-    margin: 0 auto;
-    display: block;
-
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     transform: translateZ(0);
