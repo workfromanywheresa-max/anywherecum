@@ -35,9 +35,16 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   }
 
+  /* ✅ FIX: remove circle look */
   .logo {
     width: 140px;
+    height: auto;
     margin-bottom: 10px;
+    border-radius: 0 !important;
+    object-fit: contain;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   input {
@@ -93,7 +100,6 @@
     background: #005c99;
   }
 
-  /* Crypto button */
   .crypto-btn {
     margin-top: 15px;
     width: 100%;
@@ -122,7 +128,7 @@
     Every donation makes a real difference ❤️
   </p>
 
-  <!-- 💳 PayPal Card -->
+  <!-- PayPal -->
   <div class="card">
     <img class="logo" src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg" alt="PayPal">
 
@@ -131,7 +137,7 @@
     </button>
   </div>
 
-  <!-- 💰 Crypto Card -->
+  <!-- Crypto -->
   <div class="card">
     <img class="logo" src="https://cdn-icons-png.flaticon.com/512/825/825454.png" alt="Crypto">
 
@@ -140,7 +146,7 @@
     </button>
   </div>
 
-  <!-- 💰 PayFast Card -->
+  <!-- PayFast -->
   <div class="card">
     <img class="logo" src="https://anywherecum.pages.dev/images/payfast.webp" alt="PayFast">
 
@@ -163,7 +169,6 @@ const usdDisplay = document.getElementById("usdDisplay");
 
 const API_URL = "https://donation.workfromanywhere-sa.workers.dev/rate";
 
-// Fetch exchange rate
 async function fetchRate() {
   try {
     const res = await fetch(API_URL);
@@ -182,7 +187,6 @@ async function fetchRate() {
 fetchRate();
 setInterval(fetchRate, 30000);
 
-// Input listener
 customInput.addEventListener("input", handleInput);
 
 function handleInput() {
@@ -206,7 +210,6 @@ function handleInput() {
   }
 }
 
-// PayFast redirect
 function goDonate() {
   const amount = parseFloat(customInput.value);
 
@@ -216,12 +219,10 @@ function goDonate() {
     "https://donation.workfromanywhere-sa.workers.dev/?amount=" + amount;
 }
 
-// PayPal redirect
 function goPayPal() {
   window.location.href = "https://www.paypal.me/anywherecum";
 }
 
-// Crypto redirect
 function goCrypto() {
   window.location.href = "crypto.html";
 }
