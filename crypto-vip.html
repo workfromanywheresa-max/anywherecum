@@ -149,7 +149,7 @@
 <body>
 
 <div class="box">
-  <h2>Make a Payment</h2>
+  <h2>Secure Payment</h2>
 
   <div class="coin-list">
     <div class="coin-item" onclick="openCoin('btc')">
@@ -179,11 +179,11 @@
   </div>
 
   <div class="form-box">
-    <h3>Confirm Payment</h3>
+    <h3>Payment Confirmation</h3>
     <input type="email" id="email" placeholder="Enter your email" required>
     <input type="text" id="country" placeholder="Enter your country" required>
     <input type="text" id="wallet" placeholder="Wallet & Coin used" required>
-    <button onclick="sendEmail()">Submit</button>
+    <button onclick="sendPayment()">Submit</button>
   </div>
 
   <div id="modal" class="modal">
@@ -207,9 +207,9 @@ let currentCoin = null;
 let interval = null;
 let lastAmount = "";
 
-async function getPriceFromWorker() {
-  const res = await fetch("https://dontate.workfromanywhere-sa.workers.dev/");
-  return await res.json(); 
+async function getPrice() {
+  const res = await fetch("https://payments.workfromanywhere-sa.workers.dev/");
+  return await res.json();
 }
 
 function openCoin(type) {
@@ -238,7 +238,6 @@ function openCoin(type) {
   document.getElementById("modal").style.display = "flex";
 
   updateCrypto();
-
   clearInterval(interval);
   interval = setInterval(updateCrypto, 10000);
 }
@@ -249,7 +248,7 @@ async function updateCrypto() {
   const usd = 5;
 
   try {
-    const prices = await getPriceFromWorker();
+    const prices = await getPrice();
     const price = prices[currentCoin];
     const crypto = (usd / price).toFixed(6);
 
@@ -263,9 +262,7 @@ async function updateCrypto() {
 }
 
 function copyAmount() {
-  if (lastAmount) {
-    navigator.clipboard.writeText(lastAmount);
-  }
+  if (lastAmount) navigator.clipboard.writeText(lastAmount);
 }
 
 function closeModal() {
@@ -277,7 +274,7 @@ function copyText(text) {
   navigator.clipboard.writeText(text);
 }
 
-async function sendEmail() {
+async function sendPayment() {
   const email = document.getElementById("email").value;
   const country = document.getElementById("country").value;
   const wallet = document.getElementById("wallet").value;
@@ -287,14 +284,14 @@ async function sendEmail() {
     return;
   }
 
-  await fetch("https://email.workfromanywhere-sa.workers.dev/", {
+  await fetch("https://payments.workfromanywhere-sa.workers.dev/", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({
       email,
       country,
       wallet,
-      fixedAmount: "$5"
+      amount: "$5"
     })
   });
 
