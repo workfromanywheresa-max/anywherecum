@@ -41,67 +41,6 @@
     height: 24px;
   }
 
-  /* CARD */
-  .card {
-    background: #fff;
-    padding: 20px;
-    margin-top: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  }
-
-  .title {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-
-  .logo {
-    width: 30px;
-    height: 30px;
-  }
-
-  .qr {
-    width: 160px;
-    margin-top: 10px;
-  }
-
-  .address-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 10px;
-  }
-
-  .address {
-    font-size: 12px;
-    word-break: break-all;
-    text-align: left;
-    flex: 1;
-  }
-
-  /* YOUR COPY BUTTON (UNCHANGED) */
-  .copy-icon {
-    border: none;
-    background: none;
-    cursor: pointer;
-    padding: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .copy-icon svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .copy-icon:active {
-    transform: scale(0.9);
-  }
-
   /* MODAL */
   .modal {
     display: none;
@@ -132,6 +71,58 @@
     font-size: 22px;
     cursor: pointer;
   }
+
+  .logo {
+    width: 30px;
+    height: 30px;
+  }
+
+  .title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .qr {
+    width: 160px;
+    margin-top: 10px;
+  }
+
+  .address-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .address {
+    font-size: 12px;
+    word-break: break-all;
+    text-align: left;
+    flex: 1;
+  }
+
+  /* KEEP YOUR COPY BUTTON EXACTLY */
+  .copy-icon {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .copy-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .copy-icon:active {
+    transform: scale(0.9);
+  }
 </style>
 </head>
 
@@ -140,7 +131,7 @@
 <div class="box">
   <h2>💰 Crypto Donations</h2>
 
-  <!-- LIST WITH SYMBOLS -->
+  <!-- LIST ONLY -->
   <div class="coin-list">
     <div class="coin-item" onclick="openCoin('btc')">
       <img class="coin-icon" src="https://assets.coingecko.com/coins/images/1/small/bitcoin.png">
@@ -172,132 +163,76 @@
   <div id="modal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal()">&times;</span>
-
       <div id="content"></div>
-
-    </div>
-  </div>
-
-  <!-- ORIGINAL CARDS (UNCHANGED) -->
-
-  <!-- Bitcoin -->
-  <div class="card" id="btcCard">
-    <div class="title">
-      <img class="logo" src="https://assets.coingecko.com/coins/images/1/small/bitcoin.png">
-      <h3>Bitcoin</h3>
-    </div>
-
-    <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=121jjoVvDBVDudoUeHzXvSL9V3tMz6r9CX">
-
-    <div class="address-row">
-      <div class="address" id="btc">121jjoVvDBVDudoUeHzXvSL9V3tMz6r9CX</div>
-      <button class="copy-icon" onclick="copyText('btc')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="5" width="13" height="13" rx="2"></rect>
-          <rect x="9" y="1" width="13" height="13" rx="2"></rect>
-        </svg>
-      </button>
-    </div>
-  </div>
-
-  <!-- Litecoin -->
-  <div class="card" id="ltcCard">
-    <div class="title">
-      <img class="logo" src="https://assets.coingecko.com/coins/images/2/small/litecoin.png">
-      <h3>Litecoin</h3>
-    </div>
-
-    <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=LYVGRTt1VBFXRbuqYxTAXKdmyeU44Q4kvQ">
-
-    <div class="address-row">
-      <div class="address" id="ltc">LYVGRTt1VBFXRbuqYxTAXKdmyeU44Q4kvQ</div>
-      <button class="copy-icon" onclick="copyText('ltc')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="5" width="13" height="13" rx="2"></rect>
-          <rect x="9" y="1" width="13" height="13" rx="2"></rect>
-        </svg>
-      </button>
-    </div>
-  </div>
-
-  <!-- Ethereum -->
-  <div class="card" id="ethCard">
-    <div class="title">
-      <img class="logo" src="https://assets.coingecko.com/coins/images/279/small/ethereum.png">
-      <h3>Ethereum (ETH)</h3>
-    </div>
-
-    <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=0xb38839dfbee320badf35db258625463521da7577">
-
-    <div class="address-row">
-      <div class="address" id="eth">0xb38839dfbee320badf35db258625463521da7577</div>
-      <button class="copy-icon" onclick="copyText('eth')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="5" width="13" height="13" rx="2"></rect>
-          <rect x="9" y="1" width="13" height="13" rx="2"></rect>
-        </svg>
-      </button>
-    </div>
-  </div>
-
-  <!-- BNB -->
-  <div class="card" id="bnbCard">
-    <div class="title">
-      <img class="logo" src="https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png">
-      <h3>BNB (BEP20)</h3>
-    </div>
-
-    <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=0xb38839dfbee320badf35db258625463521da7577">
-
-    <div class="address-row">
-      <div class="address" id="bnb">0xb38839dfbee320badf35db258625463521da7577</div>
-      <button class="copy-icon" onclick="copyText('bnb')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="5" width="13" height="13" rx="2"></rect>
-          <rect x="9" y="1" width="13" height="13" rx="2"></rect>
-        </svg>
-      </button>
-    </div>
-  </div>
-
-  <!-- USDT -->
-  <div class="card" id="usdtCard">
-    <div class="title">
-      <img class="logo" src="https://assets.coingecko.com/coins/images/325/small/tether.png">
-      <h3>USDT (TRC20)</h3>
-    </div>
-
-    <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=TCLtokamwWrbLvifZ3z2SYmBute7EjdiUN">
-
-    <div class="address-row">
-      <div class="address" id="usdt">TCLtokamwWrbLvifZ3z2SYmBute7EjdiUN</div>
-      <button class="copy-icon" onclick="copyText('usdt')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="5" width="13" height="13" rx="2"></rect>
-          <rect x="9" y="1" width="13" height="13" rx="2"></rect>
-        </svg>
-      </button>
     </div>
   </div>
 
 </div>
 
 <script>
-function copyText(id) {
-  const text = document.getElementById(id).innerText;
-  navigator.clipboard.writeText(text);
-}
+const coins = {
+  btc: {
+    name: "Bitcoin",
+    address: "121jjoVvDBVDudoUeHzXvSL9V3tMz6r9CX",
+    logo: "https://assets.coingecko.com/coins/images/1/small/bitcoin.png"
+  },
+  ltc: {
+    name: "Litecoin",
+    address: "LYVGRTt1VBFXRbuqYxTAXKdmyeU44Q4kvQ",
+    logo: "https://assets.coingecko.com/coins/images/2/small/litecoin.png"
+  },
+  eth: {
+    name: "Ethereum (ETH)",
+    address: "0xb38839dfbee320badf35db258625463521da7577",
+    logo: "https://assets.coingecko.com/coins/images/279/small/ethereum.png"
+  },
+  bnb: {
+    name: "BNB (BEP20)",
+    address: "0xb38839dfbee320badf35db258625463521da7577",
+    logo: "https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png"
+  },
+  usdt: {
+    name: "USDT (TRC20)",
+    address: "TCLtokamwWrbLvifZ3z2SYmBute7EjdiUN",
+    logo: "https://assets.coingecko.com/coins/images/325/small/tether.png"
+  }
+};
 
 function openCoin(type) {
-  const card = document.getElementById(type + "Card");
-  document.getElementById("content").innerHTML = card.innerHTML;
+  const c = coins[type];
+
+  document.getElementById("content").innerHTML = `
+    <div class="title">
+      <img class="logo" src="${c.logo}">
+      <h3>${c.name}</h3>
+    </div>
+
+    <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${c.address}">
+
+    <div class="address-row">
+      <div class="address" id="addr">${c.address}</div>
+
+      <!-- YOUR ORIGINAL COPY BUTTON -->
+      <button class="copy-icon" onclick="copyText('${c.address}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="5" width="13" height="13" rx="2"></rect>
+          <rect x="9" y="1" width="13" height="13" rx="2"></rect>
+        </svg>
+      </button>
+    </div>
+  `;
+
   document.getElementById("modal").style.display = "flex";
 }
 
 function closeModal() {
   document.getElementById("modal").style.display = "none";
 }
+
+function copyText(text) {
+  navigator.clipboard.writeText(text);
+}
 </script>
 
 </body>
-  </html>
+</html>
