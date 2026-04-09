@@ -76,27 +76,6 @@
   .copy-icon:active {
     transform: scale(0.9);
   }
-
-  /* Toast message */
-  .toast {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
-    color: #fff;
-    padding: 10px 16px;
-    border-radius: 6px;
-    font-size: 14px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s, transform 0.3s;
-  }
-
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(-10px);
-  }
 </style>
 </head>
 
@@ -147,25 +126,10 @@
 
 </div>
 
-<!-- Toast -->
-<div id="toast" class="toast">Copied to clipboard</div>
-
 <script>
 function copyText(id) {
   const text = document.getElementById(id).innerText;
-
-  navigator.clipboard.writeText(text).then(() => {
-    showToast();
-  });
-}
-
-function showToast() {
-  const toast = document.getElementById("toast");
-  toast.classList.add("show");
-
-  setTimeout(() => {
-    toast.classList.remove("show");
-  }, 1500);
+  navigator.clipboard.writeText(text);
 }
 </script>
 
