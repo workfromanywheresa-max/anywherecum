@@ -175,7 +175,7 @@
 </div>
 
 <script>
-  const VIP_FOLDER = "🔒VIP Exclusive";
+const VIP_FOLDER = "🔒VIP Exclusive";
 const VERIFY_URL = "https://vipkeys.workfromanywhere-sa.workers.dev/verify-key";
 
 const countdownEl = document.createElement("div");
@@ -184,8 +184,6 @@ countdownEl.style.fontWeight = "bold";
 countdownEl.style.color = "#6a00ff";
 
 const vipInput = document.getElementById("vipKey");
-
-// 👇 insert countdown ABOVE password input
 vipInput.parentNode.insertBefore(countdownEl, vipInput);
 
 let countdownInterval;
@@ -242,15 +240,25 @@ function enterVIP() {
   })
   .then(res => res.json())
   .then(data => {
+
     if (data.valid) {
-      // 🔥 START REAL COUNTDOWN FROM SERVER
+
+      // ✅ SAVE VIP FOR OTHER PAGES (THIS WAS MISSING)
+      localStorage.setItem("vip", JSON.stringify({
+        active: true,
+        expiresAt: data.expiresAtISO
+      }));
+
+      // start countdown on this page
       startCountdown(data.expiresAtISO);
 
+      // redirect
       window.location.href =
         "folder.html?folder=" +
         encodeURIComponent(VIP_FOLDER) +
         "&key=" +
         encodeURIComponent(key);
+
     } else {
       alert("❌ " + (data.reason || "Invalid password"));
     }
@@ -261,7 +269,7 @@ function enterVIP() {
   });
 }
 
-// ================= PAYMENT SYSTEM =================
+// ================= PAYMENT SYSTEM (UNCHANGED) =================
 let usdToZar = 0;
 const API_URL = "https://payments.workfromanywhere-sa.workers.dev/rate";
 
@@ -296,7 +304,6 @@ function updateZAR() {
 
 function goPayment() {
   const amount = parseFloat(zarInput.value);
-
   if (!amount || amount <= 0) return;
 
   window.location.href =
@@ -310,7 +317,7 @@ function goPayPal() {
 function goCrypto() {
   window.location.href = "crypto-vip.html";
 }
-</script>
+    </script>
 
 </body>
 </html>
