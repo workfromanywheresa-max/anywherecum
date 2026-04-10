@@ -867,24 +867,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     observer.observe(container);
 
-    container.addEventListener('click', () => {
-
-    if (folderName === VIP_FOLDER) {
-
-    const vip = getVipStatus();
-
-    if (vip.active) {
-      window.location.href = folderURL;
-    } else {
-      window.location.href = "vip.html";
-     }
-
-     } else {
-    window.location.href = folderURL;
-   }
-
-  });
-
     const link = document.createElement('a');
     link.className = "folder-link";
     link.href = folderURL;
@@ -1152,8 +1134,8 @@ function randomViews() {
 loadLives();
     </script>
 
-  <script>
-const VIP_API = "https://vipkeys.workfromanywhere-sa.workers.dev/verify-key";
+  <script
+    const VIP_API = "https://vipkeys.workfromanywhere-sa.workers.dev/verify-key";
 const VIP_FOLDER = "🔒VIP Exclusive";
 
 /* =========================
@@ -1165,21 +1147,16 @@ function getVipStatus() {
   if (!vip || !vip.active) return { active: false };
 
   const expiry = new Date(vip.expiresAt);
-  const now = new Date();
-
-  if (expiry <= now) {
+  if (expiry <= new Date()) {
     localStorage.removeItem("vip");
     return { active: false };
   }
 
-  return {
-    active: true,
-    expiresAt: vip.expiresAt
-  };
+  return vip;
 }
 
 /* =========================
-   COUNTDOWN
+   COUNTDOWN TEXT
 ========================= */
 function getCountdown(expiresAt) {
   if (!expiresAt) return "";
@@ -1189,12 +1166,36 @@ function getCountdown(expiresAt) {
 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
 
-  return `${days}d ${hours}h left`;
+  return `${days}d ${hours}h ${minutes}m left`;
 }
 
 /* =========================
-   VERIFY VIP KEY
+   LIVE VIP LABEL UPDATE
+========================= */
+function refreshVipLabels() {
+  document.querySelectorAll("li[data-folder]").forEach(li => {
+    const folder = li.dataset.folder;
+    const link = li.querySelector(".folder-link");
+    if (!link) return;
+
+    if (folder !== VIP_FOLDER) return;
+
+    const vip = getVipStatus();
+
+    if (!vip.active) {
+      link.textContent = folder;
+    } else {
+      link.textContent = `💎 Unlocked (${getCountdown(vip.expiresAt)})`;
+    }
+  });
+}
+
+setInterval(refreshVipLabels, 1000);
+
+/* =========================
+   VERIFY VIP KEY (safe single system)
 ========================= */
 async function verifyVip(key, userId) {
   const res = await fetch(VIP_API, {
@@ -1218,27 +1219,14 @@ async function verifyVip(key, userId) {
 }
 
 /* =========================
-   SAFE VIP LABEL (FIXED)
-========================= */
-function getFolderLabel(folderName) {
-  if (folderName !== VIP_FOLDER) return folderName;
-
-  const vip = getVipStatus();
-
-  if (!vip.active) return folderName;
-
-  return `💎 Unlocked (${getCountdown(vip.expiresAt)})`;
-}
-
-/* =========================
-   VIP CLICK CONTROL (FIXED - NO CONFLICT)
+   VIP CLICK HANDLER (FIXED - NO DUPLICATES)
 ========================= */
 document.addEventListener("click", (e) => {
   const item = e.target.closest("li");
   if (!item) return;
 
-  const folderName = item.dataset.folder;
-  if (folderName !== VIP_FOLDER) return;
+  const folder = item.dataset.folder;
+  if (folder !== VIP_FOLDER) return;
 
   const vip = getVipStatus();
 
@@ -1249,7 +1237,7 @@ document.addEventListener("click", (e) => {
     window.location.href = "vip.html";
   }
 });
-  </script>
+                                      </script>
       
   <script type="module" src="views.js"></script>
 
