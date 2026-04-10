@@ -445,6 +445,9 @@ async function loadVipKeys() {
 function renderVipKeys(data) {
   if (!Array.isArray(data)) return;
 
+  // SORT NEWEST FIRST
+  data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
   vipKeysList.innerHTML = data.map(item => `
     <li>
       <span><b>${item.key}</b></span>
@@ -456,7 +459,7 @@ function renderVipKeys(data) {
 
 loadVipKeys();
 setInterval(loadVipKeys, 5000);
-</script>
+      </script>
   
 </body>
 </html>
