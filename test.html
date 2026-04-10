@@ -926,7 +926,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const li = createPreviewItem(
           latest,
           folderURL,
-          folderName === VIP_FOLDER ? "🔒 VIP Exclusive" : folderName,
+          folderName === VIP_FOLDER
+          ? (getVipStatus().active
+          ? `💎 Unlocked (${getCountdown(getVipStatus().expiresAt)})`
+          : folderName)
+          : folderName,
           folderName
         );
 
@@ -1144,6 +1148,90 @@ function randomViews() {
 
 loadLives();
     </script>
+
+  <script>
+const VIP_API = "https://vipkeys.workfromanywhere-sa.workers.dev/verify-key";
+const VIP_FOLDER = "🔒VIP Exclusive";
+
+/* =========================
+   SAVE VIP AFTER LOGIN
+   (CALL THIS FROM vip.html)
+========================= */
+async function verifyVip(key, userId) {
+  const res = await fetch(VIP_API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ key, userId })
+  });
+
+  const data = await res.json();
+
+  if (data.valid) {
+    localStorage.setItem("vip", JSON.stringify({
+      active: true,
+      expiresAt: data.expiresAtISO
+    }));
+  } else {
+    localStorage.removeItem("vip");
+  }
+
+  return data;
+}
+
+/* =========================
+   GET VIP STATUS
+========================= */
+function getVipStatus() {
+  const vip = JSON.parse(localStorage.getItem("vip"));
+  if (!vip || !vip.active) return { active: false };
+
+  const now = new Date();
+  const expiry = new Date(vip.expiresAt);
+
+  if (expiry <= now) {
+    localStorage.removeItem("vip");
+    return { active: false };
+  }
+
+  return {
+    active: true,
+    expiresAt: vip.expiresAt
+  };
+}
+
+/* =========================
+   COUNTDOWN
+========================= */
+function getCountdown(expiresAt) {
+  const diff = new Date(expiresAt) - new Date();
+  if (diff <= 0) return "Expired";
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+
+  return `${days}d ${hours}h left`;
+}
+
+/* =========================
+   VIP CLICK CONTROL
+========================= */
+document.addEventListener("click", (e) => {
+  const item = e.target.closest("li");
+  if (!item) return;
+
+  const folderName = item.dataset.folder;
+  if (folderName !== VIP_FOLDER) return;
+
+  const vip = getVipStatus();
+
+  if (vip.active) {
+    window.location.href =
+      "folder.html?folder=" + encodeURIComponent(VIP_FOLDER);
+  } else {
+    window.location.href = "vip.html";
+  }
+});
+  </script>
       
   <script type="module" src="views.js"></script>
 
