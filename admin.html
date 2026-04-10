@@ -443,31 +443,15 @@ async function loadVipKeys() {
 }
 
 function renderVipKeys(data) {
-  if (!data) return;
+  if (!Array.isArray(data)) return;
 
-  const now = new Date();
-
-  vipKeysList.innerHTML = Object.entries(data).map(([key, val]) => {
-
-    let status = "🟢 ACTIVE";
-
-    if (val?.expiresAtISO && new Date(val.expiresAtISO) < now) {
-      status = "❌ EXPIRED";
-    } 
-    else if (val?.userId) {
-      status = "🔒 LOCKED";
-    }
-
-    return `
-      <li>
-        <span><b>${key}</b></span>
-        <span>User: ${val?.userId || "NONE"}</span>
-        <span>Created: ${val?.createdAt || "-"}</span>
-        <span>Expires: ${val?.expiresAt || "-"}</span>
-        <span class="value">${status}</span>
-      </li>
-    `;
-  }).join("");
+  vipKeysList.innerHTML = data.map(item => `
+    <li>
+      <span><b>${item.key}</b></span>
+      <span>Created: ${item.createdAt}</span>
+      <span>Expires: ${item.expiresAt}</span>
+    </li>
+  `).join("");
 }
 
 loadVipKeys();
