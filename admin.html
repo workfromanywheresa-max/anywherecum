@@ -431,35 +431,49 @@ async function loadVipKeys(){
     const res = await fetch("https://vipkeys.workfromanywhere-sa.workers.dev/keys");
     const data = await res.json();
 
+    console.log("VIP KEYS FROM API:", data); // debug only
+
     renderVipKeys(data);
   } catch (e) {
     console.log("VIP keys error", e);
+    vipKeysList.innerHTML = "<li>Failed to load keys</li>";
   }
 }
 
-/* ================= RENDER VIP KEYS ================= */
+/* ================= RENDER VIP KEYS (FIXED) ================= */
 function renderVipKeys(data){
-  if(!data) return;
+  vipKeysList.innerHTML = "";
+
+  if (!data || typeof data !== "object") {
+    vipKeysList.innerHTML = "<li>No keys found</li>";
+    return;
+  }
 
   const now = new Date();
+  const entries = Object.entries(data);
 
-  vipKeysList.innerHTML = Object.entries(data).map(([key, val]) => {
+  if (entries.length === 0) {
+    vipKeysList.innerHTML = "<li>No keys generated yet</li>";
+    return;
+  }
+
+  vipKeysList.innerHTML = entries.map(([key, val]) => {
 
     let status = "🟢 ACTIVE";
 
-    if (val.expiresAtISO && new Date(val.expiresAtISO) < now) {
+    if (val?.expiresAtISO && new Date(val.expiresAtISO) < now) {
       status = "❌ EXPIRED";
     } 
-    else if (val.userId) {
+    else if (val?.userId) {
       status = "🔒 LOCKED";
     }
 
     return `
       <li>
         <span><b>${key}</b></span>
-        <span>User: ${val.userId || "NONE"}</span>
-        <span>Created: ${val.createdAt || "-"}</span>
-        <span>Expires: ${val.expiresAt || "-"}</span>
+        <span>User: ${val?.userId || "NONE"}</span>
+        <span>Created: ${val?.createdAt || "-"}</span>
+        <span>Expires: ${val?.expiresAt || "-"}</span>
         <span class="value">${status}</span>
       </li>
     `;
