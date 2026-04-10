@@ -105,7 +105,7 @@ if (!localStorage.getItem("adminLoggedIn")) {
 async function generateKey() {
   const key = Math.random().toString(36).substring(2, 10).toUpperCase();
 
-  const res = await fetch("https://vipkey.YOUR_DOMAIN.workers.dev/create-key", {
+  const res = await fetch("https://vipkeys.workfromanywhere-sa.workers.dev/", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ key })
@@ -422,7 +422,7 @@ const vipKeysList = document.getElementById("vipKeysList");
 /* ================= FETCH VIP KEYS ================= */
 async function loadVipKeys(){
   try {
-    const res = await fetch("https://vipkey.workers.dev/keys");
+    const res = await fetch("https://vipkeys.workfromanywhere-sa.workers.dev/");
     const data = await res.json();
 
     renderVipKeys(data);
