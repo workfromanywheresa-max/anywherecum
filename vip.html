@@ -13,14 +13,9 @@
     background: #f5f5f5;
   }
 
-  .box {
-    max-width: 400px;
-    margin: auto;
-  }
+  .box { max-width: 400px; margin: auto; }
 
-  h2 {
-    margin-bottom: 10px;
-  }
+  h2 { margin-bottom: 10px; }
 
   p {
     color: #555;
@@ -39,12 +34,9 @@
     justify-content: space-between;
   }
 
-  .payfast-card {
-    height: 240px;
-  }
+  .payfast-card { height: 240px; }
 
-  .logo,
-  .crypto-logo {
+  .logo, .crypto-logo {
     height: 60px;
     width: auto;
     display: block;
@@ -108,16 +100,14 @@
     background: #6a00ff;
     font-weight: bold;
     width: 60%;
-    margin: 0px auto 0 auto;
+    margin: 0 auto;
     display: block;
     font-size: 10px;
     padding: 10px;
     border-radius: 6px;
   }
 
-  .vip-btn:hover {
-    background: #4b00b3;
-  }
+  .vip-btn:hover { background: #4b00b3; }
 </style>
 </head>
 
@@ -128,12 +118,11 @@
   <h2>💎 VIP Access</h2>
 
   <p>
-    Unlock VIP access for $5 USD (valid for 30 days). This includes no ads or hidden charges. After payment, you will receive your access password within 15 minutes and unlock full VIP Exclusive Content.
+    Unlock VIP access for $5 USD (valid for 30 days).
   </p>
 
   <div id="countdown" style="margin-bottom:10px;font-weight:bold;color:#6a00ff;"></div>
 
-  <!-- VIP INPUT -->
   <input type="password" id="vipKey" placeholder="Enter password">
 
   <button class="vip-btn" onclick="enterVIP()">
@@ -142,26 +131,19 @@
 
   <!-- PayPal -->
   <div class="card">
-    <img class="logo" src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg" alt="PayPal">
-
-    <button class="paypal-btn" onclick="goPayPal()">
-      Pay $5 with PayPal
-    </button>
+    <img class="logo" src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_111x69.jpg">
+    <button class="paypal-btn" onclick="goPayPal()">Pay $5 with PayPal</button>
   </div>
 
   <!-- Crypto -->
   <div class="card">
-    <img class="crypto-logo" src="https://anywherecum.pages.dev/images/crypto-logo.webp" alt="Crypto">
-
-    <button class="crypto-btn" onclick="goCrypto()">
-      Pay $5 with Crypto
-    </button>
+    <img class="crypto-logo" src="https://anywherecum.pages.dev/images/crypto-logo.webp">
+    <button class="crypto-btn" onclick="goCrypto()">Pay $5 with Crypto</button>
   </div>
 
   <!-- PayFast -->
   <div class="card payfast-card">
-    <img class="logo" src="https://anywherecum.pages.dev/images/payfast.webp" alt="PayFast">
-
+    <img class="logo" src="https://anywherecum.pages.dev/images/payfast.webp">
     <div id="usdDisplay">$5.00 USD</div>
 
     <input type="number" id="zarAmount" placeholder="Loading ZAR...">
@@ -174,26 +156,18 @@
 </div>
 
 <script>
-/* =========================
-   GLOBAL CONFIG
-========================= */
-const VIP_FOLDER = "🔒VIP Exclusive";
 const VERIFY_URL = "https://vipkeys.workfromanywhere-sa.workers.dev/verify-key";
 const CHECK_URL  = "https://vipkeys.workfromanywhere-sa.workers.dev/check-session";
 const API_URL = "https://payments.workfromanywhere-sa.workers.dev/rate";
 
-/* =========================
-   COUNTDOWN SETUP (UNCHANGED)
-========================= */
 let countdownInterval;
+let sessionId = localStorage.getItem("vip_session");
 let countdownEl = document.getElementById("countdown");
 
 /* =========================
-   COUNTDOWN FUNCTION (UNCHANGED)
+   COUNTDOWN
 ========================= */
 function startCountdown(expiryISO) {
-  if (!countdownEl) return;
-
   const expiryDate = new Date(expiryISO);
   clearInterval(countdownInterval);
 
@@ -201,7 +175,7 @@ function startCountdown(expiryISO) {
     const diff = expiryDate - new Date();
 
     if (diff <= 0) {
-      countdownEl.innerText = "⛔ VIP Access Expired";
+      countdownEl.innerText = "⛔ VIP Expired";
       clearInterval(countdownInterval);
       return;
     }
@@ -211,8 +185,7 @@ function startCountdown(expiryISO) {
     const m = Math.floor((diff / 60000) % 60);
     const s = Math.floor((diff / 1000) % 60);
 
-    countdownEl.innerText =
-      `⏳ VIP expires in ${d}d ${h}h ${m}m ${s}s`;
+    countdownEl.innerText = `⏳ ${d}d ${h}h ${m}m ${s}s`;
   }
 
   update();
@@ -220,70 +193,74 @@ function startCountdown(expiryISO) {
 }
 
 /* =========================
-   🔥 FIXED ENTER VIP (NOW COOKIE BASED)
+   ENTER VIP (FIXED)
 ========================= */
 function enterVIP() {
-  const key = document.getElementById("vipKey").value.trim();
+  const key = document.getElementById("vipKey").value.trim().toUpperCase();
   if (!key) return alert("Enter password");
 
   fetch(VERIFY_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    credentials: "include", // 🔥 IMPORTANT COOKIE SET
     body: JSON.stringify({ key })
   })
   .then(res => res.json())
   .then(data => {
+
     if (!data.valid) {
-      alert("❌ " + (data.reason || "Invalid password"));
+      alert("❌ " + (data.reason || "Invalid key"));
       return;
     }
 
+    sessionId = data.sessionId;
+    localStorage.setItem("vip_session", sessionId);
+
     startCountdown(data.expiresAtISO);
 
-    // redirect (UNCHANGED)
     window.location.href =
-      "folder.html?folder=" +
-      encodeURIComponent(VIP_FOLDER) +
-      "&key=" +
-      encodeURIComponent(key);
+      "folder.html?session=" + sessionId;
+
   })
-  .catch(() => alert("Server error"));
+  .catch(err => {
+    console.error(err);
+    alert("Server error (check console)");
+  });
 }
 
 /* =========================
-   🔥 FIXED VALIDATION (COOKIE BASED)
+   CHECK SESSION
 ========================= */
 async function validateVip() {
+  if (!sessionId) return;
+
   try {
     const res = await fetch(CHECK_URL, {
       method: "POST",
-      credentials: "include" // 🔥 SEND COOKIE
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId })
     });
 
     const data = await res.json();
 
     if (data.active) {
       startCountdown(data.expires);
+    } else {
+      localStorage.removeItem("vip_session");
+      sessionId = null;
     }
 
-  } catch (err) {
-    console.error("VIP check error:", err);
+  } catch (e) {
+    console.error("Session error:", e);
   }
 }
 
-/* =========================
-   AUTO REVALIDATION (NOW COOKIE BASED)
-========================= */
-setInterval(() => {
-  validateVip();
-}, 60000);
+setInterval(validateVip, 60000);
+validateVip();
 
 /* =========================
-   PAYMENT SYSTEM (UNCHANGED)
+   PAYMENT
 ========================= */
 let usdToZar = 0;
-
 const zarInput = document.getElementById("zarAmount");
 const payBtn = document.getElementById("payBtn");
 
@@ -293,49 +270,35 @@ async function fetchRate() {
     const data = await res.json();
 
     usdToZar = data.usdToZar;
-    updateZAR();
 
-  } catch (err) {
-    console.log("Rate error:", err);
+    const zar = (5 * usdToZar).toFixed(2);
+    zarInput.value = zar;
+
+    payBtn.disabled = false;
+    payBtn.classList.add("active");
+
+  } catch (e) {
+    console.log("Rate error", e);
   }
 }
 
 fetchRate();
 setInterval(fetchRate, 60000);
 
-function updateZAR() {
-  if (!usdToZar || !zarInput) return;
-
-  const zar = (5 * usdToZar).toFixed(2);
-  zarInput.value = zar;
-
-  if (payBtn) {
-    payBtn.disabled = false;
-    payBtn.classList.add("active");
-  }
-}
-
 function goPayment() {
-  const amount = parseFloat(zarInput?.value);
-  if (!amount) return;
-
   window.location.href =
-    "https://payments.workfromanywhere-sa.workers.dev/?amount=" + amount;
+    "https://payments.workfromanywhere-sa.workers.dev/?amount=" +
+    zarInput.value;
 }
 
 function goPayPal() {
-  window.location.href = "https://www.paypal.com/ncp/payment/M5A4KXRSXUJS2";
+  window.location.href =
+    "https://www.paypal.com/ncp/payment/M5A4KXRSXUJS2";
 }
 
 function goCrypto() {
   window.location.href = "crypto-vip.html";
 }
-
-/* =========================
-   INIT (REPLACED LOCALSTORAGE CHECK WITH COOKIE CHECK)
-========================= */
-validateVip();
-
 </script>
 
 </body>
