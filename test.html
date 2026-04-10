@@ -1153,30 +1153,37 @@ loadLives();
     </script>
 
   <script>
-const BASE_URL = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/";
+    const VIP_API = "https://vipkeys.workfromanywhere-sa.workers.dev/verify-key";
 const VIP_FOLDER = "🔒VIP Exclusive";
-const VIP_LINK = "vip.html";
 
 /* =========================
-   VIP STATUS
+   VIP STATUS CHECK
 ========================= */
 function getVipStatus() {
   const vip = JSON.parse(localStorage.getItem("vip"));
+
   if (!vip || !vip.active) return { active: false };
 
   const expiry = new Date(vip.expiresAt);
-  if (expiry <= new Date()) {
+  const now = new Date();
+
+  if (expiry <= now) {
     localStorage.removeItem("vip");
     return { active: false };
   }
 
-  return { active: true, expiresAt: vip.expiresAt };
+  return {
+    active: true,
+    expiresAt: vip.expiresAt
+  };
 }
 
 /* =========================
-   COUNTDOWN FORMAT
+   COUNTDOWN (WITH SECONDS)
 ========================= */
 function getCountdown(expiresAt) {
+  if (!expiresAt) return "";
+
   const diff = new Date(expiresAt) - new Date();
   if (diff <= 0) return "Expired";
 
@@ -1185,111 +1192,67 @@ function getCountdown(expiresAt) {
   const minutes = Math.floor((diff / (1000 * 60)) % 60);
   const seconds = Math.floor((diff / 1000) % 60);
 
-  return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  return `${days}d ${hours}h ${minutes}m ${seconds}s left`;
 }
 
 /* =========================
-   LIVE VIP UI UPDATER (NEW)
+   VERIFY VIP KEY (SERVER)
 ========================= */
-function updateVipUI() {
-  const vip = getVipStatus();
-  if (!vip.active) return;
-
-  const text = `💎 Unlocked (${getCountdown(vip.expiresAt)})`;
-
-  document.querySelectorAll("li[data-folder]").forEach(li => {
-    if (li.dataset.folder === VIP_FOLDER) {
-      const link = li.querySelector(".folder-link");
-      if (link) link.textContent = text;
-    }
+async function verifyVip(key, userId) {
+  const res = await fetch(VIP_API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ key, userId })
   });
 
-  const latest = document.querySelector("#latestVideo .folder-link");
-  if (latest && latest.dataset.folder === VIP_FOLDER) {
-    latest.textContent = text;
+  const data = await res.json();
+
+  if (data.valid) {
+    localStorage.setItem("vip", JSON.stringify({
+      active: true,
+      expiresAt: data.expiresAtISO
+    }));
+  } else {
+    localStorage.removeItem("vip");
   }
+
+  return data;
 }
 
 /* =========================
-   AUTO RUN LIVE COUNTDOWN
+   FOLDER LABEL (VIP DISPLAY)
 ========================= */
-setInterval(updateVipUI, 1000);
+function getFolderLabel(folderName) {
+  if (folderName !== VIP_FOLDER) return folderName;
 
-/* =========================
-   CREATE ITEM
-========================= */
-function createItem(folderName, folderURL, label) {
-  const li = document.createElement("li");
-  li.dataset.folder = folderName;
+  const vip = getVipStatus();
 
-  const link = document.createElement("a");
-  link.className = "folder-link";
-  link.href = folderURL;
-  link.textContent = label;
-  link.dataset.folder = folderName;
+  if (!vip.active) return folderName;
 
-  li.appendChild(link);
-  return li;
+  return `💎 Unlocked (${getCountdown(vip.expiresAt)})`;
 }
 
 /* =========================
-   LOAD DATA
+   VIP CLICK PROTECTION
 ========================= */
-fetch("./videos.json")
-  .then(r => r.json())
-  .then(videos => {
+document.addEventListener("click", (e) => {
+  const item = e.target.closest("li");
+  if (!item) return;
 
-    const folders = {};
-    videos.forEach(v => {
-      if (!folders[v.folder]) folders[v.folder] = [];
-      folders[v.folder].push(v);
-    });
+  const folderName = item.dataset.folder;
+  if (folderName !== VIP_FOLDER) return;
 
-    const folderList = document.getElementById("folderList");
-    folderList.innerHTML = "";
+  const vip = getVipStatus();
 
-    Object.keys(folders).forEach(folderName => {
-
-      const url = folderName === VIP_FOLDER
-        ? VIP_LINK
-        : "folder.html?folder=" + encodeURIComponent(folderName);
-
-      const label = folderName === VIP_FOLDER
-        ? (getVipStatus().active
-            ? `💎 Unlocked (${getCountdown(getVipStatus().expiresAt)})`
-            : folderName)
-        : folderName;
-
-      folderList.appendChild(
-        createItem(folderName, url, label)
-      );
-    });
-
-    const nonVip = videos.filter(v => v.folder !== VIP_FOLDER);
-
-    if (nonVip.length) {
-      const latest = nonVip.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
-
-      const latestDiv = document.getElementById("latestVideo");
-      latestDiv.innerHTML = "";
-
-      const url = "folder.html?folder=" + encodeURIComponent(latest.folder);
-
-      const li = document.createElement("li");
-      const link = document.createElement("a");
-
-      li.dataset.folder = latest.folder;
-
-      link.className = "folder-link";
-      link.href = url;
-      link.textContent = "Watch Now: New Video Available!!!";
-
-      li.appendChild(link);
-      latestDiv.appendChild(li);
-    }
-  });
-    </script>
-      
+  if (vip.active) {
+    window.location.href =
+      "folder.html?folder=" + encodeURIComponent(VIP_FOLDER);
+  } else {
+    window.location.href = "vip.html";
+  }
+});
+  </script>
+  
   <script type="module" src="views.js"></script>
 
 </body>
