@@ -176,9 +176,51 @@
 </div>
 
 <script>
-const VIP_FOLDER = "🔒VIP Exclusive";
+  const VIP_FOLDER = "🔒VIP Exclusive";
 const VERIFY_URL = "https://vipkeys.workfromanywhere-sa.workers.dev/verify-key";
 
+const countdownEl = document.createElement("div");
+countdownEl.style.marginBottom = "10px";
+countdownEl.style.fontWeight = "bold";
+countdownEl.style.color = "#6a00ff";
+
+const vipInput = document.getElementById("vipKey");
+
+// 👇 insert countdown ABOVE password input
+vipInput.parentNode.insertBefore(countdownEl, vipInput);
+
+let countdownInterval;
+
+// ================= COUNTDOWN =================
+function startCountdown(expiryISO) {
+  const expiryDate = new Date(expiryISO);
+
+  clearInterval(countdownInterval);
+
+  function update() {
+    const now = new Date();
+    const diff = expiryDate - now;
+
+    if (diff <= 0) {
+      countdownEl.innerText = "⛔ VIP Access Expired";
+      clearInterval(countdownInterval);
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    countdownEl.innerText =
+      `⏳ VIP expires in ${days}d ${hours}h ${minutes}m ${seconds}s`;
+  }
+
+  update();
+  countdownInterval = setInterval(update, 1000);
+}
+
+// ================= VIP LOGIN =================
 function enterVIP() {
   const key = document.getElementById("vipKey").value.trim();
 
@@ -196,20 +238,20 @@ function enterVIP() {
 
   fetch(VERIFY_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      key,
-      userId
-    })
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ key, userId })
   })
   .then(res => res.json())
   .then(data => {
     if (data.valid) {
+      // 🔥 START REAL COUNTDOWN FROM SERVER
+      startCountdown(data.expiresAtISO);
+
       window.location.href =
-        "folder.html?folder=" + encodeURIComponent(VIP_FOLDER) +
-        "&key=" + encodeURIComponent(key);
+        "folder.html?folder=" +
+        encodeURIComponent(VIP_FOLDER) +
+        "&key=" +
+        encodeURIComponent(key);
     } else {
       alert("❌ " + (data.reason || "Invalid password"));
     }
@@ -220,6 +262,7 @@ function enterVIP() {
   });
 }
 
+// ================= PAYMENT SYSTEM =================
 let usdToZar = 0;
 const API_URL = "https://payments.workfromanywhere-sa.workers.dev/rate";
 
@@ -268,7 +311,7 @@ function goPayPal() {
 function goCrypto() {
   window.location.href = "crypto-vip.html";
 }
-  </script>
+</script>
 
 </body>
 </html>
