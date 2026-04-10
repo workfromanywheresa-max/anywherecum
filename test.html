@@ -869,14 +869,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     container.addEventListener('click', () => {
 
-      if (folderName === VIP_FOLDER) {
-        // ✅ SAME TAB for VIP
-        window.location.href = folderURL;
-      } else {
-        window.location.href = folderURL;
-      }
+    if (folderName === VIP_FOLDER) {
 
-    });
+    const vip = getVipStatus();
+
+    if (vip.active) {
+      window.location.href = folderURL;
+    } else {
+      window.location.href = "vip.html";
+     }
+
+     } else {
+    window.location.href = folderURL;
+   }
+
+  });
 
     const link = document.createElement('a');
     link.className = "folder-link";
@@ -924,10 +931,10 @@ document.addEventListener('DOMContentLoaded', () => {
           : "folder.html?folder=" + encodeURIComponent(folderName);
 
         const li = createPreviewItem(
-          latest,
-          folderURL,
-          folderName === VIP_FOLDER ? "🔒 VIP Exclusive" : folderName,
-          folderName
+        latest,
+        folderURL,
+        getFolderLabel(folderName),
+        folderName
         );
 
         folderList.appendChild(li);
