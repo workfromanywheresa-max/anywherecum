@@ -98,12 +98,13 @@
 
   .qr { width: 160px; margin-top: 10px; }
 
-  .address-row {
+  .address-row, .crypto-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
     margin-top: 10px;
+    font-size: 13px;
   }
 
   .address {
@@ -113,14 +114,29 @@
     flex: 1;
   }
 
-  .crypto-row {
+  .crypto-text {
+    font-weight: bold;
+    flex: 1;
+    text-align: left;
+  }
+
+  .copy-icon {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 5px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 10px;
-    font-size: 14px;
-    font-weight: bold;
+    justify-content: center;
+  }
+
+  .copy-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .copy-icon:active {
+    transform: scale(0.9);
   }
 </style>
 </head>
@@ -185,7 +201,6 @@ const coins = {
 let currentCoin = null;
 let prices = null;
 
-/* LOAD ON PAGE OPEN */
 async function loadPricesOnce() {
   try {
     const res = await fetch("https://payments.workfromanywhere-sa.workers.dev/");
@@ -207,28 +222,38 @@ function openCoin(type) {
       <h3>${c.name}</h3>
     </div>
 
-    <div id="cryptoText">Loading...</div>
+    <div class="crypto-row">
+      <div id="cryptoText" class="crypto-text">Loading...</div>
+
+      <button class="copy-icon" onclick="copyPrice()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="5" width="13" height="13" rx="2"></rect>
+          <rect x="9" y="1" width="13" height="13" rx="2"></rect>
+        </svg>
+      </button>
+    </div>
 
     <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${c.address}">
 
     <div class="address-row">
       <div class="address">${c.address}</div>
-      <button onclick="copyText('${c.address}')">Copy</button>
+
+      <button class="copy-icon" onclick="copyText('${c.address}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="5" width="13" height="13" rx="2"></rect>
+          <rect x="9" y="1" width="13" height="13" rx="2"></rect>
+        </svg>
+      </button>
     </div>
   `;
 
   document.getElementById("modal").style.display = "flex";
-
   waitForPricesThenUpdate();
 }
 
-/* 🔥 IMPORTANT FIX: wait if API not ready */
 function waitForPricesThenUpdate() {
-  if (prices) {
-    updateCrypto();
-  } else {
-    setTimeout(waitForPricesThenUpdate, 500);
-  }
+  if (prices) updateCrypto();
+  else setTimeout(waitForPricesThenUpdate, 500);
 }
 
 function updateCrypto() {
@@ -238,14 +263,14 @@ function updateCrypto() {
   const price = prices[currentCoin];
 
   if (!price) {
-    document.getElementById("cryptoText").innerText = "Price unavailable";
+    document.getElementById("cryptoText").innerText = "N/A";
     return;
   }
 
   const crypto = (usd / price).toFixed(6);
 
-  document.getElementById("cryptoText").innerHTML =
-    `💰 $5 USD = <b>${crypto} ${currentCoin.toUpperCase()}</b>`;
+  document.getElementById("cryptoText").innerText =
+    `${crypto} ${currentCoin.toUpperCase()}`;
 }
 
 function closeModal() {
@@ -255,6 +280,16 @@ function closeModal() {
 
 function copyText(text) {
   navigator.clipboard.writeText(text);
+}
+
+function copyPrice() {
+  if (!currentCoin || !prices) return;
+
+  const usd = 5;
+  const price = prices[currentCoin];
+  const crypto = (usd / price).toFixed(6);
+
+  navigator.clipboard.writeText(`${crypto} ${currentCoin.toUpperCase()}`);
 }
 
 function sendPayment() {
