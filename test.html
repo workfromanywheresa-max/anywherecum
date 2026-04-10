@@ -771,19 +771,165 @@ function googleTranslateElementInit() {
 </footer>
 
   <script>
+const BASE_URL = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/";
+const VIP_FOLDER = "🔒VIP Exclusive";
+const VIP_LINK = "https://fc-lc.xyz/IIivW75";
+const VIP_API = "https://vipkeys.workfromanywhere-sa.workers.dev/verify-key";
+
+let activeVideo = null;
+
+/* =========================
+   VIP STATUS CHECK
+========================= */
+function getVipStatus() {
+  const vip = JSON.parse(localStorage.getItem("vip"));
+
+  if (!vip || !vip.active) return { active: false };
+
+  const expiry = new Date(vip.expiresAt);
+  const now = new Date();
+
+  if (expiry <= now) {
+    localStorage.removeItem("vip");
+    return { active: false };
+  }
+
+  return {
+    active: true,
+    expiresAt: vip.expiresAt
+  };
+}
+
+/* =========================
+   COUNTDOWN
+========================= */
+function getCountdown(expiresAt) {
+  if (!expiresAt) return "";
+
+  const diff = new Date(expiresAt) - new Date();
+  if (diff <= 0) return "Expired";
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
+
+  return `${days}d ${hours}h ${minutes}m ${seconds}s left`;
+}
+
+/* =========================
+   VERIFY VIP KEY
+========================= */
+async function verifyVip(key, userId) {
+  const res = await fetch(VIP_API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ key, userId })
+  });
+
+  const data = await res.json();
+
+  if (data.valid) {
+    localStorage.setItem("vip", JSON.stringify({
+      active: true,
+      expiresAt: data.expiresAtISO
+    }));
+  } else {
+    localStorage.removeItem("vip");
+  }
+
+  return data;
+}
+
+/* =========================
+   CREATE PREVIEW ITEM
+========================= */
+function createPreviewItem(video, folderURL, linkText, folderName) {
+
+  const li = document.createElement('li');
+  li.dataset.folder = folderName;
+
+  const container = document.createElement('div');
+  container.style.position = "relative";
+  container.style.width = "100%";
+  container.style.height = "130px";
+  container.style.overflow = "hidden";
+  container.style.background = "#000";
+
+  const loader = document.createElement('div');
+  loader.className = "loader";
+
+  const videoEl = document.createElement('video');
+
+  if (video.preview) {
+    videoEl.src = video.preview.startsWith("http")
+      ? video.preview
+      : BASE_URL + video.preview;
+  }
+
+  videoEl.muted = true;
+  videoEl.loop = true;
+  videoEl.playsInline = true;
+  videoEl.preload = "metadata";
+  videoEl.style.width = "100%";
+  videoEl.style.height = "100%";
+  videoEl.style.objectFit = "contain";
+  videoEl.style.opacity = "0";
+
+  videoEl.addEventListener('loadeddata', () => {
+    loader.style.display = "none";
+    videoEl.style.opacity = "1";
+  });
+
+  container.appendChild(loader);
+  container.appendChild(videoEl);
+
+  /* =========================
+     CLICK HANDLER (ONLY ONCE)
+  ========================= */
+  container.addEventListener('click', () => {
+    if (folderName === VIP_FOLDER) {
+      const vip = getVipStatus();
+      window.location.href = vip.active ? folderURL : "vip.html";
+    } else {
+      window.location.href = folderURL;
+    }
+  });
+
+  const link = document.createElement('a');
+  link.className = "folder-link";
+  link.textContent = linkText;
+  link.href = "javascript:void(0)";
+
+  link.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    if (folderName === VIP_FOLDER) {
+      const vip = getVipStatus();
+      window.location.href = vip.active ? folderURL : "vip.html";
+    } else {
+      window.location.href = folderURL;
+    }
+  });
+
+  li.appendChild(container);
+  li.appendChild(link);
+
+  return li;
+}
+
+/* =========================
+   INIT PAGE
+========================= */
 document.addEventListener('DOMContentLoaded', () => {
 
-  /* ===== AGE MODAL LOGIC ===== */
   const modal = document.getElementById("ageModal");
   const enterBtn = document.getElementById("enterSiteBtn");
   const leaveBtn = document.getElementById("leaveSiteBtn");
 
   if (localStorage.getItem("ageConfirmed") !== "true") {
     document.body.style.overflow = "hidden";
-
-    setTimeout(() => {
-      modal.classList.add("active");
-    }, 300);
+    setTimeout(() => modal.classList.add("active"), 300);
   }
 
   enterBtn.onclick = () => {
@@ -795,154 +941,6 @@ document.addEventListener('DOMContentLoaded', () => {
   leaveBtn.onclick = () => {
     window.location.href = "https://www.google.com";
   };
-
-  const BASE_URL = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/";
-  const VIP_FOLDER = "🔒VIP Exclusive";
-  const VIP_LINK = "https://fc-lc.xyz/IIivW75";
-
-  let activeVideo = null;
-
-  function createPreviewItem(video, folderURL, linkText, folderName) {
-
-    const li = document.createElement('li');
-    li.dataset.folder = folderName;
-
-    const container = document.createElement('div');
-    container.style.position = "relative";
-    container.style.width = "100%";
-    container.style.height = "130px";
-    container.style.overflow = "hidden";
-    container.style.background = "#000";
-
-    const loader = document.createElement('div');
-    loader.className = "loader";
-
-    const videoEl = document.createElement('video');
-
-    if (video.preview) {
-      videoEl.src = video.preview.startsWith("http")
-        ? video.preview
-        : BASE_URL + video.preview;
-    }
-
-    videoEl.muted = true;
-    videoEl.loop = true;
-    videoEl.playsInline = true;
-    videoEl.preload = "metadata";
-
-    videoEl.style.width = "100%";
-    videoEl.style.height = "100%";
-    videoEl.style.objectFit = "contain";
-    videoEl.style.opacity = "0";
-
-    videoEl.addEventListener('loadeddata', () => {
-      loader.style.display = "none";
-      videoEl.style.opacity = "1";
-    });
-
-    videoEl.addEventListener('error', () => {
-      loader.innerHTML = "<span style='color:#aaa;font-size:12px'>Failed to load</span>";
-    });
-
-    container.appendChild(loader);
-    container.appendChild(videoEl);
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) {
-          videoEl.pause();
-          videoEl.currentTime = 0;
-
-          if (activeVideo === videoEl) {
-            activeVideo = null;
-          }
-        }
-      });
-    }, {
-      threshold: 0.25
-    });
-
-    observer.observe(container);
-
-    let startX = 0;
-    let isPlaying = false;
-
-    container.addEventListener('touchstart', (e) => {
-      startX = e.touches[0].clientX;
-    });
-
-    container.addEventListener('touchmove', (e) => {
-      let moveX = e.touches[0].clientX;
-      let diff = moveX - startX;
-
-      if (Math.abs(diff) > 25) {
-        startX = moveX;
-
-        if (!isPlaying) {
-          isPlaying = true;
-
-          if (activeVideo && activeVideo !== videoEl) {
-            activeVideo.pause();
-            activeVideo.currentTime = 0;
-          }
-
-          videoEl.play().catch(() => {});
-          activeVideo = videoEl;
-
-        } else {
-          isPlaying = false;
-          videoEl.pause();
-          videoEl.currentTime = 0;
-
-          if (activeVideo === videoEl) activeVideo = null;
-        }
-      }
-    });
-
-    container.addEventListener('mouseenter', () => {
-      if (window.matchMedia("(pointer: fine)").matches) {
-
-        if (activeVideo && activeVideo !== videoEl) {
-          activeVideo.pause();
-          activeVideo.currentTime = 0;
-        }
-
-        videoEl.play().catch(() => {});
-        activeVideo = videoEl;
-      }
-    });
-
-    container.addEventListener('mouseleave', () => {
-      videoEl.pause();
-      videoEl.currentTime = 0;
-
-      if (activeVideo === videoEl) activeVideo = null;
-    });
-
-    container.addEventListener('click', () => {
-      if (folderName === VIP_FOLDER) {
-        window.open(folderURL, '_blank'); // ✅ VIP opens new tab
-      } else {
-        window.location.href = folderURL;
-      }
-    });
-
-    const link = document.createElement('a');
-    link.className = "folder-link";
-    link.href = folderURL;
-    link.textContent = linkText;
-
-    // ✅ Make VIP link open in new tab
-    if (folderName === VIP_FOLDER) {
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-    }
-
-    li.appendChild(container);
-    li.appendChild(link);
-
-    return li;
-  }
 
   fetch('./videos.json')
     .then(res => res.json())
@@ -975,12 +973,11 @@ document.addEventListener('DOMContentLoaded', () => {
           ? VIP_LINK
           : "folder.html?folder=" + encodeURIComponent(folderName);
 
-        const li = createPreviewItem(
-          latest,
-          folderURL,
-          folderName === VIP_FOLDER ? "🔒 VIP Exclusive" : folderName,
-          folderName
-        );
+        const label = folderName === VIP_FOLDER
+          ? `💎 Unlocked (${getCountdown(getVipStatus().expiresAt)})`
+          : folderName;
+
+        const li = createPreviewItem(latest, folderURL, label, folderName);
 
         folderList.appendChild(li);
       });
@@ -1007,26 +1004,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     });
 
-  /* ===== COOKIE BANNER ===== */
-  const banner = document.getElementById('cookieBanner');
-
-  if (localStorage.getItem('cookiesAccepted') !== 'true') {
-    setTimeout(() => {
-      banner.style.bottom = '0';
-    }, 300);
-  }
-
-  document.getElementById('acceptCookies').onclick = () => {
-    localStorage.setItem('cookiesAccepted', 'true');
-    banner.style.bottom = '-100px';
-
-    setTimeout(() => {
-      banner.style.display = 'none';
-    }, 500);
-  };
-
 });
-            </script>
+  </script>
 
 <!-- COOKIE BANNER -->
 <div id="cookieBanner" style="position:fixed; bottom:-100px; left:0; width:100%; background:#222; color:#fff; padding:12px 15px; text-align:center; font-size:10px; z-index:9998; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; transition: bottom 0.5s;">
@@ -1212,7 +1191,7 @@ function randomViews() {
 
 loadLives();
     </script>
-      
+  
   <script type="module" src="views.js"></script>
 
 </body>
