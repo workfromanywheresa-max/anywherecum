@@ -771,15 +771,17 @@ function googleTranslateElementInit() {
 </footer>
 
   <script>
+/* =========================
+   GLOBAL CONFIG
+========================= */
 const BASE_URL = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/";
 const VIP_FOLDER = "🔒VIP Exclusive";
-const VIP_LINK = "https://fc-lc.xyz/IIivW75";
 const VIP_API = "https://vipkeys.workfromanywhere-sa.workers.dev/verify-key";
 
 let activeVideo = null;
 
 /* =========================
-   VIP STATUS CHECK
+   VIP STATUS
 ========================= */
 function getVipStatus() {
   const vip = JSON.parse(localStorage.getItem("vip"));
@@ -787,17 +789,12 @@ function getVipStatus() {
   if (!vip || !vip.active) return { active: false };
 
   const expiry = new Date(vip.expiresAt);
-  const now = new Date();
-
-  if (expiry <= now) {
+  if (expiry <= new Date()) {
     localStorage.removeItem("vip");
     return { active: false };
   }
 
-  return {
-    active: true,
-    expiresAt: vip.expiresAt
-  };
+  return { active: true, expiresAt: vip.expiresAt };
 }
 
 /* =========================
@@ -846,20 +843,20 @@ async function verifyVip(key, userId) {
 ========================= */
 function createPreviewItem(video, folderURL, linkText, folderName) {
 
-  const li = document.createElement('li');
+  const li = document.createElement("li");
   li.dataset.folder = folderName;
 
-  const container = document.createElement('div');
+  const container = document.createElement("div");
   container.style.position = "relative";
   container.style.width = "100%";
   container.style.height = "130px";
   container.style.overflow = "hidden";
   container.style.background = "#000";
 
-  const loader = document.createElement('div');
+  const loader = document.createElement("div");
   loader.className = "loader";
 
-  const videoEl = document.createElement('video');
+  const videoEl = document.createElement("video");
 
   if (video.preview) {
     videoEl.src = video.preview.startsWith("http")
@@ -876,18 +873,22 @@ function createPreviewItem(video, folderURL, linkText, folderName) {
   videoEl.style.objectFit = "contain";
   videoEl.style.opacity = "0";
 
-  videoEl.addEventListener('loadeddata', () => {
+  videoEl.addEventListener("loadeddata", () => {
     loader.style.display = "none";
     videoEl.style.opacity = "1";
+  });
+
+  videoEl.addEventListener("error", () => {
+    loader.innerHTML = "Failed to load";
   });
 
   container.appendChild(loader);
   container.appendChild(videoEl);
 
   /* =========================
-     CLICK HANDLER (ONLY ONCE)
+     CLICK LOGIC (VIP SAFE)
   ========================= */
-  container.addEventListener('click', () => {
+  container.addEventListener("click", () => {
     if (folderName === VIP_FOLDER) {
       const vip = getVipStatus();
       window.location.href = vip.active ? folderURL : "vip.html";
@@ -896,7 +897,7 @@ function createPreviewItem(video, folderURL, linkText, folderName) {
     }
   });
 
-  const link = document.createElement('a');
+  const link = document.createElement("a");
   link.className = "folder-link";
   link.textContent = linkText;
   link.href = "javascript:void(0)";
@@ -919,9 +920,9 @@ function createPreviewItem(video, folderURL, linkText, folderName) {
 }
 
 /* =========================
-   INIT PAGE
+   AGE MODAL + INIT
 ========================= */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
 
   const modal = document.getElementById("ageModal");
   const enterBtn = document.getElementById("enterSiteBtn");
@@ -942,7 +943,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = "https://www.google.com";
   };
 
-  fetch('./videos.json')
+  /* =========================
+     LOAD VIDEOS + FOLDERS
+  ========================= */
+  fetch("./videos.json")
     .then(res => res.json())
     .then(videos => {
 
@@ -953,8 +957,8 @@ document.addEventListener('DOMContentLoaded', () => {
         folders[v.folder].push(v);
       });
 
-      const folderList = document.getElementById('folderList');
-      folderList.innerHTML = '';
+      const folderList = document.getElementById("folderList");
+      folderList.innerHTML = "";
 
       let folderNames = Object.keys(folders);
 
@@ -967,11 +971,9 @@ document.addEventListener('DOMContentLoaded', () => {
       folderNames.forEach(folderName => {
 
         const latest = folders[folderName]
-          .sort((a,b)=> new Date(b.date)-new Date(a.date))[0];
+          .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
-        const folderURL = folderName === VIP_FOLDER
-          ? VIP_LINK
-          : "folder.html?folder=" + encodeURIComponent(folderName);
+        const folderURL = "folder.html?folder=" + encodeURIComponent(folderName);
 
         const label = folderName === VIP_FOLDER
           ? `💎 Unlocked (${getCountdown(getVipStatus().expiresAt)})`
@@ -982,15 +984,17 @@ document.addEventListener('DOMContentLoaded', () => {
         folderList.appendChild(li);
       });
 
+      /* =========================
+         LATEST VIDEO SECTION
+      ========================= */
       const nonVipVideos = videos.filter(v => v.folder !== VIP_FOLDER);
 
       if (nonVipVideos.length) {
-
         const latest = nonVipVideos
-          .sort((a,b)=> new Date(b.date)-new Date(a.date))[0];
+          .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
-        const latestDiv = document.getElementById('latestVideo');
-        latestDiv.innerHTML = '';
+        const latestDiv = document.getElementById("latestVideo");
+        latestDiv.innerHTML = "";
 
         const li = createPreviewItem(
           latest,
@@ -1001,11 +1005,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         latestDiv.appendChild(li);
       }
-
     });
-
 });
-  </script>
+
+/* =========================
+   GLOBAL VIP CLICK PROTECTION
+========================= */
+document.addEventListener("click", (e) => {
+  const item = e.target.closest("li");
+  if (!item) return;
+
+  if (item.dataset.folder !== VIP_FOLDER) return;
+
+  const vip = getVipStatus();
+  if (!vip.active) {
+    window.location.href = "vip.html";
+  }
+});
+    </script>
 
 <!-- COOKIE BANNER -->
 <div id="cookieBanner" style="position:fixed; bottom:-100px; left:0; width:100%; background:#222; color:#fff; padding:12px 15px; text-align:center; font-size:10px; z-index:9998; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; transition: bottom 0.5s;">
