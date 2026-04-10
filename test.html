@@ -972,19 +972,35 @@ async function loadVideos() {
       return 0;
     });
 
+    const vip = getVipStatus();
+
     folderNames.forEach(folderName => {
 
       const latest = folders[folderName]
         .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
-      const folderURL = "folder.html?folder=" + encodeURIComponent(folderName);
+      const folderURL =
+        "folder.html?folder=" + encodeURIComponent(folderName);
 
-      const label = folderName === VIP_FOLDER
-        ? `💎 Unlocked (${getCountdown(getVipStatus()?.expiresAt)})`
-        : folderName;
+      /* =========================
+         FIXED LABEL LOGIC
+      ========================= */
+      let label;
+
+      if (folderName === VIP_FOLDER) {
+        if (vip.active) {
+          const countdown = getCountdown(vip.expiresAt);
+          label = countdown
+            ? `💎 Unlocked (${countdown})`
+            : `💎 Unlocked`;
+        } else {
+          label = folderName; // show original name from videos.json
+        }
+      } else {
+        label = folderName;
+      }
 
       const li = createPreviewItem(latest, folderURL, label, folderName);
-
       folderList.appendChild(li);
     });
 
@@ -997,6 +1013,7 @@ async function loadVideos() {
       )[0];
 
       const latestDiv = document.getElementById("latestVideo");
+
       if (latestDiv) {
         latestDiv.innerHTML = "";
 
