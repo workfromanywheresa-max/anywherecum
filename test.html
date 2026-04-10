@@ -770,7 +770,7 @@ function googleTranslateElementInit() {
   
 </footer>
 
-<!-- KEEP EVERYTHING ELSE EXACTLY THE SAME ABOVE -->
+        <!-- KEEP EVERYTHING ELSE EXACTLY THE SAME ABOVE -->
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -799,8 +799,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const BASE_URL = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/";
   const VIP_FOLDER = "🔒VIP Exclusive";
-
-  // ✅ CHANGED HERE
   const VIP_LINK = "vip.html";
 
   let activeVideo = null;
@@ -861,9 +859,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
       });
-    }, {
-      threshold: 0.25
-    });
+    }, { threshold: 0.25 });
 
     observer.observe(container);
 
