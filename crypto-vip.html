@@ -159,15 +159,9 @@
 
   <div class="form-box">
     <h3>Payment Confirmation</h3>
-
-    <!-- NEW: KEY INPUT -->
-    <input type="text" id="keyInput" placeholder="Enter your key">
-    <button onclick="saveKey()">Save Key</button>
-
     <input type="email" id="email" placeholder="Enter your email">
     <input type="text" id="country" placeholder="Enter your country">
     <input type="text" id="wallet" placeholder="Wallet & Coin used">
-
     <button onclick="sendPayment()">Submit</button>
   </div>
 
@@ -191,7 +185,7 @@ const coins = {
 let currentCoin = null;
 let prices = null;
 
-/* LOAD PRICE API */
+/* LOAD ON PAGE OPEN */
 async function loadPricesOnce() {
   try {
     const res = await fetch("https://payments.workfromanywhere-sa.workers.dev/");
@@ -202,31 +196,6 @@ async function loadPricesOnce() {
 }
 
 loadPricesOnce();
-
-/* ✅ LOAD KEY ON PAGE OPEN */
-window.onload = function () {
-  const savedKey = localStorage.getItem("userKey");
-  if (savedKey) {
-    document.getElementById("wallet").value = savedKey;
-  }
-};
-
-/* ✅ SAVE KEY */
-function saveKey() {
-  const key = document.getElementById("keyInput").value;
-
-  if (!key) {
-    alert("Enter a key first");
-    return;
-  }
-
-  localStorage.setItem("userKey", key);
-
-  // auto-fill wallet immediately
-  document.getElementById("wallet").value = key;
-
-  alert("Key saved successfully!");
-}
 
 function openCoin(type) {
   currentCoin = type;
@@ -253,6 +222,7 @@ function openCoin(type) {
   waitForPricesThenUpdate();
 }
 
+/* 🔥 IMPORTANT FIX: wait if API not ready */
 function waitForPricesThenUpdate() {
   if (prices) {
     updateCrypto();
