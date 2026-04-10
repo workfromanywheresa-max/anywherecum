@@ -122,6 +122,25 @@
     font-size: 14px;
     font-weight: bold;
   }
+
+  .copy-icon {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .copy-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .copy-icon:active {
+    transform: scale(0.9);
+  }
 </style>
 </head>
 
@@ -185,14 +204,12 @@ const coins = {
 let currentCoin = null;
 let prices = null;
 
-/* 🔥 BLOCK ENTER KEY */
 document.addEventListener("keydown", function(e) {
   if (e.key === "Enter") {
     e.preventDefault();
   }
 });
 
-/* LOAD ON PAGE OPEN */
 async function loadPricesOnce() {
   try {
     const res = await fetch("https://payments.workfromanywhere-sa.workers.dev/");
@@ -214,18 +231,30 @@ function openCoin(type) {
       <h3>${c.name}</h3>
     </div>
 
-    <div id="cryptoText">Loading...</div>
+    <div class="crypto-row">
+      <div id="cryptoText">Loading...</div>
+      <button class="copy-icon" onclick="copyCrypto()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="5" width="13" height="13" rx="2"></rect>
+          <rect x="9" y="1" width="13" height="13" rx="2"></rect>
+        </svg>
+      </button>
+    </div>
 
     <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${c.address}">
 
     <div class="address-row">
       <div class="address">${c.address}</div>
-      <button onclick="copyText('${c.address}')">Copy</button>
+      <button class="copy-icon" onclick="copyText('${c.address}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="5" width="13" height="13" rx="2"></rect>
+          <rect x="9" y="1" width="13" height="13" rx="2"></rect>
+        </svg>
+      </button>
     </div>
   `;
 
   document.getElementById("modal").style.display = "flex";
-
   waitForPricesThenUpdate();
 }
 
@@ -260,6 +289,11 @@ function closeModal() {
 }
 
 function copyText(text) {
+  navigator.clipboard.writeText(text);
+}
+
+function copyCrypto() {
+  const text = document.getElementById("cryptoText").innerText;
   navigator.clipboard.writeText(text);
 }
 
