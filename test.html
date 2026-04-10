@@ -770,7 +770,7 @@ function googleTranslateElementInit() {
   
 </footer>
 
-<!-- KEEP EVERYTHING ELSE EXACTLY THE SAME ABOVE -->
+<!-- EVERYTHING ABOVE STAYS EXACTLY THE SAME -->
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -799,12 +799,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const BASE_URL = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/";
   const VIP_FOLDER = "🔒VIP Exclusive";
-
-  // ✅ CHANGED HERE
   const VIP_LINK = "vip.html";
 
   let activeVideo = null;
 
+  // =========================
+  // VIP STATUS
+  // =========================
+  function getVipStatus() {
+    const vip = JSON.parse(localStorage.getItem("vip"));
+
+    if (!vip || !vip.active) return { active: false };
+
+    const expiry = new Date(vip.expiresAt);
+    const now = new Date();
+
+    if (expiry <= now) {
+      localStorage.removeItem("vip");
+      return { active: false };
+    }
+
+    return {
+      active: true,
+      expiresAt: vip.expiresAt
+    };
+  }
+
+  function getCountdown(expiresAt) {
+    const diff = new Date(expiresAt) - new Date();
+    if (diff <= 0) return "Expired";
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    return `${days}d ${hours}h ${minutes}m ${seconds}s left`;
+  }
+
+  function getFolderLabel(folderName) {
+    if (folderName !== VIP_FOLDER) return folderName;
+
+    const vip = getVipStatus();
+
+    if (!vip.active) return folderName;
+
+    return `💎 Unlocked (${getCountdown(vip.expiresAt)})`;
+  }
+
+  // =========================
+  // CREATE ITEM
+  // =========================
   function createPreviewItem(video, folderURL, linkText, folderName) {
 
     const li = document.createElement('li');
@@ -832,7 +877,6 @@ document.addEventListener('DOMContentLoaded', () => {
     videoEl.loop = true;
     videoEl.playsInline = true;
     videoEl.preload = "metadata";
-
     videoEl.style.width = "100%";
     videoEl.style.height = "100%";
     videoEl.style.objectFit = "contain";
@@ -843,55 +887,49 @@ document.addEventListener('DOMContentLoaded', () => {
       videoEl.style.opacity = "1";
     });
 
-    videoEl.addEventListener('error', () => {
-      loader.innerHTML = "<span style='color:#aaa;font-size:12px'>Failed to load</span>";
-    });
-
     container.appendChild(loader);
     container.appendChild(videoEl);
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (!entry.isIntersecting) {
-          videoEl.pause();
-          videoEl.currentTime = 0;
-
-          if (activeVideo === videoEl) {
-            activeVideo = null;
-          }
-        }
-      });
-    }, {
-      threshold: 0.25
-    });
-
-    observer.observe(container);
-
+    // =========================
+    // PREVIEW CLICK (VIP SAFE)
+    // =========================
     container.addEventListener('click', () => {
 
-    if (folderName === VIP_FOLDER) {
+      if (folderName === VIP_FOLDER) {
+        const vip = getVipStatus();
 
-    const vip = getVipStatus();
+        window.location.href = vip.active
+          ? folderURL
+          : "vip.html";
 
-    if (vip.active) {
-      window.location.href = folderURL;
-    } else {
-      window.location.href = "vip.html";
-     }
+      } else {
+        window.location.href = folderURL;
+      }
 
-     } else {
-    window.location.href = folderURL;
-   }
+    });
 
-  });
-
+    // =========================
+    // LABEL CLICK (NEW FIX)
+    // =========================
     const link = document.createElement('a');
     link.className = "folder-link";
-    link.href = folderURL;
     link.textContent = linkText;
+    link.href = "javascript:void(0)";
 
-    // ❌ REMOVED target="_blank" for VIP
-    // VIP now opens in same tab
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      if (folderName === VIP_FOLDER) {
+        const vip = getVipStatus();
+
+        window.location.href = vip.active
+          ? folderURL
+          : "vip.html";
+
+      } else {
+        window.location.href = folderURL;
+      }
+    });
 
     li.appendChild(container);
     li.appendChild(link);
@@ -899,6 +937,9 @@ document.addEventListener('DOMContentLoaded', () => {
     return li;
   }
 
+  // =========================
+  // LOAD FOLDERS
+  // =========================
   fetch('./videos.json')
     .then(res => res.json())
     .then(videos => {
@@ -931,41 +972,23 @@ document.addEventListener('DOMContentLoaded', () => {
           : "folder.html?folder=" + encodeURIComponent(folderName);
 
         const li = createPreviewItem(
-        latest,
-        folderURL,
-        getFolderLabel(folderName),
-        folderName
+          latest,
+          folderURL,
+          getFolderLabel(folderName),
+          folderName
         );
 
         folderList.appendChild(li);
       });
-
-      const nonVipVideos = videos.filter(v => v.folder !== VIP_FOLDER);
-
-      if (nonVipVideos.length) {
-
-        const latest = nonVipVideos
-          .sort((a,b)=> new Date(b.date)-new Date(a.date))[0];
-
-        const latestDiv = document.getElementById('latestVideo');
-        latestDiv.innerHTML = '';
-
-        const li = createPreviewItem(
-          latest,
-          "folder.html?folder=" + encodeURIComponent(latest.folder),
-          "Watch Now: New Video Available!!!",
-          latest.folder
-        );
-
-        latestDiv.appendChild(li);
-      }
 
     });
 
 });
 </script>
 
-<!-- KEEP EVERYTHING ELSE EXACTLY THE SAME BELOW -->
+<!-- ❌ IMPORTANT: OLD VIP CLICK LISTENER REMOVED COMPLETELY -->
+
+<!-- EVERYTHING BELOW STAYS EXACTLY THE SAME -->
 
 <!-- COOKIE BANNER -->
 <div id="cookieBanner" style="position:fixed; bottom:-100px; left:0; width:100%; background:#222; color:#fff; padding:12px 15px; text-align:center; font-size:10px; z-index:9998; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; transition: bottom 0.5s;">
