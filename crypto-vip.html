@@ -127,6 +127,13 @@
     flex: 1;
   }
 
+  .copy-icon {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 5px;
+  }
+
   .crypto-row {
     display: flex;
     align-items: center;
@@ -173,9 +180,9 @@
 
   <div class="form-box">
     <h3>Payment Confirmation</h3>
-    <input type="email" id="email" placeholder="Enter your email">
-    <input type="text" id="country" placeholder="Enter your country">
-    <input type="text" id="wallet" placeholder="Wallet & Coin used">
+    <input type="email" id="email" placeholder="Enter your email" required>
+    <input type="text" id="country" placeholder="Enter your country" required>
+    <input type="text" id="wallet" placeholder="Wallet & Coin used" required>
     <button onclick="sendPayment()">Submit</button>
   </div>
 
@@ -188,32 +195,20 @@
 </div>
 
 <script>
-const API = "https://payments.workfromanywhere-sa.workers.dev/";
-
 const coins = {
-  btc: {
-    address: "121jjoVvDBVDudoUeHzXvSL9V3tMz6r9CX"
-  },
-  ltc: {
-    address: "LYVGRTt1VBFXRbuqYxTAXKdmyeU44Q4kvQ"
-  },
-  eth: {
-    address: "0xb38839dfbee320badf35db258625463521da7577"
-  },
-  bnb: {
-    address: "0xb38839dfbee320badf35db258625463521da7577"
-  },
-  usdt: {
-    address: "TCLtokamwWrbLvifZ3z2SYmBute7EjdiUN"
-  }
+  btc: { name: "Bitcoin", address: "121jjoVvDBVDudoUeHzXvSL9V3tMz6r9CX", logo: "https://assets.coingecko.com/coins/images/1/small/bitcoin.png" },
+  ltc: { name: "Litecoin", address: "LYVGRTt1VBFXRbuqYxTAXKdmyeU44Q4kvQ", logo: "https://assets.coingecko.com/coins/images/2/small/litecoin.png" },
+  eth: { name: "Ethereum", address: "0xb38839dfbee320badf35db258625463521da7577", logo: "https://assets.coingecko.com/coins/images/279/small/ethereum.png" },
+  bnb: { name: "BNB (BEP20)", address: "0xb38839dfbee320badf35db258625463521da7577", logo: "https://assets.coingecko.com/coins/images/825/small/bnb-icon2_2x.png" },
+  usdt: { name: "USDT (TRC20)", address: "TCLtokamwWrbLvifZ3z2SYmBute7EjdiUN", logo: "https://assets.coingecko.com/coins/images/325/small/tether.png" }
 };
 
 let currentCoin = null;
 let interval = null;
-let lastAmount = "0";
+let lastAmount = "";
 
 async function getPrice() {
-  const res = await fetch(API);
+  const res = await fetch("https://payments.workfromanywhere-sa.workers.dev/");
   return await res.json();
 }
 
@@ -223,19 +218,20 @@ function openCoin(type) {
 
   document.getElementById("content").innerHTML = `
     <div class="title">
-      <h3>${type.toUpperCase()}</h3>
+      <img class="logo" src="${c.logo}">
+      <h3>${c.name}</h3>
+    </div>
+
+    <div id="cryptoRow" class="crypto-row">
+      <div id="cryptoText">Loading...</div>
+      <button onclick="copyAmount()">Copy</button>
     </div>
 
     <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${c.address}">
 
-    <div id="cryptoText">Loading...</div>
-
-    <div class="crypto-row">
-      <button onclick="copyAmount()">Copy Amount</button>
-    </div>
-
     <div class="address-row">
       <div class="address">${c.address}</div>
+      <button onclick="copyText('${c.address}')">Copy</button>
     </div>
   `;
 
@@ -243,7 +239,7 @@ function openCoin(type) {
 
   updateCrypto();
   clearInterval(interval);
-  interval = setInterval(updateCrypto, 8000);
+  interval = setInterval(updateCrypto, 10000);
 }
 
 async function updateCrypto() {
@@ -253,25 +249,15 @@ async function updateCrypto() {
 
   try {
     const prices = await getPrice();
+    const price = prices[currentCoin];
+    const crypto = (usd / price).toFixed(6);
 
-    const price = Number(prices?.[currentCoin]);
-
-    if (!price || isNaN(price)) {
-      document.getElementById("cryptoText").innerText =
-        "Loading price...";
-      return;
-    }
-
-    const crypto = usd / price;
-
-    lastAmount = crypto.toFixed(6);
+    lastAmount = crypto;
 
     document.getElementById("cryptoText").innerHTML =
-      `Pay: $5 USD = <b>${lastAmount} ${currentCoin.toUpperCase()}</b>`;
-
+      `Pay: <b>$5 USD</b> = <b>${crypto} ${currentCoin.toUpperCase()}</b>`;
   } catch {
-    document.getElementById("cryptoText").innerText =
-      "Error loading price";
+    document.getElementById("cryptoText").innerText = "Error loading price";
   }
 }
 
@@ -284,23 +270,32 @@ function closeModal() {
   clearInterval(interval);
 }
 
+function copyText(text) {
+  navigator.clipboard.writeText(text);
+}
+
 async function sendPayment() {
   const email = document.getElementById("email").value;
   const country = document.getElementById("country").value;
   const wallet = document.getElementById("wallet").value;
 
   if (!email || !country || !wallet) {
-    alert("Fill all fields");
+    alert("Please fill all fields");
     return;
   }
 
-  await fetch(API, {
+  await fetch("https://payments.workfromanywhere-sa.workers.dev/", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ email, country, wallet, amount: "$5" })
+    body: JSON.stringify({
+      email,
+      country,
+      wallet,
+      amount: "$5"
+    })
   });
 
-  alert("Payment submitted!");
+  alert("✅ Payment submitted!");
 }
 </script>
 
