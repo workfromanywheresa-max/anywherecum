@@ -208,7 +208,7 @@ let interval = null;
 let lastAmount = "";
 
 async function getPrice() {
-  const res = await fetch("https://payments.workfromanywhere-sa.workers.dev/prices");
+  const res = await fetch("https://payments.workfromanywhere-sa.workers.dev/");
   return await res.json();
 }
 
@@ -250,15 +250,8 @@ async function updateCrypto() {
   try {
     const prices = await getPrice();
     const price = prices[currentCoin];
-
-    // ✅ FIXED NaN PROTECTION
-    if (!price || isNaN(price)) {
-      document.getElementById("cryptoText").innerText =
-        "Price loading...";
-      return;
-    }
-
     const crypto = (usd / price).toFixed(6);
+
     lastAmount = crypto;
 
     document.getElementById("cryptoText").innerHTML =
