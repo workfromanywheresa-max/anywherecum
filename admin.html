@@ -103,19 +103,25 @@ if (!localStorage.getItem("adminLoggedIn")) {
 
 <script>
 async function generateKey() {
-  const key = Math.random().toString(36).substring(2, 10).toUpperCase();
+  try {
+    const res = await fetch("https://vipkeys.workfromanywhere-sa.workers.dev/generate-key");
+    const data = await res.json();
 
-  const res = await fetch("https://vipkeys.workfromanywhere-sa.workers.dev/create-key", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ key })
-  });
+    if (!data.success) {
+      alert("Error: " + data.error);
+      return;
+    }
 
-  const data = await res.json();
+    alert("New VIP Key: " + data.key);
 
-  alert("New VIP Key: " + key);
+    // refresh list instantly
+    loadVipKeys();
+  } catch (e) {
+    alert("Network error");
+    console.log(e);
+  }
 }
-</script> 
+</script>
 
   <div class="card">
   <h2>🔑 VIP Keys</h2>
