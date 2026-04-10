@@ -155,28 +155,37 @@
 
 </div>
 
-  <script>
+<script>
+const VIP_FOLDER = "🔒VIP Exclusive";
 const VERIFY_URL = "https://vipkeys.workfromanywhere-sa.workers.dev/verify-key";
 const CHECK_URL  = "https://vipkeys.workfromanywhere-sa.workers.dev/check-session";
-const API_URL = "https://payments.workfromanywhere-sa.workers.dev/rate";
-
-const VIP_FOLDER = "🔒VIP Exclusive";
-
-let countdownInterval;
-let countdownEl = document.getElementById("countdown");
+const API_URL    = "https://payments.workfromanywhere-sa.workers.dev/rate";
 
 /* =========================
    COUNTDOWN
 ========================= */
-function startCountdown(expiryISO) {
-  const expiryDate = new Date(expiryISO);
+let countdownInterval;
+const countdownEl = document.getElementById("countdown");
+
+function parseSAST(dateStr) {
+  // converts "2026/04/11, 00:48:35" → valid JS Date
+  const [datePart, timePart] = dateStr.split(", ");
+  const [y, m, d] = datePart.split("/");
+  return new Date(`${y}-${m}-${d}T${timePart}`);
+}
+
+function startCountdown(expiry) {
+  if (!countdownEl) return;
+
+  const expiryDate = expiry instanceof Date ? expiry : parseSAST(expiry);
+
   clearInterval(countdownInterval);
 
   function update() {
     const diff = expiryDate - new Date();
 
     if (diff <= 0) {
-      countdownEl.innerText = "⛔ VIP Expired";
+      countdownEl.innerText = "⛔ VIP Access Expired";
       clearInterval(countdownInterval);
       return;
     }
@@ -186,7 +195,7 @@ function startCountdown(expiryISO) {
     const m = Math.floor((diff / 60000) % 60);
     const s = Math.floor((diff / 1000) % 60);
 
-    countdownEl.innerText = `⏳ ${d}d ${h}h ${m}m ${s}s`;
+    countdownEl.innerText = `⏳ VIP expires in ${d}d ${h}h ${m}m ${s}s`;
   }
 
   update();
@@ -194,72 +203,69 @@ function startCountdown(expiryISO) {
 }
 
 /* =========================
-   ENTER VIP (COOKIE ONLY)
+   ENTER VIP
 ========================= */
 function enterVIP() {
-  const key = document.getElementById("vipKey").value.trim().toUpperCase();
+  const key = document.getElementById("vipKey").value.trim();
   if (!key) return alert("Enter password");
 
   fetch(VERIFY_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    credentials: "include", // 🔥 cookie set by worker
+    credentials: "include",
     body: JSON.stringify({ key })
   })
   .then(res => res.json())
   .then(data => {
-
     if (!data.valid) {
-      alert("❌ " + (data.reason || "Invalid key"));
+      alert("❌ " + (data.reason || "Invalid password"));
       return;
     }
 
-    startCountdown(data.expiresAtISO);
+    // FIX: use SAST correctly
+    startCountdown(data.expiresAtSAST);
 
-    /* =========================
-       OPEN VIP FOLDER (NO SESSION ID)
-    ========================= */
     window.location.href =
       "folder.html?folder=" +
-      encodeURIComponent(VIP_FOLDER);
-
+      encodeURIComponent(VIP_FOLDER) +
+      "&key=" +
+      encodeURIComponent(key);
   })
-  .catch(err => {
-    console.error(err);
-    alert("Server error (check console)");
-  });
+  .catch(() => alert("Server error"));
 }
 
 /* =========================
-   CHECK VIP SESSION (COOKIE ONLY)
+   SESSION CHECK
 ========================= */
 async function validateVip() {
   try {
     const res = await fetch(CHECK_URL, {
       method: "POST",
-      credentials: "include" // 🔥 IMPORTANT
+      credentials: "include"
     });
 
     const data = await res.json();
 
     if (data.active) {
-      startCountdown(data.expires);
-    } else {
-      countdownEl.innerText = "⛔ Not VIP";
+      // FIX: correct field name
+      startCountdown(data.expiresAtSAST);
     }
 
-  } catch (e) {
-    console.error("Session error:", e);
+  } catch (err) {
+    console.error("VIP check error:", err);
   }
 }
 
+/* =========================
+   AUTO CHECK
+========================= */
 setInterval(validateVip, 60000);
-validateVip();
 
 /* =========================
-   PAYMENT
+   PAYMENTS (UNCHANGED LOGIC)
 ========================= */
 let usdToZar = 0;
+
 const zarInput = document.getElementById("zarAmount");
 const payBtn = document.getElementById("payBtn");
 
@@ -269,36 +275,47 @@ async function fetchRate() {
     const data = await res.json();
 
     usdToZar = data.usdToZar;
+    updateZAR();
 
-    const zar = (5 * usdToZar).toFixed(2);
-    zarInput.value = zar;
-
-    payBtn.disabled = false;
-    payBtn.classList.add("active");
-
-  } catch (e) {
-    console.log("Rate error", e);
+  } catch (err) {
+    console.log("Rate error:", err);
   }
 }
 
-fetchRate();
-setInterval(fetchRate, 60000);
+function updateZAR() {
+  if (!usdToZar || !zarInput) return;
+
+  const zar = (5 * usdToZar).toFixed(2);
+  zarInput.value = zar;
+
+  payBtn.disabled = false;
+  payBtn.classList.add("active");
+}
 
 function goPayment() {
+  const amount = parseFloat(zarInput?.value);
+  if (!amount) return;
+
   window.location.href =
-    "https://payments.workfromanywhere-sa.workers.dev/?amount=" +
-    zarInput.value;
+    "https://payments.workfromanywhere-sa.workers.dev/?amount=" + amount;
 }
 
 function goPayPal() {
-  window.location.href =
-    "https://www.paypal.com/ncp/payment/M5A4KXRSXUJS2";
+  window.location.href = "https://www.paypal.com/ncp/payment/M5A4KXRSXUJS2";
 }
 
 function goCrypto() {
   window.location.href = "crypto-vip.html";
 }
-  </script>
+
+/* =========================
+   INIT
+========================= */
+fetchRate();
+setInterval(fetchRate, 60000);
+validateVip();
+
+</script>
 
 </body>
 </html>
