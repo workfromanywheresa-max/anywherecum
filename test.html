@@ -1152,7 +1152,7 @@ function randomViews() {
 loadLives();
     </script>
 
-  <script> 
+  <script>
 const BASE_URL = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/";
 const VIP_FOLDER = "🔒VIP Exclusive";
 const VIP_LINK = "vip.html";
@@ -1174,7 +1174,7 @@ function getVipStatus() {
 }
 
 /* =========================
-   COUNTDOWN
+   COUNTDOWN FORMAT
 ========================= */
 function getCountdown(expiresAt) {
   const diff = new Date(expiresAt) - new Date();
@@ -1189,27 +1189,36 @@ function getCountdown(expiresAt) {
 }
 
 /* =========================
-   LIVE VIP UPDATE (ONLY FOLDER LIST)
+   LIVE VIP UI UPDATER (NEW)
 ========================= */
 function updateVipUI() {
   const vip = getVipStatus();
   if (!vip.active) return;
 
-  const el = document.querySelector(
-    `#folderList li[data-folder="${VIP_FOLDER}"] .folder-link`
-  );
+  const text = `💎 Unlocked (${getCountdown(vip.expiresAt)})`;
 
-  if (el) {
-    el.textContent = `💎 Unlocked (${getCountdown(vip.expiresAt)})`;
+  document.querySelectorAll("li[data-folder]").forEach(li => {
+    if (li.dataset.folder === VIP_FOLDER) {
+      const link = li.querySelector(".folder-link");
+      if (link) link.textContent = text;
+    }
+  });
+
+  const latest = document.querySelector("#latestVideo .folder-link");
+  if (latest && latest.dataset.folder === VIP_FOLDER) {
+    latest.textContent = text;
   }
 }
 
+/* =========================
+   AUTO RUN LIVE COUNTDOWN
+========================= */
 setInterval(updateVipUI, 1000);
 
 /* =========================
-   CREATE FOLDER ITEM
+   CREATE ITEM
 ========================= */
-function createFolderItem(folderName, folderURL, label) {
+function createItem(folderName, folderURL, label) {
   const li = document.createElement("li");
   li.dataset.folder = folderName;
 
@@ -1217,16 +1226,17 @@ function createFolderItem(folderName, folderURL, label) {
   link.className = "folder-link";
   link.href = folderURL;
   link.textContent = label;
+  link.dataset.folder = folderName;
 
   li.appendChild(link);
   return li;
 }
 
 /* =========================
-   LOAD FOLDERS
+   LOAD DATA
 ========================= */
 fetch("./videos.json")
-  .then(res => res.json())
+  .then(r => r.json())
   .then(videos => {
 
     const folders = {};
@@ -1238,43 +1248,32 @@ fetch("./videos.json")
     const folderList = document.getElementById("folderList");
     folderList.innerHTML = "";
 
-    let folderNames = Object.keys(folders);
+    Object.keys(folders).forEach(folderName => {
 
-    folderNames.sort((a, b) => {
-      if (a === VIP_FOLDER) return -1;
-      if (b === VIP_FOLDER) return 1;
-      return 0;
-    });
-
-    folderNames.forEach(folderName => {
-
-      const folderURL = folderName === VIP_FOLDER
+      const url = folderName === VIP_FOLDER
         ? VIP_LINK
         : "folder.html?folder=" + encodeURIComponent(folderName);
 
-      let label = folderName;
+      const label = folderName === VIP_FOLDER
+        ? (getVipStatus().active
+            ? `💎 Unlocked (${getCountdown(getVipStatus().expiresAt)})`
+            : folderName)
+        : folderName;
 
-      if (folderName === VIP_FOLDER) {
-        const vip = getVipStatus();
-        if (vip.active) {
-          label = `💎 Unlocked (${getCountdown(vip.expiresAt)})`;
-        }
-      }
-
-      const li = createFolderItem(folderName, folderURL, label);
-      folderList.appendChild(li);
+      folderList.appendChild(
+        createItem(folderName, url, label)
+      );
     });
 
-    /* =========================
-       OPTIONAL: Latest video section (unchanged logic)
-    ========================= */
     const nonVip = videos.filter(v => v.folder !== VIP_FOLDER);
 
     if (nonVip.length) {
-      const latest = nonVip.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+      const latest = nonVip.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
 
       const latestDiv = document.getElementById("latestVideo");
       latestDiv.innerHTML = "";
+
+      const url = "folder.html?folder=" + encodeURIComponent(latest.folder);
 
       const li = document.createElement("li");
       const link = document.createElement("a");
@@ -1282,15 +1281,14 @@ fetch("./videos.json")
       li.dataset.folder = latest.folder;
 
       link.className = "folder-link";
-      link.href = "folder.html?folder=" + encodeURIComponent(latest.folder);
+      link.href = url;
       link.textContent = "Watch Now: New Video Available!!!";
 
       li.appendChild(link);
       latestDiv.appendChild(li);
     }
-
   });
-  </script>
+    </script>
       
   <script type="module" src="views.js"></script>
 
