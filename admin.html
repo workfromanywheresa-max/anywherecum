@@ -119,6 +119,11 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <ul id="subscribersList"></ul>
 </div>
 
+  <div class="card">
+  <h2>🔑 VIP Keys</h2>
+  <ul id="vipKeysList"></ul>
+  </div>
+
 <div class="card">
   <h2>🌍 Countries</h2>
   <ul id="countryList"></ul>
@@ -391,6 +396,57 @@ function logout(){
   location.reload();
 }
 </script>
+
+  <script type="module">
+
+const vipKeysList = document.getElementById("vipKeysList");
+
+/* ================= FETCH VIP KEYS ================= */
+async function loadVipKeys(){
+  try {
+    const res = await fetch("https://vipkey.workers.dev/keys");
+    const data = await res.json();
+
+    renderVipKeys(data);
+  } catch (e) {
+    console.log("VIP keys error", e);
+  }
+}
+
+/* ================= RENDER VIP KEYS ================= */
+function renderVipKeys(data){
+  if(!data) return;
+
+  const now = new Date();
+
+  vipKeysList.innerHTML = Object.entries(data).map(([key, val]) => {
+
+    let status = "🟢 ACTIVE";
+
+    if (val.expiresAtISO && new Date(val.expiresAtISO) < now) {
+      status = "❌ EXPIRED";
+    } 
+    else if (val.userId) {
+      status = "🔒 LOCKED";
+    }
+
+    return `
+      <li>
+        <span><b>${key}</b></span>
+        <span>User: ${val.userId || "NONE"}</span>
+        <span>Created: ${val.createdAt || "-"}</span>
+        <span>Expires: ${val.expiresAt || "-"}</span>
+        <span class="value">${status}</span>
+      </li>
+    `;
+  }).join("");
+}
+
+/* ================= AUTO LOAD ================= */
+loadVipKeys();
+setInterval(loadVipKeys, 5000);
+
+  </script>
 
 </body>
 </html>
