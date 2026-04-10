@@ -98,20 +98,12 @@
 
   .qr { width: 160px; margin-top: 10px; }
 
-  .crypto-row,
   .address-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
     margin-top: 10px;
-    font-size: 13px;
-  }
-
-  .crypto-text {
-    font-weight: bold;
-    flex: 1;
-    text-align: left;
   }
 
   .address {
@@ -121,23 +113,14 @@
     flex: 1;
   }
 
-  .copy-icon {
-    border: none;
-    background: none;
-    cursor: pointer;
-    padding: 5px;
+  .crypto-row {
     display: flex;
     align-items: center;
-    justify-content: center;
-  }
-
-  .copy-icon svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .copy-icon:active {
-    transform: scale(0.9);
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: bold;
   }
 </style>
 </head>
@@ -176,9 +159,15 @@
 
   <div class="form-box">
     <h3>Payment Confirmation</h3>
+
+    <!-- NEW: KEY INPUT -->
+    <input type="text" id="keyInput" placeholder="Enter your key">
+    <button onclick="saveKey()">Save Key</button>
+
     <input type="email" id="email" placeholder="Enter your email">
     <input type="text" id="country" placeholder="Enter your country">
     <input type="text" id="wallet" placeholder="Wallet & Coin used">
+
     <button onclick="sendPayment()">Submit</button>
   </div>
 
@@ -202,6 +191,7 @@ const coins = {
 let currentCoin = null;
 let prices = null;
 
+/* LOAD PRICE API */
 async function loadPricesOnce() {
   try {
     const res = await fetch("https://payments.workfromanywhere-sa.workers.dev/");
@@ -213,6 +203,31 @@ async function loadPricesOnce() {
 
 loadPricesOnce();
 
+/* ✅ LOAD KEY ON PAGE OPEN */
+window.onload = function () {
+  const savedKey = localStorage.getItem("userKey");
+  if (savedKey) {
+    document.getElementById("wallet").value = savedKey;
+  }
+};
+
+/* ✅ SAVE KEY */
+function saveKey() {
+  const key = document.getElementById("keyInput").value;
+
+  if (!key) {
+    alert("Enter a key first");
+    return;
+  }
+
+  localStorage.setItem("userKey", key);
+
+  // auto-fill wallet immediately
+  document.getElementById("wallet").value = key;
+
+  alert("Key saved successfully!");
+}
+
 function openCoin(type) {
   currentCoin = type;
   const c = coins[type];
@@ -223,38 +238,27 @@ function openCoin(type) {
       <h3>${c.name}</h3>
     </div>
 
-    <div class="crypto-row">
-      <div id="cryptoText" class="crypto-text">Loading...</div>
-
-      <button class="copy-icon" onclick="copyPrice()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="5" width="13" height="13" rx="2"></rect>
-          <rect x="9" y="1" width="13" height="13" rx="2"></rect>
-        </svg>
-      </button>
-    </div>
+    <div id="cryptoText">Loading...</div>
 
     <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${c.address}">
 
     <div class="address-row">
       <div class="address">${c.address}</div>
-
-      <button class="copy-icon" onclick="copyText('${c.address}')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="5" width="13" height="13" rx="2"></rect>
-          <rect x="9" y="1" width="13" height="13" rx="2"></rect>
-        </svg>
-      </button>
+      <button onclick="copyText('${c.address}')">Copy</button>
     </div>
   `;
 
   document.getElementById("modal").style.display = "flex";
+
   waitForPricesThenUpdate();
 }
 
 function waitForPricesThenUpdate() {
-  if (prices) updateCrypto();
-  else setTimeout(waitForPricesThenUpdate, 500);
+  if (prices) {
+    updateCrypto();
+  } else {
+    setTimeout(waitForPricesThenUpdate, 500);
+  }
 }
 
 function updateCrypto() {
@@ -264,14 +268,14 @@ function updateCrypto() {
   const price = prices[currentCoin];
 
   if (!price) {
-    document.getElementById("cryptoText").innerText = "N/A";
+    document.getElementById("cryptoText").innerText = "Price unavailable";
     return;
   }
 
   const crypto = (usd / price).toFixed(6);
 
   document.getElementById("cryptoText").innerHTML =
-    `$5 USD = <b>${crypto} ${currentCoin.toUpperCase()}</b>`;
+    `💰 $5 USD = <b>${crypto} ${currentCoin.toUpperCase()}</b>`;
 }
 
 function closeModal() {
@@ -281,16 +285,6 @@ function closeModal() {
 
 function copyText(text) {
   navigator.clipboard.writeText(text);
-}
-
-function copyPrice() {
-  if (!currentCoin || !prices) return;
-
-  const usd = 5;
-  const price = prices[currentCoin];
-  const crypto = (usd / price).toFixed(6);
-
-  navigator.clipboard.writeText(`${crypto} ${currentCoin.toUpperCase()}`);
 }
 
 function sendPayment() {
