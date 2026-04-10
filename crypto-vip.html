@@ -293,8 +293,15 @@ function copyText(text) {
 }
 
 function copyCrypto() {
-  const text = document.getElementById("cryptoText").innerText;
-  navigator.clipboard.writeText(text);
+  if (!currentCoin || !prices) return;
+
+  const usd = 5;
+  const price = prices[currentCoin];
+  if (!price) return;
+
+  const crypto = (usd / price).toFixed(6);
+
+  navigator.clipboard.writeText(crypto);
 }
 
 function sendPayment() {
