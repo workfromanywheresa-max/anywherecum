@@ -223,7 +223,7 @@ function openCoin(type) {
     </div>
 
     <div id="cryptoRow" class="crypto-row">
-      <div id="cryptoText">Loading...</div>
+      <div id="cryptoText">Loading price...</div>
       <button onclick="copyAmount()">Copy</button>
     </div>
 
@@ -249,25 +249,23 @@ async function updateCrypto() {
 
   try {
     const prices = await getPrice();
+    const price = prices?.[currentCoin];
 
-    let rate;
+    if (!price || price <= 0) {
+      document.getElementById("cryptoText").innerText =
+        "Price unavailable, try again";
+      return;
+    }
 
-    // 🔥 FIXED: matches Worker usdToCrypto logic
-    if (currentCoin === "btc") rate = 1 / prices.usdToBtc;
-    if (currentCoin === "ltc") rate = 1 / prices.usdToLtc;
-    if (currentCoin === "eth") rate = 1 / prices.usdToEth;
-    if (currentCoin === "bnb") rate = 1 / prices.usdToBnb;
-    if (currentCoin === "usdt") rate = 1;
-
-    const crypto = (usd * rate).toFixed(6);
-
+    const crypto = (usd / price).toFixed(6);
     lastAmount = crypto;
 
     document.getElementById("cryptoText").innerHTML =
-      `Pay: <b>$5 USD</b> = <b>${crypto} ${currentCoin.toUpperCase()}</b>`;
+      `💰 $5 USD = <b>${crypto} ${currentCoin.toUpperCase()}</b>`;
 
   } catch {
-    document.getElementById("cryptoText").innerText = "Error loading price";
+    document.getElementById("cryptoText").innerText =
+      "Error loading price";
   }
 }
 
