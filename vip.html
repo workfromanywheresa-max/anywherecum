@@ -172,19 +172,48 @@
 </div>
 
 <script>
-const VIP_KEY = "1234";
 const VIP_FOLDER = "🔒VIP Exclusive";
+const VERIFY_URL = "https://vipkeys.workfromanywhere-sa.workers.dev/verify-key";
 
 function enterVIP() {
-  const key = document.getElementById("vipKey").value;
+  const key = document.getElementById("vipKey").value.trim();
 
-  if (!key) return;
-
-  if (key === VIP_KEY) {
-    window.location.href = "folder.html?folder=" + encodeURIComponent(VIP_FOLDER);
-  } else {
-    alert("❌ Invalid password");
+  if (!key) {
+    alert("Enter password");
+    return;
   }
+
+  let userId = localStorage.getItem("vip_user_id");
+
+  if (!userId) {
+    userId = crypto.randomUUID();
+    localStorage.setItem("vip_user_id", userId);
+  }
+
+  fetch(VERIFY_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      key,
+      userId
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.valid) {
+      window.location.href =
+        "folder.html?folder=" + encodeURIComponent(VIP_FOLDER) +
+        "&key=" + encodeURIComponent(key);
+    } else {
+      alert("❌ " + (data.reason || "Invalid password"));
+    }
+  })
+  .catch(err => {
+    console.log(err);
+    alert("Server error");
+  });
 }
 
 let usdToZar = 0;
@@ -235,7 +264,7 @@ function goPayPal() {
 function goCrypto() {
   window.location.href = "crypto-vip.html";
 }
-</script>
+  </script>
 
 </body>
 </html>
