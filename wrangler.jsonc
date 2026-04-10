@@ -10,7 +10,7 @@
   // Add this to your wrangler.jsonc
   "kv_namespaces": [
     {
-      "binding": "KV",
+      "binding": "LAST_UPDATED",
       "id": "f3c921a42a15463bb64537c106f53adb",
       
       // Optional: preview_id used when running `wrangler dev` for local dev
