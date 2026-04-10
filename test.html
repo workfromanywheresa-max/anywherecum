@@ -1232,8 +1232,58 @@ document.addEventListener("click", (e) => {
   }
 });
   </script>
+
+  <script>
+const VIP_FOLDER_NAME = "🔒VIP Exclusive";
+
+function formatCountdown(expiresAt) {
+  const diff = new Date(expiresAt) - new Date();
+
+  if (diff <= 0) return "Expired";
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
+
+  return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+}
+
+function updateVipUI() {
+  const vip = JSON.parse(localStorage.getItem("vip"));
+  if (!vip || !vip.active) return;
+
+  const items = document.querySelectorAll("li[data-folder]");
+
+  items.forEach(item => {
+    if (item.dataset.folder !== VIP_FOLDER_NAME) return;
+
+    const link = item.querySelector(".folder-link");
+    if (!link) return;
+
+    const expiry = new Date(vip.expiresAt);
+
+    function tick() {
+      const diff = expiry - new Date();
+
+      if (diff <= 0) {
+        link.textContent = "⛔ VIP Expired";
+        return;
+      }
+
+      link.textContent = "💎 Unlocked (" + formatCountdown(vip.expiresAt) + ")";
+    }
+
+    tick();
+    setInterval(tick, 1000);
+  });
+}
+
+// wait for folders to render
+setTimeout(updateVipUI, 1000);
+  </script>
       
   <script type="module" src="views.js"></script>
 
 </body>
-  </html>
+</html>
