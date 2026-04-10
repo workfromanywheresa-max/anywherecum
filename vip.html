@@ -155,13 +155,14 @@
 
 </div>
 
-<script>
+  <script>
 const VERIFY_URL = "https://vipkeys.workfromanywhere-sa.workers.dev/verify-key";
 const CHECK_URL  = "https://vipkeys.workfromanywhere-sa.workers.dev/check-session";
 const API_URL = "https://payments.workfromanywhere-sa.workers.dev/rate";
 
+const VIP_FOLDER = "🔒VIP Exclusive";
+
 let countdownInterval;
-let sessionId = localStorage.getItem("vip_session");
 let countdownEl = document.getElementById("countdown");
 
 /* =========================
@@ -193,7 +194,7 @@ function startCountdown(expiryISO) {
 }
 
 /* =========================
-   ENTER VIP (FIXED)
+   ENTER VIP (COOKIE ONLY)
 ========================= */
 function enterVIP() {
   const key = document.getElementById("vipKey").value.trim().toUpperCase();
@@ -202,6 +203,7 @@ function enterVIP() {
   fetch(VERIFY_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "include", // 🔥 cookie set by worker
     body: JSON.stringify({ key })
   })
   .then(res => res.json())
@@ -212,13 +214,14 @@ function enterVIP() {
       return;
     }
 
-    sessionId = data.sessionId;
-    localStorage.setItem("vip_session", sessionId);
-
     startCountdown(data.expiresAtISO);
 
+    /* =========================
+       OPEN VIP FOLDER (NO SESSION ID)
+    ========================= */
     window.location.href =
-      "folder.html?session=" + sessionId;
+      "folder.html?folder=" +
+      encodeURIComponent(VIP_FOLDER);
 
   })
   .catch(err => {
@@ -228,16 +231,13 @@ function enterVIP() {
 }
 
 /* =========================
-   CHECK SESSION
+   CHECK VIP SESSION (COOKIE ONLY)
 ========================= */
 async function validateVip() {
-  if (!sessionId) return;
-
   try {
     const res = await fetch(CHECK_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId })
+      credentials: "include" // 🔥 IMPORTANT
     });
 
     const data = await res.json();
@@ -245,8 +245,7 @@ async function validateVip() {
     if (data.active) {
       startCountdown(data.expires);
     } else {
-      localStorage.removeItem("vip_session");
-      sessionId = null;
+      countdownEl.innerText = "⛔ Not VIP";
     }
 
   } catch (e) {
@@ -299,7 +298,7 @@ function goPayPal() {
 function goCrypto() {
   window.location.href = "crypto-vip.html";
 }
-</script>
+  </script>
 
 </body>
 </html>
