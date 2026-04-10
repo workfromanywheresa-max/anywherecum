@@ -771,31 +771,41 @@ function googleTranslateElementInit() {
 </footer>
 
   <script>
-  /* =========================
+/* =========================
    GLOBAL CONFIG
 ========================= */
 const BASE_URL = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/";
 const VIP_FOLDER = "🔒VIP Exclusive";
-const VIP_API = "https://vipkeys.workfromanywhere-sa.workers.dev/verify-key";
+
+const CHECK_URL = "https://vipkeys.workfromanywhere-sa.workers.dev/check-session";
 
 let activeVideo = null;
 
 /* =========================
-   VIP STATUS
+   VIP STATUS (NEW - COOKIE BASED)
 ========================= */
-function getVipStatus() {
-  const vip = JSON.parse(localStorage.getItem("vip"));
+async function getVipStatus() {
+  try {
+    const res = await fetch(CHECK_URL, {
+      method: "POST",
+      credentials: "include"
+    });
 
-  if (!vip?.active) return { active: false };
+    const data = await res.json();
 
-  const expiry = new Date(vip.expiresAt);
+    if (!data.active) {
+      return { active: false };
+    }
 
-  if (expiry <= new Date()) {
-    localStorage.removeItem("vip");
+    return {
+      active: true,
+      expiresAt: data.expires
+    };
+
+  } catch (err) {
+    console.error("VIP check error:", err);
     return { active: false };
   }
-
-  return vip;
 }
 
 /* =========================
@@ -816,39 +826,9 @@ function getCountdown(expiresAt) {
 }
 
 /* =========================
-   VERIFY VIP KEY
+   CREATE PREVIEW ITEM (UPDATED VIP CHECK)
 ========================= */
-async function verifyVip(key, userId) {
-  try {
-    const res = await fetch(VIP_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key, userId })
-    });
-
-    const data = await res.json();
-
-    if (data.valid) {
-      localStorage.setItem("vip", JSON.stringify({
-        active: true,
-        expiresAt: data.expiresAtISO
-      }));
-    } else {
-      localStorage.removeItem("vip");
-    }
-
-    return data;
-
-  } catch (err) {
-    console.error("VIP verify error:", err);
-    return { valid: false };
-  }
-}
-
-/* =========================
-   CREATE PREVIEW ITEM
-========================= */
-function createPreviewItem(video, folderURL, linkText, folderName) {
+function createPreviewItem(video, folderURL, linkText, folderName, vipActive) {
 
   const li = document.createElement("li");
   li.dataset.folder = folderName;
@@ -894,8 +874,7 @@ function createPreviewItem(video, folderURL, linkText, folderName) {
 
   function goToFolder() {
     if (folderName === VIP_FOLDER) {
-      const vip = getVipStatus();
-      window.location.href = vip.active ? folderURL : "vip.html";
+      window.location.href = vipActive ? folderURL : "vip.html";
     } else {
       window.location.href = folderURL;
     }
@@ -919,7 +898,7 @@ function createPreviewItem(video, folderURL, linkText, folderName) {
 }
 
 /* =========================
-   AGE MODAL
+   AGE MODAL (UNCHANGED)
 ========================= */
 function initAgeModal() {
   const modal = document.getElementById("ageModal");
@@ -945,10 +924,12 @@ function initAgeModal() {
 }
 
 /* =========================
-   LOAD VIDEOS + FOLDERS
+   LOAD VIDEOS (FIXED VIP FLOW)
 ========================= */
 async function loadVideos() {
   try {
+    const vip = await getVipStatus();
+
     const res = await fetch("./videos.json");
     const videos = await res.json();
 
@@ -972,8 +953,6 @@ async function loadVideos() {
       return 0;
     });
 
-    const vip = getVipStatus();
-
     folderNames.forEach(folderName => {
 
       const latest = folders[folderName]
@@ -982,25 +961,27 @@ async function loadVideos() {
       const folderURL =
         "folder.html?folder=" + encodeURIComponent(folderName);
 
-      /* =========================
-         FIXED LABEL LOGIC
-      ========================= */
       let label;
 
       if (folderName === VIP_FOLDER) {
         if (vip.active) {
           const countdown = getCountdown(vip.expiresAt);
-          label = countdown
-            ? `💎 Unlocked (${countdown})`
-            : `💎 Unlocked`;
+          label = countdown ? `💎 Unlocked (${countdown})` : `💎 Unlocked`;
         } else {
-          label = folderName; // show original name from videos.json
+          label = folderName;
         }
       } else {
         label = folderName;
       }
 
-      const li = createPreviewItem(latest, folderURL, label, folderName);
+      const li = createPreviewItem(
+        latest,
+        folderURL,
+        label,
+        folderName,
+        vip.active
+      );
+
       folderList.appendChild(li);
     });
 
@@ -1021,7 +1002,8 @@ async function loadVideos() {
           latest,
           "folder.html?folder=" + encodeURIComponent(latest.folder),
           "Watch Now: New Video Available!",
-          latest.folder
+          latest.folder,
+          vip.active
         );
 
         latestDiv.appendChild(li);
@@ -1036,19 +1018,21 @@ async function loadVideos() {
 /* =========================
    GLOBAL CLICK PROTECTION
 ========================= */
-document.addEventListener("click", (e) => {
+document.addEventListener("click", async (e) => {
   const item = e.target.closest("li");
   if (!item) return;
 
   if (item.dataset.folder !== VIP_FOLDER) return;
 
-  if (!getVipStatus().active) {
+  const vip = await getVipStatus();
+
+  if (!vip.active) {
     window.location.href = "vip.html";
   }
 });
 
 /* =========================
-   INIT ALL
+   INIT
 ========================= */
 document.addEventListener("DOMContentLoaded", () => {
   initAgeModal();
