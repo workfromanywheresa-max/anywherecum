@@ -127,6 +127,13 @@
     flex: 1;
   }
 
+  .copy-icon {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 5px;
+  }
+
   .crypto-row {
     display: flex;
     align-items: center;
@@ -215,7 +222,10 @@ function openCoin(type) {
       <h3>${c.name}</h3>
     </div>
 
-    <div id="cryptoText">Loading...</div>
+    <div id="cryptoRow" class="crypto-row">
+      <div id="cryptoText">Loading...</div>
+      <button onclick="copyAmount()">Copy</button>
+    </div>
 
     <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${c.address}">
 
@@ -239,16 +249,17 @@ async function updateCrypto() {
 
   try {
     const prices = await getPrice();
-    const price = prices[currentCoin];
 
-    // ✅ FIX: prevent Infinity / NaN
-    if (!price || price <= 0) {
-      document.getElementById("cryptoText").innerText =
-        "Price unavailable. Try again...";
-      return;
-    }
+    let rate;
 
-    const crypto = (usd / price).toFixed(6);
+    // 🔥 FIXED: matches Worker usdToCrypto logic
+    if (currentCoin === "btc") rate = 1 / prices.usdToBtc;
+    if (currentCoin === "ltc") rate = 1 / prices.usdToLtc;
+    if (currentCoin === "eth") rate = 1 / prices.usdToEth;
+    if (currentCoin === "bnb") rate = 1 / prices.usdToBnb;
+    if (currentCoin === "usdt") rate = 1;
+
+    const crypto = (usd * rate).toFixed(6);
 
     lastAmount = crypto;
 
@@ -256,9 +267,12 @@ async function updateCrypto() {
       `Pay: <b>$5 USD</b> = <b>${crypto} ${currentCoin.toUpperCase()}</b>`;
 
   } catch {
-    document.getElementById("cryptoText").innerText =
-      "Error loading price";
+    document.getElementById("cryptoText").innerText = "Error loading price";
   }
+}
+
+function copyAmount() {
+  if (lastAmount) navigator.clipboard.writeText(lastAmount);
 }
 
 function closeModal() {
@@ -283,7 +297,12 @@ async function sendPayment() {
   await fetch("https://payments.workfromanywhere-sa.workers.dev/", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ email, country, wallet, amount: "$5" })
+    body: JSON.stringify({
+      email,
+      country,
+      wallet,
+      amount: "$5"
+    })
   });
 
   alert("✅ Payment submitted!");
