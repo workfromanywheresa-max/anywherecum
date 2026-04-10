@@ -770,176 +770,143 @@ function googleTranslateElementInit() {
   
 </footer>
 
-<!-- EVERYTHING ABOVE STAYS EXACTLY THE SAME -->
-
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+/* =========================
+   VIP SYSTEM (GLOBAL)
+========================= */
+const VIP_API = "https://vipkeys.workfromanywhere-sa.workers.dev/verify-key";
+const VIP_FOLDER = "🔒VIP Exclusive";
 
-  const modal = document.getElementById("ageModal");
-  const enterBtn = document.getElementById("enterSiteBtn");
-  const leaveBtn = document.getElementById("leaveSiteBtn");
+/* VIP STATUS */
+function getVipStatus() {
+  const vip = JSON.parse(localStorage.getItem("vip"));
+  if (!vip || !vip.active) return { active: false };
 
-  if (localStorage.getItem("ageConfirmed") !== "true") {
-    document.body.style.overflow = "hidden";
+  const expiry = new Date(vip.expiresAt);
+  const now = new Date();
 
-    setTimeout(() => {
-      modal.classList.add("active");
-    }, 300);
+  if (expiry <= now) {
+    localStorage.removeItem("vip");
+    return { active: false };
   }
 
-  enterBtn.onclick = () => {
-    localStorage.setItem("ageConfirmed", "true");
-    modal.classList.remove("active");
-    document.body.style.overflow = "";
+  return {
+    active: true,
+    expiresAt: vip.expiresAt
   };
+}
 
-  leaveBtn.onclick = () => {
-    window.location.href = "https://www.google.com";
-  };
+/* COUNTDOWN */
+function getCountdown(expiresAt) {
+  const diff = new Date(expiresAt) - new Date();
+  if (diff <= 0) return "Expired";
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
+
+  return `${days}d ${hours}h ${minutes}m ${seconds}s left`;
+}
+
+/* VERIFY VIP KEY */
+async function verifyVip(key, userId) {
+  const res = await fetch(VIP_API, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ key, userId })
+  });
+
+  const data = await res.json();
+
+  if (data.valid) {
+    localStorage.setItem("vip", JSON.stringify({
+      active: true,
+      expiresAt: data.expiresAtISO
+    }));
+  } else {
+    localStorage.removeItem("vip");
+  }
+
+  return data;
+}
+
+/* =========================
+   PREVIEW ITEM (SHARED)
+========================= */
+function createPreviewItem(video, folderURL, linkText, folderName) {
+
+  const li = document.createElement('li');
+  li.dataset.folder = folderName;
+
+  const container = document.createElement('div');
+  container.style.position = "relative";
+  container.style.width = "100%";
+  container.style.height = "130px";
+  container.style.overflow = "hidden";
+  container.style.background = "#000";
+
+  const loader = document.createElement('div');
+  loader.className = "loader";
+
+  const videoEl = document.createElement('video');
 
   const BASE_URL = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/";
-  const VIP_FOLDER = "🔒VIP Exclusive";
-  const VIP_LINK = "vip.html";
 
-  let activeVideo = null;
+  if (video.preview) {
+    videoEl.src = video.preview.startsWith("http")
+      ? video.preview
+      : BASE_URL + video.preview;
+  }
 
-  // =========================
-  // VIP STATUS
-  // =========================
-  function getVipStatus() {
-    const vip = JSON.parse(localStorage.getItem("vip"));
+  videoEl.muted = true;
+  videoEl.loop = true;
+  videoEl.playsInline = true;
+  videoEl.preload = "metadata";
+  videoEl.style.width = "100%";
+  videoEl.style.height = "100%";
+  videoEl.style.objectFit = "contain";
+  videoEl.style.opacity = "0";
 
-    if (!vip || !vip.active) return { active: false };
+  videoEl.addEventListener('loadeddata', () => {
+    loader.style.display = "none";
+    videoEl.style.opacity = "1";
+  });
 
-    const expiry = new Date(vip.expiresAt);
-    const now = new Date();
+  container.appendChild(loader);
+  container.appendChild(videoEl);
 
-    if (expiry <= now) {
-      localStorage.removeItem("vip");
-      return { active: false };
+  /* CLICK HANDLER (VIP SAFE) */
+  const openFolder = () => {
+    if (folderName === VIP_FOLDER) {
+      const vip = getVipStatus();
+      window.location.href = vip.active ? folderURL : "vip.html";
+    } else {
+      window.location.href = folderURL;
     }
+  };
 
-    return {
-      active: true,
-      expiresAt: vip.expiresAt
-    };
-  }
+  container.addEventListener('click', openFolder);
 
-  function getCountdown(expiresAt) {
-    const diff = new Date(expiresAt) - new Date();
-    if (diff <= 0) return "Expired";
+  const link = document.createElement('a');
+  link.className = "folder-link";
+  link.textContent = linkText;
+  link.href = "javascript:void(0)";
+  link.addEventListener("click", (e) => {
+    e.preventDefault();
+    openFolder();
+  });
 
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const minutes = Math.floor((diff / (1000 * 60)) % 60);
-    const seconds = Math.floor((diff / 1000) % 60);
+  li.appendChild(container);
+  li.appendChild(link);
 
-    return `${days}d ${hours}h ${minutes}m ${seconds}s left`;
-  }
+  return li;
+}
 
-  function getFolderLabel(folderName) {
-    if (folderName !== VIP_FOLDER) return folderName;
-
-    const vip = getVipStatus();
-
-    if (!vip.active) return folderName;
-
-    return `💎 Unlocked (${getCountdown(vip.expiresAt)})`;
-  }
-
-  // =========================
-  // CREATE ITEM
-  // =========================
-  function createPreviewItem(video, folderURL, linkText, folderName) {
-
-    const li = document.createElement('li');
-    li.dataset.folder = folderName;
-
-    const container = document.createElement('div');
-    container.style.position = "relative";
-    container.style.width = "100%";
-    container.style.height = "130px";
-    container.style.overflow = "hidden";
-    container.style.background = "#000";
-
-    const loader = document.createElement('div');
-    loader.className = "loader";
-
-    const videoEl = document.createElement('video');
-
-    if (video.preview) {
-      videoEl.src = video.preview.startsWith("http")
-        ? video.preview
-        : BASE_URL + video.preview;
-    }
-
-    videoEl.muted = true;
-    videoEl.loop = true;
-    videoEl.playsInline = true;
-    videoEl.preload = "metadata";
-    videoEl.style.width = "100%";
-    videoEl.style.height = "100%";
-    videoEl.style.objectFit = "contain";
-    videoEl.style.opacity = "0";
-
-    videoEl.addEventListener('loadeddata', () => {
-      loader.style.display = "none";
-      videoEl.style.opacity = "1";
-    });
-
-    container.appendChild(loader);
-    container.appendChild(videoEl);
-
-    // =========================
-    // PREVIEW CLICK (VIP SAFE)
-    // =========================
-    container.addEventListener('click', () => {
-
-      if (folderName === VIP_FOLDER) {
-        const vip = getVipStatus();
-
-        window.location.href = vip.active
-          ? folderURL
-          : "vip.html";
-
-      } else {
-        window.location.href = folderURL;
-      }
-
-    });
-
-    // =========================
-    // LABEL CLICK (NEW FIX)
-    // =========================
-    const link = document.createElement('a');
-    link.className = "folder-link";
-    link.textContent = linkText;
-    link.href = "javascript:void(0)";
-
-    link.addEventListener("click", (e) => {
-      e.preventDefault();
-
-      if (folderName === VIP_FOLDER) {
-        const vip = getVipStatus();
-
-        window.location.href = vip.active
-          ? folderURL
-          : "vip.html";
-
-      } else {
-        window.location.href = folderURL;
-      }
-    });
-
-    li.appendChild(container);
-    li.appendChild(link);
-
-    return li;
-  }
-
-  // =========================
-  // LOAD FOLDERS
-  // =========================
+/* =========================
+   LOAD FOLDERS
+========================= */
+function loadFolders() {
   fetch('./videos.json')
     .then(res => res.json())
     .then(videos => {
@@ -952,6 +919,8 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       const folderList = document.getElementById('folderList');
+      if (!folderList) return;
+
       folderList.innerHTML = '';
 
       let folderNames = Object.keys(folders);
@@ -968,13 +937,15 @@ document.addEventListener('DOMContentLoaded', () => {
           .sort((a,b)=> new Date(b.date)-new Date(a.date))[0];
 
         const folderURL = folderName === VIP_FOLDER
-          ? VIP_LINK
+          ? "vip.html"
           : "folder.html?folder=" + encodeURIComponent(folderName);
 
         const li = createPreviewItem(
           latest,
           folderURL,
-          getFolderLabel(folderName),
+          folderName === VIP_FOLDER
+            ? "💎 " + folderName
+            : folderName,
           folderName
         );
 
@@ -982,13 +953,51 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
     });
+}
 
+/* =========================
+   LATEST VIDEO SECTION
+========================= */
+function loadLatestVideo() {
+
+  fetch('./videos.json')
+    .then(res => res.json())
+    .then(videos => {
+
+      if (!Array.isArray(videos) || videos.length === 0) return;
+
+      const nonVipVideos = videos.filter(v => v.folder !== VIP_FOLDER);
+      if (nonVipVideos.length === 0) return;
+
+      const latest = nonVipVideos.sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      )[0];
+
+      const latestDiv = document.getElementById('latestVideo');
+      if (!latestDiv) return;
+
+      latestDiv.innerHTML = '';
+
+      const li = createPreviewItem(
+        latest,
+        "folder.html?folder=" + encodeURIComponent(latest.folder),
+        "🔥 Watch Now: New Video Available",
+        latest.folder
+      );
+
+      latestDiv.appendChild(li);
+    })
+    .catch(err => console.error("Latest video load error:", err));
+}
+
+/* =========================
+   INIT
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  loadFolders();
+  loadLatestVideo();
 });
-</script>
-
-<!-- ❌ IMPORTANT: OLD VIP CLICK LISTENER REMOVED COMPLETELY -->
-
-<!-- EVERYTHING BELOW STAYS EXACTLY THE SAME -->
+    </script>
 
 <!-- COOKIE BANNER -->
 <div id="cookieBanner" style="position:fixed; bottom:-100px; left:0; width:100%; background:#222; color:#fff; padding:12px 15px; text-align:center; font-size:10px; z-index:9998; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; transition: bottom 0.5s;">
