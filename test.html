@@ -926,11 +926,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const li = createPreviewItem(
           latest,
           folderURL,
-          folderName === VIP_FOLDER
-          ? (getVipStatus().active
-          ? `💎 Unlocked (${getCountdown(getVipStatus().expiresAt)})`
-          : folderName)
-          : folderName,
+          folderName === VIP_FOLDER ? "🔒 VIP Exclusive" : folderName,
           folderName
         );
 
