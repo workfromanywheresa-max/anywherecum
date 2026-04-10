@@ -771,7 +771,7 @@ function googleTranslateElementInit() {
 </footer>
 
   <script>
-/* =========================
+  /* =========================
    GLOBAL CONFIG
 ========================= */
 const BASE_URL = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/";
@@ -786,15 +786,16 @@ let activeVideo = null;
 function getVipStatus() {
   const vip = JSON.parse(localStorage.getItem("vip"));
 
-  if (!vip || !vip.active) return { active: false };
+  if (!vip?.active) return { active: false };
 
   const expiry = new Date(vip.expiresAt);
+
   if (expiry <= new Date()) {
     localStorage.removeItem("vip");
     return { active: false };
   }
 
-  return { active: true, expiresAt: vip.expiresAt };
+  return vip;
 }
 
 /* =========================
@@ -818,24 +819,30 @@ function getCountdown(expiresAt) {
    VERIFY VIP KEY
 ========================= */
 async function verifyVip(key, userId) {
-  const res = await fetch(VIP_API, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ key, userId })
-  });
+  try {
+    const res = await fetch(VIP_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, userId })
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if (data.valid) {
-    localStorage.setItem("vip", JSON.stringify({
-      active: true,
-      expiresAt: data.expiresAtISO
-    }));
-  } else {
-    localStorage.removeItem("vip");
+    if (data.valid) {
+      localStorage.setItem("vip", JSON.stringify({
+        active: true,
+        expiresAt: data.expiresAtISO
+      }));
+    } else {
+      localStorage.removeItem("vip");
+    }
+
+    return data;
+
+  } catch (err) {
+    console.error("VIP verify error:", err);
+    return { valid: false };
   }
-
-  return data;
 }
 
 /* =========================
@@ -858,7 +865,7 @@ function createPreviewItem(video, folderURL, linkText, folderName) {
 
   const videoEl = document.createElement("video");
 
-  if (video.preview) {
+  if (video?.preview) {
     videoEl.src = video.preview.startsWith("http")
       ? video.preview
       : BASE_URL + video.preview;
@@ -885,32 +892,24 @@ function createPreviewItem(video, folderURL, linkText, folderName) {
   container.appendChild(loader);
   container.appendChild(videoEl);
 
-  /* =========================
-     CLICK LOGIC (VIP SAFE)
-  ========================= */
-  container.addEventListener("click", () => {
+  function goToFolder() {
     if (folderName === VIP_FOLDER) {
       const vip = getVipStatus();
       window.location.href = vip.active ? folderURL : "vip.html";
     } else {
       window.location.href = folderURL;
     }
-  });
+  }
+
+  container.addEventListener("click", goToFolder);
 
   const link = document.createElement("a");
   link.className = "folder-link";
   link.textContent = linkText;
   link.href = "javascript:void(0)";
-
   link.addEventListener("click", (e) => {
     e.preventDefault();
-
-    if (folderName === VIP_FOLDER) {
-      const vip = getVipStatus();
-      window.location.href = vip.active ? folderURL : "vip.html";
-    } else {
-      window.location.href = folderURL;
-    }
+    goToFolder();
   });
 
   li.appendChild(container);
@@ -920,96 +919,105 @@ function createPreviewItem(video, folderURL, linkText, folderName) {
 }
 
 /* =========================
-   AGE MODAL + INIT
+   AGE MODAL
 ========================= */
-document.addEventListener("DOMContentLoaded", () => {
-
+function initAgeModal() {
   const modal = document.getElementById("ageModal");
   const enterBtn = document.getElementById("enterSiteBtn");
   const leaveBtn = document.getElementById("leaveSiteBtn");
+
+  if (!modal) return;
 
   if (localStorage.getItem("ageConfirmed") !== "true") {
     document.body.style.overflow = "hidden";
     setTimeout(() => modal.classList.add("active"), 300);
   }
 
-  enterBtn.onclick = () => {
+  enterBtn?.addEventListener("click", () => {
     localStorage.setItem("ageConfirmed", "true");
     modal.classList.remove("active");
     document.body.style.overflow = "";
-  };
+  });
 
-  leaveBtn.onclick = () => {
+  leaveBtn?.addEventListener("click", () => {
     window.location.href = "https://www.google.com";
-  };
+  });
+}
 
-  /* =========================
-     LOAD VIDEOS + FOLDERS
-  ========================= */
-  fetch("./videos.json")
-    .then(res => res.json())
-    .then(videos => {
+/* =========================
+   LOAD VIDEOS + FOLDERS
+========================= */
+async function loadVideos() {
+  try {
+    const res = await fetch("./videos.json");
+    const videos = await res.json();
 
-      const folders = {};
+    const folders = {};
 
-      videos.forEach(v => {
-        if (!folders[v.folder]) folders[v.folder] = [];
-        folders[v.folder].push(v);
-      });
+    videos.forEach(v => {
+      if (!folders[v.folder]) folders[v.folder] = [];
+      folders[v.folder].push(v);
+    });
 
-      const folderList = document.getElementById("folderList");
-      folderList.innerHTML = "";
+    const folderList = document.getElementById("folderList");
+    if (!folderList) return;
 
-      let folderNames = Object.keys(folders);
+    folderList.innerHTML = "";
 
-      folderNames.sort((a, b) => {
-        if (a === VIP_FOLDER) return -1;
-        if (b === VIP_FOLDER) return 1;
-        return 0;
-      });
+    let folderNames = Object.keys(folders);
 
-      folderNames.forEach(folderName => {
+    folderNames.sort((a, b) => {
+      if (a === VIP_FOLDER) return -1;
+      if (b === VIP_FOLDER) return 1;
+      return 0;
+    });
 
-        const latest = folders[folderName]
-          .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    folderNames.forEach(folderName => {
 
-        const folderURL = "folder.html?folder=" + encodeURIComponent(folderName);
+      const latest = folders[folderName]
+        .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
-        const label = folderName === VIP_FOLDER
-          ? `💎 Unlocked (${getCountdown(getVipStatus().expiresAt)})`
-          : folderName;
+      const folderURL = "folder.html?folder=" + encodeURIComponent(folderName);
 
-        const li = createPreviewItem(latest, folderURL, label, folderName);
+      const label = folderName === VIP_FOLDER
+        ? `💎 Unlocked (${getCountdown(getVipStatus()?.expiresAt)})`
+        : folderName;
 
-        folderList.appendChild(li);
-      });
+      const li = createPreviewItem(latest, folderURL, label, folderName);
 
-      /* =========================
-         LATEST VIDEO SECTION
-      ========================= */
-      const nonVipVideos = videos.filter(v => v.folder !== VIP_FOLDER);
+      folderList.appendChild(li);
+    });
 
-      if (nonVipVideos.length) {
-        const latest = nonVipVideos
-          .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    /* ================= LATEST VIDEO ================= */
+    const nonVip = videos.filter(v => v.folder !== VIP_FOLDER);
 
-        const latestDiv = document.getElementById("latestVideo");
+    if (nonVip.length) {
+      const latest = nonVip.sort((a, b) =>
+        new Date(b.date) - new Date(a.date)
+      )[0];
+
+      const latestDiv = document.getElementById("latestVideo");
+      if (latestDiv) {
         latestDiv.innerHTML = "";
 
         const li = createPreviewItem(
           latest,
           "folder.html?folder=" + encodeURIComponent(latest.folder),
-          "Watch Now: New Video Available!!!",
+          "Watch Now: New Video Available!",
           latest.folder
         );
 
         latestDiv.appendChild(li);
       }
-    });
-});
+    }
+
+  } catch (err) {
+    console.error("Video load error:", err);
+  }
+}
 
 /* =========================
-   GLOBAL VIP CLICK PROTECTION
+   GLOBAL CLICK PROTECTION
 ========================= */
 document.addEventListener("click", (e) => {
   const item = e.target.closest("li");
@@ -1017,10 +1025,17 @@ document.addEventListener("click", (e) => {
 
   if (item.dataset.folder !== VIP_FOLDER) return;
 
-  const vip = getVipStatus();
-  if (!vip.active) {
+  if (!getVipStatus().active) {
     window.location.href = "vip.html";
   }
+});
+
+/* =========================
+   INIT ALL
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  initAgeModal();
+  loadVideos();
 });
     </script>
 
