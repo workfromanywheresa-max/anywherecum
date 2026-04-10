@@ -421,43 +421,33 @@ function logout(){
 }
 </script>
 
-  <script type="module">
-
+<script type="module">
 const vipKeysList = document.getElementById("vipKeysList");
 
-/* ================= FETCH VIP KEYS ================= */
-async function loadVipKeys(){
+async function loadVipKeys() {
   try {
-    const res = await fetch("https://vipkeys.workfromanywhere-sa.workers.dev/keys");
+    const res = await fetch(
+      "https://vipkeys.workfromanywhere-sa.workers.dev/keys",
+      { cache: "no-store" }
+    );
+
+    if (!res.ok) throw new Error("HTTP " + res.status);
+
     const data = await res.json();
-
-    console.log("VIP KEYS FROM API:", data); // debug only
-
     renderVipKeys(data);
+
   } catch (e) {
     console.log("VIP keys error", e);
-    vipKeysList.innerHTML = "<li>Failed to load keys</li>";
+    vipKeysList.innerHTML = "<li>❌ Failed to load VIP keys</li>";
   }
 }
 
-/* ================= RENDER VIP KEYS (FIXED) ================= */
-function renderVipKeys(data){
-  vipKeysList.innerHTML = "";
-
-  if (!data || typeof data !== "object") {
-    vipKeysList.innerHTML = "<li>No keys found</li>";
-    return;
-  }
+function renderVipKeys(data) {
+  if (!data) return;
 
   const now = new Date();
-  const entries = Object.entries(data);
 
-  if (entries.length === 0) {
-    vipKeysList.innerHTML = "<li>No keys generated yet</li>";
-    return;
-  }
-
-  vipKeysList.innerHTML = entries.map(([key, val]) => {
+  vipKeysList.innerHTML = Object.entries(data).map(([key, val]) => {
 
     let status = "🟢 ACTIVE";
 
@@ -480,11 +470,9 @@ function renderVipKeys(data){
   }).join("");
 }
 
-/* ================= AUTO LOAD ================= */
 loadVipKeys();
 setInterval(loadVipKeys, 5000);
-
-  </script>
-
+</script>
+  
 </body>
 </html>
