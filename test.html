@@ -872,9 +872,6 @@ document.addEventListener('DOMContentLoaded', () => {
     link.href = folderURL;
     link.textContent = linkText;
 
-    // ❌ REMOVED target="_blank" for VIP
-    // VIP now opens in same tab
-
     li.appendChild(container);
     li.appendChild(link);
 
@@ -906,17 +903,17 @@ document.addEventListener('DOMContentLoaded', () => {
       folderNames.forEach(folderName => {
 
         const latest = folders[folderName]
-          .sort((a,b)=> new Date(b.date)-new Date(a.date))[0];
+          .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
         const folderURL = folderName === VIP_FOLDER
           ? VIP_LINK
           : "folder.html?folder=" + encodeURIComponent(folderName);
 
         const li = createPreviewItem(
-        latest,
-        folderURL,
-        getFolderLabel(folderName),
-        folderName
+          latest,
+          folderURL,
+          getFolderLabel(folderName),
+          folderName
         );
 
         folderList.appendChild(li);
@@ -927,7 +924,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (nonVipVideos.length) {
 
         const latest = nonVipVideos
-          .sort((a,b)=> new Date(b.date)-new Date(a.date))[0];
+          .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
         const latestDiv = document.getElementById('latestVideo');
         latestDiv.innerHTML = '';
