@@ -185,6 +185,13 @@ const coins = {
 let currentCoin = null;
 let prices = null;
 
+/* 🔥 BLOCK ENTER KEY */
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    e.preventDefault();
+  }
+});
+
 /* LOAD ON PAGE OPEN */
 async function loadPricesOnce() {
   try {
@@ -222,7 +229,6 @@ function openCoin(type) {
   waitForPricesThenUpdate();
 }
 
-/* 🔥 IMPORTANT FIX: wait if API not ready */
 function waitForPricesThenUpdate() {
   if (prices) {
     updateCrypto();
