@@ -431,27 +431,36 @@ async function loadVipKeys() {
       { cache: "no-store" }
     );
 
-    if (!res.ok) throw new Error("HTTP " + res.status);
+    if (!res.ok) {
+      throw new Error("HTTP " + res.status);
+    }
 
     const data = await res.json();
+
     renderVipKeys(data);
 
   } catch (e) {
-    console.log("VIP keys error", e);
+    console.warn("Fetch error:", e);
     vipKeysList.innerHTML = "<li>❌ Failed to load VIP keys</li>";
   }
 }
 
 function renderVipKeys(data) {
-  if (!Array.isArray(data)) return;
+  if (!Array.isArray(data)) {
+    console.warn("Bad API response:", data);
+    vipKeysList.innerHTML = "<li>⚠ Invalid server response</li>";
+    return;
+  }
 
-  vipKeysList.innerHTML = data.map(item => `
-    <li>
-      <span><b>${item.key}</b></span>
-      <span>Created: ${item.createdAt}</span>
-      <span>Expires: ${item.expiresAt}</span>
-    </li>
-  `).join("");
+  vipKeysList.innerHTML = data.length
+    ? data.map(item => `
+        <li>
+          <span><b>${item.key}</b></span><br>
+          <span>Created: ${item.createdAt}</span><br>
+          <span>Expires: ${item.expiresAt}</span>
+        </li>
+      `).join("")
+    : "<li>No VIP keys found</li>";
 }
 
 loadVipKeys();
