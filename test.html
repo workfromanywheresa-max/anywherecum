@@ -770,10 +770,11 @@ function googleTranslateElementInit() {
   
 </footer>
 
-  <script>
+<!-- KEEP EVERYTHING ELSE EXACTLY THE SAME ABOVE -->
+
+<script>
 document.addEventListener('DOMContentLoaded', () => {
 
-  /* ===== AGE MODAL LOGIC ===== */
   const modal = document.getElementById("ageModal");
   const enterBtn = document.getElementById("enterSiteBtn");
   const leaveBtn = document.getElementById("leaveSiteBtn");
@@ -798,7 +799,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const BASE_URL = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/";
   const VIP_FOLDER = "🔒VIP Exclusive";
-  const VIP_LINK = "https://fc-lc.xyz/IIivW75";
+
+  // ✅ CHANGED HERE
+  const VIP_LINK = "vip.html";
 
   let activeVideo = null;
 
@@ -864,67 +867,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     observer.observe(container);
 
-    let startX = 0;
-    let isPlaying = false;
-
-    container.addEventListener('touchstart', (e) => {
-      startX = e.touches[0].clientX;
-    });
-
-    container.addEventListener('touchmove', (e) => {
-      let moveX = e.touches[0].clientX;
-      let diff = moveX - startX;
-
-      if (Math.abs(diff) > 25) {
-        startX = moveX;
-
-        if (!isPlaying) {
-          isPlaying = true;
-
-          if (activeVideo && activeVideo !== videoEl) {
-            activeVideo.pause();
-            activeVideo.currentTime = 0;
-          }
-
-          videoEl.play().catch(() => {});
-          activeVideo = videoEl;
-
-        } else {
-          isPlaying = false;
-          videoEl.pause();
-          videoEl.currentTime = 0;
-
-          if (activeVideo === videoEl) activeVideo = null;
-        }
-      }
-    });
-
-    container.addEventListener('mouseenter', () => {
-      if (window.matchMedia("(pointer: fine)").matches) {
-
-        if (activeVideo && activeVideo !== videoEl) {
-          activeVideo.pause();
-          activeVideo.currentTime = 0;
-        }
-
-        videoEl.play().catch(() => {});
-        activeVideo = videoEl;
-      }
-    });
-
-    container.addEventListener('mouseleave', () => {
-      videoEl.pause();
-      videoEl.currentTime = 0;
-
-      if (activeVideo === videoEl) activeVideo = null;
-    });
-
     container.addEventListener('click', () => {
+
       if (folderName === VIP_FOLDER) {
-        window.open(folderURL, '_blank'); // ✅ VIP opens new tab
+        // ✅ SAME TAB for VIP
+        window.location.href = folderURL;
       } else {
         window.location.href = folderURL;
       }
+
     });
 
     const link = document.createElement('a');
@@ -932,11 +883,8 @@ document.addEventListener('DOMContentLoaded', () => {
     link.href = folderURL;
     link.textContent = linkText;
 
-    // ✅ Make VIP link open in new tab
-    if (folderName === VIP_FOLDER) {
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-    }
+    // ❌ REMOVED target="_blank" for VIP
+    // VIP now opens in same tab
 
     li.appendChild(container);
     li.appendChild(link);
@@ -978,7 +926,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const li = createPreviewItem(
           latest,
           folderURL,
-          folderName === VIP_FOLDER ? "🔒 VIP Exclusive" : folderName,
+          folderName === VIP_FOLDER
+          ? (getVipStatus().active
+          ? `💎 Unlocked (${getCountdown(getVipStatus().expiresAt)})`
+          : folderName)
+          : folderName,
           folderName
         );
 
@@ -1007,26 +959,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     });
 
-  /* ===== COOKIE BANNER ===== */
-  const banner = document.getElementById('cookieBanner');
-
-  if (localStorage.getItem('cookiesAccepted') !== 'true') {
-    setTimeout(() => {
-      banner.style.bottom = '0';
-    }, 300);
-  }
-
-  document.getElementById('acceptCookies').onclick = () => {
-    localStorage.setItem('cookiesAccepted', 'true');
-    banner.style.bottom = '-100px';
-
-    setTimeout(() => {
-      banner.style.display = 'none';
-    }, 500);
-  };
-
 });
-            </script>
+</script>
+
+<!-- KEEP EVERYTHING ELSE EXACTLY THE SAME BELOW -->
 
 <!-- COOKIE BANNER -->
 <div id="cookieBanner" style="position:fixed; bottom:-100px; left:0; width:100%; background:#222; color:#fff; padding:12px 15px; text-align:center; font-size:10px; z-index:9998; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; transition: bottom 0.5s;">
@@ -1310,9 +1246,9 @@ document.addEventListener("click", (e) => {
     window.location.href = "vip.html";
   }
 });
-</script>
+  </script>
       
   <script type="module" src="views.js"></script>
 
 </body>
-</html>
+    </html>
