@@ -98,7 +98,8 @@
 
   .qr { width: 160px; margin-top: 10px; }
 
-  .address-row, .crypto-row {
+  .crypto-row,
+  .address-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -107,17 +108,17 @@
     font-size: 13px;
   }
 
+  .crypto-text {
+    font-weight: bold;
+    flex: 1;
+    text-align: left;
+  }
+
   .address {
     font-size: 12px;
     word-break: break-all;
     text-align: left;
     flex: 1;
-  }
-
-  .crypto-text {
-    font-weight: bold;
-    flex: 1;
-    text-align: left;
   }
 
   .copy-icon {
@@ -269,8 +270,8 @@ function updateCrypto() {
 
   const crypto = (usd / price).toFixed(6);
 
-  document.getElementById("cryptoText").innerText =
-    `${crypto} ${currentCoin.toUpperCase()}`;
+  document.getElementById("cryptoText").innerHTML =
+    `$5 USD = <b>${crypto} ${currentCoin.toUpperCase()}</b>`;
 }
 
 function closeModal() {
