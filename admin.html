@@ -99,6 +99,29 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="totalSubscribers"></div>
 </div>
 
+<button onclick="generateKey()">Generate VIP Key</button>
+
+<script>
+async function generateKey() {
+  const key = Math.random().toString(36).substring(2, 10).toUpperCase();
+
+  const res = await fetch("https://vipkey.YOUR_DOMAIN.workers.dev/create-key", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ key })
+  });
+
+  const data = await res.json();
+
+  alert("New VIP Key: " + key);
+}
+</script> 
+
+  <div class="card">
+  <h2>🔑 VIP Keys</h2>
+  <ul id="vipKeysList"></ul>
+  </div>
+
 <div class="card monthly">
   <h2>🔥 Trending Videos</h2>
   <ul id="trendingList"></ul>
@@ -118,11 +141,6 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <h2>👥 Subscribers</h2>
   <ul id="subscribersList"></ul>
 </div>
-
-  <div class="card">
-  <h2>🔑 VIP Keys</h2>
-  <ul id="vipKeysList"></ul>
-  </div>
 
 <div class="card">
   <h2>🌍 Countries</h2>
