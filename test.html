@@ -1157,7 +1157,7 @@ const VIP_API = "https://vipkeys.workfromanywhere-sa.workers.dev/verify-key";
 const VIP_FOLDER = "🔒VIP Exclusive";
 
 /* =========================
-   VIP STATUS
+   VIP STATUS CHECK
 ========================= */
 function getVipStatus() {
   const vip = JSON.parse(localStorage.getItem("vip"));
@@ -1179,7 +1179,7 @@ function getVipStatus() {
 }
 
 /* =========================
-   COUNTDOWN
+   COUNTDOWN DISPLAY
 ========================= */
 function getCountdown(expiresAt) {
   if (!expiresAt) return "";
@@ -1189,12 +1189,13 @@ function getCountdown(expiresAt) {
 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
   const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
 
-  return `${days}d ${hours}h left`;
+  return `${days}d ${hours}h ${minutes}m left`;
 }
 
 /* =========================
-   VERIFY VIP KEY
+   VERIFY VIP KEY (SERVER)
 ========================= */
 async function verifyVip(key, userId) {
   const res = await fetch(VIP_API, {
@@ -1218,7 +1219,7 @@ async function verifyVip(key, userId) {
 }
 
 /* =========================
-   SAFE VIP LABEL (FIXED)
+   FOLDER LABEL (VIP DISPLAY)
 ========================= */
 function getFolderLabel(folderName) {
   if (folderName !== VIP_FOLDER) return folderName;
@@ -1231,7 +1232,7 @@ function getFolderLabel(folderName) {
 }
 
 /* =========================
-   VIP CLICK CONTROL (FIXED - NO CONFLICT)
+   VIP CLICK PROTECTION
 ========================= */
 document.addEventListener("click", (e) => {
   const item = e.target.closest("li");
