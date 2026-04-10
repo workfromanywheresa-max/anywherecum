@@ -127,13 +127,6 @@
     flex: 1;
   }
 
-  .copy-icon {
-    border: none;
-    background: none;
-    cursor: pointer;
-    padding: 5px;
-  }
-
   .crypto-row {
     display: flex;
     align-items: center;
@@ -222,10 +215,7 @@ function openCoin(type) {
       <h3>${c.name}</h3>
     </div>
 
-    <div id="cryptoRow" class="crypto-row">
-      <div id="cryptoText">Loading...</div>
-      <button onclick="copyAmount()">Copy</button>
-    </div>
+    <div id="cryptoText">Loading...</div>
 
     <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${c.address}">
 
@@ -250,19 +240,25 @@ async function updateCrypto() {
   try {
     const prices = await getPrice();
     const price = prices[currentCoin];
+
+    // ✅ FIX: prevent Infinity / NaN
+    if (!price || price <= 0) {
+      document.getElementById("cryptoText").innerText =
+        "Price unavailable. Try again...";
+      return;
+    }
+
     const crypto = (usd / price).toFixed(6);
 
     lastAmount = crypto;
 
     document.getElementById("cryptoText").innerHTML =
       `Pay: <b>$5 USD</b> = <b>${crypto} ${currentCoin.toUpperCase()}</b>`;
-  } catch {
-    document.getElementById("cryptoText").innerText = "Error loading price";
-  }
-}
 
-function copyAmount() {
-  if (lastAmount) navigator.clipboard.writeText(lastAmount);
+  } catch {
+    document.getElementById("cryptoText").innerText =
+      "Error loading price";
+  }
 }
 
 function closeModal() {
@@ -287,12 +283,7 @@ async function sendPayment() {
   await fetch("https://payments.workfromanywhere-sa.workers.dev/", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({
-      email,
-      country,
-      wallet,
-      amount: "$5"
-    })
+    body: JSON.stringify({ email, country, wallet, amount: "$5" })
   });
 
   alert("✅ Payment submitted!");
