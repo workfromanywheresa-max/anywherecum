@@ -212,6 +212,34 @@ async function getPrice() {
   return await res.json();
 }
 
+// ✅ FIXED FUNCTION ONLY
+async function updateCrypto() {
+  if (!currentCoin) return;
+
+  const usd = 5;
+
+  try {
+    const prices = await getPrice();
+    const price = prices[currentCoin];
+
+    if (!price || isNaN(price)) {
+      document.getElementById("cryptoText").innerText =
+        "Crypto price unavailable right now";
+      return;
+    }
+
+    const crypto = (usd / price).toFixed(6);
+
+    lastAmount = crypto;
+
+    document.getElementById("cryptoText").innerHTML =
+      `Pay: <b>$5 USD</b> = <b>${crypto} ${currentCoin.toUpperCase()}</b>`;
+  } catch {
+    document.getElementById("cryptoText").innerText =
+      "Error loading price";
+  }
+}
+
 function openCoin(type) {
   currentCoin = type;
   const c = coins[type];
@@ -242,38 +270,6 @@ function openCoin(type) {
   interval = setInterval(updateCrypto, 10000);
 }
 
-async function updateCrypto() {
-  if (!currentCoin) return;
-
-  const usd = 5;
-
-  try {
-    const prices = await getPrice();
-    const price = prices[currentCoin];
-    const crypto = (usd / price).toFixed(6);
-
-    lastAmount = crypto;
-
-    document.getElementById("cryptoText").innerHTML =
-      `Pay: <b>$5 USD</b> = <b>${crypto} ${currentCoin.toUpperCase()}</b>`;
-  } catch {
-    document.getElementById("cryptoText").innerText = "Error loading price";
-  }
-}
-
-function copyAmount() {
-  if (lastAmount) navigator.clipboard.writeText(lastAmount);
-}
-
-function closeModal() {
-  document.getElementById("modal").style.display = "none";
-  clearInterval(interval);
-}
-
-function copyText(text) {
-  navigator.clipboard.writeText(text);
-}
-
 async function sendPayment() {
   const email = document.getElementById("email").value;
   const country = document.getElementById("country").value;
@@ -296,6 +292,19 @@ async function sendPayment() {
   });
 
   alert("✅ Payment submitted!");
+}
+
+function copyAmount() {
+  if (lastAmount) navigator.clipboard.writeText(lastAmount);
+}
+
+function closeModal() {
+  document.getElementById("modal").style.display = "none";
+  clearInterval(interval);
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text);
 }
 </script>
 
