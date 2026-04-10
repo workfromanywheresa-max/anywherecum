@@ -131,8 +131,7 @@
     Unlock VIP access for $5 USD (valid for 30 days). This includes no ads or hidden charges. After payment, you will receive your access password within 15 minutes and unlock full VIP Exclusive Content.
   </p>
 
-  <div id="countdown" style="margin-bottom:10px;font-weight:bold;color:#6a00ff;">
-  </div>
+  <div id="countdown" style="margin-bottom:10px;font-weight:bold;color:#6a00ff;"></div>
 
   <!-- VIP INPUT -->
   <input type="password" id="vipKey" placeholder="Enter password">
@@ -174,35 +173,23 @@
 
 </div>
 
-  <script>
+<script>
 /* =========================
    GLOBAL CONFIG
 ========================= */
 const VIP_FOLDER = "🔒VIP Exclusive";
 const VERIFY_URL = "https://vipkeys.workfromanywhere-sa.workers.dev/verify-key";
+const CHECK_URL  = "https://vipkeys.workfromanywhere-sa.workers.dev/check-session";
 const API_URL = "https://payments.workfromanywhere-sa.workers.dev/rate";
 
 /* =========================
-   COUNTDOWN SETUP
+   COUNTDOWN SETUP (UNCHANGED)
 ========================= */
 let countdownInterval;
-
-// Create countdown element (for pages without #countdown)
 let countdownEl = document.getElementById("countdown");
 
-if (!countdownEl) {
-  const vipInput = document.getElementById("vipKey");
-  if (vipInput) {
-    countdownEl = document.createElement("div");
-    countdownEl.style.marginBottom = "10px";
-    countdownEl.style.fontWeight = "bold";
-    countdownEl.style.color = "#6a00ff";
-    vipInput.parentNode.insertBefore(countdownEl, vipInput);
-  }
-}
-
 /* =========================
-   COUNTDOWN FUNCTION
+   COUNTDOWN FUNCTION (UNCHANGED)
 ========================= */
 function startCountdown(expiryISO) {
   if (!countdownEl) return;
@@ -215,7 +202,6 @@ function startCountdown(expiryISO) {
 
     if (diff <= 0) {
       countdownEl.innerText = "⛔ VIP Access Expired";
-      localStorage.removeItem("vip");
       clearInterval(countdownInterval);
       return;
     }
@@ -234,42 +220,28 @@ function startCountdown(expiryISO) {
 }
 
 /* =========================
-   ENTER VIP
+   🔥 FIXED ENTER VIP (NOW COOKIE BASED)
 ========================= */
 function enterVIP() {
   const key = document.getElementById("vipKey").value.trim();
   if (!key) return alert("Enter password");
 
-  let userId = localStorage.getItem("vip_user_id");
-
-  if (!userId) {
-    userId = crypto.randomUUID();
-    localStorage.setItem("vip_user_id", userId);
-  }
-
   fetch(VERIFY_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ key, userId })
+    credentials: "include", // 🔥 IMPORTANT COOKIE SET
+    body: JSON.stringify({ key })
   })
   .then(res => res.json())
   .then(data => {
     if (!data.valid) {
-      localStorage.removeItem("vip");
       alert("❌ " + (data.reason || "Invalid password"));
       return;
     }
 
-    // ✅ Save VIP globally
-    localStorage.setItem("vip", JSON.stringify({
-      active: true,
-      key: key,
-      expiresAt: data.expiresAtISO
-    }));
-
     startCountdown(data.expiresAtISO);
 
-    // redirect
+    // redirect (UNCHANGED)
     window.location.href =
       "folder.html?folder=" +
       encodeURIComponent(VIP_FOLDER) +
@@ -280,69 +252,35 @@ function enterVIP() {
 }
 
 /* =========================
-   VALIDATE VIP (REUSE)
+   🔥 FIXED VALIDATION (COOKIE BASED)
 ========================= */
-async function validateVip(key, userId) {
+async function validateVip() {
   try {
-    const res = await fetch(VERIFY_URL, {
+    const res = await fetch(CHECK_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key, userId })
+      credentials: "include" // 🔥 SEND COOKIE
     });
 
     const data = await res.json();
 
-    if (!data.valid) {
-      localStorage.removeItem("vip");
-      localStorage.removeItem("vip_user_id");
-      window.location.href = "vip.html";
-      return false;
+    if (data.active) {
+      startCountdown(data.expires);
     }
 
-    localStorage.setItem("vip", JSON.stringify({
-      active: true,
-      key,
-      expiresAt: data.expiresAtISO
-    }));
-
-    startCountdown(data.expiresAtISO);
-    return true;
-
-  } catch {
-    localStorage.removeItem("vip");
-    window.location.href = "vip.html";
-    return false;
+  } catch (err) {
+    console.error("VIP check error:", err);
   }
 }
 
 /* =========================
-   INIT GUARD
-========================= */
-async function initVipGuard() {
-  const vip = JSON.parse(localStorage.getItem("vip") || "{}");
-  const userId = localStorage.getItem("vip_user_id");
-
-  if (!vip.active || !vip.key || !userId) return;
-
-  await validateVip(vip.key, userId);
-}
-
-initVipGuard();
-
-/* =========================
-   AUTO REVALIDATION
+   AUTO REVALIDATION (NOW COOKIE BASED)
 ========================= */
 setInterval(() => {
-  const vip = JSON.parse(localStorage.getItem("vip") || "{}");
-  const userId = localStorage.getItem("vip_user_id");
-
-  if (vip.active && vip.key && userId) {
-    validateVip(vip.key, userId);
-  }
+  validateVip();
 }, 60000);
 
 /* =========================
-   PAYMENT SYSTEM
+   PAYMENT SYSTEM (UNCHANGED)
 ========================= */
 let usdToZar = 0;
 
@@ -392,7 +330,13 @@ function goPayPal() {
 function goCrypto() {
   window.location.href = "crypto-vip.html";
 }
-      </script>
-  
+
+/* =========================
+   INIT (REPLACED LOCALSTORAGE CHECK WITH COOKIE CHECK)
+========================= */
+validateVip();
+
+</script>
+
 </body>
 </html>
