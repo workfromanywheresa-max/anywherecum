@@ -770,7 +770,7 @@ function googleTranslateElementInit() {
   
 </footer>
 
-  <script>
+    <script>
 /* =========================
    GLOBAL CONFIG
 ========================= */
@@ -780,9 +780,10 @@ const VIP_FOLDER = "🔒VIP Exclusive";
 const CHECK_URL = "https://vipkeys.workfromanywhere-sa.workers.dev/check-session";
 
 let activeVideo = null;
+let vipGlobal = null;
 
 /* =========================
-   VIP STATUS (NEW - COOKIE BASED)
+   VIP STATUS (COOKIE BASED)
 ========================= */
 async function getVipStatus() {
   try {
@@ -799,7 +800,7 @@ async function getVipStatus() {
 
     return {
       active: true,
-      expiresAt: data.expires
+      expiresAt: data.expiresAtSAST
     };
 
   } catch (err) {
@@ -826,9 +827,9 @@ function getCountdown(expiresAt) {
 }
 
 /* =========================
-   CREATE PREVIEW ITEM (UPDATED VIP CHECK)
+   CREATE PREVIEW ITEM
 ========================= */
-function createPreviewItem(video, folderURL, linkText, folderName, vipActive) {
+function createPreviewItem(video, folderURL, linkText, folderName, vipActive, isVipFolder) {
 
   const li = document.createElement("li");
   li.dataset.folder = folderName;
@@ -884,8 +885,14 @@ function createPreviewItem(video, folderURL, linkText, folderName, vipActive) {
 
   const link = document.createElement("a");
   link.className = "folder-link";
-  link.textContent = linkText;
   link.href = "javascript:void(0)";
+
+  if (isVipFolder && vipActive) {
+    link.innerHTML = `💎 Unlocked (<span class="vipCountdown"></span>)`;
+  } else {
+    link.textContent = linkText;
+  }
+
   link.addEventListener("click", (e) => {
     e.preventDefault();
     goToFolder();
@@ -898,7 +905,7 @@ function createPreviewItem(video, folderURL, linkText, folderName, vipActive) {
 }
 
 /* =========================
-   AGE MODAL (UNCHANGED)
+   AGE MODAL
 ========================= */
 function initAgeModal() {
   const modal = document.getElementById("ageModal");
@@ -924,11 +931,11 @@ function initAgeModal() {
 }
 
 /* =========================
-   LOAD VIDEOS (FIXED VIP FLOW)
+   LOAD VIDEOS
 ========================= */
 async function loadVideos() {
   try {
-    const vip = await getVipStatus();
+    vipGlobal = await getVipStatus();
 
     const res = await fetch("./videos.json");
     const videos = await res.json();
@@ -961,25 +968,15 @@ async function loadVideos() {
       const folderURL =
         "folder.html?folder=" + encodeURIComponent(folderName);
 
-      let label;
-
-      if (folderName === VIP_FOLDER) {
-        if (vip.active) {
-          const countdown = getCountdown(vip.expiresAt);
-          label = countdown ? `💎 Unlocked (${countdown})` : `💎 Unlocked`;
-        } else {
-          label = folderName;
-        }
-      } else {
-        label = folderName;
-      }
+      let label = folderName;
 
       const li = createPreviewItem(
         latest,
         folderURL,
         label,
         folderName,
-        vip.active
+        vipGlobal.active,
+        folderName === VIP_FOLDER
       );
 
       folderList.appendChild(li);
@@ -1003,7 +1000,8 @@ async function loadVideos() {
           "folder.html?folder=" + encodeURIComponent(latest.folder),
           "Watch Now: New Video Available!",
           latest.folder,
-          vip.active
+          vipGlobal.active,
+          false
         );
 
         latestDiv.appendChild(li);
@@ -1013,6 +1011,22 @@ async function loadVideos() {
   } catch (err) {
     console.error("Video load error:", err);
   }
+}
+
+/* =========================
+   LIVE COUNTDOWN LOOP
+========================= */
+function startVipCountdown() {
+  setInterval(() => {
+    if (!vipGlobal?.active || !vipGlobal?.expiresAt) return;
+
+    const countdown = getCountdown(vipGlobal.expiresAt);
+
+    document.querySelectorAll(".vipCountdown").forEach(el => {
+      el.textContent = countdown;
+    });
+
+  }, 1000);
 }
 
 /* =========================
@@ -1036,9 +1050,9 @@ document.addEventListener("click", async (e) => {
 ========================= */
 document.addEventListener("DOMContentLoaded", () => {
   initAgeModal();
-  loadVideos();
+  loadVideos().then(() => startVipCountdown());
 });
-    </script>
+                                  </script>
 
 <!-- COOKIE BANNER -->
 <div id="cookieBanner" style="position:fixed; bottom:-100px; left:0; width:100%; background:#222; color:#fff; padding:12px 15px; text-align:center; font-size:10px; z-index:9998; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; transition: bottom 0.5s;">
