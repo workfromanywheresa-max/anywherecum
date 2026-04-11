@@ -1223,24 +1223,23 @@ loadLives();
     });
 
     const data = await res.json();
-
     const isVIP = data.active === true;
 
     if (isVIP) {
-      cta.style.display = "none";   // hide when VIP
+      cta.style.display = "none";
       console.log("💎 VIP detected — CTA hidden");
     } else {
-      cta.style.display = "block";  // show when NOT VIP
+      cta.style.display = "block";
       console.log("👤 Non-VIP — CTA visible");
     }
 
   } catch (err) {
     console.error("VIP check failed:", err);
-    cta.style.display = "block"; // fallback = show CTA
+    cta.style.display = "block"; // fallback
   }
 
 })();
-      </script>
+  </script>
   
   <script type="module" src="views.js"></script>
 
