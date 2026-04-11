@@ -57,16 +57,16 @@
     "qualities": [
       {
         "label": "480p (Standard)",
-        "embed": "https://streamtape.com/e/j6kqKRPePwHqy2",
-        "download": "https://streamtape.com/v/j6kqKRPePwHqy2",
-        "size": "47.92 MB",
+        "embed": "https://drive.google.com/file/d/1yID17vhy7nx2UuJXjhAhgzuJd7V7aW4r/preview",
+        "download": "https://drive.google.com/uc?export=download&id=1yID17vhy7nx2UuJXjhAhgzuJd7V7aW4r",
+        "size": "53.18 MB",
         "default": true
       },
       {
         "label": "1080p (HD - Recommended)",
-        "embed": "https://streamtape.com/e/RejX0bOdOzidbgo",
-        "download": "https://streamtape.com/v/RejX0bOdOzidbgo",
-        "size": "52.70 MB",
+        "embed": "https://mxdrop.sx/e/9wqg6g3kcq6kr1",
+        "download": "https://mxdrop.sx/f/9wqg6g3kcq6kr1",
+        "size": "79.12 MB",
         "recommended": true
       }
     ]
