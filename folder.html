@@ -6,15 +6,20 @@
 <title>Folder Videos</title>
 
 <style>
+html {
+  height: 100%;
+}
+
 body {
   font-family: Arial, sans-serif;
   background: #1a1a1a;
   color: #fff;
   margin: 0;
   padding: 15px;
+  min-height: 100vh;
+
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
 }
 
 /* MAIN FLEX FIX */
@@ -63,11 +68,11 @@ h2 {
 }
 
 /* =========================
-   VIDEO BOX FIX (IMPORTANT)
+   VIDEO BOX FIX
 ========================= */
 .videoBox {
   background: #222;
-  padding: 0px; /* top/bottom = 0, left/right = 10px */
+  padding: 0px;
   border-radius: 8px;
   margin-bottom: 30px;
   text-align: center;
@@ -118,14 +123,19 @@ select {
   font-size: 12px;
 }
 
-/* FOOTER */
+/* =========================
+   FOOTER LOCK FIX
+========================= */
 footer {
   text-align: center;
   padding: 2px;
   font-size: 12px;
   color: #aaa;
   background: #111;
-  margin-top: auto;
+
+  width: 100%;
+  flex-shrink: 0;
+  position: relative;
 }
 
 /* =========================
@@ -134,12 +144,12 @@ footer {
 @media (max-width: 768px) {
 
   body {
-    padding: 0; /* removes side gap */
+    padding: 0;
   }
 
   .videoBox {
     margin: 0 0 15px 0;
-    border-radius: 0; /* optional: full edge look */
+    border-radius: 0;
   }
 
   .videoFrameWrapper {
@@ -188,7 +198,7 @@ footer {
 
 body {
   top: 0 !important;
-}
+  } 
 </style>
 
 <!-- OneSignal -->
