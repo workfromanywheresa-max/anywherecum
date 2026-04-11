@@ -6,7 +6,7 @@
 <title>Folder Videos</title>
 
 <style>
-html {
+  html, body {
   height: 100%;
 }
 
@@ -16,8 +16,8 @@ body {
   color: #fff;
   margin: 0;
   padding: 15px;
-  min-height: 100vh;
 
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -25,6 +25,8 @@ body {
 /* MAIN FLEX FIX */
 main {
   flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* GLOBAL FIX */
@@ -67,9 +69,7 @@ h2 {
   flex: 1;
 }
 
-/* =========================
-   VIDEO BOX FIX
-========================= */
+/* VIDEO BOX FIX */
 .videoBox {
   background: #222;
   padding: 0px;
@@ -123,9 +123,7 @@ select {
   font-size: 12px;
 }
 
-/* =========================
-   FOOTER LOCK FIX
-========================= */
+/* FOOTER LOCK FIX (NO JUMP) */
 footer {
   text-align: center;
   padding: 2px;
@@ -134,13 +132,11 @@ footer {
   background: #111;
 
   width: 100%;
+  margin-top: auto;   /* 🔥 locks footer to bottom */
   flex-shrink: 0;
-  position: relative;
 }
 
-/* =========================
-   MOBILE FULL WIDTH FIX
-========================= */
+/* MOBILE FIX */
 @media (max-width: 768px) {
 
   body {
@@ -162,9 +158,7 @@ footer {
   }
 }
 
-/* =========================
-   GOOGLE TRANSLATE FIX
-========================= */
+/* GOOGLE TRANSLATE FIX */
 #google_translate_element {
   position: fixed !important;
   top: 0 !important;
@@ -198,7 +192,7 @@ footer {
 
 body {
   top: 0 !important;
-  } 
+  }
 </style>
 
 <!-- OneSignal -->
