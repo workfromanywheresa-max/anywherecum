@@ -107,6 +107,7 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="videoViewsTotal"></div>
   <div id="cycleViewsTotal"></div>
   <div id="totalSubscribers"></div>
+  <div id="vipTotal" class="total-card">
 </div>
 
 <button onclick="generateKey()">Generate VIP Key</button>
@@ -442,6 +443,7 @@ function logout(){
 
 <script type="module">
 const vipKeysList = document.getElementById("vipKeysList");
+const vipTotalEl = document.getElementById("vipTotal");
 
 // 🔄 LOAD VIP KEYS
 async function loadVipKeys() {
@@ -479,15 +481,22 @@ function formatDate(sast) {
   });
 }
 
-// 🎯 RENDER KEYS + DATES (FILTERED)
+// 🎯 RENDER KEYS + TOTAL
 function renderVipKeys(keys) {
   if (!Array.isArray(keys)) return;
 
-  // ❌ REMOVE subscriber entries
+  // ❌ remove subscribers
   const filteredKeys = keys.filter(item =>
     item.key && !item.key.startsWith("subscriber_")
   );
 
+  // 🔥 VIP TOTAL
+  vipTotalEl.innerHTML = `
+    <h2>🔑 Total VIP Keys</h2>
+    <div class="value">${filteredKeys.length}</div>
+  `;
+
+  // 📋 LIST
   vipKeysList.innerHTML = filteredKeys.length
     ? filteredKeys.map(item => `
         <li>
