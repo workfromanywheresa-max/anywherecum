@@ -12,17 +12,17 @@ body {
   color: #fff;
   margin: 0;
   padding: 15px;
-  
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-/* ADD THIS */
+/* MAIN FLEX FIX */
 main {
   flex: 1;
 }
 
+/* GLOBAL FIX */
 * {
   box-sizing: border-box;
 }
@@ -59,20 +59,23 @@ h2 {
 #normalVideos {
   margin-bottom: 40px;
   min-height: 300px;
-
-  /* 🔥 ADD THIS (CRITICAL FIX) */
   flex: 1;
 }
-  
+
+/* =========================
+   VIDEO BOX FIX (IMPORTANT)
+========================= */
 .videoBox {
   background: #222;
-  padding: 0 -20px; /* top/bottom = 0, left/right = 10px */
+  padding: 10px;              /* FIXED (no negative padding) */
   border-radius: 8px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   text-align: center;
   min-height: 250px;
+  width: 100%;
 }
-  
+
+/* VIDEO RESPONSIVE WRAPPER */
 .videoFrameWrapper {
   width: 100%;
   max-width: 800px;
@@ -92,6 +95,7 @@ h2 {
   display: block;
 }
 
+/* SELECT */
 select {
   padding: 5px;
   border-radius: 5px;
@@ -115,6 +119,7 @@ select {
   font-size: 12px;
 }
 
+/* FOOTER */
 footer {
   text-align: center;
   padding: 2px;
@@ -124,26 +129,44 @@ footer {
   margin-top: auto;
 }
 
-/* ===== GOOGLE TRANSLATE FIX ===== */
+/* =========================
+   MOBILE FULL WIDTH FIX
+========================= */
+@media (max-width: 768px) {
+
+  body {
+    padding: 0; /* removes side gap */
+  }
+
+  .videoBox {
+    margin: 0 0 15px 0;
+    border-radius: 0; /* optional: full edge look */
+  }
+
+  .videoFrameWrapper {
+    border-radius: 0;
+    max-width: 100%;
+  }
+
+  html, body {
+    overflow-x: hidden;
+  }
+}
+
+/* =========================
+   GOOGLE TRANSLATE FIX
+========================= */
 #google_translate_element {
   position: fixed !important;
   top: 0 !important;
   right: 0 !important;
-  left: auto !important;
   z-index: 99999;
-  margin: 0 !important;
-  padding: 0 !important;
 }
 
-/* Container */
 .goog-te-gadget {
-  font-size: 0 !important; /* hides "Select Language" */
-  background: transparent !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  font-size: 0 !important;
 }
 
-/* Dropdown only */
 .goog-te-gadget select.goog-te-combo {
   font-size: 12px !important;
   padding: 3px 6px !important;
@@ -151,26 +174,21 @@ footer {
   color: #fff !important;
   border: none !important;
   border-radius: 4px;
-  margin: 0 !important;
 }
 
-/* Hide everything else */
 .goog-te-gadget span,
 .goog-te-gadget a,
 .goog-logo-link,
-.goog-te-banner-frame,
-.goog-te-gadget .goog-te-combo + span {
+.goog-te-banner-frame {
   display: none !important;
 }
 
-/* Remove top spacing */
-body {
-  top: 0 !important;
-}
-
-/* Hide translate banner */
 .goog-te-banner-frame.skiptranslate {
   display: none !important;
+}
+
+body {
+  top: 0 !important;
 }
 </style>
 
