@@ -77,19 +77,26 @@ h2 {
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
-  aspect-ratio: 16 / 9;
-  border-radius: 8px;
-  overflow: hidden;
+  position: relative;
   background: #000;
+  overflow: hidden;
+  border-radius: 8px;
+
+  aspect-ratio: 16 / 9;
+
+  /* extra stability */
+  contain: layout paint;
 }
 
-.videoFrameWrapper iframe,
-.videoFrameWrapper img {
+.videoFrameWrapper iframe 
+  .videoFrameWrapper img {
   width: 100%;
   height: 100%;
   border: 0;
-  object-fit: cover;
   display: block;
+
+  /* prevents weird shrinking/cropping issues */
+  max-width: 100%;
 }
 
 select {
