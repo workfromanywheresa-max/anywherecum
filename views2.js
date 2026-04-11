@@ -55,30 +55,28 @@ function stopVideo(video) {
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     const video = entry.target;
-    if (!entry.isIntersecting) stopVideo(video);
-  });
-}, { threshold: 0.3 });
 
-/* ---------------- TITLE (FIXED VIP HERE) ---------------- */
+    if (!entry.isIntersecting) {
+      stopVideo(video);
+    }
+  });
+}, {
+  threshold: 0.3
+});
+
+/* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
   return str.toLowerCase().split(" ")
-    .map(w => {
-      if (w === "vip") return "VIP";
-      return w.charAt(0).toUpperCase() + w.slice(1);
-    })
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 }
 
-const rawFolder = urlParams.get("folder") || "";
-const folderKey = rawFolder.trim().toLowerCase();
-
 const titleEl = document.getElementById("folderTitle");
 if (titleEl) {
-  if (folderKey.includes("vip")) {
-    titleEl.textContent = "🔒 VIP Exclusive";
-  } else {
-    titleEl.textContent = folderName ? toTitleCase(folderName) : "All Videos";
-  }
+  titleEl.textContent =
+    folderName === "vip.folder"
+      ? "💎 VIP Exclusive"
+      : (folderName ? toTitleCase(folderName) : "All Videos");
 }
 
 /* ---------------- FORMAT ---------------- */
@@ -152,8 +150,17 @@ function removeLoader() {
   if (loader) loader.remove();
 }
 
+const style = document.createElement("style");
+style.innerHTML = `
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}`;
+document.head.appendChild(style);
+
 /* ---------------- VIDEO BOX ---------------- */
 function createVideoBox(video) {
+
   const box = document.createElement("div");
   box.className = "videoBox";
 
@@ -195,9 +202,67 @@ function createVideoBox(video) {
     loadPlayer();
   };
 
+  let startX = 0;
+
+  preview.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+  });
+
+  preview.addEventListener("touchend", e => {
+    const endX = e.changedTouches[0].clientX;
+    const diff = Math.abs(endX - startX);
+
+    if (diff > 30) {
+
+      if (currentPreviewVideo && currentPreviewVideo !== preview) {
+        stopVideo(currentPreviewVideo);
+      }
+
+      if (!preview.paused) {
+        stopVideo(preview);
+      } else {
+        preview.play().catch(() => {});
+        currentPreviewVideo = preview;
+      }
+    }
+  });
+
   wrapper.appendChild(preview);
 
+  const views = document.createElement("div");
+  views.className = "views";
+  views.style.position = "absolute";
+  views.style.bottom = "8px";
+  views.style.left = "8px";
+  views.style.background = "rgba(0,0,0,0.6)";
+  views.style.padding = "4px 8px";
+  views.style.borderRadius = "6px";
+  views.style.fontSize = "12px";
+
+  wrapper.appendChild(views);
+
+  const select = document.createElement("select");
+
+  video.qualities.forEach((q, index) => {
+    const option = document.createElement("option");
+    option.value = index;
+    option.textContent = `Stream - ${q.label}`;
+    if (q === defaultQuality) option.selected = true;
+    select.appendChild(option);
+  });
+
+  select.onchange = () => {
+    const selected = video.qualities[select.value];
+    currentEmbed = selected.embed;
+
+    countWatchOnce(video.id);
+
+    wrapper.dataset.loaded = "false";
+    loadPlayer();
+  };
+
   const title = document.createElement("h3");
+  title.className = "videoTitle";
   title.textContent = video.title;
 
   const downloadBtn = document.createElement("button");
@@ -209,15 +274,89 @@ function createVideoBox(video) {
   downloadBtn.onclick = () => {
     downloadBox.style.display =
       downloadBox.style.display === "none" ? "block" : "none";
+
     countDownloadOnce(video.id);
   };
 
+  video.qualities.forEach(q => {
+    const link = document.createElement("a");
+    link.href = q.download;
+    link.target = "_blank";
+    link.textContent = `${q.label} • ${q.size}`;
+    link.style.display = "block";
+    link.style.color = "#ff4444";
+
+    link.onclick = () => countDownloadOnce(video.id);
+
+    downloadBox.appendChild(link);
+  });
+
+  box.appendChild(select);
   box.appendChild(wrapper);
   box.appendChild(title);
   box.appendChild(downloadBtn);
   box.appendChild(downloadBox);
 
   return box;
+}
+
+/* ---------------- UI UPDATE ---------------- */
+function updateUI(id) {
+  const v = videoDataMap[id];
+  if (!v || !videoElements[id]) return;
+
+  const total = v.totalViews || 0;
+  const isTrending = v.cycleViews >= 10;
+
+  saveCache("views_" + id, total);
+  saveCache("cycle_" + id, v.cycleViews);
+
+  const text = isTrending
+    ? `🔥 Trending | 👁 ${formatViews(total)}`
+    : `👁 ${formatViews(total)}`;
+
+  const el = videoElements[id].views;
+
+  if (el.textContent !== text) {
+    requestAnimationFrame(() => {
+      el.textContent = text;
+      el.style.color = isTrending ? "#ffcc00" : "#fff";
+    });
+  }
+}
+
+/* ---------------- REORDER ---------------- */
+function reorderVideos(force = false) {
+  const entries = Object.entries(videoDataMap);
+
+  entries.sort((a, b) => {
+    const A = a[1];
+    const B = b[1];
+
+    const ATrending = A.cycleViews >= 10;
+    const BTrending = B.cycleViews >= 10;
+
+    if (ATrending && !BTrending) return -1;
+    if (!ATrending && BTrending) return 1;
+
+    if (ATrending && BTrending) {
+      return B.cycleViews - A.cycleViews;
+    }
+
+    return A.originalIndex - B.originalIndex;
+  });
+
+  const newOrder = entries.map(([id]) => id);
+  const oldOrder = JSON.parse(getCache(ORDER_KEY) || "[]");
+
+  if (!force && JSON.stringify(newOrder) === JSON.stringify(oldOrder)) return;
+
+  saveCache(ORDER_KEY, JSON.stringify(newOrder));
+
+  newOrder.forEach(id => {
+    const el = videoElements[id]?.box;
+    if (el) videosContainer.appendChild(el);
+  });
 }
 
 /* ---------------- LOAD ---------------- */
@@ -241,8 +380,46 @@ fetch(dataSource)
     }
 
     filtered.forEach((v, index) => {
+
+      videoDataMap[v.id] = {
+        ...v,
+        originalIndex: index,
+        totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
+        cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
+      };
+
       const box = createVideoBox(v);
       videosContainer.appendChild(box);
+
+      videoElements[v.id] = {
+        box,
+        views: box.querySelector(".views")
+      };
+
+      updateUI(v.id);
+    });
+
+    reorderVideos(true);
+
+    filtered.forEach(v => {
+
+      onValue(ref(db, "views/" + v.id), snap => {
+        const val = snap.val();
+        if (val !== null) {
+          videoDataMap[v.id].totalViews = val;
+          updateUI(v.id);
+        }
+      });
+
+      onValue(ref(db, "cycleViews/" + v.id), snap => {
+        const val = snap.val();
+        if (val !== null) {
+          videoDataMap[v.id].cycleViews = Number(val);
+          updateUI(v.id);
+          reorderVideos();
+        }
+      });
+
     });
 
   })
