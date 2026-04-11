@@ -627,6 +627,81 @@ window.VIDEO_CONFIG = {
 };
 </script>
 
+  <script>
+(function () {
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const folder = (urlParams.get("folder") || "").toLowerCase();
+
+  const isVIP =
+    folder.includes("vip") ||
+    folder.includes("🔒");
+
+  if (!isVIP) return;
+
+  console.log("💎 VIP MODE ON — Ads disabled");
+
+  // 1. Block future ad scripts from running
+  const blockedKeywords = [
+    "ads",
+    "profit",
+    "juicy",
+    "cpm",
+    "pop",
+    "banner"
+  ];
+
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach(m => {
+      m.addedNodes.forEach(node => {
+        if (node.tagName === "SCRIPT" && node.src) {
+          const src = node.src.toLowerCase();
+
+          if (blockedKeywords.some(k => src.includes(k))) {
+            console.log("🚫 Blocked ad script:", src);
+            node.remove();
+          }
+        }
+      });
+    });
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+
+  // 2. Remove already loaded ad containers
+  function removeAds() {
+
+    const selectors = [
+      "#topAdMain",
+      "#bottom-ad-wrapper",
+      "#adContainerTop",
+      "[id*='ad']",
+      "iframe[src*='ads']",
+      "iframe[src*='profit']",
+      "script[src*='ads']",
+      "script[src*='profit']"
+    ];
+
+    selectors.forEach(sel => {
+      document.querySelectorAll(sel).forEach(el => el.remove());
+    });
+  }
+
+  // run immediately + after load
+  removeAds();
+  window.addEventListener("load", removeAds);
+
+  // 3. Kill ad timers if they exist
+  setTimeout(() => {
+    removeAds();
+  }, 1000);
+
+})();
+  </script>
+
 <script type="module" src="views2.js"></script>
 
 </body>
