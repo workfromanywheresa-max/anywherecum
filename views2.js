@@ -73,8 +73,10 @@ function toTitleCase(str) {
 
 const titleEl = document.getElementById("folderTitle");
 if (titleEl) {
+  const cleanFolder = folderName.replace("🔒", "").trim().toLowerCase();
+
   titleEl.textContent =
-    folderName === "vip.folder"
+    cleanFolder === "vip eclusive"
       ? "💎 VIP Exclusive"
       : (folderName ? toTitleCase(folderName) : "All Videos");
 }
