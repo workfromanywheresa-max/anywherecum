@@ -23,8 +23,8 @@ if (!visitId) {
 
 /* ---------------- CONFIG ---------------- */
 const urlParams = new URLSearchParams(window.location.search);
-const folderName = (urlParams.get("folder") || "").trim().toLowerCase();
-const rawFolderName = (urlParams.get("folder") || "").trim();
+const folderName = (urlParams.get("folder") || "").trim().toLowerCase(); // keep for filtering
+const rawFolderName = (urlParams.get("folder") || "").trim(); // 👈 used for title display
 const config = window.VIDEO_CONFIG || {};
 const dataSource = config.dataSource || "videos.json";
 
@@ -45,21 +45,25 @@ const videoDataMap = {};
 const videoElements = {};
 let currentPreviewVideo = null;
 
-/* ---------------- STOP VIDEO ---------------- */
+/* ---------------- STOP VIDEO FUNCTION ---------------- */
 function stopVideo(video) {
   if (!video) return;
   video.pause();
   video.currentTime = 0;
 }
 
-/* ---------------- OBSERVER ---------------- */
+/* ---------------- INTERSECTION OBSERVER ---------------- */
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
+    const video = entry.target;
+
     if (!entry.isIntersecting) {
-      stopVideo(entry.target);
+      stopVideo(video);
     }
   });
-}, { threshold: 0.3 });
+}, {
+  threshold: 0.3
+});
 
 /* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
@@ -74,7 +78,7 @@ if (titleEl) {
   const normalized = rawFolderName.toLowerCase();
 
   if (normalized === "🔒vip exclusive") {
-    titleEl.textContent = "💎VIP Exclusive";
+    titleEl.textContent = "💎VIP Exclusive"; // ✅ FIXED VIP TITLE
   } else {
     titleEl.textContent = rawFolderName ? toTitleCase(rawFolderName) : "All Videos";
   }
@@ -98,7 +102,7 @@ async function sendToWorker(videoId) {
       body: JSON.stringify({ videoId })
     });
   } catch (err) {
-    console.error(err);
+    console.error("Worker failed:", err);
   }
 }
 
@@ -124,7 +128,7 @@ function countDownloadOnce(videoId) {
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
 
-/* ---------------- LOADER (PAGE) ---------------- */
+/* ---------------- LOADER ---------------- */
 function createLoader() {
   const loader = document.createElement("div");
   loader.id = "loader";
@@ -147,7 +151,8 @@ function createLoader() {
 }
 
 function removeLoader() {
-  document.getElementById("loader")?.remove();
+  const loader = document.getElementById("loader");
+  if (loader) loader.remove();
 }
 
 const style = document.createElement("style");
@@ -155,8 +160,7 @@ style.innerHTML = `
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-`;
+}`;
 document.head.appendChild(style);
 
 /* ---------------- VIDEO BOX ---------------- */
@@ -167,11 +171,7 @@ function createVideoBox(video) {
 
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
-
-  /* ---------------- SKELETON ---------------- */
-  const skeleton = document.createElement("div");
-  skeleton.className = "videoSkeleton";
-  wrapper.appendChild(skeleton);
+  wrapper.style.position = "relative";
 
   const defaultQuality =
     video.qualities.find(q => q.label.includes("480")) ||
@@ -187,9 +187,7 @@ function createVideoBox(video) {
     iframe.src = currentEmbed;
     iframe.allowFullscreen = true;
 
-    iframe.onload = () => skeleton.remove();
-
-    wrapper.appendChild(iframe);
+    wrapper.replaceChildren(iframe);
   }
 
   const preview = document.createElement("video");
@@ -208,6 +206,31 @@ function createVideoBox(video) {
     countWatchOnce(video.id);
     loadPlayer();
   };
+
+  let startX = 0;
+
+  preview.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+  });
+
+  preview.addEventListener("touchend", e => {
+    const endX = e.changedTouches[0].clientX;
+    const diff = Math.abs(endX - startX);
+
+    if (diff > 30) {
+
+      if (currentPreviewVideo && currentPreviewVideo !== preview) {
+        stopVideo(currentPreviewVideo);
+      }
+
+      if (!preview.paused) {
+        stopVideo(preview);
+      } else {
+        preview.play().catch(() => {});
+        currentPreviewVideo = preview;
+      }
+    }
+  });
 
   wrapper.appendChild(preview);
 
@@ -290,6 +313,9 @@ function updateUI(id) {
   const total = v.totalViews || 0;
   const isTrending = v.cycleViews >= 10;
 
+  saveCache("views_" + id, total);
+  saveCache("cycle_" + id, v.cycleViews);
+
   const text = isTrending
     ? `🔥 Trending | 👁 ${formatViews(total)}`
     : `👁 ${formatViews(total)}`;
@@ -353,7 +379,7 @@ fetch(dataSource)
         )
       : videos;
 
-    if (!filtered.length) {
+    if (filtered.length === 0) {
       videosContainer.innerHTML = "<p>No videos found.</p>";
       return;
     }
@@ -402,4 +428,4 @@ fetch(dataSource)
     });
 
   })
-  .catch(console.error);
+  .catch(err => console.error(err));
