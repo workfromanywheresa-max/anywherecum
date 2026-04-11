@@ -117,12 +117,11 @@
 
   <h2>💎 VIP Access</h2>
 
-  <p>
-    Unlock VIP access for $5 USD (valid for 30 days).
-  </p>
+  <p>Unlock VIP access for $5 USD (valid for 30 days).</p>
 
   <div id="countdown" style="margin-bottom:10px;font-weight:bold;color:#6a00ff;"></div>
 
+  <input type="email" id="vipEmail" placeholder="Enter email">
   <input type="password" id="vipKey" placeholder="Enter password">
 
   <button class="vip-btn" onclick="enterVIP()">
@@ -161,22 +160,22 @@ const VERIFY_URL = "https://vipkeys.workfromanywhere-sa.workers.dev/verify-key";
 const CHECK_URL  = "https://vipkeys.workfromanywhere-sa.workers.dev/check-session";
 const API_URL    = "https://payments.workfromanywhere-sa.workers.dev/rate";
 
-/* =========================
-   COUNTDOWN
-========================= */
 let countdownInterval;
 const countdownEl = document.getElementById("countdown");
 
+/* =========================
+   DATE PARSER (SAST)
+========================= */
 function parseSAST(dateStr) {
-  // converts "2026/04/11, 00:48:35" → valid JS Date
   const [datePart, timePart] = dateStr.split(", ");
   const [y, m, d] = datePart.split("/");
   return new Date(`${y}-${m}-${d}T${timePart}`);
 }
 
+/* =========================
+   COUNTDOWN
+========================= */
 function startCountdown(expiry) {
-  if (!countdownEl) return;
-
   const expiryDate = expiry instanceof Date ? expiry : parseSAST(expiry);
 
   clearInterval(countdownInterval);
@@ -207,23 +206,27 @@ function startCountdown(expiry) {
 ========================= */
 function enterVIP() {
   const key = document.getElementById("vipKey").value.trim();
-  if (!key) return alert("Enter password");
+  const email = document.getElementById("vipEmail").value.trim();
+
+  if (!key || !email) return alert("Enter email and password");
 
   fetch(VERIFY_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",
-    body: JSON.stringify({ key })
+    body: JSON.stringify({ key, email })
   })
   .then(res => res.json())
   .then(data => {
     if (!data.valid) {
-      alert("❌ " + (data.reason || "Invalid password"));
+      alert("❌ " + (data.reason || "Invalid login"));
       return;
     }
 
-    // FIX: use SAST correctly
     startCountdown(data.expiresAtSAST);
+
+    // mark active session locally
+    localStorage.setItem("vip_email", email);
 
     window.location.href =
       "folder.html?folder=" +
@@ -247,9 +250,22 @@ async function validateVip() {
     const data = await res.json();
 
     if (data.active) {
-      // FIX: correct field name
       startCountdown(data.expiresAtSAST);
+      return;
     }
+
+    if (data.reason === "logged_out_by_new_device") {
+      countdownEl.innerText = "⚠️ Logged in on another device";
+      alert("You were logged out because another device logged in.");
+      return;
+    }
+
+    if (data.reason === "expired") {
+      countdownEl.innerText = "⛔ VIP Expired";
+      return;
+    }
+
+    countdownEl.innerText = "❌ Not logged in";
 
   } catch (err) {
     console.error("VIP check error:", err);
@@ -262,7 +278,7 @@ async function validateVip() {
 setInterval(validateVip, 60000);
 
 /* =========================
-   PAYMENTS (UNCHANGED LOGIC)
+   PAYMENTS
 ========================= */
 let usdToZar = 0;
 
