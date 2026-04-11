@@ -770,7 +770,7 @@ function googleTranslateElementInit() {
   
 </footer>
 
-    <script>
+  <script>
 /* =========================
    GLOBAL CONFIG
 ========================= */
@@ -781,6 +781,8 @@ const CHECK_URL = "https://vipkeys.workfromanywhere-sa.workers.dev/check-session
 
 let activeVideo = null;
 let vipGlobal = null;
+let expiryTime = null; // ✅ cached timestamp
+let lastCountdown = ""; // ✅ prevent flicker
 
 /* =========================
    VIP STATUS (COOKIE BASED)
@@ -810,12 +812,9 @@ async function getVipStatus() {
 }
 
 /* =========================
-   COUNTDOWN
+   COUNTDOWN CALC
 ========================= */
-function getCountdown(expiresAt) {
-  if (!expiresAt) return "";
-
-  const diff = new Date(expiresAt) - new Date();
+function formatCountdown(diff) {
   if (diff <= 0) return "Expired";
 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -824,6 +823,19 @@ function getCountdown(expiresAt) {
   const seconds = Math.floor((diff / 1000) % 60);
 
   return `${days}d ${hours}h ${minutes}m ${seconds}s left`;
+}
+
+/* =========================
+   UPDATE DOM (NO FLICKER)
+========================= */
+function updateCountdownText(newText) {
+  if (newText === lastCountdown) return; // ✅ prevents blinking
+
+  lastCountdown = newText;
+
+  document.querySelectorAll(".vipCountdown").forEach(el => {
+    el.textContent = newText;
+  });
 }
 
 /* =========================
@@ -937,6 +949,11 @@ async function loadVideos() {
   try {
     vipGlobal = await getVipStatus();
 
+    // ✅ cache expiry once
+    if (vipGlobal?.active && vipGlobal?.expiresAt) {
+      expiryTime = new Date(vipGlobal.expiresAt).getTime();
+    }
+
     const res = await fetch("./videos.json");
     const videos = await res.json();
 
@@ -1014,19 +1031,24 @@ async function loadVideos() {
 }
 
 /* =========================
-   LIVE COUNTDOWN LOOP
+   SMOOTH COUNTDOWN LOOP
 ========================= */
 function startVipCountdown() {
-  setInterval(() => {
-    if (!vipGlobal?.active || !vipGlobal?.expiresAt) return;
+  if (!expiryTime) return;
 
-    const countdown = getCountdown(vipGlobal.expiresAt);
+  function tick() {
+    const now = Date.now();
+    const diff = expiryTime - now;
 
-    document.querySelectorAll(".vipCountdown").forEach(el => {
-      el.textContent = countdown;
-    });
+    const text = formatCountdown(diff);
+    updateCountdownText(text);
 
-  }, 1000);
+    // ✅ sync to next second (no drift, no flicker)
+    const delay = 1000 - (now % 1000);
+    setTimeout(tick, delay);
+  }
+
+  tick();
 }
 
 /* =========================
@@ -1052,45 +1074,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initAgeModal();
   loadVideos().then(() => startVipCountdown());
 });
-                                  </script>
-
-<!-- COOKIE BANNER -->
-<div id="cookieBanner" style="position:fixed; bottom:-100px; left:0; width:100%; background:#222; color:#fff; padding:12px 15px; text-align:center; font-size:10px; z-index:9998; display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; transition: bottom 0.5s;">
-  <span>
-    We use cookies to improve your experience. 
-    <a href="https://anywherecum.pages.dev/terms-privacy.html" target="_blank" style="color:#ff4444;">Privacy Policy</a>
-  </span>
-  <button id="acceptCookies" style="padding:6px 15px; font-size:14px; font-weight:bold; color:#fff; background:#ff4444; border:none; border-radius:5px;">
-    Accept
-  </button>
-</div>
-
-<script>
-document.addEventListener("click", function (e) {
-
-  function getFolderName(el) {
-    return (
-      el.dataset?.folder ||
-      el.closest("[data-folder]")?.dataset.folder ||
-      el.getAttribute("data-folder") ||
-      "Unknown"
-    );
-  }
-
-  const item = e.target.closest("li");
-  if (!item) return;
-
-  const folderName = item.dataset.folder || getFolderName(item);
-
-  console.log("Folder clicked:", folderName);
-
-  if (window.trackPreviewClick) {
-    window.trackPreviewClick(folderName);
-  }
-
-});
-</script>
-
+  </script>
+    
   <script>
 const API_URL = "https://anywherecum.pages.dev/live.json";
 
