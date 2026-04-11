@@ -303,9 +303,18 @@ function createVideoBox(video) {
   box.appendChild(select);
   box.appendChild(wrapper);
   box.appendChild(title);
-  box.appendChild(downloadBtn);
-  box.appendChild(downloadBox);
 
+  const actionBox = document.createElement("div");
+actionBox.style.display = "flex";
+actionBox.style.flexDirection = "column";
+actionBox.style.alignItems = "center";
+actionBox.style.gap = "6px";
+
+actionBox.appendChild(downloadBtn);
+actionBox.appendChild(downloadBox);
+
+box.appendChild(actionBox);
+  
   return box;
 }
 
