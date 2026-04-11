@@ -639,16 +639,13 @@ window.VIDEO_CONFIG = {
 
   if (!isVIP) return;
 
-  console.log("💎 VIP MODE ON — Ads disabled");
+  console.log("💎 VIP MODE ON — Full UI Clean Enabled");
 
-  // 1. Block future ad scripts from running
+  /* =========================
+     1. BLOCK FUTURE AD SCRIPTS
+  ========================= */
   const blockedKeywords = [
-    "ads",
-    "profit",
-    "juicy",
-    "cpm",
-    "pop",
-    "banner"
+    "ads", "profit", "juicy", "cpm", "pop", "banner"
   ];
 
   const observer = new MutationObserver((mutations) => {
@@ -656,7 +653,6 @@ window.VIDEO_CONFIG = {
       m.addedNodes.forEach(node => {
         if (node.tagName === "SCRIPT" && node.src) {
           const src = node.src.toLowerCase();
-
           if (blockedKeywords.some(k => src.includes(k))) {
             console.log("🚫 Blocked ad script:", src);
             node.remove();
@@ -671,33 +667,55 @@ window.VIDEO_CONFIG = {
     subtree: true
   });
 
-  // 2. Remove already loaded ad containers
-  function removeAds() {
+  /* =========================
+     2. REMOVE UI ELEMENTS
+  ========================= */
+  function removeVIPNoise() {
 
     const selectors = [
+      // ads
       "#topAdMain",
       "#bottom-ad-wrapper",
       "#adContainerTop",
       "[id*='ad']",
       "iframe[src*='ads']",
       "iframe[src*='profit']",
+
+      // your banner
+      "#topBanner",
+
+      // OneSignal (bell + containers)
+      ".onesignal-bell-launcher",
+      ".onesignal-bell-container",
+      "#onesignal-bell-container",
+      "#onesignal-slidedown-container",
+
+      // google translate widget
+      "#google_translate_element",
+
+      // how-to button
+      "a[href*='Instruction_On_How_To_Watch']",
+      "a[href*='streamtape']",
+
+      // general ad scripts
       "script[src*='ads']",
       "script[src*='profit']"
     ];
 
     selectors.forEach(sel => {
-      document.querySelectorAll(sel).forEach(el => el.remove());
+      document.querySelectorAll(sel).forEach(el => {
+        console.log("🧹 Removed:", sel);
+        el.remove();
+      });
     });
   }
 
-  // run immediately + after load
-  removeAds();
-  window.addEventListener("load", removeAds);
+  /* run immediately + after load */
+  removeVIPNoise();
+  window.addEventListener("load", removeVIPNoise);
 
-  // 3. Kill ad timers if they exist
-  setTimeout(() => {
-    removeAds();
-  }, 1000);
+  /* keep cleaning dynamically injected stuff */
+  setInterval(removeVIPNoise, 2000);
 
 })();
   </script>
