@@ -1221,6 +1221,23 @@ function randomViews() {
 
 loadLives();
     </script>
+
+  <script>
+(function () {
+
+  const isVIP = window.IS_VIP === true;
+
+  const cta = document.getElementById("vipCTA");
+  if (!cta) return;
+
+  if (isVIP) {
+    cta.style.display = "block";
+  } else {
+    cta.style.display = "none";
+  }
+
+})();
+  </script>
   
   <script type="module" src="views.js"></script>
 
