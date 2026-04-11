@@ -66,25 +66,23 @@ h2 {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 15px;
-
-  /* 🔒 LOCK SPACE */
   min-height: 600px;
   align-items: start;
 }
 
 /* =========================
-   VIDEO BOX (FULL LOCK)
+   VIDEO BOX
 ========================= */
 .videoBox {
   background: #222;
   border-radius: 8px;
-
-  /* 🔒 FIX HEIGHT SHIFT */
-  height: 30ppx;
+  height: 380px;
   overflow: hidden;
 
   display: flex;
   flex-direction: column;
+
+  align-items: center; /* ✅ center everything horizontally */
 }
 
 /* VIDEO WRAPPER */
@@ -106,12 +104,13 @@ h2 {
   display: block;
 }
 
-/* TEXT AREAS (RESERVED SPACE = NO JUMP) */
+/* TEXT AREAS */
 .videoTitle {
   margin: 6px 0;
   font-size: 13px;
   cursor: pointer;
   text-decoration: underline;
+  text-align: center;
 
   min-height: 32px;
 }
@@ -120,19 +119,26 @@ h2 {
   color: #aaa;
   margin: 2px 0;
   font-size: 12px;
+  text-align: center;
 
   min-height: 16px;
 }
 
-/* SELECT */
+/* =========================
+   DROPDOWN (FIXED)
+========================= */
 select {
-  padding: 5px;
+  display: block;
+  width: fit-content;     /* ✅ prevents full width */
+  max-width: 90%;
+  margin: 6px auto;       /* ✅ center horizontally */
+
+  padding: 5px 10px;
   border-radius: 5px;
   border: none;
   background: #333;
   color: #fff;
   font-size: 12px;
-  margin-bottom: 6px;
 }
 
 /* FOOTER */
