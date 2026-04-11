@@ -630,76 +630,108 @@ window.VIDEO_CONFIG = {
   <script>
 (function () {
 
-  console.log("🛡️ VIP POPUNDER SHIELD ACTIVE");
+  const urlParams = new URLSearchParams(window.location.search);
+  const folder = (urlParams.get("folder") || "").toLowerCase();
+
+  const isVIP =
+    folder.includes("vip") ||
+    folder.includes("🔒");
+
+  if (!isVIP) return;
+
+  console.log("💎 VIP MODE ON — Full UI Clean Enabled");
 
   /* =========================
-     1. BLOCK KNOWN POPUNDER DOMAINS
+     0. INSTANT NO-BLINK CSS BLOCK
   ========================= */
-  const blockedDomains = [
-    "profitablecpmratenetwork",
-    "juicyads",
-    "exoclick",
-    "propellerads",
-    "onclick",
-    "pop",
-    "ads"
+  const style = document.createElement("style");
+  style.innerHTML = `
+    /* ads + unwanted UI instantly hidden (prevents blink) */
+    #topAdMain,
+    #bottom-ad-wrapper,
+    #adContainerTop,
+    [id*="ad"],
+    iframe[src*="ads"],
+    iframe[src*="profit"],
+    #topBanner,
+    .onesignal-bell-launcher,
+    .onesignal-bell-container,
+    #onesignal-bell-container,
+    #onesignal-slidedown-container,
+    #google_translate_element,
+    a[href*="Instruction_On_How_To_Watch"],
+    a[href*="streamtape"] {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  /* =========================
+     1. BLOCK FUTURE AD SCRIPTS
+  ========================= */
+  const blockedKeywords = ["ads", "profit", "juicy", "cpm", "pop", "banner"];
+
+  const blockedExactScripts = [
+    "https://pl28956604.profitablecpmratenetwork.com/c7/ba/1d/c7ba1d0cd42bd7cbdf437d03bd000409.js"
   ];
 
-  /* =========================
-     2. BLOCK SCRIPT INSERTION EARLY
-  ========================= */
-  const originalCreateElement = document.createElement;
+  const observer = new MutationObserver((mutations) => {
+    for (const m of mutations) {
+      for (const node of m.addedNodes) {
+        if (node.tagName === "SCRIPT" && node.src) {
+          const src = node.src.toLowerCase();
 
-  document.createElement = function (tagName) {
-    const el = originalCreateElement.call(document, tagName);
-
-    if (tagName.toLowerCase() === "script") {
-      const originalSetSrc = Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, "src");
-
-      Object.defineProperty(el, "src", {
-        set(value) {
-          const lower = value.toLowerCase();
-
-          if (blockedDomains.some(d => lower.includes(d))) {
-            console.log("🚫 BLOCKED SCRIPT:", value);
-            return; // stop it completely
+          // keyword block
+          if (blockedKeywords.some(k => src.includes(k))) {
+            console.log("🚫 Blocked ad script:", src);
+            node.remove();
           }
 
-          return originalSetSrc.set.call(this, value);
-        },
-        get: originalSetSrc.get
-      });
-    }
-
-    return el;
-  };
-
-  /* =========================
-     3. BLOCK POPUNDER WINDOW OPEN
-  ========================= */
-  const originalOpen = window.open;
-
-  window.open = function (...args) {
-    const url = args[0] || "";
-
-    const lower = url.toString().toLowerCase();
-
-    if (blockedDomains.some(d => lower.includes(d))) {
-      console.log("🚫 BLOCKED POPUNDER WINDOW:", url);
-      return null;
-    }
-
-    return originalOpen.apply(window, args);
-  };
-
-  /* =========================
-     4. STOP AUTO TAB FOCUS TRICKS
-  ========================= */
-  document.addEventListener("visibilitychange", function (e) {
-    if (document.hidden) {
-      console.log("⚠️ Tab hidden (possible popunder attempt)");
+          // exact block
+          if (blockedExactScripts.includes(node.src)) {
+            console.log("🚫 Blocked EXACT script:", src);
+            node.remove();
+          }
+        }
+      }
     }
   });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+
+  /* =========================
+     2. SAFETY CLEANUP (NO BLINK)
+  ========================= */
+  function removeVIPNoise() {
+    const selectors = [
+      "#topAdMain",
+      "#bottom-ad-wrapper",
+      "#adContainerTop",
+      "[id*='ad']",
+      "#topBanner",
+      ".onesignal-bell-launcher",
+      ".onesignal-bell-container",
+      "#google_translate_element"
+    ];
+
+    selectors.forEach(sel => {
+      document.querySelectorAll(sel).forEach(el => {
+        el.remove(); // already hidden, so no flicker
+      });
+    });
+  }
+
+  removeVIPNoise();
+  window.addEventListener("load", removeVIPNoise);
+
+  /* reduce interval frequency (prevents jitter) */
+  setInterval(removeVIPNoise, 5000);
 
 })();
   </script>
