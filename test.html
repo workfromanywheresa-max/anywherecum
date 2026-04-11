@@ -1225,15 +1225,23 @@ loadLives();
   <script>
 (function () {
 
-  const isVIP = window.IS_VIP === true;
+  const urlParams = new URLSearchParams(window.location.search);
+  const folder = (urlParams.get("folder") || "").toLowerCase();
+
+  const isVIP =
+    window.IS_VIP === true ||
+    folder.includes("vip") ||
+    folder.includes("🔒");
 
   const cta = document.getElementById("vipCTA");
   if (!cta) return;
 
   if (isVIP) {
     cta.style.display = "none";   // hide when VIP
+    console.log("💎 VIP detected — CTA hidden");
   } else {
     cta.style.display = "block";  // show when not VIP
+    console.log("👤 Non-VIP — CTA visible");
   }
 
 })();
