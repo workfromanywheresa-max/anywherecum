@@ -15,6 +15,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* MAIN FLEX FIX */
@@ -27,6 +28,7 @@ main {
   box-sizing: border-box;
 }
 
+/* TOP BAR */
 .topBar {
   display: flex;
   justify-content: flex-start;
@@ -43,6 +45,7 @@ button {
   font-size: 12px;
 }
 
+/* TITLES */
 h2 {
   color: #ff4444;
   text-align: center;
@@ -56,33 +59,42 @@ h2 {
   font-size: 14px;
 }
 
+/* =========================
+   VIDEO GRID (NO JUMPING)
+========================= */
 #normalVideos {
-  margin-bottom: 40px;
-  min-height: 300px;
-  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 15px;
+
+  /* 🔒 LOCK SPACE */
+  min-height: 600px;
+  align-items: start;
 }
 
 /* =========================
-   VIDEO BOX FIX (IMPORTANT)
+   VIDEO BOX (FULL LOCK)
 ========================= */
 .videoBox {
   background: #222;
-  padding: 0px; /* top/bottom = 0, left/right = 10px */
   border-radius: 8px;
-  margin-bottom: 30px;
-  text-align: center;
-  min-height: 250px;
+
+  /* 🔒 FIX HEIGHT SHIFT */
+  height: 380px;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
 }
 
-/* VIDEO RESPONSIVE WRAPPER */
+/* VIDEO WRAPPER */
 .videoFrameWrapper {
   width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
   aspect-ratio: 16 / 9;
-  border-radius: 8px;
-  overflow: hidden;
+  min-height: 180px;
   background: #000;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .videoFrameWrapper iframe,
@@ -92,6 +104,24 @@ h2 {
   border: 0;
   object-fit: cover;
   display: block;
+}
+
+/* TEXT AREAS (RESERVED SPACE = NO JUMP) */
+.videoTitle {
+  margin: 6px 0;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+
+  min-height: 32px;
+}
+
+.views {
+  color: #aaa;
+  margin: 2px 0;
+  font-size: 12px;
+
+  min-height: 16px;
 }
 
 /* SELECT */
@@ -105,19 +135,6 @@ select {
   margin-bottom: 6px;
 }
 
-.videoTitle {
-  margin: 6px 0;
-  font-size: 13px;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.views {
-  color: #aaa;
-  margin: 2px 0;
-  font-size: 12px;
-}
-
 /* FOOTER */
 footer {
   text-align: center;
@@ -129,26 +146,24 @@ footer {
 }
 
 /* =========================
-   MOBILE FULL WIDTH FIX
+   MOBILE FIX
 ========================= */
 @media (max-width: 768px) {
 
   body {
-    padding: 0; /* removes side gap */
+    padding: 0;
+  }
+
+  #normalVideos {
+    grid-template-columns: 1fr;
   }
 
   .videoBox {
-    margin: 0 0 15px 0;
-    border-radius: 0; /* optional: full edge look */
+    border-radius: 0;
   }
 
   .videoFrameWrapper {
     border-radius: 0;
-    max-width: 100%;
-  }
-
-  html, body {
-    overflow-x: hidden;
   }
 }
 
