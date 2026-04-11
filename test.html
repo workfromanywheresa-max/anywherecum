@@ -1231,9 +1231,9 @@ loadLives();
   if (!cta) return;
 
   if (isVIP) {
-    cta.style.display = "block";
+    cta.style.display = "none";   // hide when VIP
   } else {
-    cta.style.display = "none";
+    cta.style.display = "block";  // show when not VIP
   }
 
 })();
