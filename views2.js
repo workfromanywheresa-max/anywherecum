@@ -23,7 +23,8 @@ if (!visitId) {
 
 /* ---------------- CONFIG ---------------- */
 const urlParams = new URLSearchParams(window.location.search);
-const folderName = (urlParams.get("folder") || "").trim().toLowerCase();
+const folderName = (urlParams.get("folder") || "").trim().toLowerCase(); // keep for filtering
+const rawFolderName = (urlParams.get("folder") || "").trim(); // 👈 used for title display
 const config = window.VIDEO_CONFIG || {};
 const dataSource = config.dataSource || "videos.json";
 
@@ -37,24 +38,6 @@ function saveCache(key, value) {
 }
 function getCache(key) {
   return cache[key] || localStorage.getItem(key);
-}
-
-/* ---------------- TITLE ---------------- */
-function toTitleCase(str) {
-  return str.toLowerCase().split(" ")
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
-}
-
-const titleEl = document.getElementById("folderTitle");
-
-if (titleEl) {
-  // ✅ VIP detection added here
-  if (folderName === "🔒vip excluse") {
-    titleEl.textContent = "💎VIP Exlusive";
-  } else {
-    titleEl.textContent = folderName ? toTitleCase(folderName) : "All Videos";
-  }
 }
 
 /* ---------------- STATE ---------------- */
@@ -81,6 +64,25 @@ const observer = new IntersectionObserver((entries) => {
 }, {
   threshold: 0.3
 });
+
+/* ---------------- TITLE ---------------- */
+function toTitleCase(str) {
+  return str.toLowerCase().split(" ")
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+const titleEl = document.getElementById("folderTitle");
+
+if (titleEl) {
+  const normalized = rawFolderName.toLowerCase();
+
+  if (normalized === "🔒vip exclusive") {
+    titleEl.textContent = "💎VIP Exclusive"; // ✅ FIXED VIP TITLE
+  } else {
+    titleEl.textContent = rawFolderName ? toTitleCase(rawFolderName) : "All Videos";
+  }
+}
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
@@ -163,6 +165,7 @@ document.head.appendChild(style);
 
 /* ---------------- VIDEO BOX ---------------- */
 function createVideoBox(video) {
+
   const box = document.createElement("div");
   box.className = "videoBox";
 
@@ -204,6 +207,31 @@ function createVideoBox(video) {
     loadPlayer();
   };
 
+  let startX = 0;
+
+  preview.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+  });
+
+  preview.addEventListener("touchend", e => {
+    const endX = e.changedTouches[0].clientX;
+    const diff = Math.abs(endX - startX);
+
+    if (diff > 30) {
+
+      if (currentPreviewVideo && currentPreviewVideo !== preview) {
+        stopVideo(currentPreviewVideo);
+      }
+
+      if (!preview.paused) {
+        stopVideo(preview);
+      } else {
+        preview.play().catch(() => {});
+        currentPreviewVideo = preview;
+      }
+    }
+  });
+
   wrapper.appendChild(preview);
 
   const views = document.createElement("div");
@@ -233,6 +261,7 @@ function createVideoBox(video) {
     currentEmbed = selected.embed;
 
     countWatchOnce(video.id);
+
     wrapper.dataset.loaded = "false";
     loadPlayer();
   };
@@ -284,11 +313,14 @@ function updateUI(id) {
   const total = v.totalViews || 0;
   const isTrending = v.cycleViews >= 10;
 
-  const el = videoElements[id].views;
+  saveCache("views_" + id, total);
+  saveCache("cycle_" + id, v.cycleViews);
 
   const text = isTrending
     ? `🔥 Trending | 👁 ${formatViews(total)}`
     : `👁 ${formatViews(total)}`;
+
+  const el = videoElements[id].views;
 
   if (el.textContent !== text) {
     requestAnimationFrame(() => {
@@ -296,6 +328,40 @@ function updateUI(id) {
       el.style.color = isTrending ? "#ffcc00" : "#fff";
     });
   }
+}
+
+/* ---------------- REORDER ---------------- */
+function reorderVideos(force = false) {
+  const entries = Object.entries(videoDataMap);
+
+  entries.sort((a, b) => {
+    const A = a[1];
+    const B = b[1];
+
+    const ATrending = A.cycleViews >= 10;
+    const BTrending = B.cycleViews >= 10;
+
+    if (ATrending && !BTrending) return -1;
+    if (!ATrending && BTrending) return 1;
+
+    if (ATrending && BTrending) {
+      return B.cycleViews - A.cycleViews;
+    }
+
+    return A.originalIndex - B.originalIndex;
+  });
+
+  const newOrder = entries.map(([id]) => id);
+  const oldOrder = JSON.parse(getCache(ORDER_KEY) || "[]");
+
+  if (!force && JSON.stringify(newOrder) === JSON.stringify(oldOrder)) return;
+
+  saveCache(ORDER_KEY, JSON.stringify(newOrder));
+
+  newOrder.forEach(id => {
+    const el = videoElements[id]?.box;
+    if (el) videosContainer.appendChild(el);
+  });
 }
 
 /* ---------------- LOAD ---------------- */
@@ -337,5 +403,29 @@ fetch(dataSource)
 
       updateUI(v.id);
     });
+
+    reorderVideos(true);
+
+    filtered.forEach(v => {
+
+      onValue(ref(db, "views/" + v.id), snap => {
+        const val = snap.val();
+        if (val !== null) {
+          videoDataMap[v.id].totalViews = val;
+          updateUI(v.id);
+        }
+      });
+
+      onValue(ref(db, "cycleViews/" + v.id), snap => {
+        const val = snap.val();
+        if (val !== null) {
+          videoDataMap[v.id].cycleViews = Number(val);
+          updateUI(v.id);
+          reorderVideos();
+        }
+      });
+
+    });
+
   })
   .catch(err => console.error(err));
