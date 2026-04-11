@@ -23,8 +23,8 @@ if (!visitId) {
 
 /* ---------------- CONFIG ---------------- */
 const urlParams = new URLSearchParams(window.location.search);
-const folderName = (urlParams.get("folder") || "").trim().toLowerCase(); // keep for filtering
-const rawFolderName = (urlParams.get("folder") || "").trim(); // 👈 used for title display
+const folderName = (urlParams.get("folder") || "").trim().toLowerCase();
+const rawFolderName = (urlParams.get("folder") || "").trim();
 const config = window.VIDEO_CONFIG || {};
 const dataSource = config.dataSource || "videos.json";
 
@@ -36,6 +36,7 @@ function saveCache(key, value) {
   cache[key] = value;
   localStorage.setItem(key, value);
 }
+
 function getCache(key) {
   return cache[key] || localStorage.getItem(key);
 }
@@ -45,25 +46,21 @@ const videoDataMap = {};
 const videoElements = {};
 let currentPreviewVideo = null;
 
-/* ---------------- STOP VIDEO FUNCTION ---------------- */
+/* ---------------- STOP VIDEO ---------------- */
 function stopVideo(video) {
   if (!video) return;
   video.pause();
   video.currentTime = 0;
 }
 
-/* ---------------- INTERSECTION OBSERVER ---------------- */
+/* ---------------- OBSERVER ---------------- */
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
-    const video = entry.target;
-
     if (!entry.isIntersecting) {
-      stopVideo(video);
+      stopVideo(entry.target);
     }
   });
-}, {
-  threshold: 0.3
-});
+}, { threshold: 0.3 });
 
 /* ---------------- TITLE ---------------- */
 function toTitleCase(str) {
@@ -78,7 +75,7 @@ if (titleEl) {
   const normalized = rawFolderName.toLowerCase();
 
   if (normalized === "🔒vip exclusive") {
-    titleEl.textContent = "💎VIP Exclusive"; // ✅ FIXED VIP TITLE
+    titleEl.textContent = "💎VIP Exclusive";
   } else {
     titleEl.textContent = rawFolderName ? toTitleCase(rawFolderName) : "All Videos";
   }
@@ -128,33 +125,7 @@ function countDownloadOnce(videoId) {
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
 
-/* ---------------- LOADER ---------------- */
-function createLoader() {
-  const loader = document.createElement("div");
-  loader.id = "loader";
-  loader.style.position = "fixed";
-  loader.style.top = "50%";
-  loader.style.left = "50%";
-  loader.style.transform = "translate(-50%, -50%)";
-  loader.style.zIndex = "9999";
-
-  const spinner = document.createElement("div");
-  spinner.style.border = "4px solid rgba(255,255,255,0.3)";
-  spinner.style.borderTop = "4px solid #ffcc00";
-  spinner.style.borderRadius = "50%";
-  spinner.style.width = "50px";
-  spinner.style.height = "50px";
-  spinner.style.animation = "spin 1s linear infinite";
-
-  loader.appendChild(spinner);
-  document.body.appendChild(loader);
-}
-
-function removeLoader() {
-  const loader = document.getElementById("loader");
-  if (loader) loader.remove();
-}
-
+/* ---------------- PER VIDEO LOADER STYLE ---------------- */
 const style = document.createElement("style");
 style.innerHTML = `
 @keyframes spin {
@@ -173,6 +144,30 @@ function createVideoBox(video) {
   wrapper.className = "videoFrameWrapper";
   wrapper.style.position = "relative";
 
+  /* ---------------- LOADER ---------------- */
+  const loader = document.createElement("div");
+  loader.style.position = "absolute";
+  loader.style.top = "0";
+  loader.style.left = "0";
+  loader.style.width = "100%";
+  loader.style.height = "100%";
+  loader.style.display = "flex";
+  loader.style.alignItems = "center";
+  loader.style.justifyContent = "center";
+  loader.style.background = "rgba(0,0,0,0.4)";
+  loader.style.zIndex = "5";
+
+  const spinner = document.createElement("div");
+  spinner.style.border = "3px solid rgba(255,255,255,0.3)";
+  spinner.style.borderTop = "3px solid #ffcc00";
+  spinner.style.borderRadius = "50%";
+  spinner.style.width = "35px";
+  spinner.style.height = "35px";
+  spinner.style.animation = "spin 1s linear infinite";
+
+  loader.appendChild(spinner);
+  wrapper.appendChild(loader);
+
   const defaultQuality =
     video.qualities.find(q => q.label.includes("480")) ||
     video.qualities[0];
@@ -183,11 +178,17 @@ function createVideoBox(video) {
     if (wrapper.dataset.loaded === "true") return;
     wrapper.dataset.loaded = "true";
 
+    loader.style.display = "flex";
+
     const iframe = document.createElement("iframe");
     iframe.src = currentEmbed;
     iframe.allowFullscreen = true;
 
-    wrapper.replaceChildren(iframe);
+    iframe.onload = () => {
+      loader.style.display = "none";
+    };
+
+    wrapper.replaceChildren(loader, iframe);
   }
 
   const preview = document.createElement("video");
@@ -202,6 +203,10 @@ function createVideoBox(video) {
 
   observer.observe(preview);
 
+  preview.addEventListener("loadeddata", () => {
+    loader.style.display = "none";
+  });
+
   preview.onclick = () => {
     countWatchOnce(video.id);
     loadPlayer();
@@ -214,11 +219,9 @@ function createVideoBox(video) {
   });
 
   preview.addEventListener("touchend", e => {
-    const endX = e.changedTouches[0].clientX;
-    const diff = Math.abs(endX - startX);
+    const diff = Math.abs(e.changedTouches[0].clientX - startX);
 
     if (diff > 30) {
-
       if (currentPreviewVideo && currentPreviewVideo !== preview) {
         stopVideo(currentPreviewVideo);
       }
@@ -305,12 +308,14 @@ function createVideoBox(video) {
   return box;
 }
 
-/* ---------------- UI UPDATE ---------------- */
+/* ---------------- UI UPDATE (TRENDING LOGIC HERE) ---------------- */
 function updateUI(id) {
   const v = videoDataMap[id];
   if (!v || !videoElements[id]) return;
 
   const total = v.totalViews || 0;
+
+  /* 🔥 TRENDING RULE */
   const isTrending = v.cycleViews >= 10;
 
   saveCache("views_" + id, total);
@@ -330,7 +335,7 @@ function updateUI(id) {
   }
 }
 
-/* ---------------- REORDER ---------------- */
+/* ---------------- REORDER (TRENDING PRIORITY) ---------------- */
 function reorderVideos(force = false) {
   const entries = Object.entries(videoDataMap);
 
@@ -365,13 +370,9 @@ function reorderVideos(force = false) {
 }
 
 /* ---------------- LOAD ---------------- */
-createLoader();
-
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
-
-    removeLoader();
 
     const filtered = folderName
       ? videos.filter(v =>
@@ -428,4 +429,4 @@ fetch(dataSource)
     });
 
   })
-  .catch(err => console.error(err));
+  .catch(console.error);
