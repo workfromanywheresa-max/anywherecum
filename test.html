@@ -1223,23 +1223,36 @@ loadLives();
     </script>
 
   <script>
-(function () {
-
-  const isVIP = window.IS_VIP === true;
+(async function () {
 
   const cta = document.getElementById("vipCTA");
   if (!cta) return;
 
-  if (isVIP) {
-    cta.style.display = "none";   // hide when VIP
-    console.log("💎 VIP detected — CTA hidden");
-  } else {
-    cta.style.display = "block";  // show when not VIP
-    console.log("👤 Non-VIP — CTA visible");
+  try {
+    const res = await fetch("https://vipkeys.workfromanywhere-sa.workers.dev/check-session", {
+      method: "POST",
+      credentials: "include"
+    });
+
+    const data = await res.json();
+
+    const isVIP = data.active === true;
+
+    if (isVIP) {
+      cta.style.display = "none";   // hide when VIP
+      console.log("💎 VIP detected — CTA hidden");
+    } else {
+      cta.style.display = "block";  // show when NOT VIP
+      console.log("👤 Non-VIP — CTA visible");
+    }
+
+  } catch (err) {
+    console.error("VIP check failed:", err);
+    cta.style.display = "block"; // fallback = show CTA
   }
 
 })();
-  </script>
+      </script>
   
   <script type="module" src="views.js"></script>
 
