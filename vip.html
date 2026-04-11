@@ -13,14 +13,9 @@
     background: #f5f5f5;
   }
 
-  .box {
-    max-width: 400px;
-    margin: auto;
-  }
+  .box { max-width: 400px; margin: auto; }
 
-  h2 {
-    margin-bottom: 10px;
-  }
+  h2 { margin-bottom: 10px; }
 
   p {
     color: #555;
@@ -33,17 +28,20 @@
     margin-top: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 
-  .login-card {
-    min-height: 260px;
-  }
+  .payfast-card { height: 240px; }
 
-  #countdown {
-    min-height: 20px;
-    font-weight: bold;
-    color: #6a00ff;
-    margin-bottom: 10px;
+  .logo, .crypto-logo {
+    height: 60px;
+    width: auto;
+    display: block;
+    margin: 0 auto;
+    object-fit: contain;
   }
 
   input {
@@ -56,30 +54,10 @@
     text-align: center;
   }
 
-  .vip-btn {
-    background: #6a00ff;
+  #usdDisplay {
+    margin-top: 10px;
     font-weight: bold;
-    width: 60%;
-    margin: 15px auto 0;
-    display: block;
-    font-size: 14px;
-    padding: 10px;
-    border-radius: 6px;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-
-  .vip-btn:hover {
-    background: #4b00b3;
-  }
-
-  .logo, .crypto-logo {
-    height: 60px;
-    width: auto;
-    display: block;
-    margin: 0 auto;
-    object-fit: contain;
+    color: #333;
   }
 
   .pay-btn {
@@ -100,7 +78,8 @@
   }
 
   .paypal-btn,
-  .crypto-btn {
+  .crypto-btn,
+  .vip-btn {
     margin-top: 15px;
     width: 100%;
     font-size: 18px;
@@ -116,6 +95,19 @@
 
   .crypto-btn { background: #111; }
   .crypto-btn:hover { background: #333; }
+
+  .vip-btn {
+    background: #6a00ff;
+    font-weight: bold;
+    width: 60%;
+    margin: 0 auto;
+    display: block;
+    font-size: 10px;
+    padding: 10px;
+    border-radius: 6px;
+  }
+
+  .vip-btn:hover { background: #4b00b3; }
 </style>
 </head>
 
@@ -123,22 +115,18 @@
 
 <div class="box">
 
-  <!-- LOGIN CARD (FIXED) -->
-  <div class="card login-card">
+  <h2>💎 VIP Access</h2>
 
-    <h2>💎 VIP Access</h2>
+  <p>Unlock VIP access for $5 USD (valid for 30 days).</p>
 
-    <div id="countdown"></div>
+  <div id="countdown" style="margin-bottom:10px;font-weight:bold;color:#6a00ff;"></div>
 
-    <input type="email" id="vipEmail" placeholder="Enter email">
-    <input type="password" id="vipKey" placeholder="Enter password">
+  <input type="email" id="vipEmail" placeholder="Enter email">
+  <input type="password" id="vipKey" placeholder="Enter password">
 
-    <button class="vip-btn" onclick="enterVIP()">
-      Enter 🔐 VIP Exclusive
-    </button>
-
-    <p>Unlock VIP access for $5 USD (valid for 30 days).</p>
-  </div>
+  <button class="vip-btn" onclick="enterVIP()">
+    Enter 🔐 VIP Exclusive
+  </button>
 
   <!-- PayPal -->
   <div class="card">
@@ -152,21 +140,43 @@
     <button class="crypto-btn" onclick="goCrypto()">Pay $5 with Crypto</button>
   </div>
 
+  <!-- PayFast -->
+  <div class="card payfast-card">
+    <img class="logo" src="https://anywherecum.pages.dev/images/payfast.webp">
+    <div id="usdDisplay">$5.00 USD</div>
+
+    <input type="number" id="zarAmount" placeholder="Loading ZAR...">
+
+    <button id="payBtn" class="pay-btn" onclick="goPayment()" disabled>
+      Pay with PayFast
+    </button>
+  </div>
+
 </div>
 
 <script>
 const VIP_FOLDER = "🔒VIP Exclusive";
 const VERIFY_URL = "https://vipkeys.workfromanywhere-sa.workers.dev/verify-key";
 const CHECK_URL  = "https://vipkeys.workfromanywhere-sa.workers.dev/check-session";
+const API_URL    = "https://payments.workfromanywhere-sa.workers.dev/rate";
 
 let countdownInterval;
 const countdownEl = document.getElementById("countdown");
 
 /* =========================
+   DATE PARSER (SAST)
+========================= */
+function parseSAST(dateStr) {
+  const [datePart, timePart] = dateStr.split(", ");
+  const [y, m, d] = datePart.split("/");
+  return new Date(`${y}-${m}-${d}T${timePart}`);
+}
+
+/* =========================
    COUNTDOWN
 ========================= */
 function startCountdown(expiry) {
-  const expiryDate = new Date(expiry);
+  const expiryDate = expiry instanceof Date ? expiry : parseSAST(expiry);
 
   clearInterval(countdownInterval);
 
@@ -213,7 +223,10 @@ function enterVIP() {
       return;
     }
 
-    startCountdown(data.expiresAt);
+    startCountdown(data.expiresAtSAST);
+
+    // mark active session locally
+    localStorage.setItem("vip_email", email);
 
     window.location.href =
       "folder.html?folder=" +
@@ -225,18 +238,7 @@ function enterVIP() {
 }
 
 /* =========================
-   PAYMENT LINKS
-========================= */
-function goPayPal() {
-  window.location.href = "https://www.paypal.com/ncp/payment/M5A4KXRSXUJS2";
-}
-
-function goCrypto() {
-  window.location.href = "crypto-vip.html";
-}
-
-/* =========================
-   SESSION CHECK (optional keep)
+   SESSION CHECK
 ========================= */
 async function validateVip() {
   try {
@@ -248,16 +250,87 @@ async function validateVip() {
     const data = await res.json();
 
     if (data.active) {
-      startCountdown(data.expiresAt);
+      startCountdown(data.expiresAtSAST);
+      return;
     }
 
+    if (data.reason === "logged_out_by_new_device") {
+      countdownEl.innerText = "⚠️ Logged in on another device";
+      alert("You were logged out because another device logged in.");
+      return;
+    }
+
+    if (data.reason === "expired") {
+      countdownEl.innerText = "⛔ VIP Expired";
+      return;
+    }
+
+    countdownEl.innerText = "❌ Not logged in";
+
   } catch (err) {
-    console.error(err);
+    console.error("VIP check error:", err);
   }
 }
 
-validateVip();
+/* =========================
+   AUTO CHECK
+========================= */
 setInterval(validateVip, 60000);
+
+/* =========================
+   PAYMENTS
+========================= */
+let usdToZar = 0;
+
+const zarInput = document.getElementById("zarAmount");
+const payBtn = document.getElementById("payBtn");
+
+async function fetchRate() {
+  try {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+
+    usdToZar = data.usdToZar;
+    updateZAR();
+
+  } catch (err) {
+    console.log("Rate error:", err);
+  }
+}
+
+function updateZAR() {
+  if (!usdToZar || !zarInput) return;
+
+  const zar = (5 * usdToZar).toFixed(2);
+  zarInput.value = zar;
+
+  payBtn.disabled = false;
+  payBtn.classList.add("active");
+}
+
+function goPayment() {
+  const amount = parseFloat(zarInput?.value);
+  if (!amount) return;
+
+  window.location.href =
+    "https://payments.workfromanywhere-sa.workers.dev/?amount=" + amount;
+}
+
+function goPayPal() {
+  window.location.href = "https://www.paypal.com/ncp/payment/M5A4KXRSXUJS2";
+}
+
+function goCrypto() {
+  window.location.href = "crypto-vip.html";
+}
+
+/* =========================
+   INIT
+========================= */
+fetchRate();
+setInterval(fetchRate, 60000);
+validateVip();
+
 </script>
 
 </body>
