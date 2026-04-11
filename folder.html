@@ -642,15 +642,41 @@ window.VIDEO_CONFIG = {
   console.log("💎 VIP MODE ON — Full UI Clean Enabled");
 
   /* =========================
+     0. INSTANT NO-BLINK CSS BLOCK
+  ========================= */
+  const style = document.createElement("style");
+  style.innerHTML = `
+    /* ads + unwanted UI instantly hidden (prevents blink) */
+    #topAdMain,
+    #bottom-ad-wrapper,
+    #adContainerTop,
+    [id*="ad"],
+    iframe[src*="ads"],
+    iframe[src*="profit"],
+    #topBanner,
+    .onesignal-bell-launcher,
+    .onesignal-bell-container,
+    #onesignal-bell-container,
+    #onesignal-slidedown-container,
+    #google_translate_element,
+    a[href*="Instruction_On_How_To_Watch"],
+    a[href*="streamtape"] {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  /* =========================
      1. BLOCK FUTURE AD SCRIPTS
   ========================= */
-  const blockedKeywords = [
-    "ads", "profit", "juicy", "cpm", "pop", "banner"
-  ];
+  const blockedKeywords = ["ads", "profit", "juicy", "cpm", "pop", "banner"];
 
   const observer = new MutationObserver((mutations) => {
-    mutations.forEach(m => {
-      m.addedNodes.forEach(node => {
+    for (const m of mutations) {
+      for (const node of m.addedNodes) {
         if (node.tagName === "SCRIPT" && node.src) {
           const src = node.src.toLowerCase();
           if (blockedKeywords.some(k => src.includes(k))) {
@@ -658,8 +684,8 @@ window.VIDEO_CONFIG = {
             node.remove();
           }
         }
-      });
-    });
+      }
+    }
   });
 
   observer.observe(document.documentElement, {
@@ -668,54 +694,32 @@ window.VIDEO_CONFIG = {
   });
 
   /* =========================
-     2. REMOVE UI ELEMENTS
+     2. SAFETY CLEANUP (NO BLINK)
   ========================= */
   function removeVIPNoise() {
-
     const selectors = [
-      // ads
       "#topAdMain",
       "#bottom-ad-wrapper",
       "#adContainerTop",
       "[id*='ad']",
-      "iframe[src*='ads']",
-      "iframe[src*='profit']",
-
-      // your banner
       "#topBanner",
-
-      // OneSignal (bell + containers)
       ".onesignal-bell-launcher",
       ".onesignal-bell-container",
-      "#onesignal-bell-container",
-      "#onesignal-slidedown-container",
-
-      // google translate widget
-      "#google_translate_element",
-
-      // how-to button
-      "a[href*='Instruction_On_How_To_Watch']",
-      "a[href*='streamtape']",
-
-      // general ad scripts
-      "script[src*='ads']",
-      "script[src*='profit']"
+      "#google_translate_element"
     ];
 
     selectors.forEach(sel => {
       document.querySelectorAll(sel).forEach(el => {
-        console.log("🧹 Removed:", sel);
-        el.remove();
+        el.remove(); // already hidden, so no flicker
       });
     });
   }
 
-  /* run immediately + after load */
   removeVIPNoise();
   window.addEventListener("load", removeVIPNoise);
 
-  /* keep cleaning dynamically injected stuff */
-  setInterval(removeVIPNoise, 2000);
+  /* reduce interval frequency (prevents jitter) */
+  setInterval(removeVIPNoise, 5000);
 
 })();
   </script>
