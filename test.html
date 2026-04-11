@@ -1225,13 +1225,7 @@ loadLives();
   <script>
 (function () {
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const folder = (urlParams.get("folder") || "").toLowerCase();
-
-  const isVIP =
-    window.IS_VIP === true ||
-    folder.includes("vip") ||
-    folder.includes("🔒");
+  const isVIP = window.IS_VIP === true;
 
   const cta = document.getElementById("vipCTA");
   if (!cta) return;
