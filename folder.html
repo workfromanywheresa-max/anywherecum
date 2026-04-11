@@ -642,17 +642,30 @@ window.VIDEO_CONFIG = {
   console.log("💎 VIP MODE ON — Full UI Clean Enabled");
 
   /* =========================
-     0. INSTANT NO-BLINK CSS BLOCK
+     0. BLOCK POPUPS / POPUNDERS
+  ========================= */
+  window.open = function (url, name, specs) {
+    console.log("🚫 POPUP BLOCKED:", url);
+    return null;
+  };
+
+  window.addEventListener("blur", () => {
+    setTimeout(() => window.focus(), 0);
+  });
+
+  /* =========================
+     1. INSTANT NO-BLINK CSS BLOCK
   ========================= */
   const style = document.createElement("style");
   style.innerHTML = `
-    /* ads + unwanted UI instantly hidden (prevents blink) */
     #topAdMain,
     #bottom-ad-wrapper,
     #adContainerTop,
     [id*="ad"],
     iframe[src*="ads"],
     iframe[src*="profit"],
+    iframe[src*="cpm"],
+    iframe[src*="pop"],
     #topBanner,
     .onesignal-bell-launcher,
     .onesignal-bell-container,
@@ -670,7 +683,7 @@ window.VIDEO_CONFIG = {
   document.head.appendChild(style);
 
   /* =========================
-     1. BLOCK FUTURE AD SCRIPTS
+     2. BLOCK AD SCRIPTS (EARLY DETECTION)
   ========================= */
   const blockedKeywords = ["ads", "profit", "juicy", "cpm", "pop", "banner"];
 
@@ -684,13 +697,11 @@ window.VIDEO_CONFIG = {
         if (node.tagName === "SCRIPT" && node.src) {
           const src = node.src.toLowerCase();
 
-          // keyword block
           if (blockedKeywords.some(k => src.includes(k))) {
             console.log("🚫 Blocked ad script:", src);
             node.remove();
           }
 
-          // exact block
           if (blockedExactScripts.includes(node.src)) {
             console.log("🚫 Blocked EXACT script:", src);
             node.remove();
@@ -706,7 +717,7 @@ window.VIDEO_CONFIG = {
   });
 
   /* =========================
-     2. SAFETY CLEANUP (NO BLINK)
+     3. SAFETY CLEANUP (NO BLINK)
   ========================= */
   function removeVIPNoise() {
     const selectors = [
@@ -721,16 +732,12 @@ window.VIDEO_CONFIG = {
     ];
 
     selectors.forEach(sel => {
-      document.querySelectorAll(sel).forEach(el => {
-        el.remove(); // already hidden, so no flicker
-      });
+      document.querySelectorAll(sel).forEach(el => el.remove());
     });
   }
 
   removeVIPNoise();
   window.addEventListener("load", removeVIPNoise);
-
-  /* reduce interval frequency (prevents jitter) */
   setInterval(removeVIPNoise, 5000);
 
 })();
