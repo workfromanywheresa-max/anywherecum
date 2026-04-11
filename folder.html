@@ -6,8 +6,9 @@
 <title>Folder Videos</title>
 
 <style>
-  html, body {
+html, body {
   height: 100%;
+  overflow-x: hidden;
 }
 
 body {
@@ -22,7 +23,7 @@ body {
   flex-direction: column;
 }
 
-/* MAIN FLEX FIX */
+/* MAIN FLEX SYSTEM */
 main {
   flex: 1;
   display: flex;
@@ -34,12 +35,14 @@ main {
   box-sizing: border-box;
 }
 
+/* TOP BAR */
 .topBar {
   display: flex;
   justify-content: flex-start;
   margin-bottom: 10px;
 }
 
+/* BUTTON */
 button {
   background: #ff4444;
   color: #fff;
@@ -50,6 +53,7 @@ button {
   font-size: 12px;
 }
 
+/* HEADINGS */
 h2 {
   color: #ff4444;
   text-align: center;
@@ -57,29 +61,31 @@ h2 {
   padding-bottom: 5px;
 }
 
+/* DESCRIPTION */
 #folderDescription {
   text-align: center;
   color: #aaa;
   font-size: 14px;
 }
 
+/* VIDEO AREA */
 #normalVideos {
-  margin-bottom: 40px;
-  min-height: 300px;
   flex: 1;
+  min-height: 300px;
+  margin-bottom: 0;
 }
 
-/* VIDEO BOX FIX */
+/* VIDEO BOX */
 .videoBox {
   background: #222;
-  padding: 0px;
+  padding: 0;
   border-radius: 8px;
   margin-bottom: 30px;
   text-align: center;
   min-height: 250px;
 }
 
-/* VIDEO RESPONSIVE WRAPPER */
+/* VIDEO WRAPPER */
 .videoFrameWrapper {
   width: 100%;
   max-width: 600px;
@@ -110,6 +116,7 @@ select {
   margin-bottom: 6px;
 }
 
+/* TEXT */
 .videoTitle {
   margin: 6px 0;
   font-size: 13px;
@@ -123,17 +130,17 @@ select {
   font-size: 12px;
 }
 
-/* FOOTER LOCK FIX (NO JUMP) */
+/* FOOTER (NO JUMP FIX) */
 footer {
   text-align: center;
-  padding: 2px;
+  padding: 20px;
   font-size: 12px;
   color: #aaa;
   background: #111;
 
   width: 100%;
-  margin-top: auto;   /* 🔥 locks footer to bottom */
   flex-shrink: 0;
+  margin-top: auto;
 }
 
 /* MOBILE FIX */
@@ -151,10 +158,6 @@ footer {
   .videoFrameWrapper {
     border-radius: 0;
     max-width: 100%;
-  }
-
-  html, body {
-    overflow-x: hidden;
   }
 }
 
@@ -192,7 +195,7 @@ footer {
 
 body {
   top: 0 !important;
-  }
+}
 </style>
 
 <!-- OneSignal -->
