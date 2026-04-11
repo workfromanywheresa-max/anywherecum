@@ -83,6 +83,7 @@ h2 {
   border-radius: 8px;
   overflow: hidden;
   background: #000;
+  position: relative; /* ✅ ADD THIS */
 }
 
 .videoFrameWrapper iframe,
@@ -92,6 +93,19 @@ h2 {
   border: 0;
   object-fit: cover;
   display: block;
+}
+  .videoSkeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+  z-index: 2;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 /* SELECT */
