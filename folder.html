@@ -630,100 +630,80 @@ window.VIDEO_CONFIG = {
   <script>
 (function () {
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const folder = (urlParams.get("folder") || "").toLowerCase();
-
-  const isVIP =
-    folder.includes("vip") ||
-    folder.includes("🔒");
-
-  if (!isVIP) return;
-
-  console.log("💎 VIP MODE ON — Full UI Clean Enabled");
+  console.log("🛡️ VIP POPUNDER SHIELD ACTIVE");
 
   /* =========================
-     0. INSTANT NO-BLINK CSS BLOCK
+     1. BLOCK KNOWN POPUNDER DOMAINS
   ========================= */
-  const style = document.createElement("style");
-  style.innerHTML = `
-    /* ads + unwanted UI instantly hidden (prevents blink) */
-    #topAdMain,
-    #bottom-ad-wrapper,
-    #adContainerTop,
-    [id*="ad"],
-    iframe[src*="ads"],
-    iframe[src*="profit"],
-    #topBanner,
-    .onesignal-bell-launcher,
-    .onesignal-bell-container,
-    #onesignal-bell-container,
-    #onesignal-slidedown-container,
-    #google_translate_element,
-    a[href*="Instruction_On_How_To_Watch"],
-    a[href*="streamtape"] {
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-    }
-  `;
-  document.head.appendChild(style);
+  const blockedDomains = [
+    "profitablecpmratenetwork",
+    "juicyads",
+    "exoclick",
+    "propellerads",
+    "onclick",
+    "pop",
+    "ads"
+  ];
 
   /* =========================
-     1. BLOCK FUTURE AD SCRIPTS
+     2. BLOCK SCRIPT INSERTION EARLY
   ========================= */
-  const blockedKeywords = ["ads", "profit", "juicy", "cpm", "pop", "banner"];
+  const originalCreateElement = document.createElement;
 
-  const observer = new MutationObserver((mutations) => {
-    for (const m of mutations) {
-      for (const node of m.addedNodes) {
-        if (node.tagName === "SCRIPT" && node.src) {
-          const src = node.src.toLowerCase();
-          if (blockedKeywords.some(k => src.includes(k))) {
-            console.log("🚫 Blocked ad script:", src);
-            node.remove();
+  document.createElement = function (tagName) {
+    const el = originalCreateElement.call(document, tagName);
+
+    if (tagName.toLowerCase() === "script") {
+      const originalSetSrc = Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, "src");
+
+      Object.defineProperty(el, "src", {
+        set(value) {
+          const lower = value.toLowerCase();
+
+          if (blockedDomains.some(d => lower.includes(d))) {
+            console.log("🚫 BLOCKED SCRIPT:", value);
+            return; // stop it completely
           }
-        }
-      }
-    }
-  });
 
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true
-  });
+          return originalSetSrc.set.call(this, value);
+        },
+        get: originalSetSrc.get
+      });
+    }
+
+    return el;
+  };
 
   /* =========================
-     2. SAFETY CLEANUP (NO BLINK)
+     3. BLOCK POPUNDER WINDOW OPEN
   ========================= */
-  function removeVIPNoise() {
-    const selectors = [
-      "#topAdMain",
-      "#bottom-ad-wrapper",
-      "#adContainerTop",
-      "[id*='ad']",
-      "#topBanner",
-      ".onesignal-bell-launcher",
-      ".onesignal-bell-container",
-      "#google_translate_element"
-    ];
+  const originalOpen = window.open;
 
-    selectors.forEach(sel => {
-      document.querySelectorAll(sel).forEach(el => {
-        el.remove(); // already hidden, so no flicker
-      });
-    });
-  }
+  window.open = function (...args) {
+    const url = args[0] || "";
 
-  removeVIPNoise();
-  window.addEventListener("load", removeVIPNoise);
+    const lower = url.toString().toLowerCase();
 
-  /* reduce interval frequency (prevents jitter) */
-  setInterval(removeVIPNoise, 5000);
+    if (blockedDomains.some(d => lower.includes(d))) {
+      console.log("🚫 BLOCKED POPUNDER WINDOW:", url);
+      return null;
+    }
+
+    return originalOpen.apply(window, args);
+  };
+
+  /* =========================
+     4. STOP AUTO TAB FOCUS TRICKS
+  ========================= */
+  document.addEventListener("visibilitychange", function (e) {
+    if (document.hidden) {
+      console.log("⚠️ Tab hidden (possible popunder attempt)");
+    }
+  });
 
 })();
   </script>
-
+  
 <script type="module" src="views2.js"></script>
 
 </body>
