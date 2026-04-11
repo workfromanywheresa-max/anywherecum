@@ -107,7 +107,7 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="videoViewsTotal"></div>
   <div id="cycleViewsTotal"></div>
   <div id="totalSubscribers"></div>
-  <div id="vipTotal" class="total-card">
+  <div id="totalVipKeys"></div>
 </div>
 
 <button onclick="generateKey()">Generate VIP Key</button>
@@ -462,6 +462,7 @@ async function loadVipKeys() {
   } catch (e) {
     console.log("VIP keys error", e);
     vipKeysList.innerHTML = "<li>❌ Failed to load VIP keys</li>";
+    vipTotalEl.textContent = "0";
   }
 }
 
@@ -490,11 +491,8 @@ function renderVipKeys(keys) {
     item.key && !item.key.startsWith("subscriber_")
   );
 
-  // 🔥 VIP TOTAL
-  vipTotalEl.innerHTML = `
-    <h2>🔑 Total VIP Keys</h2>
-    <div class="value">${filteredKeys.length}</div>
-  `;
+  // 🔥 ONLY TOTAL (safe for external totals section)
+  vipTotalEl.textContent = filteredKeys.length;
 
   // 📋 LIST
   vipKeysList.innerHTML = filteredKeys.length
