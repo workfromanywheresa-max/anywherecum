@@ -275,6 +275,7 @@ function createVideoBox(video) {
 
   const downloadBtn = document.createElement("button");
   downloadBtn.textContent = "Download";
+  downloadBtn.className = "downloadBtn";
 
   const downloadBox = document.createElement("div");
   downloadBox.style.display = "none";
