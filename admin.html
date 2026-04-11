@@ -104,21 +104,30 @@ if (!localStorage.getItem("adminLoggedIn")) {
 <script>
 async function generateKey() {
   try {
-    const res = await fetch("https://vipkeys.workfromanywhere-sa.workers.dev/generate-key");
-    const data = await res.json();
+    const res = await fetch(
+      "https://vipkeys.workfromanywhere-sa.workers.dev/generate-key"
+    );
 
-    if (!data.success) {
-      alert("Error: " + data.error);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+
+    // ✅ FIX: Worker returns plain text, NOT JSON
+    const key = await res.text();
+
+    if (!key) {
+      alert("❌ Failed to generate key");
       return;
     }
 
-    alert("New VIP Key: " + data.key);
+    alert("✅ New VIP Key: " + key);
 
-    // refresh list instantly
-    loadVipKeys();
+    // 🔄 refresh list
+    if (typeof loadVipKeys === "function") {
+      loadVipKeys();
+    }
+
   } catch (e) {
-    alert("Network error");
     console.log(e);
+    alert("❌ Network error");
   }
 }
 </script>
@@ -424,17 +433,19 @@ function logout(){
 <script type="module">
 const vipKeysList = document.getElementById("vipKeysList");
 
+// 🔄 LOAD VIP KEYS
 async function loadVipKeys() {
   try {
     const res = await fetch(
-      "https://vipkeys.workfromanywhere-sa.workers.dev/keys",
+      "https://vipkeys.workfromanywhere-sa.workers.dev/list-keys",
       { cache: "no-store" }
     );
 
     if (!res.ok) throw new Error("HTTP " + res.status);
 
     const data = await res.json();
-    renderVipKeys(data);
+
+    renderVipKeys(data.keys || []);
 
   } catch (e) {
     console.log("VIP keys error", e);
@@ -442,24 +453,39 @@ async function loadVipKeys() {
   }
 }
 
-function renderVipKeys(data) {
-  if (!Array.isArray(data)) return;
+// 🕒 FORMAT DATE
+function formatDate(sast) {
+  if (!sast) return "N/A";
 
-  // SORT NEWEST FIRST
-  data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const d = new Date(
+    sast.replace(", ", "T").replace(/\//g, "-")
+  );
 
-  vipKeysList.innerHTML = data.map(item => `
+  if (isNaN(d)) return sast;
+
+  return d.toLocaleString("en-ZA", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  });
+}
+
+// 🎯 RENDER KEYS + DATES
+function renderVipKeys(keys) {
+  if (!Array.isArray(keys)) return;
+
+  vipKeysList.innerHTML = keys.map(item => `
     <li>
       <span><b>${item.key}</b></span>
-      <span>Created: ${item.createdAt}</span>
-      <span>Expires: ${item.expiresAt}</span>
+      <span class="sub-date">Created: ${formatDate(item.createdAtSAST)}</span>
+      <span class="sub-date">Expires: ${formatDate(item.expiresAtSAST)}</span>
     </li>
   `).join("");
 }
 
+// 🚀 LOAD
 loadVipKeys();
 setInterval(loadVipKeys, 5000);
-      </script>
+</script>
   
 </body>
 </html>
