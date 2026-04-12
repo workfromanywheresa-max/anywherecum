@@ -200,110 +200,67 @@ OneSignalDeferred.push(async function(OneSignal) {
 <div id="google_translate_element"></div>
 
 <style>
-/* ===== HARD LOCK RIGHT (STABLE FINAL VERSION) ===== */
+/* ===== GOOGLE TRANSLATE FIX ===== */
 #google_translate_element {
   position: fixed !important;
   top: 0 !important;
   right: 0 !important;
   left: auto !important;
-
-  z-index: 99999;
-
+  z-index: 9999;
   margin: 0 !important;
   padding: 0 !important;
-
-  display: inline-flex !important;
-  justify-content: flex-end !important;
-  align-items: center !important;
-
-  width: max-content !important;
-  max-width: max-content !important;
-
-  white-space: nowrap !important;
-
-  /* prevents late-load shifting */
-  will-change: transform;
 }
 
-/* Google injected wrapper */
-#google_translate_element > div {
-  margin: 0 !important;
-  padding: 0 !important;
-
-  display: inline-flex !important;
-  justify-content: flex-end !important;
-  align-items: center !important;
-
-  width: max-content !important;
-}
-
-/* Main gadget */
+/* Main widget */
 .goog-te-gadget {
-  font-size: 0 !important;
+  font-size: 0 !important; /* hides "Select Language" text */
   background: transparent !important;
-  line-height: 1 !important;
-
   margin: 0 !important;
   padding: 0 !important;
-
-  display: inline-flex !important;
-  justify-content: flex-end !important;
-  align-items: center !important;
-
-  width: max-content !important;
 }
 
-/* Dropdown */
+/* Dropdown only */
 .goog-te-gadget select.goog-te-combo {
-  font-size: 10px !important;
-  padding: 2px 4px !important;
-  height: 18px !important;
-
-  margin: 0 !important;
-
+  font-size: 12px !important;
+  padding: 3px 6px !important;
   background: #333 !important;
   color: #fff !important;
   border: none !important;
-  border-radius: 4px !important;
-
-  outline: none !important;
-  cursor: pointer;
+  border-radius: 4px;
+  margin: 0 !important;
 }
 
-/* Hide branding */
+/* Hide extra branding / links */
 .goog-te-gadget span,
 .goog-te-gadget a,
 .goog-logo-link,
+.goog-te-gadget .goog-te-combo + span {
+  display: none !important;
+}
+
+/* Hide banner */
 .goog-te-banner-frame.skiptranslate {
   display: none !important;
 }
 
-/* Prevent page shift caused by Google injection */
+/* Prevent page shift */
 body {
   top: 0 !important;
-}
-
-/* prevent horizontal scroll / layout shift */
-html, body {
-  overflow-x: hidden !important;
-  margin: 0 !important;
-  padding: 0 !important;
 }
 </style>
 
 <script>
 function googleTranslateElementInit() {
-  new google.translate.TranslateElement(
-    {
-      pageLanguage: 'en',
-      layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL,
-      includedLanguages:
-        'af,ar,az,be,bg,ca,zh-CN,zh-TW,hr,cs,da,nl,en,eo,et,fi,fr,de,el,he,hi,hu,is,id,it,ja,ko,lv,lt,mk,ms,mt,no,pl,pt,ro,ru,sr,sk,sl,es,sw,sv,th,tr,uk,vi'
-    },
-    'google_translate_element'
-  );
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL,
+    includedLanguages: 'af,ar,az,be,bg,ca,zh-CN,zh-TW,hr,cs,da,nl,en,eo,et,fi,fr,de,el,he,hi,hu,is,id,it,ja,ko,lv,lt,mk,ms,mt,no,pl,pt,ro,ru,sr,sk,sl,es,sw,sv,th,tr,uk,vi'
+  }, 'google_translate_element');
 }
 </script>
+
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
 
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
