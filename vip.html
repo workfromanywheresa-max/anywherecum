@@ -7,19 +7,17 @@
 
 <style>
 
-body {
+  body {
   font-family: Arial, sans-serif;
   text-align: center;
+  background: #f5f5f5;
 
-  /* DARK THEME */
-  background: #0d0d0d;
-  color: #e6e6e6;
-
+  /* FIX: remove default spacing */
   margin: 0;
   padding: 0;
 }
 
-/* Main container */
+/* Main container spacing instead of body */
 .box {
   max-width: 400px;
   margin: auto;
@@ -28,21 +26,19 @@ body {
 
 h2 {
   margin-bottom: 10px;
-  color: #ffffff;
 }
 
 p {
-  color: #bbbbbb;
+  color: #555;
   font-size: 14px;
 }
 
-/* DARK CARDS */
 .card {
-  background: #1a1a1a;
+  background: #fff;
   padding: 25px;
   margin-top: 20px;
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   height: 120px;
   display: flex;
   flex-direction: column;
@@ -53,42 +49,44 @@ p {
   height: 240px;
 }
 
-/* Inputs */
+.logo,
+.crypto-logo {
+  height: 60px;
+  width: auto;
+  display: block;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
 input {
   width: 80%;
   padding: 12px;
   margin-top: 15px;
   font-size: 16px;
   border-radius: 5px;
-  border: 1px solid #333;
+  border: 1px solid #ccc;
   text-align: center;
-  background: #111;
-  color: #fff;
 }
 
-/* Text display */
 #usdDisplay {
   margin-top: 10px;
   font-weight: bold;
-  color: #ddd;
+  color: #333;
 }
 
-/* Countdown */
 #countdown {
   min-height: 25px;
   height: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #a855ff;
 }
 
-/* Buttons */
 .pay-btn {
   margin-top: 15px;
   width: 100%;
   font-size: 18px;
-  background: #444;
+  background: #888;
   color: white;
   cursor: not-allowed;
   padding: 12px;
@@ -97,7 +95,20 @@ input {
 }
 
 .pay-btn.active {
-  background: #6a00ff;
+  background: #000;
+  cursor: pointer;
+}
+
+.paypal-btn,
+.crypto-btn,
+.vip-btn {
+  margin-top: 15px;
+  width: 100%;
+  font-size: 18px;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
 }
 
@@ -110,11 +121,11 @@ input {
 }
 
 .crypto-btn {
-  background: #222;
+  background: #111;
 }
 
 .crypto-btn:hover {
-  background: #444;
+  background: #333;
 }
 
 .vip-btn {
@@ -138,25 +149,19 @@ input {
   top: 0;
   left: 0;
   z-index: 9999;
-  background: #111;
-  color: #fff;
-  border: 1px solid #333;
-  padding: 6px 10px;
-  border-radius: 5px;
 }
 
-/* FOOTER DARK */
+/* FOOTER FIX (EDGE TO EDGE) */
 footer {
   width: 100%;
   margin: 0;
   padding: 20px;
   font-size: 12px;
-  color: #888;
-  background: #000;
+  color: #aaa;
+  background: #111;
   box-sizing: border-box;
 }
-
-</style>
+  </style>
   
 </head>
 
