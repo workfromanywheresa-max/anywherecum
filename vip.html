@@ -7,17 +7,17 @@
 
 <style>
 
-  body {
+body {
   font-family: Arial, sans-serif;
   text-align: center;
-  background: #f5f5f5;
+  background: #1a1a1a;
+  color: #fff;
 
-  /* FIX: remove default spacing */
   margin: 0;
   padding: 0;
 }
 
-/* Main container spacing instead of body */
+/* Main container spacing */
 .box {
   max-width: 400px;
   margin: auto;
@@ -26,19 +26,21 @@
 
 h2 {
   margin-bottom: 10px;
+  color: #ff4444;
 }
 
 p {
-  color: #555;
+  color: #ccc;
   font-size: 14px;
 }
 
+/* DARK CARDS */
 .card {
-  background: #fff;
+  background: #222;
   padding: 25px;
   margin-top: 20px;
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
   height: 120px;
   display: flex;
   flex-direction: column;
@@ -64,14 +66,20 @@ input {
   margin-top: 15px;
   font-size: 16px;
   border-radius: 5px;
-  border: 1px solid #ccc;
+  border: 1px solid #444;
   text-align: center;
+  background: #111;
+  color: #fff;
+}
+
+input::placeholder {
+  color: #777;
 }
 
 #usdDisplay {
   margin-top: 10px;
   font-weight: bold;
-  color: #333;
+  color: #fff;
 }
 
 #countdown {
@@ -80,13 +88,15 @@ input {
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #6a00ff;
 }
 
+/* BUTTONS */
 .pay-btn {
   margin-top: 15px;
   width: 100%;
   font-size: 18px;
-  background: #888;
+  background: #555;
   color: white;
   cursor: not-allowed;
   padding: 12px;
@@ -96,19 +106,6 @@ input {
 
 .pay-btn.active {
   background: #000;
-  cursor: pointer;
-}
-
-.paypal-btn,
-.crypto-btn,
-.vip-btn {
-  margin-top: 15px;
-  width: 100%;
-  font-size: 18px;
-  color: white;
-  padding: 12px;
-  border: none;
-  border-radius: 5px;
   cursor: pointer;
 }
 
@@ -149,9 +146,14 @@ input {
   top: 0;
   left: 0;
   z-index: 9999;
+  background: #111;
+  color: #fff;
+  border: 1px solid #333;
+  padding: 6px 10px;
+  cursor: pointer;
 }
 
-/* FOOTER FIX (EDGE TO EDGE) */
+/* FOOTER */
 footer {
   width: 100%;
   margin: 0;
@@ -161,7 +163,8 @@ footer {
   background: #111;
   box-sizing: border-box;
 }
-  </style>
+
+    </style>
   
 </head>
 
