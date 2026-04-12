@@ -200,7 +200,15 @@ OneSignalDeferred.push(async function(OneSignal) {
 <div id="google_translate_element"></div>
 
   <style>
-/* ===== GOOGLE TRANSLATE FIX (TRUE EDGE LOCK RIGHT) ===== */
+/* ===== GOOGLE TRANSLATE TRUE EDGE LOCK RIGHT ===== */
+
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden;
+}
+
+/* Container pinned EXACT to edge */
 #google_translate_element {
   position: fixed !important;
   top: 0 !important;
@@ -212,46 +220,43 @@ OneSignalDeferred.push(async function(OneSignal) {
 
   z-index: 999999;
 
-  /* REMOVE transform completely */
   transform: none !important;
 }
 
-/* Main widget */
+/* Remove all internal spacing */
 .goog-te-gadget {
   font-size: 0 !important;
   background: transparent !important;
   margin: 0 !important;
   padding: 0 !important;
+  line-height: 1 !important;
 }
 
-/* Dropdown only */
+/* Force dropdown to sit flush */
 .goog-te-gadget select.goog-te-combo {
   font-size: 12px !important;
   padding: 3px 6px !important;
+
+  margin: 0 !important;
+  border: none !important;
+
   background: #333 !important;
   color: #fff !important;
-  border: none !important;
-  border-radius: 4px;
-  margin: 0 !important;
 
-  position: relative;
-  right: 0 !important;
+  border-radius: 0 !important;
+
+  display: block !important;
 }
 
-/* Hide branding */
+/* Kill Google spacing elements */
 .goog-te-gadget span,
 .goog-te-gadget a,
 .goog-logo-link,
-.goog-te-gadget .goog-te-combo + span {
-  display: none !important;
-}
-
-/* Remove banner */
 .goog-te-banner-frame.skiptranslate {
   display: none !important;
 }
 
-/* Prevent page shift */
+/* Prevent page jump */
 body {
   top: 0 !important;
   margin: 0 !important;
