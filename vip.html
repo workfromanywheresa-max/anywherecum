@@ -6,7 +6,6 @@
 <title>VIP Access</title>
 
 <style>
-
 body {
   font-family: Arial, sans-serif;
   text-align: center;
@@ -34,7 +33,7 @@ p {
   font-size: 14px;
 }
 
-/* DARK CARDS */
+/* CARDS (same sizing as original) */
 .card {
   background: #222;
   padding: 25px;
@@ -60,6 +59,7 @@ p {
   object-fit: contain;
 }
 
+/* INPUTS (same sizing, dark style only) */
 input {
   width: 80%;
   padding: 12px;
@@ -76,6 +76,7 @@ input::placeholder {
   color: #777;
 }
 
+/* TEXT DISPLAY */
 #usdDisplay {
   margin-top: 10px;
   font-weight: bold;
@@ -91,7 +92,7 @@ input::placeholder {
   color: #6a00ff;
 }
 
-/* BUTTONS */
+/* BUTTONS (UNCHANGED SIZES, ONLY COLORS DARK-FRIENDLY) */
 .pay-btn {
   margin-top: 15px;
   width: 100%;
@@ -109,22 +110,36 @@ input::placeholder {
   cursor: pointer;
 }
 
+.paypal-btn,
+.crypto-btn,
+.vip-btn {
+  margin-top: 15px;
+  width: 100%;
+  font-size: 18px;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* PayPal */
 .paypal-btn {
   background: #0070ba;
 }
-
 .paypal-btn:hover {
   background: #005c99;
 }
 
+/* Crypto */
 .crypto-btn {
   background: #111;
 }
-
 .crypto-btn:hover {
   background: #333;
 }
 
+/* VIP button (kept EXACT same size rules) */
 .vip-btn {
   background: #6a00ff;
   font-weight: bold;
@@ -135,12 +150,11 @@ input::placeholder {
   padding: 10px;
   border-radius: 6px;
 }
-
 .vip-btn:hover {
   background: #4b00b3;
 }
 
-/* BACK BUTTON */
+/* BACK BUTTON (fixed + visible in dark mode) */
 .back-btn {
   position: fixed;
   top: 0;
@@ -163,8 +177,7 @@ footer {
   background: #111;
   box-sizing: border-box;
 }
-
-    </style>
+</style>
   
 </head>
 
