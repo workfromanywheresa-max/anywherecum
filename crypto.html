@@ -345,6 +345,9 @@ function copyText(text) {
 }
 
 async function sendEmail() {
+  const btn = document.querySelector("button"); // adjust selector if needed
+  btn.disabled = true;
+
   const email = document.getElementById("email").value;
   const country = document.getElementById("country").value;
   const wallet = document.getElementById("wallet").value;
@@ -353,6 +356,7 @@ async function sendEmail() {
 
   if (!email || !country || !wallet || !amount) {
     alert("Please fill all fields");
+    btn.disabled = false;
     return;
   }
 
@@ -372,15 +376,17 @@ async function sendEmail() {
     });
 
     if (res.ok) {
-      alert("✅ Email sent successfully!");
+      window.location.href = "thank-you.html";
     } else {
       alert("❌ Failed to send email");
+      btn.disabled = false;
     }
 
   } catch (err) {
     alert("❌ Error sending email");
+    btn.disabled = false;
   }
-}
+  }
 </script>
 
 </body>
