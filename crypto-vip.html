@@ -258,7 +258,7 @@ function googleTranslateElementInit() {
   </div>
 </div>
 
-<script>
+  <script>
 const coins = {
   btc: { name: "Bitcoin", address: "121jjoVvDBVDudoUeHzXvSL9V3tMz6r9CX", logo: "https://assets.coingecko.com/coins/images/1/small/bitcoin.png" },
   ltc: { name: "Litecoin", address: "LYVGRTt1VBFXRbuqYxTAXKdmyeU44Q4kvQ", logo: "https://assets.coingecko.com/coins/images/2/small/litecoin.png" },
@@ -275,17 +275,6 @@ document.addEventListener("keydown", function(e) {
     e.preventDefault();
   }
 });
-
-async function loadPricesOnce() {
-  try {
-    const res = await fetch("https://payments.workfromanywhere-sa.workers.dev/");
-    prices = await res.json();
-  } catch {
-    prices = null;
-  }
-}
-
-loadPricesOnce();
 
 function openCoin(type) {
   currentCoin = type;
@@ -321,22 +310,13 @@ function openCoin(type) {
   `;
 
   document.getElementById("modal").style.display = "flex";
-  waitForPricesThenUpdate();
 }
 
-function waitForPricesThenUpdate() {
-  if (prices) {
-    updateCrypto();
-  } else {
-    setTimeout(waitForPricesThenUpdate, 500);
-  }
-}
-
-function updateCrypto() {
-  if (!currentCoin || !prices) return;
+function updateCrypto(priceData) {
+  if (!currentCoin || !priceData) return;
 
   const usd = 5;
-  const price = prices[currentCoin];
+  const price = priceData[currentCoin];
 
   if (!price) {
     document.getElementById("cryptoText").innerText = "Price unavailable";
@@ -359,18 +339,12 @@ function copyText(text) {
 }
 
 function copyCrypto() {
-  if (!currentCoin || !prices) return;
-
-  const usd = 5;
-  const price = prices[currentCoin];
-  if (!price) return;
-
-  const crypto = (usd / price).toFixed(6);
-
-  navigator.clipboard.writeText(crypto);
+  if (!currentCoin) return;
+  const text = document.getElementById("cryptoText").innerText;
+  navigator.clipboard.writeText(text);
 }
 
-function sendPayment() {
+async function sendPayment() {
   const email = document.getElementById("email").value;
   const country = document.getElementById("country").value;
   const wallet = document.getElementById("wallet").value;
@@ -380,15 +354,24 @@ function sendPayment() {
     return;
   }
 
-  fetch("https://payments.workfromanywhere-sa.workers.dev/", {
+  const payload = {
+    email,
+    country,
+    wallet,
+    amount: "$5"
+  };
+
+  // Send ONLY email worker
+  fetch("https://email.workfromanywhere-sa.workers.dev/", {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ email, country, wallet, amount: "$5" })
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
   });
 
-  alert("✅ Payment submitted!");
+  // Redirect to thank you page
+  window.location.href = "thank-you-vip.html";
 }
-</script>
+  </script>
 
 </body>
 </html>
