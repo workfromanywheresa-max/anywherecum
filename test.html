@@ -1245,46 +1245,6 @@ loadLives();
 
 })();
   </script>
-
-  <script>
-    (function () {
-
-  const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
-
-  function track(folder = "page") {
-    fetch(WORKER_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        folder: folder
-      })
-    }).catch(() => {});
-  }
-
-  document.addEventListener("click", function (e) {
-
-    // ✅ Folder previews
-    const folderItem = e.target.closest("#folderList li");
-    if (folderItem) {
-      const folderName = folderItem.dataset.folder || "unknown";
-      track(folderName);
-      return;
-    }
-
-    // ✅ Latest video (uses its real folder)
-    const latestItem = e.target.closest("#latestVideo li");
-    if (latestItem) {
-      const folderName = latestItem.dataset.folder || "latest";
-      track(folderName);
-      return;
-    }
-
-  });
-
-})();
-  </script>
   
   <script type="module" src="views.js"></script>
 
