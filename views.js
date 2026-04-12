@@ -11,38 +11,37 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 /* ================= SUBSCRIBER WORKER ================= */
-const SUBSCRIBER_WORKER =
-  "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscriber";
+const SUBSCRIBER_WORKER = "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscriber";
 
-window.saveSubscriber = async function (userId, optedIn) {
+window.saveSubscriber = async function(userId, optedIn) {
   try {
+    console.log("Saving subscriber:", userId, optedIn);
+
     if (!userId) return;
 
-    await fetch(SUBSCRIBER_WORKER, {
+    const res = await fetch(SUBSCRIBER_WORKER, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, subscribed: optedIn ? 1 : 0 })
     });
+
+    const text = await res.text();
+    console.log("Worker response:", text);
   } catch (err) {
     console.error("Subscriber Worker failed:", err);
   }
 };
 
-/* ---------------- WORKERS ---------------- */
-const WORKER_URL =
-  "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
+/* ---------------- PAGE + COUNTRY WORKERS ---------------- */
+const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
+const COUNTRY_WORKER_URL = "https://anywherecumcountry.workfromanywhere-sa.workers.dev/";
 
-const COUNTRY_WORKER_URL =
-  "https://anywherecumcountry.workfromanywhere-sa.workers.dev/";
-
-async function sendToWorker(page) {
+async function sendToWorker(name) {
   try {
     await fetch(WORKER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        page // home, dashboard, folderName etc
-      })
+      body: JSON.stringify({ type: name })
     });
   } catch (err) {
     console.error("Worker tracking failed:", err);
@@ -51,65 +50,51 @@ async function sendToWorker(page) {
 
 async function sendCountryToWorker() {
   try {
-    await fetch(COUNTRY_WORKER_URL, { method: "POST" });
+    await fetch(COUNTRY_WORKER_URL, {
+      method: "POST"
+    });
   } catch (err) {
     console.error("Country tracking failed:", err);
   }
 }
 
-/* ---------------- PAGE DETECTION ---------------- */
+/* ---------------- Unified Tracking ---------------- */
+function track(name) {
+  const key = "track_" + name;
+  if (sessionStorage.getItem(key)) return;
+
+  sessionStorage.setItem(key, "1");
+  sendToWorker(name);
+}
+
+/* ---------------- Page Detection ---------------- */
 let path = window.location.pathname.toLowerCase();
+let pageName = (path === "/" || path === "/index.html")
+  ? "home"
+  : path.split("/").filter(Boolean).pop().replace(".html", "");
 
-let pageName =
-  path === "/" || path === "/index.html"
-    ? "home"
-    : path.split("/").filter(Boolean).pop().replace(".html", "");
+/* ---------------- Track Page ---------------- */
+track(pageName);
 
-/* ---------------- PAGE TRACK ---------------- */
-function trackPage(page) {
-  const key = "page_" + page;
-  if (sessionStorage.getItem(key)) return;
+/* 🔥 COUNTRY TRACKING */
+sendCountryToWorker();
 
-  sessionStorage.setItem(key, "1");
+/* ---------------- Folder Click Tracking ---------------- */
+window.trackPreviewClick = function(folderName) {
+  if (!folderName) return;
+  track(folderName);
+};
 
-  // ✅ FIXED: sends actual page name under pageViews
-  sendToWorker(page);
-}
-
-/* ---------------- FOLDER CLICK TRACK ---------------- */
-async function trackPreviewClick(folderName) {
-  const key = "preview_" + folderName;
-  if (sessionStorage.getItem(key)) return;
-
-  sessionStorage.setItem(key, "1");
-
-  // ✅ still grouped under pageViews but separated by name
-  await sendToWorker(folderName);
-}
-
-window.trackPreviewClick = trackPreviewClick;
-
-/* ---------------- CLICK DETECTION ---------------- */
-document.addEventListener("click", function (e) {
+/* ---------------- Detect Clicks ---------------- */
+document.addEventListener("click", function(e) {
   const preview = e.target.closest(".folder-preview");
   if (preview) {
     const folderName = preview.getAttribute("data-folder");
-    if (folderName) trackPreviewClick(folderName);
-    return;
-  }
-
-  const title = e.target.closest(".folder-title, .video-title, .title");
-  if (title) {
-    const folderName = title.getAttribute("data-folder");
-    if (folderName) trackPreviewClick(folderName);
+    if (folderName) track(folderName);
   }
 });
 
-/* ---------------- RUN TRACKING ---------------- */
-trackPage(pageName);
-sendCountryToWorker();
-
-/* ---------------- FORMAT ---------------- */
+/* ---------------- Format ---------------- */
 function formatViews(num) {
   num = Number(num);
   if (isNaN(num)) return "0";
@@ -118,9 +103,12 @@ function formatViews(num) {
   return num;
 }
 
-/* ---------------- ADMIN UI ---------------- */
-let el = null;
+/* ---------------- Cache ---------------- */
+function saveCache(key, value) { localStorage.setItem(key, value); }
+function getCache(key) { return localStorage.getItem(key); }
 
+/* ---------------- Inject UI ---------------- */
+let el = null;
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("adminContainer");
   if (!container) return;
@@ -143,30 +131,24 @@ document.addEventListener("DOMContentLoaded", () => {
   el = document.getElementById("viewNumber");
 });
 
-/* ---------------- FIREBASE PAGE VIEWS ---------------- */
-const pageRef = ref(db, "pageViews");
-
-let cachedRaw = localStorage.getItem("totalViews");
-let cachedTotal = cachedRaw ? Number(cachedRaw) : null;
-
+/* ---------------- Cache Load ---------------- */
+const cachedRaw = getCache("totalViews");
+let cachedTotal = (!isNaN(cachedRaw) && cachedRaw !== null) ? Number(cachedRaw) : null;
 let firstLoad = true;
 let lastRenderedTotal = null;
 
+/* ---------------- Firebase (VIEWS ONLY) ---------------- */
+const pageRef = ref(db, "pageViews");
 onValue(pageRef, (snapshot) => {
   const data = snapshot.val() || {};
 
   let total = 0;
-
-  // ✅ supports: home, dashboard, folders inside pageViews
-  Object.values(data).forEach((v) => {
-    if (typeof v === "number") {
-      total += v;
-    } else if (v?.count) {
-      total += v.count;
-    }
+  Object.values(data).forEach(v => {
+    total += (v?.count || 0);
   });
 
-  localStorage.setItem("totalViews", total);
+  saveCache("totalViews", total);
+  saveCache("pageViewsData", JSON.stringify(data));
   cachedTotal = total;
 
   if (firstLoad) {
@@ -175,7 +157,7 @@ onValue(pageRef, (snapshot) => {
     return;
   }
 
-  if (el && total !== lastRenderedTotal) {
+  if (total !== lastRenderedTotal && el) {
     el.textContent = `👁 ${formatViews(total)}`;
     lastRenderedTotal = total;
   }
