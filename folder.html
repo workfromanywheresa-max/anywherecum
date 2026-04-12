@@ -196,55 +196,61 @@ OneSignalDeferred.push(async function(OneSignal) {
 
 <body>
 
-<!-- Google Translate -->
+  <!-- Google Translate -->
 <div id="google_translate_element"></div>
 
 <style>
-/* ===== HARD LOCK RIGHT ===== */
+/* ===== HARD LOCK RIGHT (STABLE VERSION) ===== */
 #google_translate_element {
   position: fixed !important;
   top: 0 !important;
-  right: 0 !important; /* clean anchor */
-  transform: translateX(2px); /* 🔥 pushes it to true edge */
+  right: 0 !important;
+  left: auto !important;
+
+  transform: none !important; /* FIX: prevents shifting */
+
   z-index: 99999;
 
   margin: 0 !important;
   padding: 0 !important;
-  line-height: 1 !important;
-  height: auto !important;
-  white-space: nowrap !important; /* prevents resize */
+
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+
+  white-space: nowrap !important;
 }
 
-/* Kill ALL spacing */
-#google_translate_element * {
-  margin: 0 !important;
-  padding: 0 !important;
-  box-sizing: border-box !important;
+/* Prevent Google injected wrapper from shifting layout */
+#google_translate_element > div {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
 }
 
 /* Main widget */
 .goog-te-gadget {
   font-size: 0 !important;
   background: transparent !important;
-  display: inline-block !important;
   line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
 }
 
 /* Dropdown */
 .goog-te-gadget select.goog-te-combo {
   font-size: 10px !important;
   padding: 2px 4px !important;
-  height: 16px !important;
-  line-height: 1 !important;
+  height: 18px !important;
   background: #333 !important;
   color: #fff !important;
   border: none !important;
-  border-radius: 4px;
+  border-radius: 4px !important;
   outline: none !important;
   cursor: pointer;
 }
 
-/* Remove junk */
+/* Hide Google branding/junk */
 .goog-te-gadget span,
 .goog-te-gadget a,
 .goog-logo-link,
@@ -252,24 +258,32 @@ OneSignalDeferred.push(async function(OneSignal) {
   display: none !important;
 }
 
-/* Kill banner */
+/* Hide translation banner */
 .goog-te-banner-frame.skiptranslate {
   display: none !important;
 }
 
-/* Prevent layout shift */
+/* Prevent page jump when translate loads */
 body {
   top: 0 !important;
+}
+
+/* Optional: prevent horizontal overflow shift */
+html, body {
+  overflow-x: hidden;
 }
 </style>
 
 <script>
 function googleTranslateElementInit() {
-  new google.translate.TranslateElement({
-    pageLanguage: 'en',
-    layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL,
-    includedLanguages: 'af,ar,az,be,bg,ca,zh-CN,zh-TW,hr,cs,da,nl,en,eo,et,fi,fr,de,el,he,hi,hu,is,id,it,ja,ko,lv,lt,mk,ms,mt,no,pl,pt,ro,ru,sr,sk,sl,es,sw,sv,th,tr,uk,vi'
-  }, 'google_translate_element');
+  new google.translate.TranslateElement(
+    {
+      pageLanguage: 'en',
+      layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL,
+      includedLanguages: 'af,ar,az,be,bg,ca,zh-CN,zh-TW,hr,cs,da,nl,en,eo,et,fi,fr,de,el,he,hi,hu,is,id,it,ja,ko,lv,lt,mk,ms,mt,no,pl,pt,ro,ru,sr,sk,sl,es,sw,sv,th,tr,uk,vi'
+    },
+    'google_translate_element'
+  );
 }
 </script>
 
