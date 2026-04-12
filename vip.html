@@ -292,7 +292,10 @@ function googleTranslateElementInit() {
     <img class="logo" src="https://anywherecum.pages.dev/images/payfast.webp">
     <div id="usdDisplay">$5.00 USD</div>
 
-    <input type="number" id="zarAmount" placeholder="Loading ZAR...">
+    <div class="zar-wrapper">
+  <span class="zar-prefix">R</span>
+  <input type="number" id="zarAmount" placeholder="Loading ZAR...">
+    </div>
 
     <button id="payBtn" class="pay-btn" onclick="goPayment()" disabled>
       Pay with PayFast
