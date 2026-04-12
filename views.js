@@ -51,20 +51,27 @@ function track(name) {
   if (!name) return;
 
   const clean = normalizeKey(name);
-
-  // 🚀 IMPORTANT: no sessionStorage blocking (this was breaking folder counts)
   sendToWorker(clean);
 }
 
-/* ---------------- PAGE TRACKING ---------------- */
+/* ---------------- PAGE TRACKING (FIXED) ---------------- */
 let path = window.location.pathname.toLowerCase();
 
-let pageName =
-  (path === "/" || path === "/index.html")
-    ? "home"
-    : path.split("/").filter(Boolean).pop().replace(".html", "");
+/* clean page name */
+let pageName = path.split("/").filter(Boolean).pop() || "home";
 
-track("page_" + pageName);
+/* remove .html */
+pageName = pageName.replace(".html", "");
+
+/* special case: root = home */
+if (pageName === "" || pageName === "/" || path === "/") {
+  pageName = "home";
+}
+
+/* FINAL OUTPUT: home, contact, about, etc */
+track(pageName);
+
+/* ---------------- COUNTRY TRACKING ---------------- */
 sendCountryToWorker();
 
 /* ---------------- GLOBAL FOLDER TRACKING ---------------- */
@@ -72,7 +79,7 @@ window.trackPreviewClick = function(folderName) {
   track("folder_" + folderName);
 };
 
-/* FIXED CLICK TRACKING */
+/* CLICK TRACKING */
 document.addEventListener("click", function(e) {
   const preview = e.target.closest(".folder-preview, [data-folder]");
   if (!preview) return;
