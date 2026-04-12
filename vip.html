@@ -119,6 +119,7 @@
 </head>
 
 <body>
+
   <!-- Google Translate -->
 <div id="google_translate_element"></div>
 
@@ -129,37 +130,31 @@
   top: 0 !important;
   right: 0 !important;
   left: auto !important;
-  z-index: 99999;
+  z-index: 9999;
   margin: 0 !important;
   padding: 0 !important;
-  line-height: 1 !important;
-  height: auto !important;
 }
 
 /* Main widget */
 .goog-te-gadget {
-  font-size: 0 !important;
+  font-size: 0 !important; /* hides "Select Language" text */
   background: transparent !important;
   margin: 0 !important;
   padding: 0 !important;
-  line-height: 1 !important;
 }
 
 /* Dropdown only */
 .goog-te-gadget select.goog-te-combo {
-  font-size: 10px !important;
-  padding: 2px 4px !important;   /* reduced padding */
-  height: 16px !important;       /* smaller height */
-  line-height: 1 !important;
+  font-size: 12px !important;
+  padding: 3px 6px !important;
   background: #333 !important;
   color: #fff !important;
   border: none !important;
   border-radius: 4px;
   margin: 0 !important;
-  outline: none !important;
 }
 
-/* Remove extra spacing */
+/* Hide extra branding / links */
 .goog-te-gadget span,
 .goog-te-gadget a,
 .goog-logo-link,
@@ -187,6 +182,9 @@ function googleTranslateElementInit() {
   }, 'google_translate_element');
 }
 </script>
+
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
 
 <div class="box">
 
