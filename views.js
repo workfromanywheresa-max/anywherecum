@@ -10,29 +10,38 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+/* ================= UTIL ================= */
+function normalizeKey(name) {
+  if (!name) return "unknown";
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_|_$/g, "");
+}
+
 /* ================= SUBSCRIBER WORKER ================= */
 const SUBSCRIBER_WORKER = "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscriber";
 
 window.saveSubscriber = async function(userId, optedIn) {
   try {
-    console.log("Saving subscriber:", userId, optedIn);
-
     if (!userId) return;
 
-    const res = await fetch(SUBSCRIBER_WORKER, {
+    await fetch(SUBSCRIBER_WORKER, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, subscribed: optedIn ? 1 : 0 })
+      body: JSON.stringify({
+        userId,
+        subscribed: optedIn ? 1 : 0
+      })
     });
 
-    const text = await res.text();
-    console.log("Worker response:", text);
   } catch (err) {
     console.error("Subscriber Worker failed:", err);
   }
 };
 
-/* ---------------- PAGE + COUNTRY WORKERS ---------------- */
+/* ---------------- WORKERS ---------------- */
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
 const COUNTRY_WORKER_URL = "https://anywherecumcountry.workfromanywhere-sa.workers.dev/";
 
@@ -50,51 +59,50 @@ async function sendToWorker(name) {
 
 async function sendCountryToWorker() {
   try {
-    await fetch(COUNTRY_WORKER_URL, {
-      method: "POST"
-    });
+    await fetch(COUNTRY_WORKER_URL, { method: "POST" });
   } catch (err) {
     console.error("Country tracking failed:", err);
   }
 }
 
-/* ---------------- Unified Tracking ---------------- */
+/* ================= TRACKING ================= */
 function track(name) {
-  const key = "track_" + name;
+  if (!name) return;
+
+  const clean = normalizeKey(name);
+
+  const key = "track_" + clean;
   if (sessionStorage.getItem(key)) return;
 
   sessionStorage.setItem(key, "1");
-  sendToWorker(name);
+  sendToWorker(clean);
 }
 
-/* ---------------- Page Detection ---------------- */
+/* ---------------- PAGE DETECTION ---------------- */
 let path = window.location.pathname.toLowerCase();
-let pageName = (path === "/" || path === "/index.html")
-  ? "home"
-  : path.split("/").filter(Boolean).pop().replace(".html", "");
 
-/* ---------------- Track Page ---------------- */
-track(pageName);
+let pageName =
+  (path === "/" || path === "/index.html")
+    ? "home"
+    : path.split("/").filter(Boolean).pop().replace(".html", "");
 
-/* 🔥 COUNTRY TRACKING */
+track(pageName); // ✅ page tracking fixed
 sendCountryToWorker();
 
-/* ---------------- Folder Click Tracking ---------------- */
+/* ---------------- GLOBAL CLICK TRACK ---------------- */
 window.trackPreviewClick = function(folderName) {
-  if (!folderName) return;
   track(folderName);
 };
 
-/* ---------------- Detect Clicks ---------------- */
 document.addEventListener("click", function(e) {
   const preview = e.target.closest(".folder-preview");
-  if (preview) {
-    const folderName = preview.getAttribute("data-folder");
-    if (folderName) track(folderName);
-  }
+  if (!preview) return;
+
+  const folderName = preview.getAttribute("data-folder");
+  track(folderName);
 });
 
-/* ---------------- Format ---------------- */
+/* ---------------- FORMAT ---------------- */
 function formatViews(num) {
   num = Number(num);
   if (isNaN(num)) return "0";
@@ -103,18 +111,23 @@ function formatViews(num) {
   return num;
 }
 
-/* ---------------- Cache ---------------- */
-function saveCache(key, value) { localStorage.setItem(key, value); }
-function getCache(key) { return localStorage.getItem(key); }
+/* ---------------- CACHE ---------------- */
+function saveCache(key, value) {
+  localStorage.setItem(key, value);
+}
+function getCache(key) {
+  return localStorage.getItem(key);
+}
 
-/* ---------------- Inject UI ---------------- */
+/* ---------------- ADMIN UI ---------------- */
 let el = null;
+
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("adminContainer");
   if (!container) return;
 
   container.innerHTML = `
-    <a id="adminLink" href="admin.html" style="
+    <a href="admin.html" style="
       position: fixed;
       top: 0px;
       left: 0px;
@@ -131,14 +144,15 @@ document.addEventListener("DOMContentLoaded", () => {
   el = document.getElementById("viewNumber");
 });
 
-/* ---------------- Cache Load ---------------- */
+/* ---------------- CACHE LOAD ---------------- */
 const cachedRaw = getCache("totalViews");
-let cachedTotal = (!isNaN(cachedRaw) && cachedRaw !== null) ? Number(cachedRaw) : null;
-let firstLoad = true;
+let cachedTotal = cachedRaw ? Number(cachedRaw) : null;
 let lastRenderedTotal = null;
+let firstLoad = true;
 
-/* ---------------- Firebase (VIEWS ONLY) ---------------- */
+/* ---------------- FIREBASE VIEWS ---------------- */
 const pageRef = ref(db, "pageViews");
+
 onValue(pageRef, (snapshot) => {
   const data = snapshot.val() || {};
 
@@ -148,7 +162,6 @@ onValue(pageRef, (snapshot) => {
   });
 
   saveCache("totalViews", total);
-  saveCache("pageViewsData", JSON.stringify(data));
   cachedTotal = total;
 
   if (firstLoad) {
@@ -157,13 +170,13 @@ onValue(pageRef, (snapshot) => {
     return;
   }
 
-  if (total !== lastRenderedTotal && el) {
+  if (el && total !== lastRenderedTotal) {
     el.textContent = `👁 ${formatViews(total)}`;
     lastRenderedTotal = total;
   }
 });
 
-/* ---------------- INITIAL UI ---------------- */
+/* ---------------- INIT UI ---------------- */
 document.addEventListener("DOMContentLoaded", () => {
   if (cachedTotal !== null && el) {
     el.textContent = `👁 ${formatViews(cachedTotal)}`;
