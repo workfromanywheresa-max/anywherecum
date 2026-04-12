@@ -13,35 +13,16 @@ const db = getDatabase(app);
 /* ================= UTIL ================= */
 function normalizeKey(name) {
   if (!name) return "unknown";
+
   return name
+    .toString()
+    .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9]/g, "_")
-    .replace(/_+/g, "_")
-    .replace(/^_|_$/g, "");
+    .replace(/\s+/g, "_")
+    .replace(/[^\w]/g, "");
 }
 
-/* ================= SUBSCRIBER WORKER ================= */
-const SUBSCRIBER_WORKER = "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscriber";
-
-window.saveSubscriber = async function(userId, optedIn) {
-  try {
-    if (!userId) return;
-
-    await fetch(SUBSCRIBER_WORKER, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId,
-        subscribed: optedIn ? 1 : 0
-      })
-    });
-
-  } catch (err) {
-    console.error("Subscriber Worker failed:", err);
-  }
-};
-
-/* ---------------- WORKERS ---------------- */
+/* ================= WORKERS ================= */
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
 const COUNTRY_WORKER_URL = "https://anywherecumcountry.workfromanywhere-sa.workers.dev/";
 
@@ -71,14 +52,11 @@ function track(name) {
 
   const clean = normalizeKey(name);
 
-  const key = "track_" + clean;
-  if (sessionStorage.getItem(key)) return;
-
-  sessionStorage.setItem(key, "1");
+  // 🚀 IMPORTANT: no sessionStorage blocking (this was breaking folder counts)
   sendToWorker(clean);
 }
 
-/* ---------------- PAGE DETECTION ---------------- */
+/* ---------------- PAGE TRACKING ---------------- */
 let path = window.location.pathname.toLowerCase();
 
 let pageName =
@@ -86,20 +64,26 @@ let pageName =
     ? "home"
     : path.split("/").filter(Boolean).pop().replace(".html", "");
 
-track(pageName); // ✅ page tracking fixed
+track("page_" + pageName);
 sendCountryToWorker();
 
-/* ---------------- GLOBAL CLICK TRACK ---------------- */
+/* ---------------- GLOBAL FOLDER TRACKING ---------------- */
 window.trackPreviewClick = function(folderName) {
-  track(folderName);
+  track("folder_" + folderName);
 };
 
+/* FIXED CLICK TRACKING */
 document.addEventListener("click", function(e) {
-  const preview = e.target.closest(".folder-preview");
+  const preview = e.target.closest(".folder-preview, [data-folder]");
   if (!preview) return;
 
-  const folderName = preview.getAttribute("data-folder");
-  track(folderName);
+  const folderName =
+    preview.getAttribute("data-folder") ||
+    preview.dataset.folder;
+
+  if (!folderName) return;
+
+  track("folder_" + folderName);
 });
 
 /* ---------------- FORMAT ---------------- */
@@ -144,13 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
   el = document.getElementById("viewNumber");
 });
 
-/* ---------------- CACHE LOAD ---------------- */
-const cachedRaw = getCache("totalViews");
-let cachedTotal = cachedRaw ? Number(cachedRaw) : null;
-let lastRenderedTotal = null;
-let firstLoad = true;
-
-/* ---------------- FIREBASE VIEWS ---------------- */
+/* ---------------- FIREBASE ---------------- */
 const pageRef = ref(db, "pageViews");
 
 onValue(pageRef, (snapshot) => {
@@ -158,28 +136,20 @@ onValue(pageRef, (snapshot) => {
 
   let total = 0;
   Object.values(data).forEach(v => {
-    total += (v?.count || 0);
+    total += (typeof v === "number" ? v : v?.count || 0);
   });
 
   saveCache("totalViews", total);
-  cachedTotal = total;
 
-  if (firstLoad) {
-    firstLoad = false;
-    lastRenderedTotal = total;
-    return;
-  }
-
-  if (el && total !== lastRenderedTotal) {
+  if (el) {
     el.textContent = `👁 ${formatViews(total)}`;
-    lastRenderedTotal = total;
   }
 });
 
-/* ---------------- INIT UI ---------------- */
+/* ---------------- INIT ---------------- */
 document.addEventListener("DOMContentLoaded", () => {
-  if (cachedTotal !== null && el) {
-    el.textContent = `👁 ${formatViews(cachedTotal)}`;
-    lastRenderedTotal = cachedTotal;
+  const cached = getCache("totalViews");
+  if (cached && el) {
+    el.textContent = `👁 ${formatViews(Number(cached))}`;
   }
 });
