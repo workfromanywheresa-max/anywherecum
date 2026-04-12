@@ -11,30 +11,29 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 /* ================= SUBSCRIBER WORKER ================= */
-const SUBSCRIBER_WORKER = "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscriber";
+const SUBSCRIBER_WORKER =
+  "https://anywherecumnotifications.workfromanywhere-sa.workers.dev/subscriber";
 
-window.saveSubscriber = async function(userId, optedIn) {
+window.saveSubscriber = async function (userId, optedIn) {
   try {
-    console.log("Saving subscriber:", userId, optedIn);
-
     if (!userId) return;
 
-    const res = await fetch(SUBSCRIBER_WORKER, {
+    await fetch(SUBSCRIBER_WORKER, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, subscribed: optedIn ? 1 : 0 })
     });
-
-    const text = await res.text();
-    console.log("Worker response:", text);
   } catch (err) {
     console.error("Subscriber Worker failed:", err);
   }
 };
 
 /* ---------------- PAGE + COUNTRY WORKERS ---------------- */
-const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
-const COUNTRY_WORKER_URL = "https://anywherecumcountry.workfromanywhere-sa.workers.dev/";
+const WORKER_URL =
+  "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
+
+const COUNTRY_WORKER_URL =
+  "https://anywherecumcountry.workfromanywhere-sa.workers.dev/";
 
 async function sendToWorker(type) {
   try {
@@ -50,54 +49,63 @@ async function sendToWorker(type) {
 
 async function sendCountryToWorker() {
   try {
-    await fetch(COUNTRY_WORKER_URL, {
-      method: "POST"
-    });
+    await fetch(COUNTRY_WORKER_URL, { method: "POST" });
   } catch (err) {
     console.error("Country tracking failed:", err);
   }
 }
 
-/* ---------------- Page Detection ---------------- */
+/* ---------------- PAGE DETECTION ---------------- */
 let path = window.location.pathname.toLowerCase();
-let pageName = (path === "/" || path === "/index.html")
-  ? "home"
-  : path.split("/").filter(Boolean).pop().replace(".html", "");
+let pageName =
+  path === "/" || path === "/index.html"
+    ? "home"
+    : path.split("/").filter(Boolean).pop().replace(".html", "");
 
-/* ---------------- Track Page ---------------- */
+/* ---------------- PAGE TRACK ---------------- */
 function trackPage(page) {
   const key = "page_" + page;
   if (sessionStorage.getItem(key)) return;
+
   sessionStorage.setItem(key, "1");
   sendToWorker(page);
 }
 
-/* ---------------- Preview Click Tracking ---------------- */
+/* ---------------- FIXED FOLDER CLICK TRACK ---------------- */
 function trackPreviewClick(folderName) {
   const key = "preview_" + folderName;
   if (sessionStorage.getItem(key)) return;
+
   sessionStorage.setItem(key, "1");
+
+  // 🔥 IMPORTANT FIX: ensure it counts as pageViews system
   sendToWorker(folderName);
 }
 
 window.trackPreviewClick = trackPreviewClick;
 
-/* ---------------- Detect Clicks ---------------- */
-document.addEventListener("click", function(e) {
+/* ---------------- CLICK DETECTION (FIXED) ---------------- */
+document.addEventListener("click", function (e) {
   const preview = e.target.closest(".folder-preview");
   if (preview) {
     const folderName = preview.getAttribute("data-folder");
     if (folderName) trackPreviewClick(folderName);
+    return;
+  }
+
+  // ALSO allow clicking titles inside folder
+  const title = e.target.closest(".folder-title, .video-title, .title");
+  if (title) {
+    const folderName = title.getAttribute("data-folder");
+    if (folderName) trackPreviewClick(folderName);
   }
 });
 
-/* ---------------- Run Tracking ---------------- */
+/* ---------------- RUN TRACKING ---------------- */
 trackPage(pageName);
-
-/* 🔥 COUNTRY TRACKING ADDED HERE */
 sendCountryToWorker();
 
-/* ---------------- Format ---------------- */
+/* ---------------- FORMAT ---------------- */
 function formatViews(num) {
   num = Number(num);
   if (isNaN(num)) return "0";
@@ -106,15 +114,21 @@ function formatViews(num) {
   return num;
 }
 
-/* ---------------- Cache ---------------- */
-function saveCache(key, value) { localStorage.setItem(key, value); }
-function getCache(key) { return localStorage.getItem(key); }
+/* ---------------- CACHE ---------------- */
+function saveCache(key, value) {
+  localStorage.setItem(key, value);
+}
+function getCache(key) {
+  return localStorage.getItem(key);
+}
 
-/* ---------------- Inject UI ---------------- */
+/* ---------------- ADMIN UI ---------------- */
 let el = null;
+
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("adminContainer");
   if (!container) return;
+
   container.innerHTML = `
     <a id="adminLink" href="admin.html" style="
       position: fixed;
@@ -129,27 +143,28 @@ document.addEventListener("DOMContentLoaded", () => {
       <span id="viewNumber">👁 0</span> | Admin
     </a>
   `;
+
   el = document.getElementById("viewNumber");
 });
 
-/* ---------------- Cached Value ---------------- */
-const cachedRaw = getCache("totalViews");
-let cachedTotal = (!isNaN(cachedRaw) && cachedRaw !== null) ? Number(cachedRaw) : null;
+/* ---------------- FIREBASE VIEWS ---------------- */
+const pageRef = ref(db, "pageViews");
+
+let cachedRaw = getCache("totalViews");
+let cachedTotal = cachedRaw ? Number(cachedRaw) : null;
+
 let firstLoad = true;
 let lastRenderedTotal = null;
 
-/* ---------------- Firebase (VIEWS ONLY) ---------------- */
-const pageRef = ref(db, "pageViews");
 onValue(pageRef, (snapshot) => {
   const data = snapshot.val() || {};
 
   let total = 0;
-  Object.values(data).forEach(v => {
-    total += (v?.count || 0);
+  Object.values(data).forEach((v) => {
+    total += v?.count || 0;
   });
 
   saveCache("totalViews", total);
-  saveCache("pageViewsData", JSON.stringify(data));
   cachedTotal = total;
 
   if (firstLoad) {
@@ -158,7 +173,7 @@ onValue(pageRef, (snapshot) => {
     return;
   }
 
-  if (total !== lastRenderedTotal && el) {
+  if (el && total !== lastRenderedTotal) {
     el.textContent = `👁 ${formatViews(total)}`;
     lastRenderedTotal = total;
   }
