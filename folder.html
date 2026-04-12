@@ -200,24 +200,26 @@ OneSignalDeferred.push(async function(OneSignal) {
 <div id="google_translate_element"></div>
 
 <style>
-/* ===== GOOGLE TRANSLATE FIX ===== */
+/* ===== HARD LOCK RIGHT ===== */
 #google_translate_element {
   position: fixed !important;
   top: 0 !important;
-  right: -2px !important; /* 🔥 slight negative = true edge lock */
-  left: auto !important;
+  right: 0 !important; /* clean anchor */
+  transform: translateX(2px); /* 🔥 pushes it to true edge */
   z-index: 99999;
 
   margin: 0 !important;
   padding: 0 !important;
   line-height: 1 !important;
   height: auto !important;
+  white-space: nowrap !important; /* prevents resize */
 }
 
-/* Kill ALL hidden spacing from Google */
+/* Kill ALL spacing */
 #google_translate_element * {
   margin: 0 !important;
   padding: 0 !important;
+  box-sizing: border-box !important;
 }
 
 /* Main widget */
@@ -228,7 +230,7 @@ OneSignalDeferred.push(async function(OneSignal) {
   line-height: 1 !important;
 }
 
-/* Dropdown only */
+/* Dropdown */
 .goog-te-gadget select.goog-te-combo {
   font-size: 10px !important;
   padding: 2px 4px !important;
@@ -242,7 +244,7 @@ OneSignalDeferred.push(async function(OneSignal) {
   cursor: pointer;
 }
 
-/* Remove extra Google junk */
+/* Remove junk */
 .goog-te-gadget span,
 .goog-te-gadget a,
 .goog-logo-link,
@@ -250,12 +252,12 @@ OneSignalDeferred.push(async function(OneSignal) {
   display: none !important;
 }
 
-/* Hide banner completely */
+/* Kill banner */
 .goog-te-banner-frame.skiptranslate {
   display: none !important;
 }
 
-/* Prevent page shift */
+/* Prevent layout shift */
 body {
   top: 0 !important;
 }
