@@ -200,14 +200,14 @@ OneSignalDeferred.push(async function(OneSignal) {
 <div id="google_translate_element"></div>
 
 <style>
-/* ===== HARD LOCK RIGHT (STABLE VERSION) ===== */
+/* ===== HARD LOCK RIGHT (FULL STABLE VERSION) ===== */
 #google_translate_element {
   position: fixed !important;
   top: 0 !important;
   right: 0 !important;
   left: auto !important;
 
-  transform: none !important; /* FIX: prevents shifting */
+  transform: none !important;
 
   z-index: 99999;
 
@@ -218,22 +218,33 @@ OneSignalDeferred.push(async function(OneSignal) {
   justify-content: flex-end !important;
   align-items: center !important;
 
+  width: auto !important;
+  max-width: none !important;
+
   white-space: nowrap !important;
 }
 
-/* Prevent Google injected wrapper from shifting layout */
+/* Google wrapper */
 #google_translate_element > div {
+  margin: 0 !important;
+  padding: 0 !important;
+
   display: flex !important;
   justify-content: flex-end !important;
   align-items: center !important;
 }
 
-/* Main widget */
+/* Main gadget */
 .goog-te-gadget {
   font-size: 0 !important;
   background: transparent !important;
   line-height: 1 !important;
-  display: inline-flex !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  display: flex !important;
+  justify-content: flex-end !important;
   align-items: center !important;
 }
 
@@ -242,33 +253,32 @@ OneSignalDeferred.push(async function(OneSignal) {
   font-size: 10px !important;
   padding: 2px 4px !important;
   height: 18px !important;
+
+  margin: 0 !important;
+
   background: #333 !important;
   color: #fff !important;
   border: none !important;
   border-radius: 4px !important;
+
   outline: none !important;
   cursor: pointer;
 }
 
-/* Hide Google branding/junk */
+/* Hide Google branding */
 .goog-te-gadget span,
 .goog-te-gadget a,
 .goog-logo-link,
-.goog-te-gadget .goog-te-combo + span {
-  display: none !important;
-}
-
-/* Hide translation banner */
 .goog-te-banner-frame.skiptranslate {
   display: none !important;
 }
 
-/* Prevent page jump when translate loads */
+/* Prevent page jump */
 body {
   top: 0 !important;
 }
 
-/* Optional: prevent horizontal overflow shift */
+/* Prevent horizontal shift */
 html, body {
   overflow-x: hidden;
 }
@@ -288,7 +298,6 @@ function googleTranslateElementInit() {
 </script>
 
 <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-
 
   <div id="topBanner" style="
   position: fixed;
