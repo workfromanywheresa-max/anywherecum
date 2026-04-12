@@ -14,6 +14,38 @@ const db = getDatabase(app);
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
 const COUNTRY_WORKER_URL = "https://anywherecumcountry.workfromanywhere-sa.workers.dev/";
 
+/* ================= SESSION CONTROL ================= */
+const SESSION_KEY = "session_id";
+const LAST_ACTIVE_KEY = "last_active";
+const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+
+function getSessionId() {
+  const now = Date.now();
+  const lastActive = Number(localStorage.getItem(LAST_ACTIVE_KEY) || 0);
+
+  let sessionId = localStorage.getItem(SESSION_KEY);
+
+  // if no session OR expired → create new session
+  if (!sessionId || now - lastActive > SESSION_TIMEOUT) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem(SESSION_KEY, sessionId);
+  }
+
+  localStorage.setItem(LAST_ACTIVE_KEY, now);
+  return sessionId;
+}
+
+const sessionId = getSessionId();
+
+/* prevent duplicates per session */
+function hasTracked(key) {
+  return sessionStorage.getItem(key) === "1";
+}
+
+function markTracked(key) {
+  sessionStorage.setItem(key, "1");
+}
+
 /* ================= TRACKING ================= */
 
 async function sendToWorker(folderName) {
@@ -22,7 +54,7 @@ async function sendToWorker(folderName) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        type: folderName // ✅ REAL NAME ONLY
+        type: folderName
       })
     });
   } catch (err) {
@@ -39,9 +71,15 @@ async function sendCountryToWorker() {
 }
 
 /* main tracker */
-function track(name) {
+function trackOnce(type, name) {
   if (!name) return;
-  sendToWorker(name); // ✅ raw name only
+
+  const key = `${type}_${name}_${sessionId}`;
+
+  if (hasTracked(key)) return;
+
+  markTracked(key);
+  sendToWorker(name);
 }
 
 /* ---------------- PAGE TRACKING ---------------- */
@@ -50,18 +88,14 @@ let path = window.location.pathname.toLowerCase();
 let pageName = path.split("/").filter(Boolean).pop() || "home";
 pageName = pageName.replace(".html", "");
 
-if (!pageName || pageName === "/") {
-  pageName = "home";
-}
-
-track(pageName);
+trackOnce("page", pageName);
 
 /* ---------------- COUNTRY ---------------- */
 sendCountryToWorker();
 
 /* ---------------- GLOBAL FOLDER TRACKING ---------------- */
 window.trackPreviewClick = function(folderName) {
-  track(folderName); // ✅ real folder name
+  trackOnce("folder", folderName);
 };
 
 /* CLICK TRACKING */
@@ -72,11 +106,11 @@ document.addEventListener("click", function(e) {
   const folderName =
     preview.getAttribute("data-folder") ||
     preview.dataset.folder ||
-    preview.textContent?.trim(); // ✅ fallback = visible name
+    preview.textContent?.trim();
 
   if (!folderName) return;
 
-  track(folderName);
+  trackOnce("folder", folderName);
 });
 
 /* ---------------- FORMAT ---------------- */
