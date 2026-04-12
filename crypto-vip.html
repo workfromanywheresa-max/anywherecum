@@ -362,7 +362,7 @@ async function sendPayment() {
   };
 
   // Send ONLY email worker
-  fetch("https://email.workfromanywhere-sa.workers.dev/payments", {
+  fetch("https://email.workfromanywhere-sa.workers.dev/", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
