@@ -200,7 +200,7 @@ OneSignalDeferred.push(async function(OneSignal) {
 <div id="google_translate_element"></div>
 
   <style>
-/* ===== GOOGLE TRANSLATE FIX (EDGE LOCK RIGHT) ===== */
+/* ===== GOOGLE TRANSLATE FIX (TRUE EDGE LOCK RIGHT) ===== */
 #google_translate_element {
   position: fixed !important;
   top: 0 !important;
@@ -210,8 +210,10 @@ OneSignalDeferred.push(async function(OneSignal) {
   margin: 0 !important;
   padding: 0 !important;
 
-  z-index: 9999;
-  transform: translateX(0.5px); /* 🔥 forces true edge flush */
+  z-index: 999999;
+
+  /* REMOVE transform completely */
+  transform: none !important;
 }
 
 /* Main widget */
@@ -233,10 +235,10 @@ OneSignalDeferred.push(async function(OneSignal) {
   margin: 0 !important;
 
   position: relative;
-  right: 0 !important; /* extra safety */
+  right: 0 !important;
 }
 
-/* Hide extra branding */
+/* Hide branding */
 .goog-te-gadget span,
 .goog-te-gadget a,
 .goog-logo-link,
@@ -244,7 +246,7 @@ OneSignalDeferred.push(async function(OneSignal) {
   display: none !important;
 }
 
-/* Hide banner */
+/* Remove banner */
 .goog-te-banner-frame.skiptranslate {
   display: none !important;
 }
@@ -252,6 +254,7 @@ OneSignalDeferred.push(async function(OneSignal) {
 /* Prevent page shift */
 body {
   top: 0 !important;
+  margin: 0 !important;
 }
   </style>
 
