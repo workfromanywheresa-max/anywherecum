@@ -6,116 +6,163 @@
 <title>VIP Access</title>
 
 <style>
+
   body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 40px;
-    background: #f5f5f5;
-  }
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: #f5f5f5;
 
-  .box { max-width: 400px; margin: auto; }
+  /* FIX: remove default spacing */
+  margin: 0;
+  padding: 0;
+}
 
-  h2 { margin-bottom: 10px; }
+/* Main container spacing instead of body */
+.box {
+  max-width: 400px;
+  margin: auto;
+  padding: 40px;
+}
 
-  p {
-    color: #555;
-    font-size: 14px;
-  }
+h2 {
+  margin-bottom: 10px;
+}
 
-  .card {
-    background: #fff;
-    padding: 25px;
-    margin-top: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    height: 120px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
+p {
+  color: #555;
+  font-size: 14px;
+}
 
-  .payfast-card { height: 240px; }
+.card {
+  background: #fff;
+  padding: 25px;
+  margin-top: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 
-  .logo, .crypto-logo {
-    height: 60px;
-    width: auto;
-    display: block;
-    margin: 0 auto;
-    object-fit: contain;
-  }
+.payfast-card {
+  height: 240px;
+}
 
-  input {
-    width: 80%;
-    padding: 12px;
-    margin-top: 15px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    text-align: center;
-  }
+.logo,
+.crypto-logo {
+  height: 60px;
+  width: auto;
+  display: block;
+  margin: 0 auto;
+  object-fit: contain;
+}
 
-  #usdDisplay {
-    margin-top: 10px;
-    font-weight: bold;
-    color: #333;
-  }
-  #countdown {
-  min-height: 25px;   /* keeps space even when empty */
-  height: 25px;       /* fixed height (optional) */
+input {
+  width: 80%;
+  padding: 12px;
+  margin-top: 15px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+#usdDisplay {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #333;
+}
+
+#countdown {
+  min-height: 25px;
+  height: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
-  }
+}
 
-  .pay-btn {
-    margin-top: 15px;
-    width: 100%;
-    font-size: 18px;
-    background: #888;
-    color: white;
-    cursor: not-allowed;
-    padding: 12px;
-    border: none;
-    border-radius: 5px;
-  }
+.pay-btn {
+  margin-top: 15px;
+  width: 100%;
+  font-size: 18px;
+  background: #888;
+  color: white;
+  cursor: not-allowed;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+}
 
-  .pay-btn.active {
-    background: #000;
-    cursor: pointer;
-  }
+.pay-btn.active {
+  background: #000;
+  cursor: pointer;
+}
 
-  .paypal-btn,
-  .crypto-btn,
-  .vip-btn {
-    margin-top: 15px;
-    width: 100%;
-    font-size: 18px;
-    color: white;
-    padding: 12px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
+.paypal-btn,
+.crypto-btn,
+.vip-btn {
+  margin-top: 15px;
+  width: 100%;
+  font-size: 18px;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
 
-  .paypal-btn { background: #0070ba; }
-  .paypal-btn:hover { background: #005c99; }
+.paypal-btn {
+  background: #0070ba;
+}
 
-  .crypto-btn { background: #111; }
-  .crypto-btn:hover { background: #333; }
+.paypal-btn:hover {
+  background: #005c99;
+}
 
-  .vip-btn {
-    background: #6a00ff;
-    font-weight: bold;
-    width: 60%;
-    margin: 0 auto;
-    display: block;
-    font-size: 10px;
-    padding: 10px;
-    border-radius: 6px;
-  }
+.crypto-btn {
+  background: #111;
+}
 
-  .vip-btn:hover { background: #4b00b3; }
-</style>
+.crypto-btn:hover {
+  background: #333;
+}
+
+.vip-btn {
+  background: #6a00ff;
+  font-weight: bold;
+  width: 60%;
+  margin: 0 auto;
+  display: block;
+  font-size: 10px;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.vip-btn:hover {
+  background: #4b00b3;
+}
+
+/* BACK BUTTON */
+.back-btn {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+}
+
+/* FOOTER FIX (EDGE TO EDGE) */
+footer {
+  width: 100%;
+  margin: 0;
+  padding: 20px;
+  font-size: 12px;
+  color: #aaa;
+  background: #111;
+  box-sizing: border-box;
+}
+  </style>
+  
 </head>
 
 <body>
