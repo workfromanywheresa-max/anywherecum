@@ -308,7 +308,7 @@ function createVideoBox(video) {
 actionBox.style.display = "flex";
 actionBox.style.flexDirection = "column";
 actionBox.style.alignItems = "center";
-actionBox.style.gap = "-2px";
+actionBox.style.gap = "-6px";
 
 actionBox.appendChild(downloadBtn);
 actionBox.appendChild(downloadBox);
