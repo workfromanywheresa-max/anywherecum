@@ -28,19 +28,19 @@ window.saveSubscriber = async function (userId, optedIn) {
   }
 };
 
-/* ---------------- PAGE + COUNTRY WORKERS ---------------- */
+/* ---------------- WORKERS ---------------- */
 const WORKER_URL =
   "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
 
 const COUNTRY_WORKER_URL =
   "https://anywherecumcountry.workfromanywhere-sa.workers.dev/";
 
-async function sendToWorker(type) {
+async function sendToWorker(type, page = null) {
   try {
     await fetch(WORKER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type })
+      body: JSON.stringify({ type, page })
     });
   } catch (err) {
     console.error("Worker tracking failed:", err);
@@ -57,6 +57,7 @@ async function sendCountryToWorker() {
 
 /* ---------------- PAGE DETECTION ---------------- */
 let path = window.location.pathname.toLowerCase();
+
 let pageName =
   path === "/" || path === "/index.html"
     ? "home"
@@ -68,23 +69,23 @@ function trackPage(page) {
   if (sessionStorage.getItem(key)) return;
 
   sessionStorage.setItem(key, "1");
-  sendToWorker(page);
+
+  sendToWorker("pageViews", page);
 }
 
-/* ---------------- FIXED FOLDER CLICK TRACK ---------------- */
-function trackPreviewClick(folderName) {
+/* ---------------- FOLDER CLICK TRACK ---------------- */
+async function trackPreviewClick(folderName) {
   const key = "preview_" + folderName;
   if (sessionStorage.getItem(key)) return;
 
   sessionStorage.setItem(key, "1");
 
-  // 🔥 IMPORTANT FIX: ensure it counts as pageViews system
-  sendToWorker(folderName);
+  await sendToWorker("pageViews", folderName);
 }
 
 window.trackPreviewClick = trackPreviewClick;
 
-/* ---------------- CLICK DETECTION (FIXED) ---------------- */
+/* ---------------- CLICK DETECTION ---------------- */
 document.addEventListener("click", function (e) {
   const preview = e.target.closest(".folder-preview");
   if (preview) {
@@ -93,7 +94,6 @@ document.addEventListener("click", function (e) {
     return;
   }
 
-  // ALSO allow clicking titles inside folder
   const title = e.target.closest(".folder-title, .video-title, .title");
   if (title) {
     const folderName = title.getAttribute("data-folder");
@@ -112,14 +112,6 @@ function formatViews(num) {
   if (num >= 1000000) return (num / 1000000).toFixed(1).replace(".0", "") + "M";
   if (num >= 1000) return (num / 1000).toFixed(1).replace(".0", "") + "K";
   return num;
-}
-
-/* ---------------- CACHE ---------------- */
-function saveCache(key, value) {
-  localStorage.setItem(key, value);
-}
-function getCache(key) {
-  return localStorage.getItem(key);
 }
 
 /* ---------------- ADMIN UI ---------------- */
@@ -147,10 +139,10 @@ document.addEventListener("DOMContentLoaded", () => {
   el = document.getElementById("viewNumber");
 });
 
-/* ---------------- FIREBASE VIEWS ---------------- */
+/* ---------------- FIREBASE PAGE VIEWS ---------------- */
 const pageRef = ref(db, "pageViews");
 
-let cachedRaw = getCache("totalViews");
+let cachedRaw = localStorage.getItem("totalViews");
 let cachedTotal = cachedRaw ? Number(cachedRaw) : null;
 
 let firstLoad = true;
@@ -164,7 +156,7 @@ onValue(pageRef, (snapshot) => {
     total += v?.count || 0;
   });
 
-  saveCache("totalViews", total);
+  localStorage.setItem("totalViews", total);
   cachedTotal = total;
 
   if (firstLoad) {
