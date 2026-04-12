@@ -204,7 +204,7 @@ OneSignalDeferred.push(async function(OneSignal) {
 #google_translate_element {
   position: fixed !important;
   top: 0 !important;
-  right: 0 !important;
+  right: -2px !important; /* 🔥 slight negative = true edge lock */
   left: auto !important;
   z-index: 99999;
 
@@ -212,8 +212,6 @@ OneSignalDeferred.push(async function(OneSignal) {
   padding: 0 !important;
   line-height: 1 !important;
   height: auto !important;
-
-  transform: translateX(4px); /* 🔥 forces true edge alignment */
 }
 
 /* Kill ALL hidden spacing from Google */
@@ -241,6 +239,7 @@ OneSignalDeferred.push(async function(OneSignal) {
   border: none !important;
   border-radius: 4px;
   outline: none !important;
+  cursor: pointer;
 }
 
 /* Remove extra Google junk */
@@ -251,7 +250,7 @@ OneSignalDeferred.push(async function(OneSignal) {
   display: none !important;
 }
 
-/* Hide banner */
+/* Hide banner completely */
 .goog-te-banner-frame.skiptranslate {
   display: none !important;
 }
