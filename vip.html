@@ -119,6 +119,74 @@
 </head>
 
 <body>
+  <!-- Google Translate -->
+<div id="google_translate_element"></div>
+
+<style>
+/* ===== GOOGLE TRANSLATE FIX ===== */
+#google_translate_element {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  left: auto !important;
+  z-index: 99999;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+  height: auto !important;
+}
+
+/* Main widget */
+.goog-te-gadget {
+  font-size: 0 !important;
+  background: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+}
+
+/* Dropdown only */
+.goog-te-gadget select.goog-te-combo {
+  font-size: 10px !important;
+  padding: 2px 4px !important;   /* reduced padding */
+  height: 16px !important;       /* smaller height */
+  line-height: 1 !important;
+  background: #333 !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 4px;
+  margin: 0 !important;
+  outline: none !important;
+}
+
+/* Remove extra spacing */
+.goog-te-gadget span,
+.goog-te-gadget a,
+.goog-logo-link,
+.goog-te-gadget .goog-te-combo + span {
+  display: none !important;
+}
+
+/* Hide banner */
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}
+
+/* Prevent page shift */
+body {
+  top: 0 !important;
+}
+</style>
+
+<script>
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL,
+    includedLanguages: 'af,ar,az,be,bg,ca,zh-CN,zh-TW,hr,cs,da,nl,en,eo,et,fi,fr,de,el,he,hi,hu,is,id,it,ja,ko,lv,lt,mk,ms,mt,no,pl,pt,ro,ru,sr,sk,sl,es,sw,sv,th,tr,uk,vi'
+  }, 'google_translate_element');
+}
+</script>
 
 <div class="box">
 
