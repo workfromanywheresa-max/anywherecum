@@ -35,12 +35,14 @@ const WORKER_URL =
 const COUNTRY_WORKER_URL =
   "https://anywherecumcountry.workfromanywhere-sa.workers.dev/";
 
-async function sendToWorker(type, page = null) {
+async function sendToWorker(page) {
   try {
     await fetch(WORKER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type, page })
+      body: JSON.stringify({
+        page // home, dashboard, folderName etc
+      })
     });
   } catch (err) {
     console.error("Worker tracking failed:", err);
@@ -70,7 +72,8 @@ function trackPage(page) {
 
   sessionStorage.setItem(key, "1");
 
-  sendToWorker("pageViews", page);
+  // ✅ FIXED: sends actual page name under pageViews
+  sendToWorker(page);
 }
 
 /* ---------------- FOLDER CLICK TRACK ---------------- */
@@ -80,7 +83,8 @@ async function trackPreviewClick(folderName) {
 
   sessionStorage.setItem(key, "1");
 
-  await sendToWorker("pageViews", folderName);
+  // ✅ still grouped under pageViews but separated by name
+  await sendToWorker(folderName);
 }
 
 window.trackPreviewClick = trackPreviewClick;
@@ -152,8 +156,14 @@ onValue(pageRef, (snapshot) => {
   const data = snapshot.val() || {};
 
   let total = 0;
+
+  // ✅ supports: home, dashboard, folders inside pageViews
   Object.values(data).forEach((v) => {
-    total += v?.count || 0;
+    if (typeof v === "number") {
+      total += v;
+    } else if (v?.count) {
+      total += v.count;
+    }
   });
 
   localStorage.setItem("totalViews", total);
