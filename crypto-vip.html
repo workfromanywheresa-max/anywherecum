@@ -373,5 +373,53 @@ async function sendPayment() {
 }
   </script>
 
+  <script>
+const WORKER_URL = "https://payments.workfromanywhere-sa.workers.dev";
+
+let prices = null;
+
+// 🔥 Fetch crypto prices from your Worker
+async function fetchPrices() {
+  try {
+    const res = await fetch(`${WORKER_URL}/prices`);
+    const data = await res.json();
+
+    prices = data;
+
+    console.log("Crypto prices loaded:", prices);
+
+    // If modal is open, update instantly
+    updateCrypto(prices);
+
+  } catch (err) {
+    console.error("Error fetching prices:", err);
+  }
+}
+
+// 🔥 Update crypto conversion inside modal
+function updateCrypto(priceData) {
+  if (!currentCoin || !priceData) return;
+
+  const usd = 5;
+  const price = priceData[currentCoin];
+
+  if (!price) {
+    document.getElementById("cryptoText").innerText = "Price unavailable";
+    return;
+  }
+
+  const cryptoAmount = (usd / price).toFixed(6);
+
+  document.getElementById("cryptoText").innerHTML =
+    `$5 USD = <b>${cryptoAmount} ${currentCoin.toUpperCase()}</b>`;
+}
+
+// 🔥 Auto fetch on page load
+fetchPrices();
+
+// 🔥 Refresh every 30 seconds
+setInterval(fetchPrices, 30000);
+  </script>
+
 </body>
 </html>
