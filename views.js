@@ -10,28 +10,20 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ================= UTIL ================= */
-function normalizeKey(name) {
-  if (!name) return "unknown";
-
-  return name
-    .toString()
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "_")
-    .replace(/[^\w]/g, "");
-}
-
 /* ================= WORKERS ================= */
 const WORKER_URL = "https://anywherecum.workfromanywhere-sa.workers.dev/increment";
 const COUNTRY_WORKER_URL = "https://anywherecumcountry.workfromanywhere-sa.workers.dev/";
 
-async function sendToWorker(name) {
+/* ================= TRACKING ================= */
+
+async function sendToWorker(folderName) {
   try {
     await fetch(WORKER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: name })
+      body: JSON.stringify({
+        type: folderName // ✅ REAL NAME ONLY
+      })
     });
   } catch (err) {
     console.error("Worker tracking failed:", err);
@@ -46,37 +38,30 @@ async function sendCountryToWorker() {
   }
 }
 
-/* ================= TRACKING ================= */
+/* main tracker */
 function track(name) {
   if (!name) return;
-
-  const clean = normalizeKey(name);
-  sendToWorker(clean);
+  sendToWorker(name); // ✅ raw name only
 }
 
-/* ---------------- PAGE TRACKING (FIXED) ---------------- */
+/* ---------------- PAGE TRACKING ---------------- */
+
 let path = window.location.pathname.toLowerCase();
-
-/* clean page name */
 let pageName = path.split("/").filter(Boolean).pop() || "home";
-
-/* remove .html */
 pageName = pageName.replace(".html", "");
 
-/* special case: root = home */
-if (pageName === "" || pageName === "/" || path === "/") {
+if (!pageName || pageName === "/") {
   pageName = "home";
 }
 
-/* FINAL OUTPUT: home, contact, about, etc */
 track(pageName);
 
-/* ---------------- COUNTRY TRACKING ---------------- */
+/* ---------------- COUNTRY ---------------- */
 sendCountryToWorker();
 
 /* ---------------- GLOBAL FOLDER TRACKING ---------------- */
 window.trackPreviewClick = function(folderName) {
-  track("folder_" + folderName);
+  track(folderName); // ✅ real folder name
 };
 
 /* CLICK TRACKING */
@@ -86,11 +71,12 @@ document.addEventListener("click", function(e) {
 
   const folderName =
     preview.getAttribute("data-folder") ||
-    preview.dataset.folder;
+    preview.dataset.folder ||
+    preview.textContent?.trim(); // ✅ fallback = visible name
 
   if (!folderName) return;
 
-  track("folder_" + folderName);
+  track(folderName);
 });
 
 /* ---------------- FORMAT ---------------- */
