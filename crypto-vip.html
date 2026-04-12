@@ -377,47 +377,57 @@ async function sendPayment() {
 const WORKER_URL = "https://payments.workfromanywhere-sa.workers.dev";
 
 let prices = null;
+let currentCoin = null;
 
-// 🔥 Fetch crypto prices from your Worker
+// 🔥 Fetch prices from Worker
 async function fetchPrices() {
   try {
     const res = await fetch(`${WORKER_URL}/prices`);
-    const data = await res.json();
+    prices = await res.json();
+    console.log("Prices loaded:", prices);
 
-    prices = data;
-
-    console.log("Crypto prices loaded:", prices);
-
-    // If modal is open, update instantly
-    updateCrypto(prices);
-
+    // if modal is open, refresh instantly
+    updateCrypto();
   } catch (err) {
-    console.error("Error fetching prices:", err);
+    console.error("Price fetch error:", err);
   }
 }
 
-// 🔥 Update crypto conversion inside modal
-function updateCrypto(priceData) {
-  if (!currentCoin || !priceData) return;
+// 🔥 FIXED: update modal price
+function updateCrypto() {
+  if (!currentCoin || !prices) return;
 
   const usd = 5;
-  const price = priceData[currentCoin];
+  const price = prices[currentCoin];
+
+  const el = document.getElementById("cryptoText");
+  if (!el) return;
 
   if (!price) {
-    document.getElementById("cryptoText").innerText = "Price unavailable";
+    el.innerText = "Price unavailable";
     return;
   }
 
   const cryptoAmount = (usd / price).toFixed(6);
 
-  document.getElementById("cryptoText").innerHTML =
-    `$5 USD = <b>${cryptoAmount} ${currentCoin.toUpperCase()}</b>`;
+  el.innerHTML = `$5 USD = <b>${cryptoAmount} ${currentCoin.toUpperCase()}</b>`;
 }
 
-// 🔥 Auto fetch on page load
-fetchPrices();
+// 🔥 Hook into your modal open function
+const originalOpenCoin = window.openCoin;
 
-// 🔥 Refresh every 30 seconds
+window.openCoin = function(type) {
+  currentCoin = type;
+
+  // run your original modal logic
+  originalOpenCoin(type);
+
+  // update price AFTER modal opens
+  updateCrypto();
+};
+
+// 🔥 auto refresh
+fetchPrices();
 setInterval(fetchPrices, 30000);
   </script>
 
