@@ -199,69 +199,55 @@ OneSignalDeferred.push(async function(OneSignal) {
   <!-- Google Translate -->
 <div id="google_translate_element"></div>
 
-  <style>
-/* ===== GOOGLE TRANSLATE TRUE EDGE LOCK RIGHT ===== */
-
-html, body {
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow-x: hidden;
-}
-
-/* Container pinned EXACT to edge */
+<style>
+/* ===== GOOGLE TRANSLATE FIX ===== */
 #google_translate_element {
   position: fixed !important;
   top: 0 !important;
   right: 0 !important;
   left: auto !important;
-
+  z-index: 9999;
   margin: 0 !important;
   padding: 0 !important;
-
-  z-index: 999999;
-
-  transform: none !important;
 }
 
-/* Remove all internal spacing */
+/* Main widget */
 .goog-te-gadget {
-  font-size: 0 !important;
+  font-size: 0 !important; /* hides "Select Language" text */
   background: transparent !important;
   margin: 0 !important;
   padding: 0 !important;
-  line-height: 1 !important;
 }
 
-/* Force dropdown to sit flush */
+/* Dropdown only */
 .goog-te-gadget select.goog-te-combo {
   font-size: 12px !important;
   padding: 3px 6px !important;
-
-  margin: 0 !important;
-  border: none !important;
-
   background: #333 !important;
   color: #fff !important;
-
-  border-radius: 0 !important;
-
-  display: block !important;
+  border: none !important;
+  border-radius: 4px;
+  margin: 0 !important;
 }
 
-/* Kill Google spacing elements */
+/* Hide extra branding / links */
 .goog-te-gadget span,
 .goog-te-gadget a,
 .goog-logo-link,
+.goog-te-gadget .goog-te-combo + span {
+  display: none !important;
+}
+
+/* Hide banner */
 .goog-te-banner-frame.skiptranslate {
   display: none !important;
 }
 
-/* Prevent page jump */
+/* Prevent page shift */
 body {
   top: 0 !important;
-  margin: 0 !important;
 }
-  </style>
+</style>
 
 <script>
 function googleTranslateElementInit() {
