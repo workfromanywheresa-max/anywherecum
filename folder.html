@@ -200,38 +200,41 @@ OneSignalDeferred.push(async function(OneSignal) {
 <div id="google_translate_element"></div>
 
 <style>
-/* ===== HARD LOCK RIGHT (FULL STABLE VERSION) ===== */
+/* ===== HARD LOCK RIGHT (STABLE FINAL VERSION) ===== */
 #google_translate_element {
   position: fixed !important;
   top: 0 !important;
-  right: -1px !important; /* 🔥 flush to edge fix */
+  right: 0 !important;
   left: auto !important;
-
-  transform: none !important;
 
   z-index: 99999;
 
   margin: 0 !important;
   padding: 0 !important;
 
-  display: flex !important;
+  display: inline-flex !important;
   justify-content: flex-end !important;
   align-items: center !important;
 
-  width: auto !important;
-  max-width: none !important;
+  width: max-content !important;
+  max-width: max-content !important;
 
   white-space: nowrap !important;
+
+  /* prevents late-load shifting */
+  will-change: transform;
 }
 
-/* Google wrapper */
+/* Google injected wrapper */
 #google_translate_element > div {
   margin: 0 !important;
   padding: 0 !important;
 
-  display: flex !important;
+  display: inline-flex !important;
   justify-content: flex-end !important;
   align-items: center !important;
+
+  width: max-content !important;
 }
 
 /* Main gadget */
@@ -243,9 +246,11 @@ OneSignalDeferred.push(async function(OneSignal) {
   margin: 0 !important;
   padding: 0 !important;
 
-  display: flex !important;
+  display: inline-flex !important;
   justify-content: flex-end !important;
   align-items: center !important;
+
+  width: max-content !important;
 }
 
 /* Dropdown */
@@ -265,7 +270,7 @@ OneSignalDeferred.push(async function(OneSignal) {
   cursor: pointer;
 }
 
-/* Hide Google branding */
+/* Hide branding */
 .goog-te-gadget span,
 .goog-te-gadget a,
 .goog-logo-link,
@@ -273,14 +278,16 @@ OneSignalDeferred.push(async function(OneSignal) {
   display: none !important;
 }
 
-/* Prevent page jump */
+/* Prevent page shift caused by Google injection */
 body {
   top: 0 !important;
 }
 
-/* Prevent horizontal shift */
+/* prevent horizontal scroll / layout shift */
 html, body {
-  overflow-x: hidden;
+  overflow-x: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 </style>
 
@@ -290,7 +297,8 @@ function googleTranslateElementInit() {
     {
       pageLanguage: 'en',
       layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL,
-      includedLanguages: 'af,ar,az,be,bg,ca,zh-CN,zh-TW,hr,cs,da,nl,en,eo,et,fi,fr,de,el,he,hi,hu,is,id,it,ja,ko,lv,lt,mk,ms,mt,no,pl,pt,ro,ru,sr,sk,sl,es,sw,sv,th,tr,uk,vi'
+      includedLanguages:
+        'af,ar,az,be,bg,ca,zh-CN,zh-TW,hr,cs,da,nl,en,eo,et,fi,fr,de,el,he,hi,hu,is,id,it,ja,ko,lv,lt,mk,ms,mt,no,pl,pt,ro,ru,sr,sk,sl,es,sw,sv,th,tr,uk,vi'
     },
     'google_translate_element'
   );
