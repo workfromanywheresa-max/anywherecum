@@ -178,6 +178,11 @@ h2, h3 {
 .copy-icon:active {
   transform: scale(0.9);
   }
+.info-text {
+  color: #fff;
+  margin: 10px 0;
+  font-size: 12px;
+}
   </style>
 
 </head>
@@ -251,7 +256,11 @@ function googleTranslateElementInit() {
 
   
 <div class="box">
-  <h2>Select Coin To Donate</h2>
+  <h2>Select Coin</h2>
+
+  <div class="info-text">
+  Click and copy the coin you want to donate with :
+  </div>
 
   <div class="coin-list">
     <div class="coin-item" onclick="openCoin('btc')">
@@ -282,7 +291,11 @@ function googleTranslateElementInit() {
 
   <!-- FORM -->
   <div class="form-box">
-    <h3>Submit Details To Confirm Your Donation</h3>
+    <h3>Submit Your Details</h3>
+
+    <div class="info-text">
+  After payment fill in your details :
+    </div>
 
     <!-- ✅ EMAIL ON TOP -->
     <input type="email" id="email" placeholder="Enter your email" required>
