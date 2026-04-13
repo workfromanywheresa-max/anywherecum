@@ -3,13 +3,82 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Thank You</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #121212;
+    color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .card {
+    background: #1e1e1e;
+    padding: 30px 25px;
+    border-radius: 12px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  }
+
+  h1 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  p {
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 8px 0;
+  }
+
+  a {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+
+  .links {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-link {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 8px;
+    display: inline-block;
+    transition: 0.2s;
+  }
+
+  .btn-link:hover {
+    background: #2a2a2a;
+  }
+</style>
 </head>
 
-<body style="text-align:center; font-family:Arial; padding:40px;">
-  <h1>🙏 Thank You!</h1>
-  <p>Your donation has been received.</p>
-  <p>We really appreciate your support ❤️</p>
+<body>
 
-  <a href="/">Go Back Home</a>
+  <div class="card">
+
+    <h1>🙏 Thank You!</h1>
+
+    <p>Your donation has been received.</p>
+    <p>We really appreciate your support ❤️</p>
+
+    <div class="links">
+      <a class="btn-link" href="/">Go Back Home</a>
+    </div>
+
+  </div>
+
 </body>
 </html>
