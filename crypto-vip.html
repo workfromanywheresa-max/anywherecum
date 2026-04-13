@@ -258,7 +258,7 @@ function googleTranslateElementInit() {
   </div>
 </div>
 
-<script>
+  <script>
 const WORKER_URL = "https://payments.workfromanywhere-sa.workers.dev";
 
 const coins = {
@@ -272,39 +272,25 @@ const coins = {
 let currentCoin = null;
 let prices = null;
 
-// Prevent form Enter submit
-document.addEventListener("keydown", function(e) {
+document.addEventListener("keydown", e => {
   if (e.key === "Enter") e.preventDefault();
 });
 
-
-// =====================
-// FETCH PRICES
-// =====================
+// FIXED PRICE FETCH
 async function fetchPrices() {
   try {
     const res = await fetch(`${WORKER_URL}/prices`);
     const data = await res.json();
 
-    console.log("PRICE RESPONSE:", data);
+    if (!data.crypto) return;
 
-    if (!data.prices) {
-      console.error("No prices returned");
-      return;
-    }
-
-    prices = data.prices;
-
+    prices = data.crypto;
     updateCrypto();
-  } catch (err) {
-    console.error("Price fetch failed:", err);
+  } catch (e) {
+    console.error(e);
   }
 }
 
-
-// =====================
-// OPEN MODAL
-// =====================
 function openCoin(type) {
   currentCoin = type;
   const c = coins[type];
@@ -317,24 +303,14 @@ function openCoin(type) {
 
     <div class="crypto-row">
       <div id="cryptoText">Loading...</div>
-      <button class="copy-icon" onclick="copyCrypto()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="5" width="13" height="13" rx="2"></rect>
-          <rect x="9" y="1" width="13" height="13" rx="2"></rect>
-        </svg>
-      </button>
+      <button class="copy-icon" onclick="copyCrypto()">📋</button>
     </div>
 
     <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${c.address}">
 
     <div class="address-row">
       <div class="address">${c.address}</div>
-      <button class="copy-icon" onclick="copyText('${c.address}')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="5" width="13" height="13" rx="2"></rect>
-          <rect x="9" y="1" width="13" height="13" rx="2"></rect>
-        </svg>
-      </button>
+      <button class="copy-icon" onclick="copyText('${c.address}')">📋</button>
     </div>
   `;
 
@@ -343,14 +319,10 @@ function openCoin(type) {
   updateCrypto();
 }
 
-
-// =====================
-// UPDATE CRYPTO VALUE
-// =====================
 function updateCrypto() {
   if (!currentCoin || !prices) return;
 
-  const price = prices[currentCoin];
+  const price = prices?.[currentCoin];
   const usd = 5;
 
   const el = document.getElementById("cryptoText");
@@ -361,24 +333,15 @@ function updateCrypto() {
     return;
   }
 
-  const cryptoAmount = (usd / price).toFixed(6);
-
-  el.innerHTML = `$5 USD = <b>${cryptoAmount} ${currentCoin.toUpperCase()}</b>`;
+  const amount = (usd / price).toFixed(6);
+  el.innerHTML = `$5 USD = <b>${amount} ${currentCoin.toUpperCase()}</b>`;
 }
 
-
-// =====================
-// CLOSE MODAL
-// =====================
 function closeModal() {
   document.getElementById("modal").style.display = "none";
   currentCoin = null;
 }
 
-
-// =====================
-// COPY FUNCTIONS
-// =====================
 function copyText(text) {
   navigator.clipboard.writeText(text);
 }
@@ -388,41 +351,28 @@ function copyCrypto() {
   if (text) navigator.clipboard.writeText(text);
 }
 
-
-// =====================
-// SEND PAYMENT
-// =====================
 async function sendPayment() {
   const email = document.getElementById("email").value;
   const country = document.getElementById("country").value;
   const wallet = document.getElementById("wallet").value;
 
   if (!email || !country || !wallet) {
-    alert("Please fill all fields");
+    alert("Fill all fields");
     return;
   }
 
   await fetch("https://email.workfromanywhere-sa.workers.dev/", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      email,
-      country,
-      wallet,
-      amount: "$5"
-    })
+    body: JSON.stringify({ email, country, wallet, amount: "$5" })
   });
 
   window.location.href = "thank-you-vip.html";
 }
 
-
-// =====================
-// INIT
-// =====================
 fetchPrices();
 setInterval(fetchPrices, 30000);
-    </script>
+  </script>
   
 </body>
 </html>
