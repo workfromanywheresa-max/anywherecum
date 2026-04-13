@@ -309,14 +309,24 @@ function openCoin(type) {
 
     <div class="crypto-row">
       <div id="cryptoText">Loading...</div>
-      <button class="copy-icon" onclick="copyCrypto()">📋</button>
+      <button class="copy-icon" onclick="copyCrypto()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="3" y="5" width="13" height="13" rx="2"></rect>
+    <rect x="9" y="1" width="13" height="13" rx="2"></rect>
+  </svg>
+</button>
     </div>
 
     <img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${c.address}">
 
     <div class="address-row">
       <div class="address">${c.address}</div>
-      <button class="copy-icon" onclick="copyText('${c.address}')">📋</button>
+      <button class="copy-icon" onclick="copyText('${c.address}')">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <rect x="3" y="5" width="13" height="13" rx="2"></rect>
+    <rect x="9" y="1" width="13" height="13" rx="2"></rect>
+  </svg>
+</button>
     </div>
   `;
 
