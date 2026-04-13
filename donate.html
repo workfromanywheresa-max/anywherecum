@@ -6,143 +6,139 @@
 <title>Support Us</title>
 
   <style>
-    body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  padding: 40px 20px;
-  margin: 0;
-  background: #1a1a1a;
-  color: #fff;
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 40px;
+    margin: 0;
+    background: #1a1a1a;
+    color: #fff;
+  }
 
-  overflow-x: hidden; /* ✅ FIX horizontal scroll */
-}
+  .box {
+    max-width: 400px;
+    margin: auto;
+  }
 
-.box {
-  max-width: 400px;
-  margin: auto;
-}
+  h2 {
+    margin-bottom: 10px;
+    color: #ff4444;
+  }
 
-h2 {
-  margin-bottom: 10px;
-  color: #ff4444;
-}
+  p {
+    color: #ccc;
+    font-size: 14px;
+  }
 
-p {
-  color: #ccc;
-  font-size: 14px;
-}
+  .card {
+    background: #222;
+    padding: 25px;
+    margin-top: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 
-.card {
-  background: #222;
-  padding: 25px;
-  margin-top: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
 
-  height: 120px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
+  .payfast-card {
+    height: 210px;
+  }
 
-.payfast-card {
-  height: 210px;
-}
+  .logo,
+  .crypto-logo {
+    height: 60px;
+    width: auto;
+    display: block;
+    margin: 0 auto;
+    object-fit: contain;
+  }
 
-.logo,
-.crypto-logo {
-  height: 60px;
-  width: auto;
-  display: block;
-  margin: 0 auto;
-  object-fit: contain;
-}
+  .crypto-logo {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
+  }
 
-.crypto-logo {
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  will-change: transform;
-}
+  input {
+    width: 80%;
+    padding: 12px;
+    margin-top: 15px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #444;
+    text-align: center;
+    background: #111;
+    color: #fff;
+  }
 
-input {
-  width: 80%;
-  padding: 12px;
-  margin-top: 15px;
-  font-size: 16px;
-  border-radius: 5px;
-  border: 1px solid #444;
-  text-align: center;
-  background: #111;
-  color: #fff;
-  box-sizing: border-box; /* ✅ prevents overflow */
-}
+  input::placeholder {
+    color: #777;
+  }
 
-input::placeholder {
-  color: #777;
-}
+  #usdDisplay {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #fff;
+  }
 
-#usdDisplay {
-  margin-top: 10px;
-  font-weight: bold;
-  color: #fff;
-}
+  .donate-btn {
+    margin-top: 15px;
+    width: 100%;
+    font-size: 18px;
+    background: #555;
+    color: white;
+    cursor: not-allowed;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+  }
 
-.donate-btn {
-  margin-top: 15px;
-  width: 100%;
-  font-size: 18px;
-  background: #555;
-  color: white;
-  cursor: not-allowed;
-  padding: 12px;
-  border: none;
-  border-radius: 5px;
-}
+  .donate-btn.active {
+    background: #000;
+    cursor: pointer;
+  }
 
-.donate-btn.active {
-  background: #000;
-  cursor: pointer;
-}
+  .donate-btn:hover.active {
+    background: #333;
+  }
 
-.donate-btn:hover.active {
-  background: #333;
-}
+  .paypal-btn {
+    margin-top: 15px;
+    width: 100%;
+    font-size: 18px;
+    background: #0070ba;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
 
-.paypal-btn {
-  margin-top: 15px;
-  width: 100%;
-  font-size: 18px;
-  background: #0070ba;
-  color: white;
-  padding: 12px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
+  .paypal-btn:hover {
+    background: #005c99;
+  }
 
-.paypal-btn:hover {
-  background: #005c99;
-}
+  .crypto-btn {
+    margin-top: 15px;
+    width: 100%;
+    font-size: 18px;
+    background: #111;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
 
-.crypto-btn {
-  margin-top: 15px;
-  width: 100%;
-  font-size: 18px;
-  background: #111;
-  color: white;
-  padding: 12px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.crypto-btn:hover {
-  background: #333;
-}
-
-.zar-wrapper {
+  .crypto-btn:hover {
+    background: #333;
+  }
+  .zar-wrapper {
   position: relative;
   width: 80%;
   margin: 15px auto 0;
@@ -161,9 +157,8 @@ input::placeholder {
 
 .zar-wrapper input {
   width: 100%;
-  padding-left: 28px; /* ✅ space for R */
+  padding-left: 0; /* EXACT same as your VIP page */
 }
-
 /* BACK BUTTON */
 .back-btn {
   position: fixed;
@@ -175,18 +170,6 @@ input::placeholder {
   border: 1px solid #333;
   padding: 6px 10px;
   cursor: pointer;
-}
-
-/* ===== FOOTER (FIXED CLEAN) ===== */
-footer {
-  text-align: center;
-  padding: 20px;
-  font-size: 12px;
-  color: #aaa;
-  background: #111;
-  margin-top: 10px;
-
-  width: 100%; /* ✅ no overflow */
 }
   </style>
 
