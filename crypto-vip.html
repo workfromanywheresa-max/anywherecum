@@ -153,6 +153,67 @@
 .copy-icon:active {
   transform: scale(0.9);
 }
+  /* =========================
+   DARK MODE FOR ENTIRE PAGE
+   (EXCEPT MODAL)
+========================= */
+
+body {
+  background: #121212 !important;
+  color: #fff !important;
+}
+
+/* boxes and cards */
+.box,
+.coin-item,
+.form-box {
+  background: #1e1e1e !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
+}
+
+/* coin items hover feel */
+.coin-item {
+  border: 1px solid #2a2a2a;
+}
+
+/* inputs */
+.form-box input {
+  background: #111 !important;
+  color: #fff !important;
+  border: 1px solid #333 !important;
+}
+
+.form-box input::placeholder {
+  color: #777 !important;
+}
+
+/* form button */
+.form-box button {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+/* headings */
+h2, h3 {
+  color: #fff !important;
+}
+
+/* MODAL MUST STAY LIGHT (DO NOTHING HERE) */
+.modal-content {
+  background: #fff !important;
+  color: #000 !important;
+}
+
+/* address readability in dark mode */
+.address {
+  color: #ccc !important;
+}
+
+/* subtle improvement */
+.coin-icon {
+  filter: brightness(1.1);
+}
 </style>
   
 </head>
