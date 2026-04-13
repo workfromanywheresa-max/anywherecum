@@ -5,221 +5,193 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Payments</title>
 
-<style>
+  <style>
   body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  padding: 30px;
-  background: #121212;
-  color: #fff;
-}
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 30px;
 
-.box { max-width: 500px; margin: auto; }
+    /* DARK MODE */
+    background: #121212 !important;
+    color: #fff !important;
+  }
 
-.coin-list { margin-bottom: 20px; }
+  .box {
+    max-width: 500px;
+    margin: auto;
+  }
 
-.coin-item {
-  background: #1e1e1e;
-  padding: 12px;
-  margin: 10px 0;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  justify-content: center;
-  color: #fff;
-}
+  .coin-list { margin-bottom: 20px; }
 
-.coin-icon { width: 24px; height: 24px; }
+  /* COIN ITEM - DARK MODE */
+  .coin-item {
+    background: #1e1e1e !important;
+    color: #fff !important;
 
-.form-box {
-  background: #1a1a1a;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  margin-top: 20px;
-}
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 10px;
 
-.form-box input {
-  width: 90%;
-  padding: 10px;
-  margin: 8px 0;
-  border-radius: 6px;
-  border: 1px solid #333;
-  background: #111;
-  color: #fff;
-}
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    cursor: pointer;
 
-.form-box input::placeholder {
-  color: #777;
-}
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
 
-.form-box button {
-  padding: 10px 20px;
-  border: none;
-  background: #6a00ff;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-}
+    border: 1px solid #2a2a2a;
+  }
 
-/* MODAL (UNCHANGED LIGHT MODE) */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 999;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
-  align-items: center;
-  justify-content: center;
-}
+  .coin-item:hover {
+    background: #252525;
+  }
 
-.modal-content {
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  max-width: 400px;
-  width: 90%;
-  position: relative;
-}
+  .coin-icon {
+    width: 24px;
+    height: 24px;
+    filter: brightness(1.1);
+  }
 
-/* CLOSE */
-.close {
-  position: absolute;
-  right: 15px;
-  top: 10px;
-  font-size: 22px;
-  cursor: pointer;
-}
+  /* FORM BOX - DARK MODE */
+  .form-box {
+    background: #1e1e1e !important;
+    color: #fff !important;
 
-/* LOGO */
-.logo { width: 30px; height: 30px; }
+    padding: 15px;
+    border-radius: 10px;
 
-.title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    margin-top: 20px;
+  }
 
-.qr { width: 160px; margin-top: 10px; }
+  .form-box input {
+    width: 90%;
+    padding: 10px;
+    margin: 8px 0;
 
-.address-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 10px;
-}
+    border-radius: 6px;
+    border: 1px solid #333 !important;
 
-.address {
-  font-size: 12px;
-  word-break: break-all;
-  text-align: left;
-  flex: 1;
-}
+    background: #111 !important;
+    color: #fff !important;
+  }
 
-.crypto-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 10px;
-  font-size: 14px;
-  font-weight: bold;
-}
+  .form-box input::placeholder {
+    color: #777 !important;
+  }
 
-.copy-icon {
-  border: none;
-  background: none;
-  cursor: pointer;
-  padding: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-}
+  .form-box button {
+    padding: 10px 20px;
+    border: none;
 
-.copy-icon svg {
-  width: 18px;
-  height: 18px;
-}
+    background: #000 !important;
+    color: #fff !important;
 
-.copy-icon:active {
-  transform: scale(0.9);
-}
-  /* =========================
-   DARK MODE FOR ENTIRE PAGE
-   (EXCEPT MODAL)
-========================= */
+    border-radius: 6px;
+    cursor: pointer;
+  }
 
-body {
-  background: #121212 !important;
-  color: #fff !important;
-}
+  /* HEADINGS */
+  h2, h3 {
+    color: #fff !important;
+  }
 
-/* boxes and cards */
-.box,
-.coin-item,
-.form-box {
-  background: #1e1e1e !important;
-  color: #fff !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
-}
+  /* MODAL (KEEP LIGHT - DO NOT CHANGE) */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    align-items: center;
+    justify-content: center;
+  }
 
-/* coin items hover feel */
-.coin-item {
-  border: 1px solid #2a2a2a;
-}
+  .modal-content {
+    background: #fff !important;
+    color: #000 !important;
 
-/* inputs */
-.form-box input {
-  background: #111 !important;
-  color: #fff !important;
-  border: 1px solid #333 !important;
-}
+    padding: 20px;
+    border-radius: 12px;
 
-.form-box input::placeholder {
-  color: #777 !important;
-}
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+  }
 
-/* form button */
-.form-box button {
-  background: #000 !important;
-  color: #fff !important;
-}
+  .modal-content * {
+    color: #000 !important;
+  }
 
-/* headings */
-h2, h3 {
-  color: #fff !important;
-}
+  .close {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 22px;
+    cursor: pointer;
+  }
 
-/* MODAL MUST STAY LIGHT (DO NOTHING HERE) */
-.modal-content {
-  background: #fff !important;
-  color: #000 !important;
-}
+  .logo { width: 30px; height: 30px; }
 
-/* 🔥 FIX: force modal content to stay light */
-.modal-content * {
-  color: #000 !important;
-}
+  .title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
 
-/* address readability in dark mode */
-.address {
-  color: #ccc !important;
-}
+  .qr { width: 160px; margin-top: 10px; }
 
-/* subtle improvement */
-.coin-icon {
-  filter: brightness(1.1);
-}
-</style>
+  .address-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .address {
+    font-size: 12px;
+    word-break: break-all;
+    text-align: left;
+    flex: 1;
+
+    color: #ccc !important;
+  }
+
+  .crypto-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  .copy-icon {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .copy-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .copy-icon:active {
+    transform: scale(0.9);
+  }
+  </style>
   
 </head>
 
