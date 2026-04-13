@@ -276,7 +276,9 @@ document.addEventListener("keydown", e => {
   if (e.key === "Enter") e.preventDefault();
 });
 
-// FIXED PRICE FETCH
+// =====================
+// FETCH $5 CRYPTO VALUES
+// =====================
 async function fetchPrices() {
   try {
     const res = await fetch(`${WORKER_URL}/prices`);
@@ -284,13 +286,17 @@ async function fetchPrices() {
 
     if (!data.crypto) return;
 
-    prices = data.crypto;
+    prices = data.crypto; // ✅ already $5 worth
     updateCrypto();
+
   } catch (e) {
-    console.error(e);
+    console.error("Fetch error:", e);
   }
 }
 
+// =====================
+// OPEN MODAL
+// =====================
 function openCoin(type) {
   currentCoin = type;
   const c = coins[type];
@@ -319,29 +325,36 @@ function openCoin(type) {
   updateCrypto();
 }
 
+// =====================
+// UPDATE DISPLAY (FIXED)
+// =====================
 function updateCrypto() {
   if (!currentCoin || !prices) return;
 
-  const price = prices?.[currentCoin];
-  const usd = 5;
+  const amount = prices[currentCoin]; // ✅ already correct
 
   const el = document.getElementById("cryptoText");
   if (!el) return;
 
-  if (!price) {
+  if (!amount) {
     el.innerText = "Price unavailable";
     return;
   }
 
-  const amount = (usd / price).toFixed(6);
-  el.innerHTML = `$5 USD = <b>${amount} ${currentCoin.toUpperCase()}</b>`;
+  el.innerHTML = `$5 USD = <b>${Number(amount).toFixed(8)} ${currentCoin.toUpperCase()}</b>`;
 }
 
+// =====================
+// CLOSE MODAL
+// =====================
 function closeModal() {
   document.getElementById("modal").style.display = "none";
   currentCoin = null;
 }
 
+// =====================
+// COPY FUNCTIONS
+// =====================
 function copyText(text) {
   navigator.clipboard.writeText(text);
 }
@@ -351,6 +364,9 @@ function copyCrypto() {
   if (text) navigator.clipboard.writeText(text);
 }
 
+// =====================
+// SEND PAYMENT INFO
+// =====================
 async function sendPayment() {
   const email = document.getElementById("email").value;
   const country = document.getElementById("country").value;
@@ -361,15 +377,31 @@ async function sendPayment() {
     return;
   }
 
-  await fetch("https://email.workfromanywhere-sa.workers.dev/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, country, wallet, amount: "$5" })
-  });
+  try {
+    await fetch("https://email.workfromanywhere-sa.workers.dev/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email,
+        country,
+        wallet,
+        amount: "$5"
+      })
+    });
 
-  window.location.href = "thank-you-vip.html";
+    window.location.href = "thank-you-vip.html";
+
+  } catch (err) {
+    alert("Error sending data");
+    console.error(err);
+  }
 }
 
+// =====================
+// INIT
+// =====================
 fetchPrices();
 setInterval(fetchPrices, 30000);
   </script>
