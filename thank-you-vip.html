@@ -3,21 +3,85 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VIP Access</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #121212;
+    color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .card {
+    background: #1e1e1e;
+    padding: 30px 25px;
+    border-radius: 12px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  }
+
+  h1 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+
+  p {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  a {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+
+  .links {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-link {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 8px;
+    display: inline-block;
+    transition: 0.2s;
+  }
+
+  .btn-link:hover {
+    background: #2a2a2a;
+  }
+</style>
 </head>
 
-<body style="text-align:center; font-family:Arial; padding:40px; background:#121212; color:#e0e0e0;">
+<body>
 
-  <h1>✅ Your VIP Access Request Has Been Received</h1>
+  <div class="card">
 
-  <p>We will review & process your request within 15 minutes.</p>
+    <h1>✅ Your VIP Access Request Has Been Received</h1>
 
-  <p>If it is not processed within 15 minutes, please contact
-    <a href="contact.html" style="color:#ffffff; text-decoration:underline;">support</a>.
-  </p>
+    <p>We will review & process your request within 15 minutes.</p>
 
-  <p style="margin-top:20px;">
-    <a href="/" style="color:#ffffff; text-decoration:none;">Go Home</a>
-  </p>
+    <p>
+      If it is not processed within 15 minutes, please contact
+      <a href="contact.html">support</a>.
+    </p>
+
+    <div class="links">
+      <a class="btn-link" href="/">Go Home</a>
+    </div>
+
+  </div>
 
 </body>
 </html>
