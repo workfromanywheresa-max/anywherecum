@@ -5,20 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Payments</title>
 
-    <style>
+<style>
 html, body {
   margin: 0;
   padding: 0;
   width: 100%;
+  overflow-x: hidden; /* FIX horizontal scroll */
 }
 
 body {
   font-family: Arial, sans-serif;
   text-align: center;
   padding: 30px;
-
-  /* FIX: remove default spacing issue */
-  margin: 0;
+  box-sizing: border-box; /* FIX overflow from padding */
 
   /* DARK MODE */
   background: #121212 !important;
@@ -28,6 +27,8 @@ body {
 .box {
   max-width: 500px;
   margin: auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .coin-list { margin-bottom: 20px; }
@@ -72,6 +73,7 @@ body {
 
   box-shadow: 0 4px 12px rgba(0,0,0,0.4);
   margin-top: 20px;
+  box-sizing: border-box;
 }
 
 .form-box input {
@@ -207,7 +209,14 @@ h2, h3 {
   margin: 10px 0;
   font-size: 12px;
 }
-    </style>
+
+/* FOOTER FULL WIDTH FIX */
+footer {
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+}
+</style>
   
 </head>
 
