@@ -258,7 +258,9 @@ function googleTranslateElementInit() {
   </div>
 </div>
 
-  <script>
+<script>
+const WORKER_URL = "https://payments.workfromanywhere-sa.workers.dev";
+
 const coins = {
   btc: { name: "Bitcoin", address: "121jjoVvDBVDudoUeHzXvSL9V3tMz6r9CX", logo: "https://assets.coingecko.com/coins/images/1/small/bitcoin.png" },
   ltc: { name: "Litecoin", address: "LYVGRTt1VBFXRbuqYxTAXKdmyeU44Q4kvQ", logo: "https://assets.coingecko.com/coins/images/2/small/litecoin.png" },
@@ -270,12 +272,39 @@ const coins = {
 let currentCoin = null;
 let prices = null;
 
+// Prevent form Enter submit
 document.addEventListener("keydown", function(e) {
-  if (e.key === "Enter") {
-    e.preventDefault();
-  }
+  if (e.key === "Enter") e.preventDefault();
 });
 
+
+// =====================
+// FETCH PRICES
+// =====================
+async function fetchPrices() {
+  try {
+    const res = await fetch(`${WORKER_URL}/prices`);
+    const data = await res.json();
+
+    console.log("PRICE RESPONSE:", data);
+
+    if (!data.prices) {
+      console.error("No prices returned");
+      return;
+    }
+
+    prices = data.prices;
+
+    updateCrypto();
+  } catch (err) {
+    console.error("Price fetch failed:", err);
+  }
+}
+
+
+// =====================
+// OPEN MODAL
+// =====================
 function openCoin(type) {
   currentCoin = type;
   const c = coins[type];
@@ -310,120 +339,14 @@ function openCoin(type) {
   `;
 
   document.getElementById("modal").style.display = "flex";
-}
-
-function updateCrypto(priceData) {
-  if (!currentCoin || !priceData) return;
-
-  const usd = 5;
-  const price = priceData[currentCoin];
-
-  if (!price) {
-    document.getElementById("cryptoText").innerText = "Price unavailable";
-    return;
-  }
-
-  const crypto = (usd / price).toFixed(6);
-
-  document.getElementById("cryptoText").innerHTML =
-    `$5 USD = <b>${crypto} ${currentCoin.toUpperCase()}</b>`;
-}
-
-function closeModal() {
-  document.getElementById("modal").style.display = "none";
-  currentCoin = null;
-}
-
-function copyText(text) {
-  navigator.clipboard.writeText(text);
-}
-
-function copyCrypto() {
-  if (!currentCoin) return;
-  const text = document.getElementById("cryptoText").innerText;
-  navigator.clipboard.writeText(text);
-}
-
-async function sendPayment() {
-  const email = document.getElementById("email").value;
-  const country = document.getElementById("country").value;
-  const wallet = document.getElementById("wallet").value;
-
-  if (!email || !country || !wallet) {
-    alert("Please fill all fields");
-    return;
-  }
-
-  const payload = {
-    email,
-    country,
-    wallet,
-    amount: "$5"
-  };
-
-  // Send ONLY email worker
-  fetch("https://email.workfromanywhere-sa.workers.dev/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
-
-  // Redirect to thank you page
-  window.location.href = "thank-you-vip.html";
-}
-  </script>
-
-  <script>
-const WORKER_URL = "https://payments.workfromanywhere-sa.workers.dev";
-
-const coins = {
-  btc: { name: "Bitcoin", address: "121jjoVvDBVDudoUeHzXvSL9V3tMz6r9CX" },
-  ltc: { name: "Litecoin", address: "LYVGRTt1VBFXRbuqYxTAXKdmyeU44Q4kvQ" },
-  eth: { name: "Ethereum", address: "0xb38839dfbee320badf35db258625463521da7577" },
-  bnb: { name: "BNB", address: "0xb38839dfbee320badf35db258625463521da7577" },
-  usdt: { name: "USDT", address: "TCLtokamwWrbLvifZ3z2SYmBute7EjdiUN" }
-};
-
-let currentCoin = null;
-let prices = null;
-
-// 🔥 FETCH PRICES
-async function fetchPrices() {
-  try {
-    const res = await fetch(`${WORKER_URL}/prices`);
-    const data = await res.json();
-
-    prices = data.prices;
-    updateCrypto();
-  } catch (err) {
-    console.error("Price fetch failed:", err);
-  }
-}
-
-// 🔥 OPEN MODAL
-function openCoin(type) {
-  currentCoin = type;
-  const c = coins[type];
-
-  document.getElementById("content").innerHTML = `
-    <h3>${c.name}</h3>
-
-    <div id="cryptoText">Loading...</div>
-
-    <img class="qr"
-      src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${c.address}">
-
-    <div style="margin-top:10px; word-break:break-all;">
-      ${c.address}
-    </div>
-  `;
-
-  document.getElementById("modal").style.display = "flex";
 
   updateCrypto();
 }
 
-// 🔥 UPDATE CRYPTO VALUE
+
+// =====================
+// UPDATE CRYPTO VALUE
+// =====================
 function updateCrypto() {
   if (!currentCoin || !prices) return;
 
@@ -443,13 +366,32 @@ function updateCrypto() {
   el.innerHTML = `$5 USD = <b>${cryptoAmount} ${currentCoin.toUpperCase()}</b>`;
 }
 
-// 🔥 CLOSE MODAL
+
+// =====================
+// CLOSE MODAL
+// =====================
 function closeModal() {
   document.getElementById("modal").style.display = "none";
   currentCoin = null;
 }
 
-// 🔥 SEND PAYMENT
+
+// =====================
+// COPY FUNCTIONS
+// =====================
+function copyText(text) {
+  navigator.clipboard.writeText(text);
+}
+
+function copyCrypto() {
+  const text = document.getElementById("cryptoText")?.innerText;
+  if (text) navigator.clipboard.writeText(text);
+}
+
+
+// =====================
+// SEND PAYMENT
+// =====================
 async function sendPayment() {
   const email = document.getElementById("email").value;
   const country = document.getElementById("country").value;
@@ -474,10 +416,13 @@ async function sendPayment() {
   window.location.href = "thank-you-vip.html";
 }
 
-// 🔥 INIT
+
+// =====================
+// INIT
+// =====================
 fetchPrices();
 setInterval(fetchPrices, 30000);
-  </script>
-
+    </script>
+  
 </body>
 </html>
