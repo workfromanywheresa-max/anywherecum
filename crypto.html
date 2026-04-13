@@ -6,10 +6,16 @@
 <title>Support</title>
 
   <style>
-    body {
+    html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+body {
   font-family: Arial, sans-serif;
   text-align: center;
-  padding: 30px;
+  padding: 0;
   background: #121212;
   color: #fff;
 }
@@ -17,6 +23,8 @@
 .box {
   max-width: 500px;
   margin: auto;
+  padding: 30px;
+  box-sizing: border-box;
 }
 
 .coin-list {
@@ -36,6 +44,7 @@
   justify-content: center;
   border: 1px solid #2a2a2a;
   color: #fff;
+  box-sizing: border-box;
 }
 
 .coin-item:hover {
@@ -54,17 +63,19 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.4);
   margin-top: 20px;
   color: #fff;
+  box-sizing: border-box;
 }
 
 .form-box input,
 .form-box select {
-  width: 90%;
+  width: 100%;
   padding: 10px;
   margin: 8px 0;
   border-radius: 6px;
   border: 1px solid #333;
   background: #111;
   color: #fff;
+  box-sizing: border-box;
 }
 
 .form-box input::placeholder {
@@ -106,6 +117,7 @@ h2, h3 {
   max-width: 400px;
   width: 90%;
   position: relative;
+  box-sizing: border-box;
 }
 
 .modal-content * {
@@ -180,17 +192,16 @@ h2, h3 {
   font-size: 12px;
 }
 
-/* FOOTER FIX ONLY */
+/* FOOTER FIX */
 footer {
   text-align: center;
-  padding: 20px 0;
+  padding: 20px 10px;
   font-size: 12px;
   color: #aaa;
   background: #111;
   margin-top: 10px;
-  margin-left: -30px;
-  margin-right: -30px;
-  width: calc(100% + 60px);
+  width: 100%;
+  box-sizing: border-box;
 }
   </style>
 
