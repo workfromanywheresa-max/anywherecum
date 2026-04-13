@@ -6,197 +6,207 @@
 <title>Payments</title>
 
     <style>
-  body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    padding: 30px;
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
 
-    /* DARK MODE */
-    background: #121212 !important;
-    color: #fff !important;
-  }
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 30px;
 
-  .box {
-    max-width: 500px;
-    margin: auto;
-  }
+  /* FIX: remove default spacing issue */
+  margin: 0;
 
-  .coin-list { margin-bottom: 20px; }
+  /* DARK MODE */
+  background: #121212 !important;
+  color: #fff !important;
+}
 
-  /* COIN ITEM - DARK MODE */
-  .coin-item {
-    background: #1e1e1e !important;
-    color: #fff !important;
+.box {
+  max-width: 500px;
+  margin: auto;
+}
 
-    padding: 12px;
-    margin: 10px 0;
-    border-radius: 10px;
+.coin-list { margin-bottom: 20px; }
 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    cursor: pointer;
+/* COIN ITEM - DARK MODE */
+.coin-item {
+  background: #1e1e1e !important;
+  color: #fff !important;
 
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    justify-content: center;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 10px;
 
-    border: 1px solid #2a2a2a;
-  }
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  cursor: pointer;
 
-  .coin-item:hover {
-    background: #252525;
-  }
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
 
-  .coin-icon {
-    width: 24px;
-    height: 24px;
-    filter: brightness(1.1);
-  }
+  border: 1px solid #2a2a2a;
+}
 
-  /* FORM BOX - DARK MODE */
-  .form-box {
-    background: #1e1e1e !important;
-    color: #fff !important;
+.coin-item:hover {
+  background: #252525;
+}
 
-    padding: 15px;
-    border-radius: 10px;
+.coin-icon {
+  width: 24px;
+  height: 24px;
+  filter: brightness(1.1);
+}
 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    margin-top: 20px;
-  }
+/* FORM BOX - DARK MODE */
+.form-box {
+  background: #1e1e1e !important;
+  color: #fff !important;
 
-  .form-box input {
-    width: 90%;
-    padding: 10px;
-    margin: 8px 0;
+  padding: 15px;
+  border-radius: 10px;
 
-    border-radius: 6px;
-    border: 1px solid #333 !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  margin-top: 20px;
+}
 
-    background: #111 !important;
-    color: #fff !important;
-  }
+.form-box input {
+  width: 90%;
+  padding: 10px;
+  margin: 8px 0;
 
-  .form-box input::placeholder {
-    color: #777 !important;
-  }
+  border-radius: 6px;
+  border: 1px solid #333 !important;
 
-  .form-box button {
-    padding: 10px 20px;
-    border: none;
+  background: #111 !important;
+  color: #fff !important;
+}
 
-    background: #000 !important;
-    color: #fff !important;
+.form-box input::placeholder {
+  color: #777 !important;
+}
 
-    border-radius: 6px;
-    cursor: pointer;
-  }
+.form-box button {
+  padding: 10px 20px;
+  border: none;
 
-  /* HEADINGS */
-  h2, h3 {
-    color: #fff !important;
-  }
+  background: #000 !important;
+  color: #fff !important;
 
-  /* MODAL (KEEP LIGHT - DO NOT CHANGE) */
-  .modal {
-    display: none;
-    position: fixed;
-    z-index: 999;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.6);
-    align-items: center;
-    justify-content: center;
-  }
+  border-radius: 6px;
+  cursor: pointer;
+}
 
-  .modal-content {
-    background: #fff !important;
-    color: #000 !important;
+/* HEADINGS */
+h2, h3 {
+  color: #fff !important;
+}
 
-    padding: 20px;
-    border-radius: 12px;
+/* MODAL (KEEP LIGHT - DO NOT CHANGE) */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  align-items: center;
+  justify-content: center;
+}
 
-    max-width: 400px;
-    width: 90%;
-    position: relative;
-  }
+.modal-content {
+  background: #fff !important;
+  color: #000 !important;
 
-  .modal-content * {
-    color: #000 !important;
-  }
+  padding: 20px;
+  border-radius: 12px;
 
-  .close {
-    position: absolute;
-    right: 15px;
-    top: 10px;
-    font-size: 22px;
-    cursor: pointer;
-  }
+  max-width: 400px;
+  width: 90%;
+  position: relative;
+}
 
-  .logo { width: 30px; height: 30px; }
+.modal-content * {
+  color: #000 !important;
+}
 
-  .title {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
+.close {
+  position: absolute;
+  right: 15px;
+  top: 10px;
+  font-size: 22px;
+  cursor: pointer;
+}
 
-  .qr { width: 160px; margin-top: 10px; }
+.logo { width: 30px; height: 30px; }
 
-  .address-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 10px;
-  }
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
 
-  /* FIXED WALLET ADDRESS COLOR */
-  .address {
-    font-size: 12px;
-    word-break: break-all;
-    text-align: left;
-    flex: 1;
+.qr { width: 160px; margin-top: 10px; }
 
-    color: #000 !important;
-  }
+.address-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+}
 
-  .crypto-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 10px;
-    font-size: 14px;
-    font-weight: bold;
-  }
+/* FIXED WALLET ADDRESS COLOR */
+.address {
+  font-size: 12px;
+  word-break: break-all;
+  text-align: left;
+  flex: 1;
 
-  .copy-icon {
-    border: none;
-    background: none;
-    cursor: pointer;
-    padding: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+  color: #000 !important;
+}
 
-  .copy-icon svg {
-    width: 18px;
-    height: 18px;
-  }
+.crypto-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: bold;
+}
 
-  .copy-icon:active {
-    transform: scale(0.9);
-  }
-        .info-text {
+.copy-icon {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.copy-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.copy-icon:active {
+  transform: scale(0.9);
+}
+
+.info-text {
   color: #fff;
   margin: 10px 0;
   font-size: 12px;
-        }
+}
     </style>
   
 </head>
