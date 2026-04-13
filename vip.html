@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VIP Access</title>
 
-<style>
-body {
+  <style>
+  body {
   font-family: Arial, sans-serif;
-  text-align: center;
-  background: #1a1a1a;
-  color: #fff;
+  text-align: center !important;
+  background: #1a1a1a !important;
+  color: #fff !important;
 
   margin: 0;
   padding: 0;
@@ -23,19 +23,24 @@ body {
   padding: 40px;
 }
 
+/* HEADINGS */
 h2 {
   margin-bottom: 10px;
   color: #ff4444;
+  text-align: center;
 }
 
+/* IMPORTANT TEXT FIX (LEFT ALIGN ONLY) */
 p {
   color: #ccc;
   font-size: 14px;
+  text-align: left;
+  line-height: 1.5;
 }
 
-/* CARDS (same sizing as original) */
+/* CARDS */
 .card {
-  background: #222;
+  background: #222 !important;
   padding: 25px;
   margin-top: 20px;
   border-radius: 10px;
@@ -59,7 +64,7 @@ p {
   object-fit: contain;
 }
 
-/* INPUTS (same sizing, dark style only) */
+/* INPUTS */
 input {
   width: 80%;
   padding: 12px;
@@ -68,8 +73,8 @@ input {
   border-radius: 5px;
   border: 1px solid #444;
   text-align: center;
-  background: #111;
-  color: #fff;
+  background: #111 !important;
+  color: #fff !important;
 }
 
 input::placeholder {
@@ -92,7 +97,7 @@ input::placeholder {
   color: #6a00ff;
 }
 
-/* BUTTONS (UNCHANGED SIZES, ONLY COLORS DARK-FRIENDLY) */
+/* BUTTONS */
 .pay-btn {
   margin-top: 15px;
   width: 100%;
@@ -139,7 +144,7 @@ input::placeholder {
   background: #333;
 }
 
-/* VIP button (kept EXACT same size rules) */
+/* VIP button */
 .vip-btn {
   background: #6a00ff;
   font-weight: bold;
@@ -154,7 +159,7 @@ input::placeholder {
   background: #4b00b3;
 }
 
-/* BACK BUTTON (fixed + visible in dark mode) */
+/* BACK BUTTON */
 .back-btn {
   position: fixed;
   top: 0;
@@ -166,7 +171,9 @@ input::placeholder {
   padding: 6px 10px;
   cursor: pointer;
 }
-  .zar-wrapper {
+
+/* ZAR WRAPPER */
+.zar-wrapper {
   position: relative;
   width: 80%;
   margin: 15px auto 0;
@@ -185,7 +192,7 @@ input::placeholder {
 
 .zar-wrapper input {
   width: 100%;
-  padding-left: 0px; /* space for "R" */
+  padding-left: 0px;
 }
 
 /* FOOTER */
@@ -195,7 +202,7 @@ footer {
   padding: 20px;
   font-size: 12px;
   color: #aaa;
-  background: #111;
+  background: #111 !important;
   box-sizing: border-box;
 }
 </style>
