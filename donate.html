@@ -138,6 +138,27 @@
   .crypto-btn:hover {
     background: #333;
   }
+  .zar-wrapper {
+  position: relative;
+  width: 80%;
+  margin: 15px auto 0;
+}
+
+.zar-prefix {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #fff;
+  font-size: 16px;
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.zar-wrapper input {
+  width: 100%;
+  padding-left: 0; /* EXACT same as your VIP page */
+}
   </style>
 
 </head>
@@ -248,7 +269,10 @@ function googleTranslateElementInit() {
 
     <div id="usdDisplay">≈ $0.00 USD (Est.)</div>
     
-    <input type="number" id="customAmount" placeholder="Enter amount (R)">
+    <div class="zar-wrapper">
+  <span class="zar-prefix">R</span>
+  <input type="number" id="customAmount" placeholder="Enter amount (R)">
+    </div>
 
     <button id="donateBtn" class="donate-btn" onclick="goDonate()" disabled>
       Donate with PayFast
