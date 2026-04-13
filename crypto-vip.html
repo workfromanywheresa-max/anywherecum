@@ -374,31 +374,61 @@ async function sendPayment() {
   </script>
 
   <script>
-const WORKER_URL = "https://payments.workfromanywhere-sa.workers.dev/prices";
+const WORKER_URL = "https://payments.workfromanywhere-sa.workers.dev";
 
-let prices = null;
+const coins = {
+  btc: { name: "Bitcoin", address: "121jjoVvDBVDudoUeHzXvSL9V3tMz6r9CX" },
+  ltc: { name: "Litecoin", address: "LYVGRTt1VBFXRbuqYxTAXKdmyeU44Q4kvQ" },
+  eth: { name: "Ethereum", address: "0xb38839dfbee320badf35db258625463521da7577" },
+  bnb: { name: "BNB", address: "0xb38839dfbee320badf35db258625463521da7577" },
+  usdt: { name: "USDT", address: "TCLtokamwWrbLvifZ3z2SYmBute7EjdiUN" }
+};
+
 let currentCoin = null;
+let prices = null;
 
-// 🔥 Fetch prices from Worker
+// 🔥 FETCH PRICES
 async function fetchPrices() {
   try {
     const res = await fetch(`${WORKER_URL}/prices`);
-    prices = await res.json();
-    console.log("Prices loaded:", prices);
+    const data = await res.json();
 
-    // if modal is open, refresh instantly
+    prices = data.prices;
     updateCrypto();
   } catch (err) {
-    console.error("Price fetch error:", err);
+    console.error("Price fetch failed:", err);
   }
 }
 
-// 🔥 FIXED: update modal price
+// 🔥 OPEN MODAL
+function openCoin(type) {
+  currentCoin = type;
+  const c = coins[type];
+
+  document.getElementById("content").innerHTML = `
+    <h3>${c.name}</h3>
+
+    <div id="cryptoText">Loading...</div>
+
+    <img class="qr"
+      src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${c.address}">
+
+    <div style="margin-top:10px; word-break:break-all;">
+      ${c.address}
+    </div>
+  `;
+
+  document.getElementById("modal").style.display = "flex";
+
+  updateCrypto();
+}
+
+// 🔥 UPDATE CRYPTO VALUE
 function updateCrypto() {
   if (!currentCoin || !prices) return;
 
-  const usd = 5;
   const price = prices[currentCoin];
+  const usd = 5;
 
   const el = document.getElementById("cryptoText");
   if (!el) return;
@@ -413,20 +443,38 @@ function updateCrypto() {
   el.innerHTML = `$5 USD = <b>${cryptoAmount} ${currentCoin.toUpperCase()}</b>`;
 }
 
-// 🔥 Hook into your modal open function
-const originalOpenCoin = window.openCoin;
+// 🔥 CLOSE MODAL
+function closeModal() {
+  document.getElementById("modal").style.display = "none";
+  currentCoin = null;
+}
 
-window.openCoin = function(type) {
-  currentCoin = type;
+// 🔥 SEND PAYMENT
+async function sendPayment() {
+  const email = document.getElementById("email").value;
+  const country = document.getElementById("country").value;
+  const wallet = document.getElementById("wallet").value;
 
-  // run your original modal logic
-  originalOpenCoin(type);
+  if (!email || !country || !wallet) {
+    alert("Please fill all fields");
+    return;
+  }
 
-  // update price AFTER modal opens
-  updateCrypto();
-};
+  await fetch("https://email.workfromanywhere-sa.workers.dev/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      email,
+      country,
+      wallet,
+      amount: "$5"
+    })
+  });
 
-// 🔥 auto refresh
+  window.location.href = "thank-you-vip.html";
+}
+
+// 🔥 INIT
 fetchPrices();
 setInterval(fetchPrices, 30000);
   </script>
