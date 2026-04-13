@@ -361,8 +361,15 @@ function copyText(text) {
 
 function copyCrypto() {
   const text = document.getElementById("cryptoText")?.innerText;
-  if (text) navigator.clipboard.writeText(text);
-}
+  if (!text) return;
+
+  // Extract only the number (crypto amount)
+  const match = text.match(/= (\d+\.\d+)/);
+
+  if (match && match[1]) {
+    navigator.clipboard.writeText(match[1]);
+  }
+    }
 
 // =====================
 // SEND PAYMENT INFO
