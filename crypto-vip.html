@@ -341,7 +341,8 @@ function googleTranslateElementInit() {
       <div class="info-text">
   After payment fill in your details :
       </div>
-      
+
+    <input type="text" id="fullName" placeholder="Enter your name & surname">
     <input type="email" id="email" placeholder="Enter your email">
     <input type="text" id="country" placeholder="Enter your country">
     <input type="text" id="wallet" placeholder="Wallet & Coin used">
@@ -504,11 +505,12 @@ function copyCrypto() {
 // SEND PAYMENT INFO
 // =====================
 async function sendPayment() {
+  const fullName = document.getElementById("fullName").value;
   const email = document.getElementById("email").value;
   const country = document.getElementById("country").value;
   const wallet = document.getElementById("wallet").value;
 
-  if (!email || !country || !wallet) {
+  if (!fullName || !email || !country || !wallet) {
     alert("Fill all fields");
     return;
   }
@@ -520,6 +522,7 @@ async function sendPayment() {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
+        fullName,
         email,
         country,
         wallet,
