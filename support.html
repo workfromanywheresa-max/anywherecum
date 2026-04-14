@@ -93,6 +93,21 @@
     width: 18px;
     height: 18px;
   }
+
+  .alt-link {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #aaa;
+  }
+
+  .alt-link a {
+    color: #25D366;
+    text-decoration: none;
+  }
+
+  .alt-link a:hover {
+    text-decoration: underline;
+  }
 </style>
 
 </head>
@@ -119,6 +134,10 @@
     Send on WhatsApp
   </button>
 </form>
+
+<div class="alt-link">
+  Alternatively you can email us <a href="contact.html">here</a>
+</div>
 
 <script>
 document.getElementById("supportForm").addEventListener("submit", function(e) {
