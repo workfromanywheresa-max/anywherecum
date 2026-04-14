@@ -28,9 +28,9 @@
 
   img.logo {
     width: 70px;
-    min-height: 70px;   /* ✅ NEW */
+    min-height: 70px;
     border-radius: 10px;
-    object-fit: cover;  /* ✅ NEW */
+    object-fit: cover;
   }
 
   .info-text {
@@ -62,6 +62,11 @@
   }
 
   button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
     padding: 10px;
     border-radius: 25px;
     border: none;
@@ -75,8 +80,13 @@
   button:hover {
     transform: scale(1.03);
   }
+
+  button img {
+    width: 18px;
+    height: 18px;
+  }
 </style>
-  
+
 </head>
 
 <body>
@@ -88,14 +98,17 @@
 </div>
 
 <form id="supportForm">
-  <input type="text" id="fullName" placeholder="Full Name" required>
-  <input type="email" id="email" placeholder="Email" required>
-  <input type="text" id="country" placeholder="Country" required>
-  <input type="text" id="payment" placeholder="Payment Method / Wallet & Coin Used" required>
+  <input type="text" id="fullName" placeholder="Full Name">
+  <input type="email" id="email" placeholder="Email">
+  <input type="text" id="country" placeholder="Country">
+  <input type="text" id="payment" placeholder="Payment Method / Wallet & Coin Used">
 
-  <textarea id="message" placeholder="Your Message" required></textarea>
+  <textarea id="message" placeholder="Your Message"></textarea>
 
-  <button type="submit">Send on WhatsApp</button>
+  <button type="submit">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+    Send on WhatsApp
+  </button>
 </form>
 
 <script>
