@@ -18,22 +18,19 @@
   body {
     display: flex;
     flex-direction: column;
-
-    /* ✅ CHANGE HERE */
-    justify-content: flex-start;   /* was center */
+    justify-content: flex-start;
     align-items: center;
-
     gap: 10px;
     text-align: center;
     box-sizing: border-box;
-
-    /* keep small spacing from top */
     padding: 20px 15px 10px;
   }
 
   img.logo {
     width: 70px;
+    min-height: 70px;   /* ✅ NEW */
     border-radius: 10px;
+    object-fit: cover;  /* ✅ NEW */
   }
 
   .info-text {
@@ -79,6 +76,7 @@
     transform: scale(1.03);
   }
 </style>
+  
 </head>
 
 <body>
