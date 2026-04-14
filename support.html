@@ -6,9 +6,14 @@
 <title>WhatsApp VIP Button Test</title>
 
 <style>
-  body {
+  html, body {
     margin: 0;
-    min-height: 100vh;
+    padding: 0;
+    height: 100%;
+    overflow: hidden; /* 🚫 disables scrolling */
+  }
+
+  body {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -18,10 +23,11 @@
     font-family: Arial, sans-serif;
     text-align: center;
     padding: 20px;
+    box-sizing: border-box;
   }
 
   img.logo {
-    width: 90px;
+    width: 80px;
     border-radius: 10px;
   }
 
@@ -40,20 +46,21 @@
   }
 
   input, textarea {
-    padding: 12px;
+    padding: 10px;
     border-radius: 10px;
     border: 1px solid #333;
     background: #1f1f1f;
     color: #fff;
+    font-size: 14px;
   }
 
   textarea {
     resize: none;
-    height: 100px;
+    height: 80px;
   }
 
   button {
-    padding: 14px;
+    padding: 12px;
     border-radius: 30px;
     border: none;
     background: #25D366;
@@ -83,7 +90,6 @@
   <input type="text" id="country" placeholder="Country" required>
   <input type="text" id="payment" placeholder="Payment Method / Wallet & Coin Used" required>
 
-  <!-- NEW MESSAGE FIELD -->
   <textarea id="message" placeholder="Your Message" required></textarea>
 
   <button type="submit">Send on WhatsApp</button>
