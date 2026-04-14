@@ -39,12 +39,17 @@
     max-width: 320px;
   }
 
-  input {
+  input, textarea {
     padding: 12px;
     border-radius: 10px;
     border: 1px solid #333;
     background: #1f1f1f;
     color: #fff;
+  }
+
+  textarea {
+    resize: none;
+    height: 100px;
   }
 
   button {
@@ -78,6 +83,9 @@
   <input type="text" id="country" placeholder="Country" required>
   <input type="text" id="payment" placeholder="Payment Method / Wallet & Coin Used" required>
 
+  <!-- NEW MESSAGE FIELD -->
+  <textarea id="message" placeholder="Your Message" required></textarea>
+
   <button type="submit">Send on WhatsApp</button>
 </form>
 
@@ -89,6 +97,7 @@ document.getElementById("supportForm").addEventListener("submit", function(e) {
   const email = document.getElementById("email").value;
   const country = document.getElementById("country").value;
   const payment = document.getElementById("payment").value;
+  const messageField = document.getElementById("message").value;
 
   const message =
 `🔥 VIP SUPPORT REQUEST 🔥
@@ -96,7 +105,10 @@ document.getElementById("supportForm").addEventListener("submit", function(e) {
 Full Name: ${fullName}
 Email: ${email}
 Country: ${country}
-Payment Method: ${payment}`;
+Payment Method: ${payment}
+
+Message:
+${messageField}`;
 
   const phone = "27788776178";
 
