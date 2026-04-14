@@ -9,8 +9,8 @@
   html, body {
     margin: 0;
     padding: 0;
-    height: 100vh;          /* ✅ FIXED HEIGHT */
-    overflow: hidden;       /* 🚫 no scrolling */
+    height: 100vh;
+    overflow: hidden;
     background: #121212;
     font-family: Arial, sans-serif;
   }
@@ -18,16 +18,21 @@
   body {
     display: flex;
     flex-direction: column;
-    justify-content: center; /* ✅ center vertically */
+
+    /* ✅ CHANGE HERE */
+    justify-content: flex-start;   /* was center */
     align-items: center;
-    gap: 10px;               /* 🔽 reduced spacing */
+
+    gap: 10px;
     text-align: center;
     box-sizing: border-box;
-    padding: 10px 15px;      /* 🔽 reduced padding */
+
+    /* keep small spacing from top */
+    padding: 20px 15px 10px;
   }
 
   img.logo {
-    width: 70px;             /* 🔽 smaller logo */
+    width: 70px;
     border-radius: 10px;
   }
 
