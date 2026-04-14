@@ -331,7 +331,7 @@ function googleTranslateElementInit() {
     </div>
 
     <!-- ✅ EMAIL ON TOP -->
-    <input type="text" id="fullname" placeholder="Full Name" required>
+    <input type="text" id="fullName" placeholder="Full Name" required>
     <input type="email" id="email" placeholder="Email" required>
 
     <input type="text" id="country" placeholder="Country" required>
@@ -451,7 +451,7 @@ async function sendEmail() {
   btn.disabled = true;
 
   // ✅ NEW FULL NAME FIELD
-  const fullname = document.getElementById("fullname").value;
+  const fullname = document.getElementById("fullName").value;
   const email = document.getElementById("email").value;
   const country = document.getElementById("country").value;
   const wallet = document.getElementById("wallet").value;
@@ -471,7 +471,7 @@ async function sendEmail() {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        fullname,
+        fullName,
         email,
         country,
         wallet,
