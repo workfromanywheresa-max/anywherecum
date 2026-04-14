@@ -779,14 +779,14 @@ let lastCountdown = "";
 let observer = null;
 
 /* =========================
-   STOP ACTIVE VIDEO
+   STOP ACTIVE VIDEO (UPDATED)
 ========================= */
 function stopActiveVideo() {
-  if (activeVideo) {
-    activeVideo.pause();
-    activeVideo.currentTime = 0;
-    activeVideo = null;
-  }
+  document.querySelectorAll("video").forEach(v => {
+    v.pause();
+    v.currentTime = 0;
+  });
+  activeVideo = null;
 }
 
 /* =========================
@@ -891,7 +891,7 @@ function createPreviewItem(video, folderURL, linkText, folderName, vipActive, is
   container.appendChild(videoEl);
 
   /* =========================
-     ✅ HORIZONTAL SWIPE CONTROL ONLY
+     ✅ HORIZONTAL SWIPE CONTROL (FIXED)
   ========================= */
   let isPlaying = false;
   let startX = 0;
@@ -911,17 +911,21 @@ function createPreviewItem(video, folderURL, linkText, folderName, vipActive, is
     const diffX = Math.abs(endX - startX);
     const diffY = Math.abs(endY - startY);
 
-    // ✅ ONLY horizontal swipe triggers play/pause
+    // ✅ ONLY horizontal swipe
     if (diffX > 30 && diffX > diffY) {
+
+      // 🔴 STOP EVERYTHING FIRST (KEY FIX)
+      stopActiveVideo();
+
       if (!isPlaying) {
-        stopActiveVideo();
         videoEl.play().catch(() => {});
         activeVideo = videoEl;
         isPlaying = true;
       } else {
         videoEl.pause();
-        isPlaying = false;
+        videoEl.currentTime = 0;
         activeVideo = null;
+        isPlaying = false;
       }
     }
   });
