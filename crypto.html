@@ -458,7 +458,7 @@ async function sendEmail() {
   const amount = document.getElementById("amount").value;
   const currency = document.getElementById("currency").value;
 
-  if (!fullname || !email || !country || !wallet || !amount) {
+  if (!fullName || !email || !country || !wallet || !amount) {
     alert("Please fill all fields");
     btn.disabled = false;
     return;
