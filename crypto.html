@@ -447,16 +447,18 @@ function copyText(text) {
 }
 
 async function sendEmail() {
-  const btn = document.querySelector("button"); // adjust selector if needed
+  const btn = document.querySelector("button");
   btn.disabled = true;
 
+  // ✅ NEW FULL NAME FIELD
+  const fullname = document.getElementById("fullname").value;
   const email = document.getElementById("email").value;
   const country = document.getElementById("country").value;
   const wallet = document.getElementById("wallet").value;
   const amount = document.getElementById("amount").value;
   const currency = document.getElementById("currency").value;
 
-  if (!email || !country || !wallet || !amount) {
+  if (!fullname || !email || !country || !wallet || !amount) {
     alert("Please fill all fields");
     btn.disabled = false;
     return;
@@ -469,6 +471,7 @@ async function sendEmail() {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
+        fullname,
         email,
         country,
         wallet,
@@ -488,8 +491,8 @@ async function sendEmail() {
     alert("❌ Error sending email");
     btn.disabled = false;
   }
-  }
-</script>
+}
+      </script>
 
 </body>
 </html>
