@@ -16,13 +16,13 @@
   body {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start; /* ✅ moved content up */
     align-items: center;
     gap: 15px;
     background: #121212;
     font-family: Arial, sans-serif;
     text-align: center;
-    padding: 20px;
+    padding: 40px 20px 20px; /* ✅ pushes from top */
     box-sizing: border-box;
   }
 
@@ -105,8 +105,8 @@ document.getElementById("supportForm").addEventListener("submit", function(e) {
   const payment = document.getElementById("payment").value;
   const messageField = document.getElementById("message").value;
 
-  const message =
-`AnywhereCum Team
+  const message = `
+🔥 VIP SUPPORT REQUEST 🔥
 
 Full Name: ${fullName}
 Email: ${email}
