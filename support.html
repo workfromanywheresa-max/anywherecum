@@ -37,6 +37,14 @@
     color: #cccccc;
     font-size: 13px;
     max-width: 300px;
+    line-height: 1.4;
+  }
+
+  .sub-text {
+    font-size: 10px;
+    color: #777;
+    font-weight: 300;
+    opacity: 0.7;
   }
 
   form {
@@ -94,7 +102,8 @@
 <img class="logo" src="https://anywherecum.pages.dev/images/onesignalfavicon.webp">
 
 <div class="info-text">
-  Please fill in your details and send via WhatsApp support. (Fill in fields that only apply to you).
+  Please fill in your details and send via WhatsApp support.<br>
+  <span class="sub-text">(Fill in fields that only apply to you)</span>
 </div>
 
 <form id="supportForm">
@@ -133,7 +142,6 @@ Message:
 ${messageField}`;
 
   const phone = "27788776178";
-
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
   window.open(url, "_blank");
