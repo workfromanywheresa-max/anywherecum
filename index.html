@@ -772,8 +772,22 @@ const CHECK_URL = "https://vipkeys.workfromanywhere-sa.workers.dev/check-session
 
 let activeVideo = null;
 let vipGlobal = null;
-let expiryTime = null; // ✅ cached timestamp
-let lastCountdown = ""; // ✅ prevent flicker
+let expiryTime = null;
+let lastCountdown = "";
+
+/* ✅ NEW: observer */
+let observer = null;
+
+/* =========================
+   STOP ACTIVE VIDEO
+========================= */
+function stopActiveVideo() {
+  if (activeVideo) {
+    activeVideo.pause();
+    activeVideo.currentTime = 0;
+    activeVideo = null;
+  }
+}
 
 /* =========================
    VIP STATUS (COOKIE BASED)
@@ -820,7 +834,7 @@ function formatCountdown(diff) {
    UPDATE DOM (NO FLICKER)
 ========================= */
 function updateCountdownText(newText) {
-  if (newText === lastCountdown) return; // ✅ prevents blinking
+  if (newText === lastCountdown) return;
 
   lastCountdown = newText;
 
@@ -875,6 +889,46 @@ function createPreviewItem(video, folderURL, linkText, folderName, vipActive, is
 
   container.appendChild(loader);
   container.appendChild(videoEl);
+
+  /* =========================
+     ✅ TOUCH / SWIPE CONTROL
+  ========================= */
+  let isPlaying = false;
+
+  container.addEventListener("touchstart", () => {
+    if (!isPlaying) {
+      stopActiveVideo();
+      videoEl.play().catch(() => {});
+      activeVideo = videoEl;
+      isPlaying = true;
+    } else {
+      videoEl.pause();
+      isPlaying = false;
+      activeVideo = null;
+    }
+  });
+
+  /* =========================
+     ✅ AUTO STOP (OUT OF VIEW)
+  ========================= */
+  if (!observer) {
+    observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const vid = entry.target;
+
+        if (!entry.isIntersecting) {
+          vid.pause();
+          if (vid === activeVideo) {
+            activeVideo = null;
+          }
+        }
+      });
+    }, {
+      threshold: 0.3
+    });
+  }
+
+  observer.observe(videoEl);
 
   function goToFolder() {
     if (folderName === VIP_FOLDER) {
@@ -940,7 +994,6 @@ async function loadVideos() {
   try {
     vipGlobal = await getVipStatus();
 
-    // ✅ cache expiry once
     if (vipGlobal?.active && vipGlobal?.expiresAt) {
       expiryTime = new Date(vipGlobal.expiresAt).getTime();
     }
@@ -990,7 +1043,6 @@ async function loadVideos() {
       folderList.appendChild(li);
     });
 
-    /* ================= LATEST VIDEO ================= */
     const nonVip = videos.filter(v => v.folder !== VIP_FOLDER);
 
     if (nonVip.length) {
@@ -1034,7 +1086,6 @@ function startVipCountdown() {
     const text = formatCountdown(diff);
     updateCountdownText(text);
 
-    // ✅ sync to next second (no drift, no flicker)
     const delay = 1000 - (now % 1000);
     setTimeout(tick, delay);
   }
