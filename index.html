@@ -891,20 +891,38 @@ function createPreviewItem(video, folderURL, linkText, folderName, vipActive, is
   container.appendChild(videoEl);
 
   /* =========================
-     ✅ TOUCH / SWIPE CONTROL
+     ✅ HORIZONTAL SWIPE CONTROL ONLY
   ========================= */
   let isPlaying = false;
+  let startX = 0;
+  let startY = 0;
 
-  container.addEventListener("touchstart", () => {
-    if (!isPlaying) {
-      stopActiveVideo();
-      videoEl.play().catch(() => {});
-      activeVideo = videoEl;
-      isPlaying = true;
-    } else {
-      videoEl.pause();
-      isPlaying = false;
-      activeVideo = null;
+  container.addEventListener("touchstart", (e) => {
+    const touch = e.touches[0];
+    startX = touch.clientX;
+    startY = touch.clientY;
+  });
+
+  container.addEventListener("touchend", (e) => {
+    const touch = e.changedTouches[0];
+    const endX = touch.clientX;
+    const endY = touch.clientY;
+
+    const diffX = Math.abs(endX - startX);
+    const diffY = Math.abs(endY - startY);
+
+    // ✅ ONLY horizontal swipe triggers play/pause
+    if (diffX > 30 && diffX > diffY) {
+      if (!isPlaying) {
+        stopActiveVideo();
+        videoEl.play().catch(() => {});
+        activeVideo = videoEl;
+        isPlaying = true;
+      } else {
+        videoEl.pause();
+        isPlaying = false;
+        activeVideo = null;
+      }
     }
   });
 
