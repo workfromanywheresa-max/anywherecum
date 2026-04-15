@@ -91,15 +91,16 @@ async function loadStatus() {
 
     const data = await res.json();
 
+    if (!data.end_time) throw new Error("No end_time");
+
     endTime = Number(data.end_time);
 
-    // ✅ SAVE
+    // Save locally (backup)
     localStorage.setItem("end_time", endTime);
 
   } catch (e) {
     console.log("Using cached timer");
 
-    // ✅ LOAD FROM CACHE
     const saved = localStorage.getItem("end_time");
     if (saved) {
       endTime = Number(saved);
@@ -110,7 +111,7 @@ async function loadStatus() {
 /* ================= TIMER ================= */
 function updateTimer() {
   if (!endTime || isNaN(endTime)) {
-    countdownEl.innerHTML = "Connecting...";
+    countdownEl.innerHTML = "⏳ Syncing...";
     return;
   }
 
@@ -134,9 +135,6 @@ function updateTimer() {
     String(s).padStart(2,'0');
 }
 
-setInterval(updateTimer, 1000);
-loadStatus();
-
 /* ================= ENTRIES ================= */
 function loadEntries() {
   fetch(API + "/entries")
@@ -149,9 +147,6 @@ function loadEntries() {
       document.getElementById("entries").innerText = "👥 Entries: 0";
     });
 }
-
-loadEntries();
-setInterval(loadEntries, 5000);
 
 /* ================= WINNER ================= */
 function loadWinner() {
@@ -171,6 +166,18 @@ function loadWinner() {
         "Error loading winner";
     });
 }
+
+/* ================= INIT ================= */
+async function init() {
+  await loadStatus();       // ✅ wait for API first
+  updateTimer();            // run immediately
+  setInterval(updateTimer, 1000);
+
+  loadEntries();
+  setInterval(loadEntries, 5000);
+}
+
+init();
 </script>
 
 </body>
