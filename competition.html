@@ -6,55 +6,55 @@
 <title>VIP Giveaway</title>
 
 <style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    text-align: center;
-  }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+}
 
-  .container {
-    max-width: 400px;
-    padding: 20px;
-    background: rgba(0,0,0,0.6);
-    border-radius: 15px;
-  }
+.container {
+  max-width: 400px;
+  padding: 20px;
+  background: rgba(0,0,0,0.6);
+  border-radius: 15px;
+}
 
-  .timer {
-    font-size: 22px;
-    font-weight: bold;
-    color: #00ffcc;
-    margin: 10px 0;
-  }
+.timer {
+  font-size: 22px;
+  font-weight: bold;
+  color: #00ffcc;
+  margin: 10px 0;
+}
 
-  .live {
-    font-size: 13px;
-    color: #ffcc00;
-  }
+.live {
+  font-size: 13px;
+  color: #ffcc00;
+}
 
-  .btn {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 15px 25px;
-    background: #00c6ff;
-    color: white;
-    text-decoration: none;
-    border-radius: 10px;
-    font-weight: bold;
-  }
+.btn {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 15px 25px;
+  background: #00c6ff;
+  color: white;
+  text-decoration: none;
+  border-radius: 10px;
+  font-weight: bold;
+}
 
-  #winnerBox {
-    display: none;
-    margin-top: 15px;
-    padding: 10px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 10px;
-  }
+#winnerBox {
+  display: none;
+  margin-top: 15px;
+  padding: 10px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+}
 </style>
 </head>
 
@@ -64,7 +64,6 @@
   <h1>🚀 VIP Giveaway</h1>
 
   <div class="timer" id="countdown">Syncing...</div>
-
   <div class="live" id="entries">👥 Entries: 0</div>
 
   <p>We’re selecting <b>1 random winner</b> 🎉</p>
@@ -86,27 +85,28 @@ let endTime = null;
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status");
-    const data = await res.json();
 
-    if (!res.ok || data.error) {
-      throw new Error(data.error || "API error");
+    if (!res.ok) {
+      throw new Error(await res.text());
     }
 
-    if (!data.end_time) throw new Error("Missing end_time");
+    const data = await res.json();
+
+    if (!data.end_time) throw new Error("No end_time");
 
     endTime = Number(data.end_time);
     localStorage.setItem("end_time", endTime);
 
-    console.log("✅ Synced endTime:", endTime);
+    console.log("Synced:", endTime);
 
   } catch (e) {
-    console.log("⚠️ Fallback timer:", e.message);
+    console.log("Sync failed:", e.message);
 
     const saved = localStorage.getItem("end_time");
     if (saved) {
       endTime = Number(saved);
     } else {
-      countdownEl.innerHTML = "⚠️ Timer unavailable";
+      countdownEl.innerHTML = "⚠️ Sync failed";
     }
   }
 }
@@ -156,7 +156,7 @@ function loadWinner() {
   fetch(API + "/winner")
     .then(r => r.json())
     .then(data => {
-      if (data?.winner) {
+      if (data?.winner?.name) {
         document.getElementById("winnerName").innerText =
           data.winner.name + " 🎉";
       } else {
