@@ -26,11 +26,17 @@
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
   }
 
-  h1 { margin-bottom: 10px; }
+  .timer {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 10px 0;
+    color: #00ffcc;
+  }
 
-  p {
-    font-size: 14px;
-    line-height: 1.5;
+  .live {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #ffcc00;
   }
 
   .btn {
@@ -43,30 +49,6 @@
     border-radius: 10px;
     text-decoration: none;
     font-weight: bold;
-    transition: 0.3s;
-  }
-
-  .btn:hover {
-    background: #0072ff;
-  }
-
-  .note {
-    margin-top: 15px;
-    font-size: 12px;
-    opacity: 0.8;
-  }
-
-  .timer {
-    font-size: 22px;
-    font-weight: bold;
-    margin: 10px 0;
-    color: #00ffcc;
-  }
-
-  .live {
-    margin-top: 10px;
-    font-size: 13px;
-    color: #ffcc00;
   }
 
   #winnerBox {
@@ -84,53 +66,46 @@
 <div class="container">
   <h1>🚀 VIP Giveaway</h1>
 
-  <!-- TIMER -->
+  <!-- TIMER (SERVER CONTROLLED) -->
   <div class="timer" id="countdown">Loading...</div>
 
   <!-- LIVE ENTRIES -->
   <div class="live" id="entries">👥 Entries: Loading...</div>
 
   <p>
-    We’re selecting <b>1 random winner</b> 🎉<br><br>
-    To enter:<br>
-    • Click the button below<br>
-    • Fill in your name<br>
-    • Type: <b>💎 VIP Exclusive</b><br>
-    • Click send on WhatsApp 
-  </p>
-
-  <p>
-    🎁 <b>Reward:</b><br>
-    FREE VIP access (ad-free) for 30 days!
-  </p>
-
-  <p class="note">
-    ⚠️ Note: On the next page, you may see fields like name, email etc.<br>
-    <b>Only the name and message is required.</b>
+    We’re selecting <b>1 random winner</b> 🎉
   </p>
 
   <a href="support.html" class="btn">👉 Enter Now</a>
 
-  <!-- WINNER BOX -->
+  <!-- WINNER -->
   <div id="winnerBox">
     🏆 Winner: <b id="winnerName">Loading...</b>
   </div>
 </div>
 
 <script>
-/* ================= TIMER ================= */
 const countdownEl = document.getElementById("countdown");
 
-let endTime = localStorage.getItem("vip_end_time");
+let endTime = null;
 
-if (!endTime) {
-  endTime = Date.now() + (24 * 60 * 60 * 1000);
-  localStorage.setItem("vip_end_time", endTime);
-} else {
-  endTime = Number(endTime);
+/* ================= SERVER TIMER ================= */
+async function loadStatus() {
+  try {
+    const res = await fetch("https://competition.anywherecum.workers.dev/status");
+    const data = await res.json();
+
+    endTime = data.end_time;
+    updateTimer();
+
+  } catch (e) {
+    countdownEl.innerHTML = "Error loading timer";
+  }
 }
 
 function updateTimer() {
+  if (!endTime) return;
+
   const now = Date.now();
   const timeLeft = endTime - now;
 
@@ -152,7 +127,7 @@ function updateTimer() {
 }
 
 setInterval(updateTimer, 1000);
-updateTimer();
+loadStatus();
 
 /* ================= LIVE ENTRIES ================= */
 function loadEntries() {
