@@ -75,38 +75,40 @@ body {
   </div>
 </div>
 
-<script>
+  <script>
 const API = "https://competition.workfromanywhere-sa.workers.dev";
 
 const countdownEl = document.getElementById("countdown");
 let endTime = null;
 
-/* ================= STATUS ================= */
+/* ================= STATUS (ROBUST + RETRY) ================= */
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status");
 
     if (!res.ok) {
-      throw new Error(await res.text());
+      throw new Error("HTTP " + res.status);
     }
 
     const data = await res.json();
 
-    if (!data.end_time) throw new Error("No end_time");
+    if (!data || !data.end_time) {
+      throw new Error("Invalid response");
+    }
 
     endTime = Number(data.end_time);
     localStorage.setItem("end_time", endTime);
 
-    console.log("Synced:", endTime);
+    console.log("✅ Synced endTime:", endTime);
 
   } catch (e) {
-    console.log("Sync failed:", e.message);
+    console.log("❌ Sync failed:", e.message);
 
     const saved = localStorage.getItem("end_time");
+
     if (saved) {
       endTime = Number(saved);
-    } else {
-      countdownEl.innerHTML = "⚠️ Sync failed";
+      console.log("📦 Using cached endTime");
     }
   }
 }
@@ -170,19 +172,25 @@ function loadWinner() {
     });
 }
 
-/* ================= INIT ================= */
-async function init() {
+/* ================= AUTO SYNC LOOP ================= */
+async function startSyncLoop() {
   await loadStatus();
+  setInterval(loadStatus, 5000); // keep trying until success
+}
+
+/* ================= INIT ================= */
+function init() {
+  startSyncLoop();
+
   updateTimer();
-
   setInterval(updateTimer, 1000);
-  setInterval(loadEntries, 5000);
 
+  setInterval(loadEntries, 5000);
   loadEntries();
 }
 
 init();
-</script>
+  </script>
 
 </body>
 </html>
