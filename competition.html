@@ -92,7 +92,7 @@ let endTime = null;
 /* ================= SERVER TIMER ================= */
 async function loadStatus() {
   try {
-    const res = await fetch("https://competition.anywherecum.workers.dev/status");
+    const res = await fetch("https://competition.workfromanywhere-sa.workers.dev/status");
     const data = await res.json();
 
     endTime = data.end_time;
@@ -131,7 +131,7 @@ loadStatus();
 
 /* ================= LIVE ENTRIES ================= */
 function loadEntries() {
-  fetch("https://competition.anywherecum.workers.dev/entries")
+  fetch("https://competition.workfromanywhere-sa.workers.dev/entries")
     .then(res => res.json())
     .then(data => {
       document.getElementById("entries").innerText =
@@ -148,7 +148,7 @@ setInterval(loadEntries, 5000);
 
 /* ================= WINNER ================= */
 function loadWinner() {
-  fetch("https://competition.anywherecum.workers.dev/winner")
+  fetch("https://competition.workfromanywhere-sa.workers.dev/winner")
     .then(res => res.json())
     .then(data => {
       if (data.winner) {
