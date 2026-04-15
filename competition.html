@@ -80,40 +80,44 @@
 const API = "https://competition.workfromanywhere-sa.workers.dev";
 
 const countdownEl = document.getElementById("countdown");
-
 let endTime = null;
 
-/* ================= STATUS (SESSION SAFE) ================= */
+/* ================= LOAD STATUS ================= */
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status");
-    const data = await res.json();
 
-    if (!data.end_time || isNaN(Number(data.end_time))) {
-      throw new Error("Invalid end_time");
-    }
+    if (!res.ok) throw new Error("Bad response");
+
+    const data = await res.json();
 
     endTime = Number(data.end_time);
 
-  } catch (e) {
-    console.log("Status fallback mode");
+    // ✅ SAVE
+    localStorage.setItem("end_time", endTime);
 
-    // safe fallback (prevents NaN)
-    endTime = Date.now() + 24 * 60 * 60 * 1000;
+  } catch (e) {
+    console.log("Using cached timer");
+
+    // ✅ LOAD FROM CACHE
+    const saved = localStorage.getItem("end_time");
+    if (saved) {
+      endTime = Number(saved);
+    }
   }
 }
 
 /* ================= TIMER ================= */
 function updateTimer() {
   if (!endTime || isNaN(endTime)) {
-    countdownEl.innerHTML = "Loading...";
+    countdownEl.innerHTML = "Connecting...";
     return;
   }
 
   const now = Date.now();
   const timeLeft = endTime - now;
 
-  if (isNaN(timeLeft) || timeLeft <= 0) {
+  if (timeLeft <= 0) {
     countdownEl.innerHTML = "⏳ Giveaway Ended";
     document.getElementById("winnerBox").style.display = "block";
     loadWinner();
@@ -142,8 +146,7 @@ function loadEntries() {
         "👥 Entries: " + (Array.isArray(data) ? data.length : 0);
     })
     .catch(() => {
-      document.getElementById("entries").innerText =
-        "👥 Entries: 0";
+      document.getElementById("entries").innerText = "👥 Entries: 0";
     });
 }
 
