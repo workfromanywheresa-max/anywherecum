@@ -63,7 +63,7 @@
 <div class="container">
   <h1>🚀 VIP Giveaway</h1>
 
-  <div class="timer" id="countdown">00:00:00</div>
+  <div class="timer" id="countdown">Loading...</div>
 
   <div class="live" id="entries">👥 Entries: 0</div>
 
@@ -81,26 +81,39 @@ const API = "https://competition.workfromanywhere-sa.workers.dev";
 
 const countdownEl = document.getElementById("countdown");
 
-let endTime = Date.now() + 24 * 60 * 60 * 1000; // fallback instantly
+let endTime = null;
 
-/* ================= STATUS ================= */
+/* ================= STATUS (SESSION SAFE) ================= */
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status");
     const data = await res.json();
 
-    endTime = data.end_time;
+    if (!data.end_time || isNaN(Number(data.end_time))) {
+      throw new Error("Invalid end_time");
+    }
+
+    endTime = Number(data.end_time);
+
   } catch (e) {
     console.log("Status fallback mode");
+
+    // safe fallback (prevents NaN)
+    endTime = Date.now() + 24 * 60 * 60 * 1000;
   }
 }
 
 /* ================= TIMER ================= */
 function updateTimer() {
+  if (!endTime || isNaN(endTime)) {
+    countdownEl.innerHTML = "Loading...";
+    return;
+  }
+
   const now = Date.now();
   const timeLeft = endTime - now;
 
-  if (timeLeft <= 0) {
+  if (isNaN(timeLeft) || timeLeft <= 0) {
     countdownEl.innerHTML = "⏳ Giveaway Ended";
     document.getElementById("winnerBox").style.display = "block";
     loadWinner();
@@ -126,7 +139,7 @@ function loadEntries() {
     .then(r => r.json())
     .then(data => {
       document.getElementById("entries").innerText =
-        "👥 Entries: " + data.length;
+        "👥 Entries: " + (Array.isArray(data) ? data.length : 0);
     })
     .catch(() => {
       document.getElementById("entries").innerText =
@@ -142,13 +155,17 @@ function loadWinner() {
   fetch(API + "/winner")
     .then(r => r.json())
     .then(data => {
-      if (data.winner) {
+      if (data && data.winner) {
         document.getElementById("winnerName").innerText =
           data.winner.name + " 🎉";
       } else {
         document.getElementById("winnerName").innerText =
           "No winner yet";
       }
+    })
+    .catch(() => {
+      document.getElementById("winnerName").innerText =
+        "Error loading winner";
     });
 }
 </script>
