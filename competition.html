@@ -63,7 +63,7 @@
 <div class="container">
   <h1>🚀 VIP Giveaway</h1>
 
-  <div class="timer" id="countdown">Loading...</div>
+  <div class="timer" id="countdown">Syncing...</div>
 
   <div class="live" id="entries">👥 Entries: 0</div>
 
@@ -82,28 +82,31 @@ const API = "https://competition.workfromanywhere-sa.workers.dev";
 const countdownEl = document.getElementById("countdown");
 let endTime = null;
 
-/* ================= LOAD STATUS ================= */
+/* ================= STATUS ================= */
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status");
-
-    if (!res.ok) throw new Error("Bad response");
-
     const data = await res.json();
 
-    if (!data.end_time) throw new Error("No end_time");
+    if (!res.ok || data.error) {
+      throw new Error(data.error || "API error");
+    }
+
+    if (!data.end_time) throw new Error("Missing end_time");
 
     endTime = Number(data.end_time);
-
-    // Save locally (backup)
     localStorage.setItem("end_time", endTime);
 
+    console.log("✅ Synced endTime:", endTime);
+
   } catch (e) {
-    console.log("Using cached timer");
+    console.log("⚠️ Fallback timer:", e.message);
 
     const saved = localStorage.getItem("end_time");
     if (saved) {
       endTime = Number(saved);
+    } else {
+      countdownEl.innerHTML = "⚠️ Timer unavailable";
     }
   }
 }
@@ -153,7 +156,7 @@ function loadWinner() {
   fetch(API + "/winner")
     .then(r => r.json())
     .then(data => {
-      if (data && data.winner) {
+      if (data?.winner) {
         document.getElementById("winnerName").innerText =
           data.winner.name + " 🎉";
       } else {
@@ -169,12 +172,13 @@ function loadWinner() {
 
 /* ================= INIT ================= */
 async function init() {
-  await loadStatus();       // ✅ wait for API first
-  updateTimer();            // run immediately
+  await loadStatus();
+  updateTimer();
+
   setInterval(updateTimer, 1000);
+  setInterval(loadEntries, 5000);
 
   loadEntries();
-  setInterval(loadEntries, 5000);
 }
 
 init();
