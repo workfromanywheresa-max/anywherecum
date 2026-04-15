@@ -63,7 +63,7 @@
 <div class="container">
   <h1>🚀 VIP Giveaway</h1>
 
-  <div class="timer" id="countdown">Loading...</div>
+  <div class="timer" id="countdown">Connecting...</div>
 
   <div class="live" id="entries">👥 Entries: 0</div>
 
@@ -72,7 +72,7 @@
   <a href="support.html" class="btn">👉 Enter Now</a>
 
   <div id="winnerBox">
-    🏆 Winner: <b id="winnerName">Loading...</b>
+    🏆 Winner: <b id="winnerName">Waiting...</b>
   </div>
 </div>
 
@@ -81,42 +81,41 @@ const API = "https://competition.workfromanywhere-sa.workers.dev";
 
 const countdownEl = document.getElementById("countdown");
 
-let endTime = null;
+let winnerLoaded = false;
 
-/* ================= STATUS (SESSION SAFE) ================= */
-async function loadStatus() {
-  try {
-    const res = await fetch(API + "/status");
-    const data = await res.json();
+/* ================= LIVE STREAM (REAL SYNC) ================= */
+function startStream() {
+  const es = new EventSource(API + "/stream");
 
-    if (!data.end_time || isNaN(Number(data.end_time))) {
-      throw new Error("Invalid end_time");
+  es.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+
+    /* TIMER */
+    updateTimer(data.time_left);
+
+    /* ENTRIES */
+    document.getElementById("entries").innerText =
+      "👥 Entries: " + (data.entries || 0);
+
+    /* WINNER */
+    if (data.winner && !winnerLoaded) {
+      winnerLoaded = true;
+
+      document.getElementById("winnerBox").style.display = "block";
+      document.getElementById("winnerName").innerText =
+        data.winner.name + " 🎉";
     }
+  };
 
-    endTime = Number(data.end_time);
-
-  } catch (e) {
-    console.log("Status fallback mode");
-
-    // safe fallback (prevents NaN)
-    endTime = Date.now() + 24 * 60 * 60 * 1000;
-  }
+  es.onerror = () => {
+    countdownEl.innerText = "Reconnecting...";
+  };
 }
 
 /* ================= TIMER ================= */
-function updateTimer() {
-  if (!endTime || isNaN(endTime)) {
-    countdownEl.innerHTML = "Loading...";
-    return;
-  }
-
-  const now = Date.now();
-  const timeLeft = endTime - now;
-
-  if (isNaN(timeLeft) || timeLeft <= 0) {
-    countdownEl.innerHTML = "⏳ Giveaway Ended";
-    document.getElementById("winnerBox").style.display = "block";
-    loadWinner();
+function updateTimer(timeLeft) {
+  if (!timeLeft || timeLeft <= 0) {
+    countdownEl.innerText = "⏳ Giveaway Ended";
     return;
   }
 
@@ -124,50 +123,14 @@ function updateTimer() {
   const m = Math.floor((timeLeft % 3600000) / 60000);
   const s = Math.floor((timeLeft % 60000) / 1000);
 
-  countdownEl.innerHTML =
+  countdownEl.innerText =
     String(h).padStart(2,'0') + ":" +
     String(m).padStart(2,'0') + ":" +
     String(s).padStart(2,'0');
 }
 
-setInterval(updateTimer, 1000);
-loadStatus();
-
-/* ================= ENTRIES ================= */
-function loadEntries() {
-  fetch(API + "/entries")
-    .then(r => r.json())
-    .then(data => {
-      document.getElementById("entries").innerText =
-        "👥 Entries: " + (Array.isArray(data) ? data.length : 0);
-    })
-    .catch(() => {
-      document.getElementById("entries").innerText =
-        "👥 Entries: 0";
-    });
-}
-
-loadEntries();
-setInterval(loadEntries, 5000);
-
-/* ================= WINNER ================= */
-function loadWinner() {
-  fetch(API + "/winner")
-    .then(r => r.json())
-    .then(data => {
-      if (data && data.winner) {
-        document.getElementById("winnerName").innerText =
-          data.winner.name + " 🎉";
-      } else {
-        document.getElementById("winnerName").innerText =
-          "No winner yet";
-      }
-    })
-    .catch(() => {
-      document.getElementById("winnerName").innerText =
-        "Error loading winner";
-    });
-}
+/* ================= START ================= */
+startStream();
 </script>
 
 </body>
