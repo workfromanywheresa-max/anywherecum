@@ -6,45 +6,55 @@
 <title>VIP Giveaway</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-  color: white;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-}
-.container {
-  max-width:400px;
-  padding:20px;
-  background:rgba(0,0,0,0.6);
-  border-radius:15px;
-  text-align:center;
-}
-.timer {
-  font-size:22px;
-  font-weight:bold;
-  color:#00ffcc;
-}
-.live {
-  font-size:13px;
-  color:#ffcc00;
-}
-.btn {
-  display:inline-block;
-  margin-top:20px;
-  padding:15px 25px;
-  background:#00c6ff;
-  color:white;
-  border-radius:10px;
-  text-decoration:none;
-}
-#winnerBox {
-  display:none;
-  margin-top:15px;
-}
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+  }
+
+  .container {
+    max-width: 400px;
+    padding: 20px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 15px;
+  }
+
+  .timer {
+    font-size: 22px;
+    font-weight: bold;
+    color: #00ffcc;
+    margin: 10px 0;
+  }
+
+  .live {
+    font-size: 13px;
+    color: #ffcc00;
+  }
+
+  .btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 15px 25px;
+    background: #00c6ff;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: bold;
+  }
+
+  #winnerBox {
+    display: none;
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+  }
 </style>
 </head>
 
@@ -54,43 +64,42 @@ body {
   <h1>🚀 VIP Giveaway</h1>
 
   <div class="timer" id="countdown">Loading...</div>
+
   <div class="live" id="entries">👥 Entries: 0</div>
+
+  <p>We’re selecting <b>1 random winner</b> 🎉</p>
 
   <a href="support.html" class="btn">👉 Enter Now</a>
 
   <div id="winnerBox">
-    🏆 Winner: <b id="winnerName"></b>
+    🏆 Winner: <b id="winnerName">Loading...</b>
   </div>
 </div>
 
 <script>
 const API = "https://competition.workfromanywhere-sa.workers.dev";
 
-let endTime = null;
 const countdownEl = document.getElementById("countdown");
+let endTime = null;
 
 /* ================= LOAD STATUS ================= */
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status");
 
-    if (!res.ok) throw new Error();
+    if (!res.ok) throw new Error("Bad response");
 
     const data = await res.json();
 
-    console.log("SESSION:", data.session_id);
+    endTime = Number(data.end_time);
 
-    const serverEnd = Number(data.end_time);
-
-    // Only update if valid
-    if (!isNaN(serverEnd) && serverEnd > Date.now()) {
-      endTime = serverEnd;
-      localStorage.setItem("end_time", endTime);
-    }
+    // ✅ SAVE
+    localStorage.setItem("end_time", endTime);
 
   } catch (e) {
     console.log("Using cached timer");
 
+    // ✅ LOAD FROM CACHE
     const saved = localStorage.getItem("end_time");
     if (saved) {
       endTime = Number(saved);
@@ -100,24 +109,24 @@ async function loadStatus() {
 
 /* ================= TIMER ================= */
 function updateTimer() {
-  if (endTime === null || isNaN(endTime)) {
+  if (!endTime || isNaN(endTime)) {
     countdownEl.innerHTML = "Connecting...";
     return;
   }
 
   const now = Date.now();
-  const diff = endTime - now;
+  const timeLeft = endTime - now;
 
-  if (diff <= 0) {
-    countdownEl.innerHTML = "⏳ Ended";
+  if (timeLeft <= 0) {
+    countdownEl.innerHTML = "⏳ Giveaway Ended";
     document.getElementById("winnerBox").style.display = "block";
     loadWinner();
     return;
   }
 
-  const h = Math.floor(diff / 3600000);
-  const m = Math.floor((diff % 3600000) / 60000);
-  const s = Math.floor((diff % 60000) / 1000);
+  const h = Math.floor(timeLeft / 3600000);
+  const m = Math.floor((timeLeft % 3600000) / 60000);
+  const s = Math.floor((timeLeft % 60000) / 1000);
 
   countdownEl.innerHTML =
     String(h).padStart(2,'0') + ":" +
@@ -135,11 +144,14 @@ function loadEntries() {
     .then(data => {
       document.getElementById("entries").innerText =
         "👥 Entries: " + (Array.isArray(data) ? data.length : 0);
+    })
+    .catch(() => {
+      document.getElementById("entries").innerText = "👥 Entries: 0";
     });
 }
 
-setInterval(loadEntries, 5000);
 loadEntries();
+setInterval(loadEntries, 5000);
 
 /* ================= WINNER ================= */
 function loadWinner() {
@@ -151,8 +163,12 @@ function loadWinner() {
           data.winner.name + " 🎉";
       } else {
         document.getElementById("winnerName").innerText =
-          "No winner";
+          "No winner yet";
       }
+    })
+    .catch(() => {
+      document.getElementById("winnerName").innerText =
+        "Error loading winner";
     });
 }
 </script>
