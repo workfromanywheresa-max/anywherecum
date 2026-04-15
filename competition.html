@@ -1,91 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VIP Giveaway</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIP Giveaway</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      text-align: center;
-    }
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+  }
 
-    .container {
-      max-width: 400px;
-      padding: 20px;
-      background: rgba(0,0,0,0.6);
-      border-radius: 15px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    }
+  .container {
+    max-width: 400px;
+    padding: 20px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  }
 
-    h1 {
-      margin-bottom: 10px;
-    }
+  h1 { margin-bottom: 10px; }
 
-    p {
-      font-size: 14px;
-      line-height: 1.5;
-    }
+  p {
+    font-size: 14px;
+    line-height: 1.5;
+  }
 
-    .btn {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 15px 25px;
-      font-size: 16px;
-      color: white;
-      background: #00c6ff;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: bold;
-      transition: 0.3s;
-    }
+  .btn {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 15px 25px;
+    font-size: 16px;
+    color: white;
+    background: #00c6ff;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: 0.3s;
+  }
 
-    .btn:hover {
-      background: #0072ff;
-    }
+  .btn:hover {
+    background: #0072ff;
+  }
 
-    .note {
-      margin-top: 15px;
-      font-size: 12px;
-      opacity: 0.8;
-    }
-  </style>
+  .note {
+    margin-top: 15px;
+    font-size: 12px;
+    opacity: 0.8;
+  }
+
+  .timer {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 10px 0;
+    color: #00ffcc;
+  }
+
+  .live {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #ffcc00;
+  }
+
+  #winnerBox {
+    display: none;
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+  }
+</style>
 </head>
 
 <body>
 
-  <div class="container">
-    <h1>🚀 VIP Giveaway</h1>
+<div class="container">
+  <h1>🚀 VIP Giveaway</h1>
 
-    <p>
-      We’re selecting <b>1 random winner</b> 🎉<br><br>
-      
-      To enter:<br>
-      • Click the button below<br>
-      • Type: <b>💎 VIP Exclusive</b><br>
-      • Send on WhatsApp 
-    </p>
+  <!-- TIMER -->
+  <div class="timer" id="countdown">Loading...</div>
 
-    <p>
-      🎁 <b>Reward:</b><br>
-      FREE VIP access (ad-free) for 30 days!
-    </p>
+  <!-- LIVE ENTRIES -->
+  <div class="live" id="entries">👥 Entries: Loading...</div>
 
-    <p class="note">
-      ⚠️ Note: On the next page, you may see fields like name and email.<br>
-      <b>Only the message is required.</b> You can ignore the rest.
-    </p>
+  <p>
+    We’re selecting <b>1 random winner</b> 🎉<br><br>
+    To enter:<br>
+    • Click the button below<br>
+    • Type: <b>💎 VIP Exclusive</b><br>
+    • Send the message
+  </p>
 
-    <a href="support.html" class="btn">👉 Enter Now</a>
+  <p>
+    🎁 <b>Reward:</b><br>
+    FREE VIP access (ad-free) for 30 days!
+  </p>
+
+  <p class="note">
+    ⚠️ Note: On the next page, you may see fields like name and email.<br>
+    <b>Only the message is required.</b>
+  </p>
+
+  <a href="support.html" class="btn">👉 Enter Now</a>
+
+  <!-- WINNER BOX -->
+  <div id="winnerBox">
+    🏆 Winner: <b id="winnerName">Loading...</b>
   </div>
+</div>
+
+<script>
+/* ================= TIMER ================= */
+const countdownEl = document.getElementById("countdown");
+
+let endTime = localStorage.getItem("vip_end_time");
+
+if (!endTime) {
+  endTime = Date.now() + (24 * 60 * 60 * 1000);
+  localStorage.setItem("vip_end_time", endTime);
+} else {
+  endTime = Number(endTime);
+}
+
+function updateTimer() {
+  const now = Date.now();
+  const timeLeft = endTime - now;
+
+  if (timeLeft <= 0) {
+    countdownEl.innerHTML = "⏳ Giveaway Ended";
+    document.getElementById("winnerBox").style.display = "block";
+    loadWinner();
+    return;
+  }
+
+  let h = Math.floor(timeLeft / (1000 * 60 * 60));
+  let m = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+  let s = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+  countdownEl.innerHTML =
+    String(h).padStart(2,'0') + ":" +
+    String(m).padStart(2,'0') + ":" +
+    String(s).padStart(2,'0');
+}
+
+setInterval(updateTimer, 1000);
+updateTimer();
+
+/* ================= LIVE ENTRIES ================= */
+function loadEntries() {
+  fetch("https://YOUR-WORKER.workers.dev/entries")
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("entries").innerText =
+        "👥 Entries: " + data.length;
+    })
+    .catch(() => {
+      document.getElementById("entries").innerText =
+        "👥 Entries: 0";
+    });
+}
+
+loadEntries();
+setInterval(loadEntries, 5000);
+
+/* ================= WINNER ================= */
+function loadWinner() {
+  fetch("https://YOUR-WORKER.workers.dev/winner")
+    .then(res => res.json())
+    .then(data => {
+      if (data.winner) {
+        document.getElementById("winnerName").innerText =
+          data.winner.name + " 🎉";
+      } else {
+        document.getElementById("winnerName").innerText =
+          "No entries yet";
+      }
+    });
+}
+</script>
 
 </body>
 </html>
