@@ -155,7 +155,7 @@ updateTimer();
 
 /* ================= LIVE ENTRIES ================= */
 function loadEntries() {
-  fetch("https://YOUR-WORKER.workers.dev/entries")
+  fetch("https://competition.anywherecum.workers.dev/entries")
     .then(res => res.json())
     .then(data => {
       document.getElementById("entries").innerText =
@@ -172,7 +172,7 @@ setInterval(loadEntries, 5000);
 
 /* ================= WINNER ================= */
 function loadWinner() {
-  fetch("https://YOUR-WORKER.workers.dev/winner")
+  fetch("https://competition.anywherecum.workers.dev/winner")
     .then(res => res.json())
     .then(data => {
       if (data.winner) {
