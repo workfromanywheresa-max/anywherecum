@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>VIP Giveaway</title>
 
 <style>
@@ -23,18 +23,16 @@
     padding: 20px;
     background: rgba(0,0,0,0.6);
     border-radius: 15px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
   }
 
   .timer {
     font-size: 22px;
     font-weight: bold;
-    margin: 10px 0;
     color: #00ffcc;
+    margin: 10px 0;
   }
 
   .live {
-    margin-top: 10px;
     font-size: 13px;
     color: #ffcc00;
   }
@@ -43,11 +41,10 @@
     display: inline-block;
     margin-top: 20px;
     padding: 15px 25px;
-    font-size: 16px;
-    color: white;
     background: #00c6ff;
-    border-radius: 10px;
+    color: white;
     text-decoration: none;
+    border-radius: 10px;
     font-weight: bold;
   }
 
@@ -66,46 +63,40 @@
 <div class="container">
   <h1>🚀 VIP Giveaway</h1>
 
-  <!-- TIMER (SERVER CONTROLLED) -->
-  <div class="timer" id="countdown">Loading...</div>
+  <div class="timer" id="countdown">00:00:00</div>
 
-  <!-- LIVE ENTRIES -->
-  <div class="live" id="entries">👥 Entries: Loading...</div>
+  <div class="live" id="entries">👥 Entries: 0</div>
 
-  <p>
-    We’re selecting <b>1 random winner</b> 🎉
-  </p>
+  <p>We’re selecting <b>1 random winner</b> 🎉</p>
 
   <a href="support.html" class="btn">👉 Enter Now</a>
 
-  <!-- WINNER -->
   <div id="winnerBox">
     🏆 Winner: <b id="winnerName">Loading...</b>
   </div>
 </div>
 
 <script>
+const API = "https://competition.workfromanywhere-sa.workers.dev";
+
 const countdownEl = document.getElementById("countdown");
 
-let endTime = null;
+let endTime = Date.now() + 24 * 60 * 60 * 1000; // fallback instantly
 
-/* ================= SERVER TIMER ================= */
+/* ================= STATUS ================= */
 async function loadStatus() {
   try {
-    const res = await fetch("https://competition.workfromanywhere-sa.workers.dev/status");
+    const res = await fetch(API + "/status");
     const data = await res.json();
 
     endTime = data.end_time;
-    updateTimer();
-
   } catch (e) {
-    countdownEl.innerHTML = "Error loading timer";
+    console.log("Status fallback mode");
   }
 }
 
+/* ================= TIMER ================= */
 function updateTimer() {
-  if (!endTime) return;
-
   const now = Date.now();
   const timeLeft = endTime - now;
 
@@ -116,9 +107,9 @@ function updateTimer() {
     return;
   }
 
-  let h = Math.floor(timeLeft / (1000 * 60 * 60));
-  let m = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-  let s = Math.floor((timeLeft % (1000 * 60)) / 1000);
+  const h = Math.floor(timeLeft / 3600000);
+  const m = Math.floor((timeLeft % 3600000) / 60000);
+  const s = Math.floor((timeLeft % 60000) / 1000);
 
   countdownEl.innerHTML =
     String(h).padStart(2,'0') + ":" +
@@ -129,10 +120,10 @@ function updateTimer() {
 setInterval(updateTimer, 1000);
 loadStatus();
 
-/* ================= LIVE ENTRIES ================= */
+/* ================= ENTRIES ================= */
 function loadEntries() {
-  fetch("https://competition.workfromanywhere-sa.workers.dev/entries")
-    .then(res => res.json())
+  fetch(API + "/entries")
+    .then(r => r.json())
     .then(data => {
       document.getElementById("entries").innerText =
         "👥 Entries: " + data.length;
@@ -148,15 +139,15 @@ setInterval(loadEntries, 5000);
 
 /* ================= WINNER ================= */
 function loadWinner() {
-  fetch("https://competition.workfromanywhere-sa.workers.dev/winner")
-    .then(res => res.json())
+  fetch(API + "/winner")
+    .then(r => r.json())
     .then(data => {
       if (data.winner) {
         document.getElementById("winnerName").innerText =
           data.winner.name + " 🎉";
       } else {
         document.getElementById("winnerName").innerText =
-          "No entries yet";
+          "No winner yet";
       }
     });
 }
