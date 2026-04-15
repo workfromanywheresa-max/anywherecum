@@ -109,6 +109,22 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="totalSubscribers"></div>
 </div>
 
+  <button onclick="resetGiveaway()">RESET GIVEAWAY</button>
+
+  <p id="msg"></p>
+
+  <script>
+    async function resetGiveaway() {
+      const res = await fetch("https://competition.anywherecum.workers.dev/reset", {
+        method: "POST"
+      });
+
+      const data = await res.json();
+
+      document.getElementById("msg").innerText = data.message;
+    }
+  </script>
+
 <button onclick="generateKey()">Generate VIP Key</button>
 
 <script>
