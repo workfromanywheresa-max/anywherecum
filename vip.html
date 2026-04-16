@@ -344,7 +344,7 @@ Watch, stream, and download all videos including exclusive content — completel
     </div>
 
     <button id="payBtn" class="pay-btn" onclick="goPayment()" disabled>
-      Pay with PayFast
+      Pay with Card
     </button>
   </div>
 
@@ -497,6 +497,7 @@ setInterval(validateVip, 60000);
 /* =========================
    PAYMENTS
 ========================= */
+
 let usdToZar = 0;
 
 const zarInput = document.getElementById("zarAmount");
@@ -527,8 +528,13 @@ function updateZAR() {
 
 function goPayment() {
   const amount = parseFloat(zarInput?.value);
-  if (!amount) return;
 
+  if (!amount || amount <= 0) {
+    alert("Invalid amount");
+    return;
+  }
+
+  // 🔥 FIXED: call your Worker GET endpoint
   window.location.href =
     "https://payments.workfromanywhere-sa.workers.dev/?amount=" + amount;
 }
@@ -541,13 +547,9 @@ function goCrypto() {
   window.location.href = "crypto-vip.html";
 }
 
-/* =========================
-   INIT
-========================= */
+/* INIT */
 fetchRate();
 setInterval(fetchRate, 60000);
-validateVip();
-
 </script>
 
 </body>
