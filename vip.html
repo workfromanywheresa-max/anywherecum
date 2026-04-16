@@ -342,6 +342,9 @@ Watch, stream, and download all videos including exclusive content — completel
   <input type="number" id="zarAmount" placeholder="Loading ZAR..." readonly>
     </div>
 
+    <input type="text" id="vipFullNamePayment" placeholder="Full Name">
+<input type="email" id="vipEmailPayment" placeholder="Payment Email">
+
     <button id="payBtn" class="pay-btn" onclick="goPayment()" disabled>
       Pay with Card
     </button>
@@ -527,28 +530,27 @@ function updateZAR() {
 
 function goPayment() {
   const amount = parseFloat(zarInput?.value);
+  const fullName = document.getElementById("vipFullNamePayment").value.trim();
+  const email = document.getElementById("vipEmailPayment").value.trim();
 
   if (!amount || amount <= 0) {
     alert("Invalid amount");
     return;
   }
 
-  // 🔥 FIXED: call your Worker GET endpoint
+  if (!fullName || !email) {
+    alert("Enter full name and email");
+    return;
+  }
+
   window.location.href =
-    "https://payments.workfromanywhere-sa.workers.dev/?amount=" + amount;
+    "https://payments.workfromanywhere-sa.workers.dev/?amount=" +
+    amount +
+    "&fullname=" +
+    encodeURIComponent(fullName) +
+    "&email=" +
+    encodeURIComponent(email);
 }
-
-function goPayPal() {
-  window.location.href = "https://www.paypal.com/ncp/payment/M5A4KXRSXUJS2";
-}
-
-function goCrypto() {
-  window.location.href = "crypto-vip.html";
-}
-
-/* INIT */
-fetchRate();
-setInterval(fetchRate, 60000);
 </script>
 
 </body>
