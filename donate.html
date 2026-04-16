@@ -312,7 +312,7 @@ function googleTranslateElementInit() {
     </div>
 
     <button id="donateBtn" class="donate-btn" onclick="goDonate()" disabled>
-      Donate with PayFast
+  Donate with Card
     </button>
   </div>
 </div>
@@ -388,13 +388,14 @@ function handleInput() {
   }
 }
 
+// 🔥 FIXED YOCO ROUTE
 function goDonate() {
   const amount = parseFloat(customInput.value);
 
   if (!amount || amount <= 0) return;
 
   window.location.href =
-    "https://donation.workfromanywhere-sa.workers.dev/?amount=" + amount;
+    "https://donation.workfromanywhere-sa.workers.dev/pay?amount=" + amount;
 }
 
 function goPayPal() {
