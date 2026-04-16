@@ -336,15 +336,14 @@ Watch, stream, and download all videos including exclusive content — completel
   <!-- PayFast -->
   <div class="card payfast-card">
     <img class="logo" src="https://anywherecum.pages.dev/images/payfast.webp">
+    <input type="text" id="payName" placeholder="Full name">
+    <input type="email" id="payEmail" placeholder="Email">
     <div id="usdDisplay">$5.00 USD</div>
 
     <div class="zar-wrapper">
   <span class="zar-prefix">R</span>
   <input type="number" id="zarAmount" placeholder="Loading ZAR..." readonly>
     </div>
-
-    <input type="text" id="payName" placeholder="Full name">
-<input type="email" id="payEmail" placeholder="Email">
 
     <button id="payBtn" class="pay-btn" onclick="goPayment()" disabled>
       Pay with Card
