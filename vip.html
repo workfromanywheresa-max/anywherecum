@@ -301,6 +301,7 @@ function googleTranslateElementInit() {
   <p class="vip-desc">
 Watch, stream, and download all videos including exclusive content — completely ad-free. Get VIP Exlusive for $5 (valid for 30 days). 
     ⏱ Access is approved within 15 minutes after payment. Make sure to enter your email at checkout to receive your login details. 
+    ⚠️ PayFast not available yet
   </p>
 
   <div style="margin:15px 0; text-align:center;">
@@ -334,16 +335,13 @@ Watch, stream, and download all videos including exclusive content — completel
 
   <!-- PayFast -->
   <div class="card payfast-card">
-    <img class="logo" src="https://anywherecum.pages.dev/images/yoco.webp">
+    <img class="logo" src="https://anywherecum.pages.dev/images/payfast.webp">
     <div id="usdDisplay">$5.00 USD</div>
 
     <div class="zar-wrapper">
   <span class="zar-prefix">R</span>
   <input type="number" id="zarAmount" placeholder="Loading ZAR..." readonly>
     </div>
-
-    <input type="text" id="vipFullNamePayment" placeholder="Full Name">
-<input type="email" id="vipEmailPayment" placeholder="Payment Email">
 
     <button id="payBtn" class="pay-btn" onclick="goPayment()" disabled>
       Pay with Card
@@ -530,27 +528,28 @@ function updateZAR() {
 
 function goPayment() {
   const amount = parseFloat(zarInput?.value);
-  const fullName = document.getElementById("vipFullNamePayment").value.trim();
-  const email = document.getElementById("vipEmailPayment").value.trim();
 
   if (!amount || amount <= 0) {
     alert("Invalid amount");
     return;
   }
 
-  if (!fullName || !email) {
-    alert("Enter full name and email");
-    return;
-  }
-
+  // 🔥 FIXED: call your Worker GET endpoint
   window.location.href =
-    "https://payments.workfromanywhere-sa.workers.dev/?amount=" +
-    amount +
-    "&fullname=" +
-    encodeURIComponent(fullName) +
-    "&email=" +
-    encodeURIComponent(email);
+    "https://payments.workfromanywhere-sa.workers.dev/?amount=" + amount;
 }
+
+function goPayPal() {
+  window.location.href = "https://www.paypal.com/ncp/payment/M5A4KXRSXUJS2";
+}
+
+function goCrypto() {
+  window.location.href = "crypto-vip.html";
+}
+
+/* INIT */
+fetchRate();
+setInterval(fetchRate, 60000);
 </script>
 
 </body>
