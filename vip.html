@@ -538,7 +538,7 @@ function updateZAR() {
   payBtn.classList.add("active");
 }
 
-function goPayment() {
+async function goPayment() {
   const amount = parseFloat(zarInput?.value);
   const fullName = document.getElementById("payName").value.trim();
   const email = document.getElementById("payEmail").value.trim();
@@ -553,12 +553,30 @@ function goPayment() {
     return;
   }
 
+  // 🔥 SEND TO WORKER FIRST (Resend trigger)
+  try {
+    await fetch("https://payments.workfromanywhere-sa.workers.dev/notify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        fullName,
+        email,
+        amount
+      })
+    });
+  } catch (err) {
+    console.log("Notify failed (ignored):", err);
+  }
+
+  // THEN redirect to payment
   window.location.href =
     "https://payments.workfromanywhere-sa.workers.dev/" +
     "?amount=" + encodeURIComponent(amount) +
     "&email=" + encodeURIComponent(email) +
     "&fullName=" + encodeURIComponent(fullName);
-}
+  }
 
 function goPayPal() {
   window.location.href = "https://www.paypal.com/ncp/payment/M5A4KXRSXUJS2";
