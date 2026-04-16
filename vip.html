@@ -501,36 +501,50 @@ let usdToZar = 0;
 
 const zarInput = document.getElementById("zarAmount");
 const payBtn = document.getElementById("payBtn");
+const usdDisplay = document.getElementById("usdDisplay");
+
+const FIXED_USD = 5;
+const API_URL = "https://payments.workfromanywhere-sa.workers.dev/rate";
+const PAY_URL = "https://payments.workfromanywhere-sa.workers.dev/";
 
 async function fetchRate() {
   try {
     const res = await fetch(API_URL);
     const data = await res.json();
 
+    if (!data?.usdToZar) return;
+
     usdToZar = data.usdToZar;
-    updateZAR();
+    updateUI();
 
   } catch (err) {
     console.log("Rate error:", err);
+    payBtn.disabled = true;
   }
 }
 
-function updateZAR() {
-  if (!usdToZar || !zarInput) return;
+function updateUI() {
+  if (!usdToZar) return;
 
-  const zar = (5 * usdToZar).toFixed(2);
+  const zar = (FIXED_USD * usdToZar).toFixed(2);
+
   zarInput.value = zar;
+  usdDisplay.innerText = `$${FIXED_USD} USD ≈ R${zar}`;
 
   payBtn.disabled = false;
   payBtn.classList.add("active");
 }
 
 function goPayment() {
-  const amount = parseFloat(zarInput?.value);
-  if (!amount) return;
+  if (!usdToZar) {
+    alert("Rate not loaded yet");
+    return;
+  }
 
-  window.location.href =
-    "https://payments.workfromanywhere-sa.workers.dev/?amount=" + amount;
+  const amountZAR = (FIXED_USD * usdToZar).toFixed(2);
+
+  // YOCO FLOW (IMPORTANT)
+  window.location.href = `${PAY_URL}?amount=${encodeURIComponent(amountZAR)}`;
 }
 
 function goPayPal() {
@@ -541,13 +555,8 @@ function goCrypto() {
   window.location.href = "crypto-vip.html";
 }
 
-/* =========================
-   INIT
-========================= */
 fetchRate();
 setInterval(fetchRate, 60000);
-validateVip();
-
 </script>
 
 </body>
