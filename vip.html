@@ -578,39 +578,8 @@ async function goPayment() {
     "&fullName=" + encodeURIComponent(fullName);
   }
 
-async function goPayPal() {
-  const fullName = document.getElementById("vipEmail").value.trim(); // or add separate field if you want
-  const email = document.getElementById("vipEmail").value.trim();
-
-  if (!email) {
-    alert("Please enter your email first");
-    return;
-  }
-
-  try {
-    const res = await fetch(
-      `https://payments.workfromanywhere-sa.workers.dev/paypal-create?email=${encodeURIComponent(email)}&fullName=${encodeURIComponent(fullName)}`,
-      {
-        method: "GET",
-        credentials: "include"
-      }
-    );
-
-    // Worker already redirects to PayPal approve link
-    if (res.redirected) {
-      window.location.href = res.url;
-      return;
-    }
-
-    // fallback safety
-    const text = await res.text();
-    console.log("PayPal error:", text);
-    alert("PayPal failed to start payment");
-
-  } catch (err) {
-    console.log(err);
-    alert("PayPal error");
-  }
+function goPayPal() {
+  window.location.href = "https://www.paypal.com/ncp/payment/M5A4KXRSXUJS2";
 }
 
 function goCrypto() {
