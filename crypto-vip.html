@@ -517,18 +517,19 @@ async function sendPayment() {
 
   try {
     await fetch("https://payments.workfromanywhere-sa.workers.dev/crypto-notify", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        fullName,
-        email,
-        country,
-        wallet,
-        amount: "$5"
-      })
-    });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    fullName,
+    email,
+    country,
+    wallet,
+    coin: currentCoin,   // ✅ ADD THIS
+    amount: "$5"
+  })
+});
 
     window.location.href = "thank-you-vip.html";
 
