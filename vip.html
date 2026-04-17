@@ -578,9 +578,25 @@ async function goPayment() {
     "&fullName=" + encodeURIComponent(fullName);
   }
 
-function goPayPal() {
+async function goPayPal() {
+  // 🔥 Notify your worker FIRST
+  try {
+    await fetch("https://payments.workfromanywhere-sa.workers.dev/paypal-notify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        amount: 5 // fixed USD only
+      })
+    });
+  } catch (err) {
+    console.log("PayPal notify failed (ignored):", err);
+  }
+
+  // THEN redirect to PayPal
   window.location.href = "https://www.paypal.com/ncp/payment/M5A4KXRSXUJS2";
-}
+  }
 
 function goCrypto() {
   window.location.href = "crypto-vip.html";
