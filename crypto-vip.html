@@ -516,7 +516,7 @@ async function sendPayment() {
   }
 
   try {
-    await fetch("https://email.workfromanywhere-sa.workers.dev/", {
+    await fetch("https://payments.workfromanywhere-sa.workers.dev/crypto-notify", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
