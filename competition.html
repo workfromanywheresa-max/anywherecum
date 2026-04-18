@@ -24,6 +24,9 @@ body {
   padding: 20px;
   background: rgba(0,0,0,0.6);
   border-radius: 15px;
+
+  height: 560px;   /* 🔒 FIXED HEIGHT = NO JUMPING */
+  overflow: hidden;
 }
 
 .timer {
@@ -62,14 +65,15 @@ input {
   font-size: 14px;
 }
 
-/* WINNER BOX (NO FLICKER) */
+/* WINNER BOX (STABLE SPACE RESERVED) */
 #winnerBox {
   margin-top: 15px;
   padding: 10px;
   background: rgba(255,255,255,0.1);
   border-radius: 10px;
   min-height: 70px;
-  visibility: hidden;
+
+  opacity: 0; /* hidden but keeps layout */
 }
 </style>
 </head>
@@ -83,20 +87,17 @@ input {
 
   <div class="live">👥 Entries: <span id="entryCount">0</span></div>
 
-  <!-- TEXT BLOCKS (CONTROLLED) -->
   <p id="winnerText">We’re selecting <b>1 random winner</b> 🎉</p>
 
   <p id="prizeText">
-    🎁 Prize!! Login Details for VIP Exclusive folder, zero ads, uninterrupted streaming and downloading valid for 30 days.
+    🎁 Prize!! Login Details for VIP Exclusive folder, zero ads, uninterrupted streaming and downloading for 30 days.
   </p>
 
   <p id="entryText">To enter the draw fill in your details below:</p>
 
-  <!-- ENTRY FORM -->
   <div id="entryForm">
     <input type="text" id="fullName" placeholder="Full Name">
     <input type="email" id="email" placeholder="Email">
-
     <button class="btn" onclick="submitEntry()">👉 Enter Now</button>
   </div>
 
@@ -122,7 +123,6 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10
 
 const API = "https://competition.workfromanywhere-sa.workers.dev";
 
-/* FIREBASE */
 const firebaseConfig = {
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
 };
@@ -133,14 +133,14 @@ const db = getDatabase(app);
 let cachedCount = null;
 let endTime = null;
 
-/* CACHE ENTRY COUNT */
+/* ENTRY COUNT CACHE */
 const savedCount = localStorage.getItem("entryCount");
 if (savedCount !== null) {
   cachedCount = Number(savedCount);
   document.getElementById("entryCount").textContent = cachedCount;
 }
 
-/* CACHE TIMER */
+/* TIMER CACHE */
 const savedTime = localStorage.getItem("end_time");
 if (savedTime !== null) {
   endTime = Number(savedTime);
@@ -158,29 +158,22 @@ async function loadStatus() {
       localStorage.setItem("end_time", endTime);
       updateTimer();
     }
-
-  } catch {
-    console.log("cached status");
-  }
+  } catch {}
 }
 
 /* TIMER */
 function updateTimer() {
   if (!endTime) return;
 
-  const now = Date.now();
-  const diff = endTime - now;
-
+  const diff = endTime - Date.now();
   const el = document.getElementById("countdown");
 
   if (diff <= 0) {
     el.innerText = "⏳ Competition Ended";
 
-    document.getElementById("entryForm").style.display = "none";
-
-    // hide text blocks after end
-    document.getElementById("winnerText").style.display = "none";
-    document.getElementById("entryText").style.display = "none";
+    document.getElementById("entryForm").style.visibility = "hidden";
+    document.getElementById("winnerText").style.visibility = "hidden";
+    document.getElementById("entryText").style.visibility = "hidden";
 
     loadWinner();
     return;
@@ -220,20 +213,15 @@ async function loadWinner() {
     const data = await res.json();
 
     if (data?.winner?.name) {
-      const winner = data.winner;
+      const w = data.winner;
 
-      document.getElementById("winnerName").innerText =
-        winner.name + " 🎉";
+      document.getElementById("winnerName").innerText = w.name + " 🎉";
+      document.getElementById("winnerEmail").innerText = maskEmail(w.email);
 
-      document.getElementById("winnerEmail").innerText =
-        maskEmail(winner.email);
-
-      document.getElementById("winnerBox").style.visibility = "visible";
+      /* SHOW WITHOUT LAYOUT SHIFT */
+      document.getElementById("winnerBox").style.opacity = "1";
     }
-
-  } catch (err) {
-    console.log(err);
-  }
+  } catch {}
 }
 
 /* MASK EMAIL */
@@ -250,7 +238,7 @@ async function submitEntry() {
   const msg = document.getElementById("msg");
 
   if (!name || name.length < 3) return msg.innerText = "⚠️ Invalid name";
-  if (!email || !email.includes("@")) return msg.innerText = "⚠️ Invalid email";
+  if (!email.includes("@")) return msg.innerText = "⚠️ Invalid email";
 
   msg.innerText = "⏳ Submitting...";
 
