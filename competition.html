@@ -47,7 +47,6 @@ input {
 }
 
 .btn {
-  display: inline-block;
   margin-top: 15px;
   padding: 15px 25px;
   background: #00c6ff;
@@ -96,16 +95,25 @@ input {
   </div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
 const API = "https://competition.workfromanywhere-sa.workers.dev";
 
-const countdownEl = document.getElementById("countdown");
+/* ================= FIREBASE INIT ================= */
+const firebaseConfig = {
+  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+/* ================= STATE ================= */
+let lastEntryCount = null;
 let endTime = null;
 
-/* ================= CACHE ================= */
-let lastEntryCount = null;
-
-/* ================= STATUS ================= */
+/* ================= STATUS (ONE-TIME FETCH ONLY) ================= */
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status");
@@ -115,87 +123,74 @@ async function loadStatus() {
       endTime = Number(data.end_time);
       localStorage.setItem("end_time", endTime);
     }
-  } catch (err) {
+  } catch {
     const saved = localStorage.getItem("end_time");
     if (saved) endTime = Number(saved);
   }
 }
 
-/* ================= TIMER ================= */
+/* ================= TIMER (LOCAL ONLY) ================= */
 function updateTimer() {
-  if (!endTime) {
-    countdownEl.innerHTML = "⏳ Syncing...";
-    return;
-  }
+  if (!endTime) return;
 
   const now = Date.now();
-  const timeLeft = endTime - now;
+  const diff = endTime - now;
 
-  if (timeLeft <= 0) {
-    countdownEl.innerHTML = "⏳ Giveaway Ended";
+  const el = document.getElementById("countdown");
+
+  if (diff <= 0) {
+    el.innerText = "⏳ Giveaway Ended";
     document.getElementById("winnerBox").style.display = "block";
     loadWinner();
     return;
   }
 
-  const h = Math.floor(timeLeft / 3600000);
-  const m = Math.floor((timeLeft % 3600000) / 60000);
-  const s = Math.floor((timeLeft % 60000) / 1000);
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
 
-  countdownEl.innerHTML =
+  el.innerText =
     String(h).padStart(2,'0') + ":" +
     String(m).padStart(2,'0') + ":" +
     String(s).padStart(2,'0');
 }
 
-/* ================= ENTRIES (FIXED NO BLINK) ================= */
-function loadEntries() {
-  fetch(API + "/entries")
-    .then(async r => {
-      const text = await r.text();
+/* ================= REALTIME ENTRIES (NO POLLING) ================= */
+function startRealtimeEntries() {
+  const entriesRef = ref(db, "entries");
 
-      try {
-        const data = JSON.parse(text);
-        const count = Array.isArray(data) ? data.length : 0;
+  onValue(entriesRef, (snapshot) => {
+    const data = snapshot.val();
+    const count = data ? Object.keys(data).length : 0;
 
-        // ✅ ONLY update if changed
-        if (count !== lastEntryCount) {
-          document.getElementById("entries").innerText =
-            "👥 Entries: " + count;
+    // CACHE → prevents flicker
+    if (count !== lastEntryCount) {
+      document.getElementById("entries").innerText =
+        "👥 Entries: " + count;
 
-          lastEntryCount = count;
-        }
-
-      } catch {
-        console.log("Entries parse error:", text);
-      }
-    })
-    .catch(err => {
-      console.log("Entries fetch error:", err);
-
-      if (lastEntryCount !== 0) {
-        document.getElementById("entries").innerText = "👥 Entries: 0";
-        lastEntryCount = 0;
-      }
-    });
+      lastEntryCount = count;
+    }
+  });
 }
 
 /* ================= WINNER ================= */
-function loadWinner() {
-  fetch(API + "/winner")
-    .then(r => r.json())
-    .then(data => {
-      if (data?.winner?.name) {
-        document.getElementById("winnerName").innerText =
-          data.winner.name + " 🎉";
+async function loadWinner() {
+  try {
+    const res = await fetch(API + "/winner");
+    const data = await res.json();
 
-        document.getElementById("winnerEmail").innerText =
-          maskEmail(data.winner.email);
-      } else {
-        document.getElementById("winnerName").innerText = "No winner yet";
-      }
-    })
-    .catch(err => console.log(err));
+    if (data?.winner?.name) {
+      document.getElementById("winnerName").innerText =
+        data.winner.name + " 🎉";
+
+      document.getElementById("winnerEmail").innerText =
+        maskEmail(data.winner.email);
+    } else {
+      document.getElementById("winnerName").innerText = "No winner yet";
+    }
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 /* ================= MASK EMAIL ================= */
@@ -227,7 +222,6 @@ async function submitEntry() {
 
     if (res.ok) {
       msg.innerText = "✅ Entry submitted!";
-      loadEntries();
     } else {
       msg.innerText = "❌ " + (data.error || "Failed");
     }
@@ -241,12 +235,10 @@ async function submitEntry() {
 async function init() {
   await loadStatus();
 
-  setInterval(loadStatus, 5000);
-  setInterval(updateTimer, 1000);
-  setInterval(loadEntries, 5000);
+  startRealtimeEntries(); // 🔥 NO POLLING
+  setInterval(updateTimer, 1000); // UI ONLY (safe)
 
   updateTimer();
-  loadEntries();
 }
 
 init();
