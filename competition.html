@@ -99,7 +99,7 @@ input {
 </div>
 
 <script>
-const API = "https://competition.workfromanywhere-sa.workers.dev/enter";
+const API = "https://competition.workfromanywhere-sa.workers.dev";
 
 const countdownEl = document.getElementById("countdown");
 let endTime = null;
@@ -114,7 +114,8 @@ async function loadStatus() {
       endTime = Number(data.end_time);
       localStorage.setItem("end_time", endTime);
     }
-  } catch {
+  } catch (err) {
+    console.log("Status error:", err);
     const saved = localStorage.getItem("end_time");
     if (saved) endTime = Number(saved);
   }
@@ -150,27 +151,36 @@ function updateTimer() {
 /* ================= ENTRIES ================= */
 function loadEntries() {
   fetch(API + "/entries")
-    .then(r => r.json())
-    .then(data => {
-      document.getElementById("entries").innerText =
-        "👥 Entries: " + (Array.isArray(data) ? data.length : 0);
+    .then(async r => {
+      const text = await r.text();
+
+      try {
+        const data = JSON.parse(text);
+        document.getElementById("entries").innerText =
+          "👥 Entries: " + (Array.isArray(data) ? data.length : 0);
+      } catch {
+        console.log("Entries parse error:", text);
+      }
     })
-    .catch(() => {
+    .catch(err => {
+      console.log("Entries fetch error:", err);
       document.getElementById("entries").innerText = "👥 Entries: 0";
     });
-}
-
-/* ================= MASK EMAIL ================= */
-function maskEmail(email) {
-  if (!email.includes("@")) return email;
-  const [name, domain] = email.split("@");
-  return name.slice(0, 2) + "***@" + domain;
 }
 
 /* ================= WINNER ================= */
 function loadWinner() {
   fetch(API + "/winner")
-    .then(r => r.json())
+    .then(async r => {
+      const text = await r.text();
+
+      try {
+        return JSON.parse(text);
+      } catch {
+        console.log("Winner parse error:", text);
+        return null;
+      }
+    })
     .then(data => {
       if (data?.winner?.name) {
         document.getElementById("winnerName").innerText =
@@ -183,10 +193,16 @@ function loadWinner() {
         document.getElementById("winnerEmail").innerText = "";
       }
     })
-    .catch(() => {
-      document.getElementById("winnerName").innerText = "Error loading";
-      document.getElementById("winnerEmail").innerText = "";
+    .catch(err => {
+      console.log("Winner error:", err);
     });
+}
+
+/* ================= MASK EMAIL ================= */
+function maskEmail(email) {
+  if (!email || !email.includes("@")) return email;
+  const [name, domain] = email.split("@");
+  return name.slice(0, 2) + "***@" + domain;
 }
 
 /* ================= SUBMIT ================= */
@@ -205,6 +221,8 @@ async function submitEntry() {
     return;
   }
 
+  msg.innerText = "⏳ Submitting...";
+
   try {
     const res = await fetch(API + "/enter", {
       method: "POST",
@@ -214,7 +232,14 @@ async function submitEntry() {
       body: JSON.stringify({ name, email })
     });
 
-    const data = await res.json();
+    const text = await res.text();
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error(text);
+    }
 
     if (res.ok) {
       msg.innerText = "✅ Entry submitted!";
@@ -222,11 +247,13 @@ async function submitEntry() {
       document.getElementById("email").value = "";
       loadEntries();
     } else {
-      msg.innerText = "❌ " + (data.error || "Failed");
+      msg.innerText = "❌ " + (data.error || text || "Failed");
+      console.log("Server error:", data);
     }
 
-  } catch {
-    msg.innerText = "❌ Network error";
+  } catch (err) {
+    console.log("Submit error:", err);
+    msg.innerText = "❌ " + err.message;
   }
 }
 
@@ -235,16 +262,15 @@ async function init() {
   await loadStatus();
 
   setInterval(loadStatus, 5000);
+  setInterval(updateTimer, 1000);
+  setInterval(loadEntries, 5000);
 
   updateTimer();
-  setInterval(updateTimer, 1000);
-
   loadEntries();
-  setInterval(loadEntries, 5000);
 }
 
 init();
-</script>
+  </script>
 
 </body>
 </html>
