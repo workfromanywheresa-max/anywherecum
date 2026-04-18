@@ -93,7 +93,6 @@ input {
 
   <div id="msg"></div>
 
-  <!-- WINNER -->
   <div id="winnerBox">
     🏆 Winner: <b id="winnerName"></b><br/>
     📧 Email: <b id="winnerEmail"></b>
@@ -106,7 +105,6 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10
 
 const API = "https://competition.workfromanywhere-sa.workers.dev";
 
-/* FIREBASE */
 const firebaseConfig = {
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
 };
@@ -117,41 +115,37 @@ const db = getDatabase(app);
 let cachedCount = null;
 let endTime = null;
 
-/* ================= TIMER ================= */
+/* ================= HELPERS ================= */
 function canShowWinner() {
-  if (!endTime) return false;
-  return Date.now() >= endTime;
+  return endTime && Date.now() >= endTime;
 }
 
-/* CACHE ENTRY COUNT */
-const savedCount = localStorage.getItem("entryCount");
-if (savedCount !== null) {
-  cachedCount = Number(savedCount);
-  document.getElementById("entryCount").textContent = cachedCount;
-}
-
-/* CACHE TIMER */
-const savedTime = localStorage.getItem("end_time");
-if (savedTime !== null) {
-  endTime = Number(savedTime);
-  updateTimer();
-}
-
-/* EMAIL MASK */
 function maskEmail(email) {
   if (!email?.includes("@")) return email;
   const [n, d] = email.split("@");
   return n.slice(0,2) + "***@" + d;
 }
 
-/* 🔥 CACHED WINNER (BLOCKED UNTIL TIME END) */
-const cachedWinner = localStorage.getItem("winner_data");
-if (cachedWinner && canShowWinner()) {
-  const w = JSON.parse(cachedWinner);
-  showWinner(w);
+/* ================= CACHE ================= */
+const savedCount = localStorage.getItem("entryCount");
+if (savedCount !== null) {
+  cachedCount = Number(savedCount);
+  document.getElementById("entryCount").textContent = cachedCount;
 }
 
-/* LOAD STATUS */
+const savedTime = localStorage.getItem("end_time");
+if (savedTime !== null) {
+  endTime = Number(savedTime);
+  updateTimer();
+}
+
+/* 🔒 Cached winner (only if allowed) */
+const cachedWinner = localStorage.getItem("winner_data");
+if (cachedWinner && canShowWinner()) {
+  showWinner(JSON.parse(cachedWinner));
+}
+
+/* ================= STATUS ================= */
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status");
@@ -162,25 +156,19 @@ async function loadStatus() {
       localStorage.setItem("end_time", endTime);
       updateTimer();
     }
-
-  } catch {
-    console.log("cached status");
-  }
+  } catch {}
 }
 
-/* TIMER */
+/* ================= TIMER ================= */
 function updateTimer() {
   if (!endTime) return;
 
-  const now = Date.now();
-  const diff = endTime - now;
-
+  const diff = endTime - Date.now();
   const el = document.getElementById("countdown");
 
   if (diff <= 0) {
     el.innerText = "⏳ Giveaway Ended";
     document.getElementById("entryForm").style.display = "none";
-
     loadWinner();
     return;
   }
@@ -195,7 +183,7 @@ function updateTimer() {
     String(s).padStart(2,'0');
 }
 
-/* ENTRIES */
+/* ================= ENTRIES ================= */
 function startRealtimeEntries() {
   const entriesRef = ref(db, "entries");
 
@@ -207,15 +195,32 @@ function startRealtimeEntries() {
 
     cachedCount = count;
     document.getElementById("entryCount").textContent = count;
-
     localStorage.setItem("entryCount", count);
   });
 }
 
-/* WINNER (STRICT TIME LOCK) */
+/* ================= 🔥 REALTIME WINNER ================= */
+function startRealtimeWinner() {
+  const winnerRef = ref(db, "winner");
+
+  onValue(winnerRef, (snapshot) => {
+    const data = snapshot.val();
+
+    if (!data || !canShowWinner()) return;
+
+    const winner = {
+      name: data.name,
+      email: maskEmail(data.email)
+    };
+
+    showWinner(winner);
+    localStorage.setItem("winner_data", JSON.stringify(winner));
+  });
+}
+
+/* ================= FALLBACK WINNER ================= */
 async function loadWinner() {
   try {
-
     if (!canShowWinner()) return;
 
     const cached = localStorage.getItem("winner_data");
@@ -227,8 +232,7 @@ async function loadWinner() {
     const res = await fetch(API + "/winner");
     const data = await res.json();
 
-    if (data?.winner?.name && canShowWinner()) {
-
+    if (data?.winner?.name) {
       const winner = {
         name: data.winner.name,
         email: maskEmail(data.winner.email)
@@ -237,20 +241,17 @@ async function loadWinner() {
       localStorage.setItem("winner_data", JSON.stringify(winner));
       showWinner(winner);
     }
-
-  } catch (err) {
-    console.log(err);
-  }
+  } catch {}
 }
 
-/* SHOW WINNER */
+/* ================= UI ================= */
 function showWinner(winner) {
   document.getElementById("winnerName").innerText = winner.name + " 🎉";
-  document.getElementById("winnerEmail").innerText = maskEmail(winner.email);
+  document.getElementById("winnerEmail").innerText = winner.email;
   document.getElementById("winnerBox").style.visibility = "visible";
 }
 
-/* SUBMIT */
+/* ================= SUBMIT ================= */
 async function submitEntry() {
   const name = document.getElementById("fullName").value.trim();
   const email = document.getElementById("email").value.trim();
@@ -281,10 +282,11 @@ async function submitEntry() {
 
 window.submitEntry = submitEntry;
 
-/* INIT */
+/* ================= INIT ================= */
 async function init() {
   await loadStatus();
   startRealtimeEntries();
+  startRealtimeWinner(); // 🔥 LIVE winner updates
   setInterval(updateTimer, 1000);
   updateTimer();
 }
