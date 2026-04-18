@@ -78,7 +78,9 @@ input {
   <h1>🚀 VIP Giveaway</h1>
 
   <div class="timer" id="countdown">Syncing...</div>
-  <div class="live" id="entries">👥 Entries: 0</div>
+
+  <!-- FIX: only number updates -->
+  <div class="live">👥 Entries: <span id="entryCount">0</span></div>
 
   <p>We’re selecting <b>1 random winner</b> 🎉</p>
 
@@ -113,7 +115,7 @@ const db = getDatabase(app);
 let lastEntryCount = null;
 let endTime = null;
 
-/* ================= STATUS (ONE-TIME FETCH ONLY) ================= */
+/* ================= STATUS ================= */
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status");
@@ -129,7 +131,7 @@ async function loadStatus() {
   }
 }
 
-/* ================= TIMER (LOCAL ONLY) ================= */
+/* ================= TIMER ================= */
 function updateTimer() {
   if (!endTime) return;
 
@@ -155,7 +157,7 @@ function updateTimer() {
     String(s).padStart(2,'0');
 }
 
-/* ================= REALTIME ENTRIES (NO POLLING) ================= */
+/* ================= REALTIME ENTRIES (FIXED) ================= */
 function startRealtimeEntries() {
   const entriesRef = ref(db, "entries");
 
@@ -163,11 +165,8 @@ function startRealtimeEntries() {
     const data = snapshot.val();
     const count = data ? Object.keys(data).length : 0;
 
-    // CACHE → prevents flicker
     if (count !== lastEntryCount) {
-      document.getElementById("entries").innerText =
-        "👥 Entries: " + count;
-
+      document.getElementById("entryCount").textContent = count;
       lastEntryCount = count;
     }
   });
@@ -235,8 +234,8 @@ async function submitEntry() {
 async function init() {
   await loadStatus();
 
-  startRealtimeEntries(); // 🔥 NO POLLING
-  setInterval(updateTimer, 1000); // UI ONLY (safe)
+  startRealtimeEntries();
+  setInterval(updateTimer, 1000);
 
   updateTimer();
 }
