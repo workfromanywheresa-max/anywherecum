@@ -114,14 +114,13 @@ const db = getDatabase(app);
 let cachedCount = null;
 let endTime = null;
 
-/* ================= RESTORE ENTRY CACHE ================= */
+/* ================= RESTORE CACHE ================= */
 const savedCount = localStorage.getItem("entryCount");
 if (savedCount !== null) {
   cachedCount = Number(savedCount);
   document.getElementById("entryCount").textContent = cachedCount;
 }
 
-/* ================= RESTORE TIMER CACHE ================= */
 const savedTime = localStorage.getItem("end_time");
 if (savedTime !== null) {
   endTime = Number(savedTime);
@@ -139,8 +138,15 @@ async function loadStatus() {
       localStorage.setItem("end_time", endTime);
       updateTimer();
     }
+
+    // 🔥 NEW: check if winner already exists
+    if (data?.winner_ready) {
+      showWinner();
+      loadWinner();
+    }
+
   } catch {
-    console.log("Using cached timer");
+    console.log("Using cached status");
   }
 }
 
@@ -155,7 +161,7 @@ function updateTimer() {
 
   if (diff <= 0) {
     el.innerText = "⏳ Giveaway Ended";
-    document.getElementById("winnerBox").style.display = "block";
+    showWinner(); // 🔥 auto show
     loadWinner();
     return;
   }
@@ -168,6 +174,11 @@ function updateTimer() {
     String(h).padStart(2,'0') + ":" +
     String(m).padStart(2,'0') + ":" +
     String(s).padStart(2,'0');
+}
+
+/* ================= SHOW WINNER BOX ================= */
+function showWinner() {
+  document.getElementById("winnerBox").style.display = "block";
 }
 
 /* ================= ENTRIES ================= */
@@ -207,7 +218,7 @@ async function loadWinner() {
   }
 }
 
-/* ================= EMAIL MASK ================= */
+/* ================= MASK EMAIL ================= */
 function maskEmail(email) {
   if (!email?.includes("@")) return email;
   const [n, d] = email.split("@");
@@ -243,7 +254,7 @@ async function submitEntry() {
   }
 }
 
-/* ================= EXPOSE FUNCTIONS (🔥 FIX) ================= */
+/* ================= EXPOSE ================= */
 window.submitEntry = submitEntry;
 window.loadWinner = loadWinner;
 
