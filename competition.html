@@ -121,14 +121,14 @@ if (savedCount !== null) {
   document.getElementById("entryCount").textContent = cachedCount;
 }
 
-/* ================= RESTORE TIMER CACHE (IMPORTANT FIX) ================= */
+/* ================= RESTORE TIMER CACHE ================= */
 const savedTime = localStorage.getItem("end_time");
 if (savedTime !== null) {
   endTime = Number(savedTime);
-  updateTimer(); // show instantly on refresh
+  updateTimer();
 }
 
-/* ================= LOAD STATUS (SERVER OVERRIDE) ================= */
+/* ================= LOAD STATUS ================= */
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status");
@@ -139,7 +139,7 @@ async function loadStatus() {
       localStorage.setItem("end_time", endTime);
       updateTimer();
     }
-  } catch (e) {
+  } catch {
     console.log("Using cached timer");
   }
 }
@@ -243,6 +243,10 @@ async function submitEntry() {
   }
 }
 
+/* ================= EXPOSE FUNCTIONS (🔥 FIX) ================= */
+window.submitEntry = submitEntry;
+window.loadWinner = loadWinner;
+
 /* ================= INIT ================= */
 async function init() {
   await loadStatus();
@@ -250,7 +254,7 @@ async function init() {
   startRealtimeEntries();
 
   setInterval(updateTimer, 1000);
-  updateTimer(); // instant render
+  updateTimer();
 }
 
 init();
