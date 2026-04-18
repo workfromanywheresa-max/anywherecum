@@ -62,20 +62,15 @@ input {
   font-size: 14px;
 }
 
-/* FIXED WINNER BOX (NO BLINKING) */
+/* ✅ ONLY FIX HERE */
 #winnerBox {
+  display: none;
   margin-top: 15px;
   padding: 10px;
   background: rgba(255,255,255,0.1);
   border-radius: 10px;
 
-  min-height: 60px;
-
-  opacity: 0;
-  transform: translateY(10px);
-  transition: all 0.4s ease;
-
-  pointer-events: none;
+  min-height: 70px; /* prevents blinking / layout jump */
 }
 </style>
 </head>
@@ -91,6 +86,7 @@ input {
 
   <p>We’re selecting <b>1 random winner</b> 🎉</p>
 
+  <!-- ENTRY FORM -->
   <div id="entryForm">
     <input type="text" id="fullName" placeholder="Enter your full name">
     <input type="email" id="email" placeholder="Enter your email">
@@ -121,13 +117,25 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+/* STATE */
 let cachedCount = null;
 let endTime = null;
 
-/* TIMER CACHE */
+/* IMPORTANT: DO NOT CACHE WINNER */
+let cachedWinner = null;
+
+/* CACHE ENTRY COUNT */
+const savedCount = localStorage.getItem("entryCount");
+if (savedCount !== null) {
+  cachedCount = Number(savedCount);
+  document.getElementById("entryCount").textContent = cachedCount;
+}
+
+/* CACHE TIMER */
 const savedTime = localStorage.getItem("end_time");
-if (savedTime) {
+if (savedTime !== null) {
   endTime = Number(savedTime);
+  updateTimer();
 }
 
 /* LOAD STATUS */
@@ -141,20 +149,26 @@ async function loadStatus() {
       localStorage.setItem("end_time", endTime);
       updateTimer();
     }
-  } catch {}
+
+  } catch {
+    console.log("cached status");
+  }
 }
 
 /* TIMER */
 function updateTimer() {
   if (!endTime) return;
 
-  const diff = endTime - Date.now();
+  const now = Date.now();
+  const diff = endTime - now;
+
   const el = document.getElementById("countdown");
 
   if (diff <= 0) {
     el.innerText = "⏳ Giveaway Ended";
 
     document.getElementById("entryForm").style.display = "none";
+
     loadWinner();
     return;
   }
@@ -181,10 +195,12 @@ function startRealtimeEntries() {
 
     cachedCount = count;
     document.getElementById("entryCount").textContent = count;
+
+    localStorage.setItem("entryCount", count);
   });
 }
 
-/* WINNER FIXED (NO BLINK) */
+/* WINNER */
 async function loadWinner() {
   try {
     const res = await fetch(API + "/winner");
@@ -193,24 +209,20 @@ async function loadWinner() {
     if (data?.winner?.name) {
       const winner = data.winner;
 
-      const box = document.getElementById("winnerBox");
-
+      document.getElementById("winnerBox").style.display = "block";
       document.getElementById("winnerName").innerText =
         winner.name + " 🎉";
 
       document.getElementById("winnerEmail").innerText =
         maskEmail(winner.email);
-
-      // smooth reveal
-      box.style.opacity = "1";
-      box.style.transform = "translateY(0)";
-      box.style.pointerEvents = "auto";
     }
 
-  } catch {}
+  } catch (err) {
+    console.log(err);
+  }
 }
 
-/* EMAIL MASK */
+/* MASK EMAIL */
 function maskEmail(email) {
   if (!email?.includes("@")) return email;
   const [n, d] = email.split("@");
