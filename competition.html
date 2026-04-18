@@ -11,13 +11,14 @@ body {
   font-family: Arial, sans-serif;
   background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
   color: white;
+
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  flex-direction: column;   /* ✅ FIX: stack vertically */
+  min-height: 100vh;        /* full screen height */
   text-align: center;
 }
 
+/* CENTER MAIN CARD */
 .container {
   max-width: 400px;
   width: 90%;
@@ -25,8 +26,10 @@ body {
   background: rgba(0,0,0,0.6);
   border-radius: 15px;
 
-  height: 560px;   /* 🔒 FIXED HEIGHT = NO JUMPING */
+  height: 560px;
   overflow: hidden;
+
+  margin: auto;  /* ✅ keeps it centered */
 }
 
 .timer {
@@ -65,15 +68,25 @@ input {
   font-size: 14px;
 }
 
-/* WINNER BOX (STABLE SPACE RESERVED) */
+/* WINNER BOX */
 #winnerBox {
   margin-top: 15px;
   padding: 10px;
   background: rgba(255,255,255,0.1);
   border-radius: 10px;
   min-height: 70px;
+  opacity: 0;
+}
 
-  opacity: 0; /* hidden but keeps layout */
+/* FOOTER FIX */
+footer {
+  margin-top: auto;   /* ✅ pushes footer to bottom */
+  text-align: center;
+  padding: 20px;
+  font-size: 12px;
+  color: #aaa;
+  background: #111;
+  width: 100%;
 }
 </style>
 </head>
@@ -103,7 +116,6 @@ input {
 
   <div id="msg"></div>
 
-  <!-- WINNER -->
   <div id="winnerBox">
     🏆 Winner: <b id="winnerName"></b><br/>
     📧 Email: <b id="winnerEmail"></b>
@@ -117,20 +129,19 @@ input {
   </div>
 </div>
 
-  <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
+<footer>
 © 2026 AnywhereCum – Legal content only. 18+<br>
 
 <div style="margin-top:8px; font-size:10px;">
-
   <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank" style="margin:0 5px;">
-    <img src="https://www.facebook.com/images/fb_icon_325x325.png" style="width:14px;height:14px; vertical-align:middle;"><span>|</span>
+    <img src="https://www.facebook.com/images/fb_icon_325x325.png" style="width:14px;height:14px; vertical-align:middle;">
+  </a><span>|</span>
 
   <a href="terms-privacy.html" style="color:#ff4444; margin:0 5px;">⚖️Terms & Privacy</a><span>|</span>
 
   <a href="/" style="color:#ff4444; margin:0 5px;">🏠Home</a>
-
 </div>
-  </footer>
+</footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -148,21 +159,18 @@ const db = getDatabase(app);
 let cachedCount = null;
 let endTime = null;
 
-/* ENTRY COUNT CACHE */
 const savedCount = localStorage.getItem("entryCount");
 if (savedCount !== null) {
   cachedCount = Number(savedCount);
   document.getElementById("entryCount").textContent = cachedCount;
 }
 
-/* TIMER CACHE */
 const savedTime = localStorage.getItem("end_time");
 if (savedTime !== null) {
   endTime = Number(savedTime);
   updateTimer();
 }
 
-/* LOAD STATUS */
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status");
@@ -176,7 +184,6 @@ async function loadStatus() {
   } catch {}
 }
 
-/* TIMER */
 function updateTimer() {
   if (!endTime) return;
 
@@ -204,7 +211,6 @@ function updateTimer() {
     String(s).padStart(2,'0');
 }
 
-/* ENTRIES */
 function startRealtimeEntries() {
   const entriesRef = ref(db, "entries");
 
@@ -221,7 +227,6 @@ function startRealtimeEntries() {
   });
 }
 
-/* WINNER */
 async function loadWinner() {
   try {
     const res = await fetch(API + "/winner");
@@ -233,20 +238,17 @@ async function loadWinner() {
       document.getElementById("winnerName").innerText = w.name + " 🎉";
       document.getElementById("winnerEmail").innerText = maskEmail(w.email);
 
-      /* SHOW WITHOUT LAYOUT SHIFT */
       document.getElementById("winnerBox").style.opacity = "1";
     }
   } catch {}
 }
 
-/* MASK EMAIL */
 function maskEmail(email) {
   if (!email?.includes("@")) return email;
   const [n, d] = email.split("@");
   return n.slice(0,2) + "***@" + d;
 }
 
-/* SUBMIT */
 async function submitEntry() {
   const name = document.getElementById("fullName").value.trim();
   const email = document.getElementById("email").value.trim();
@@ -277,7 +279,6 @@ async function submitEntry() {
 
 window.submitEntry = submitEntry;
 
-/* INIT */
 async function init() {
   await loadStatus();
   startRealtimeEntries();
