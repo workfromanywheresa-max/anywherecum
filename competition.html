@@ -117,6 +117,12 @@ const db = getDatabase(app);
 let cachedCount = null;
 let endTime = null;
 
+/* ================= TIMER ================= */
+function canShowWinner() {
+  if (!endTime) return false;
+  return Date.now() >= endTime;
+}
+
 /* CACHE ENTRY COUNT */
 const savedCount = localStorage.getItem("entryCount");
 if (savedCount !== null) {
@@ -138,9 +144,9 @@ function maskEmail(email) {
   return n.slice(0,2) + "***@" + d;
 }
 
-/* ✅ FIXED: ALWAYS SHOW MASKED WINNER ON REFRESH */
+/* 🔥 CACHED WINNER (BLOCKED UNTIL TIME END) */
 const cachedWinner = localStorage.getItem("winner_data");
-if (cachedWinner) {
+if (cachedWinner && canShowWinner()) {
   const w = JSON.parse(cachedWinner);
   showWinner(w);
 }
@@ -174,6 +180,7 @@ function updateTimer() {
   if (diff <= 0) {
     el.innerText = "⏳ Giveaway Ended";
     document.getElementById("entryForm").style.display = "none";
+
     loadWinner();
     return;
   }
@@ -205,9 +212,11 @@ function startRealtimeEntries() {
   });
 }
 
-/* WINNER (FIXED — NO RAW EMAIL EVER STORED OR DISPLAYED) */
+/* WINNER (STRICT TIME LOCK) */
 async function loadWinner() {
   try {
+
+    if (!canShowWinner()) return;
 
     const cached = localStorage.getItem("winner_data");
     if (cached) {
@@ -218,7 +227,7 @@ async function loadWinner() {
     const res = await fetch(API + "/winner");
     const data = await res.json();
 
-    if (data?.winner?.name) {
+    if (data?.winner?.name && canShowWinner()) {
 
       const winner = {
         name: data.winner.name,
