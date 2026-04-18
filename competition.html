@@ -17,7 +17,7 @@ html, body {
   flex-direction: column;
   min-height: 100vh;
 
-  overflow-x: hidden; /* ✅ REMOVE HORIZONTAL SCROLL */
+  overflow-x: hidden;
 }
 
 .container {
@@ -72,7 +72,6 @@ input {
   font-size: 14px;
 }
 
-/* WINNER BOX */
 #winnerBox {
   margin-top: 15px;
   padding: 10px;
@@ -82,7 +81,6 @@ input {
   opacity: 0;
 }
 
-/* FOOTER FIX */
 footer {
   margin-top: auto;
   text-align: center;
@@ -198,6 +196,7 @@ async function loadStatus() {
   } catch {}
 }
 
+/* ✅ UPDATED TIMER WITH DAYS */
 function updateTimer() {
   if (!endTime) return;
 
@@ -214,14 +213,17 @@ function updateTimer() {
     return;
   }
 
-  const h = Math.floor(diff / 3600000);
-  const m = Math.floor((diff % 3600000) / 60000);
-  const s = Math.floor((diff % 60000) / 1000);
+  const totalSeconds = Math.floor(diff / 1000);
+
+  const days = Math.floor(totalSeconds / (3600 * 24));
+  const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
 
   el.innerText =
-    String(h).padStart(2,'0') + ":" +
-    String(m).padStart(2,'0') + ":" +
-    String(s).padStart(2,'0');
+    `${days}D:${String(hours).padStart(2,'0')}H:` +
+    `${String(minutes).padStart(2,'0')}M:` +
+    `${String(seconds).padStart(2,'0')}S`;
 }
 
 function startRealtimeEntries() {
