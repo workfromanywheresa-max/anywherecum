@@ -6,19 +6,20 @@
 <title>VIP Giveaway</title>
 
 <style>
-body {
+html, body {
   margin: 0;
+  padding: 0;
   font-family: Arial, sans-serif;
   background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
   color: white;
 
   display: flex;
-  flex-direction: column;   /* ✅ FIX: stack vertically */
-  min-height: 100vh;        /* full screen height */
-  text-align: center;
+  flex-direction: column;
+  min-height: 100vh;
+
+  overflow-x: hidden; /* ✅ REMOVE HORIZONTAL SCROLL */
 }
 
-/* CENTER MAIN CARD */
 .container {
   max-width: 400px;
   width: 90%;
@@ -29,7 +30,8 @@ body {
   height: 560px;
   overflow: hidden;
 
-  margin: auto;  /* ✅ keeps it centered */
+  margin: auto;
+  box-sizing: border-box;
 }
 
 .timer {
@@ -50,6 +52,7 @@ input {
   border-radius: 8px;
   border: none;
   margin-top: 10px;
+  box-sizing: border-box;
 }
 
 .btn {
@@ -61,6 +64,7 @@ input {
   border-radius: 10px;
   font-weight: bold;
   cursor: pointer;
+  width: 100%;
 }
 
 #msg {
@@ -80,13 +84,21 @@ input {
 
 /* FOOTER FIX */
 footer {
-  margin-top: auto;   /* ✅ pushes footer to bottom */
+  margin-top: auto;
   text-align: center;
   padding: 20px;
   font-size: 12px;
   color: #aaa;
   background: #111;
   width: 100%;
+  box-sizing: border-box;
+}
+
+footer img {
+  width: 14px;
+  height: 14px;
+  vertical-align: middle;
+  display: inline-block;
 }
 </style>
 </head>
@@ -102,11 +114,11 @@ footer {
 
   <p id="winnerText">We’re selecting <b>1 random winner</b> 🎉</p>
 
-  <p id="prizeText">
+  <p>
     🎁 Prize!! Login Details for VIP Exclusive folder, zero ads, uninterrupted streaming and downloading for 30 days.
   </p>
 
-  <p id="entryText">To enter the draw fill in your details below:</p>
+  <p>To enter the draw fill in your details below:</p>
 
   <div id="entryForm">
     <input type="text" id="fullName" placeholder="Full Name">
@@ -133,11 +145,13 @@ footer {
 © 2026 AnywhereCum – Legal content only. 18+<br>
 
 <div style="margin-top:8px; font-size:10px;">
-  <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank" style="margin:0 5px;">
-    <img src="https://www.facebook.com/images/fb_icon_325x325.png" style="width:14px;height:14px; vertical-align:middle;">
-  </a><span>|</span>
+  <a href="https://www.facebook.com/profile.php?id=100069048046082" target="_blank">
+    <img src="https://www.facebook.com/images/fb_icon_325x325.png">
+  </a>
+  <span>|</span>
 
-  <a href="terms-privacy.html" style="color:#ff4444; margin:0 5px;">⚖️Terms & Privacy</a><span>|</span>
+  <a href="terms-privacy.html" style="color:#ff4444; margin:0 5px;">⚖️Terms & Privacy</a>
+  <span>|</span>
 
   <a href="/" style="color:#ff4444; margin:0 5px;">🏠Home</a>
 </div>
@@ -195,7 +209,6 @@ function updateTimer() {
 
     document.getElementById("entryForm").style.visibility = "hidden";
     document.getElementById("winnerText").style.visibility = "hidden";
-    document.getElementById("entryText").style.visibility = "hidden";
 
     loadWinner();
     return;
