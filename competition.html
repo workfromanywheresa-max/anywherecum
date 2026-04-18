@@ -77,7 +77,7 @@ input {
 <div class="container">
   <h1>🚀 VIP Giveaway</h1>
 
-  <div class="timer" id="countdown">Syncing...</div>
+  <div class="timer" id="countdown">00:00:00</div>
 
   <div class="live">👥 Entries: <span id="entryCount">0</span></div>
 
@@ -102,7 +102,7 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10
 
 const API = "https://competition.workfromanywhere-sa.workers.dev";
 
-/* ================= FIREBASE INIT ================= */
+/* ================= FIREBASE ================= */
 const firebaseConfig = {
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
 };
@@ -114,14 +114,21 @@ const db = getDatabase(app);
 let cachedCount = null;
 let endTime = null;
 
-/* ================= RESTORE CACHE (IMPORTANT FIX) ================= */
+/* ================= RESTORE ENTRY CACHE ================= */
 const savedCount = localStorage.getItem("entryCount");
 if (savedCount !== null) {
   cachedCount = Number(savedCount);
   document.getElementById("entryCount").textContent = cachedCount;
 }
 
-/* ================= STATUS ================= */
+/* ================= RESTORE TIMER CACHE (IMPORTANT FIX) ================= */
+const savedTime = localStorage.getItem("end_time");
+if (savedTime !== null) {
+  endTime = Number(savedTime);
+  updateTimer(); // show instantly on refresh
+}
+
+/* ================= LOAD STATUS (SERVER OVERRIDE) ================= */
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status");
@@ -130,10 +137,10 @@ async function loadStatus() {
     if (data?.end_time) {
       endTime = Number(data.end_time);
       localStorage.setItem("end_time", endTime);
+      updateTimer();
     }
-  } catch {
-    const saved = localStorage.getItem("end_time");
-    if (saved) endTime = Number(saved);
+  } catch (e) {
+    console.log("Using cached timer");
   }
 }
 
@@ -163,7 +170,7 @@ function updateTimer() {
     String(s).padStart(2,'0');
 }
 
-/* ================= REALTIME ENTRIES ================= */
+/* ================= ENTRIES ================= */
 function startRealtimeEntries() {
   const entriesRef = ref(db, "entries");
 
@@ -174,10 +181,8 @@ function startRealtimeEntries() {
     if (count === cachedCount) return;
 
     cachedCount = count;
-
     document.getElementById("entryCount").textContent = count;
 
-    // save for instant refresh restore
     localStorage.setItem("entryCount", count);
   });
 }
@@ -202,7 +207,7 @@ async function loadWinner() {
   }
 }
 
-/* ================= MASK EMAIL ================= */
+/* ================= EMAIL MASK ================= */
 function maskEmail(email) {
   if (!email?.includes("@")) return email;
   const [n, d] = email.split("@");
@@ -229,11 +234,9 @@ async function submitEntry() {
 
     const data = await res.json();
 
-    if (res.ok) {
-      msg.innerText = "✅ Entry submitted!";
-    } else {
-      msg.innerText = "❌ " + (data.error || "Failed");
-    }
+    msg.innerText = res.ok
+      ? "✅ Entry submitted!"
+      : "❌ " + (data.error || "Failed");
 
   } catch (err) {
     msg.innerText = "❌ " + err.message;
@@ -243,9 +246,11 @@ async function submitEntry() {
 /* ================= INIT ================= */
 async function init() {
   await loadStatus();
+
   startRealtimeEntries();
+
   setInterval(updateTimer, 1000);
-  updateTimer();
+  updateTimer(); // instant render
 }
 
 init();
