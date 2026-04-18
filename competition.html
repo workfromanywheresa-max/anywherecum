@@ -117,14 +117,26 @@ const db = getDatabase(app);
 /* STATE */
 let cachedCount = null;
 let endTime = null;
+let cachedWinner = JSON.parse(localStorage.getItem("winner"));
 
-/* CACHE */
+/* SHOW cached winner immediately (NO BLINK FIX) */
+if (cachedWinner?.name) {
+  document.getElementById("winnerBox").style.display = "block";
+  document.getElementById("winnerName").innerText =
+    cachedWinner.name + " 🎉";
+
+  document.getElementById("winnerEmail").innerText =
+    maskEmail(cachedWinner.email);
+}
+
+/* CACHE ENTRY COUNT */
 const savedCount = localStorage.getItem("entryCount");
 if (savedCount !== null) {
   cachedCount = Number(savedCount);
   document.getElementById("entryCount").textContent = cachedCount;
 }
 
+/* CACHE TIMER */
 const savedTime = localStorage.getItem("end_time");
 if (savedTime !== null) {
   endTime = Number(savedTime);
@@ -165,10 +177,8 @@ function updateTimer() {
   if (diff <= 0) {
     el.innerText = "⏳ Giveaway Ended";
 
-    // hide input form
     document.getElementById("entryForm").style.display = "none";
 
-    // show winner
     showWinner();
     loadWinner();
 
@@ -214,11 +224,17 @@ async function loadWinner() {
     const data = await res.json();
 
     if (data?.winner?.name) {
+      const winner = data.winner;
+
+      document.getElementById("winnerBox").style.display = "block";
       document.getElementById("winnerName").innerText =
-        data.winner.name + " 🎉";
+        winner.name + " 🎉";
 
       document.getElementById("winnerEmail").innerText =
-        maskEmail(data.winner.email);
+        maskEmail(winner.email);
+
+      /* CACHE WINNER */
+      localStorage.setItem("winner", JSON.stringify(winner));
     } else {
       document.getElementById("winnerName").innerText = "No winner yet";
     }
