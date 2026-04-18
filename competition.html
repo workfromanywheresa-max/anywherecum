@@ -20,6 +20,7 @@ body {
 
 .container {
   max-width: 400px;
+  width: 90%;
   padding: 20px;
   background: rgba(0,0,0,0.6);
   border-radius: 15px;
@@ -37,15 +38,29 @@ body {
   color: #ffcc00;
 }
 
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  margin-top: 10px;
+}
+
 .btn {
   display: inline-block;
-  margin-top: 20px;
+  margin-top: 15px;
   padding: 15px 25px;
   background: #00c6ff;
   color: white;
-  text-decoration: none;
+  border: none;
   border-radius: 10px;
   font-weight: bold;
+  cursor: pointer;
+}
+
+#msg {
+  margin-top: 10px;
+  font-size: 14px;
 }
 
 #winnerBox {
@@ -68,54 +83,46 @@ body {
 
   <p>We’re selecting <b>1 random winner</b> 🎉</p>
 
-  <a href="support.html" class="btn">👉 Enter Now</a>
+  <!-- INPUTS -->
+  <input type="text" id="fullName" placeholder="Enter your full name">
+  <input type="email" id="email" placeholder="Enter your email">
 
+  <button class="btn" onclick="submitEntry()">👉 Enter Now</button>
+
+  <div id="msg"></div>
+
+  <!-- WINNER -->
   <div id="winnerBox">
-    🏆 Winner: <b id="winnerName">Loading...</b>
+    🏆 Winner: <b id="winnerName">Loading...</b><br/>
+    📧 Email: <b id="winnerEmail"></b>
   </div>
 </div>
 
-  <script>
+<script>
 const API = "https://competition.workfromanywhere-sa.workers.dev";
 
 const countdownEl = document.getElementById("countdown");
 let endTime = null;
 
-/* ================= STATUS (ROBUST + RETRY) ================= */
+/* ================= STATUS ================= */
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status");
-
-    if (!res.ok) {
-      throw new Error("HTTP " + res.status);
-    }
-
     const data = await res.json();
 
-    if (!data || !data.end_time) {
-      throw new Error("Invalid response");
+    if (data?.end_time) {
+      endTime = Number(data.end_time);
+      localStorage.setItem("end_time", endTime);
     }
-
-    endTime = Number(data.end_time);
-    localStorage.setItem("end_time", endTime);
-
-    console.log("✅ Synced endTime:", endTime);
-
-  } catch (e) {
-    console.log("❌ Sync failed:", e.message);
-
+  } catch {
     const saved = localStorage.getItem("end_time");
-
-    if (saved) {
-      endTime = Number(saved);
-      console.log("📦 Using cached endTime");
-    }
+    if (saved) endTime = Number(saved);
   }
 }
 
 /* ================= TIMER ================= */
 function updateTimer() {
-  if (!endTime || isNaN(endTime)) {
+  if (!endTime) {
     countdownEl.innerHTML = "⏳ Syncing...";
     return;
   }
@@ -153,6 +160,13 @@ function loadEntries() {
     });
 }
 
+/* ================= MASK EMAIL ================= */
+function maskEmail(email) {
+  if (!email.includes("@")) return email;
+  const [name, domain] = email.split("@");
+  return name.slice(0, 2) + "***@" + domain;
+}
+
 /* ================= WINNER ================= */
 function loadWinner() {
   fetch(API + "/winner")
@@ -161,36 +175,76 @@ function loadWinner() {
       if (data?.winner?.name) {
         document.getElementById("winnerName").innerText =
           data.winner.name + " 🎉";
+
+        document.getElementById("winnerEmail").innerText =
+          maskEmail(data.winner.email);
       } else {
-        document.getElementById("winnerName").innerText =
-          "No winner yet";
+        document.getElementById("winnerName").innerText = "No winner yet";
+        document.getElementById("winnerEmail").innerText = "";
       }
     })
     .catch(() => {
-      document.getElementById("winnerName").innerText =
-        "Error loading winner";
+      document.getElementById("winnerName").innerText = "Error loading";
+      document.getElementById("winnerEmail").innerText = "";
     });
 }
 
-/* ================= AUTO SYNC LOOP ================= */
-async function startSyncLoop() {
-  await loadStatus();
-  setInterval(loadStatus, 5000); // keep trying until success
+/* ================= SUBMIT ================= */
+async function submitEntry() {
+  const name = document.getElementById("fullName").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const msg = document.getElementById("msg");
+
+  if (!name || name.length < 3) {
+    msg.innerText = "⚠️ Enter a valid full name";
+    return;
+  }
+
+  if (!email || !email.includes("@")) {
+    msg.innerText = "⚠️ Enter a valid email";
+    return;
+  }
+
+  try {
+    const res = await fetch(API + "/enter", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ name, email })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      msg.innerText = "✅ Entry submitted!";
+      document.getElementById("fullName").value = "";
+      document.getElementById("email").value = "";
+      loadEntries();
+    } else {
+      msg.innerText = "❌ " + (data.error || "Failed");
+    }
+
+  } catch {
+    msg.innerText = "❌ Network error";
+  }
 }
 
 /* ================= INIT ================= */
-function init() {
-  startSyncLoop();
+async function init() {
+  await loadStatus();
+
+  setInterval(loadStatus, 5000);
 
   updateTimer();
   setInterval(updateTimer, 1000);
 
-  setInterval(loadEntries, 5000);
   loadEntries();
+  setInterval(loadEntries, 5000);
 }
 
 init();
-  </script>
+</script>
 
 </body>
 </html>
