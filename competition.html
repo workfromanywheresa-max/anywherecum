@@ -111,9 +111,15 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 /* ================= STATE ================= */
-let lastEntryCount = null;
-let cachedCount = null;   // ✅ ADDED CACHE
+let cachedCount = null;
 let endTime = null;
+
+/* ================= RESTORE CACHE (IMPORTANT FIX) ================= */
+const savedCount = localStorage.getItem("entryCount");
+if (savedCount !== null) {
+  cachedCount = Number(savedCount);
+  document.getElementById("entryCount").textContent = cachedCount;
+}
 
 /* ================= STATUS ================= */
 async function loadStatus() {
@@ -157,7 +163,7 @@ function updateTimer() {
     String(s).padStart(2,'0');
 }
 
-/* ================= REALTIME ENTRIES (CACHED FIX) ================= */
+/* ================= REALTIME ENTRIES ================= */
 function startRealtimeEntries() {
   const entriesRef = ref(db, "entries");
 
@@ -165,11 +171,14 @@ function startRealtimeEntries() {
     const data = snapshot.val();
     const count = data ? Object.keys(data).length : 0;
 
-    // ✅ CACHE CHECK (prevents unnecessary UI updates)
     if (count === cachedCount) return;
 
     cachedCount = count;
+
     document.getElementById("entryCount").textContent = count;
+
+    // save for instant refresh restore
+    localStorage.setItem("entryCount", count);
   });
 }
 
