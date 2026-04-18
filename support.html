@@ -182,27 +182,5 @@ ${messageField}`;
 });
 </script>
 
-  <script>
-document.getElementById("supportForm").addEventListener("submit", async function(e) {
-  e.preventDefault();
-
-  const fullName = document.getElementById("fullName").value;
-  const messageField = document.getElementById("message").value;
-
-  // Send ONLY name + message to Worker
-  fetch("https://competition.workfromanywhere-sa.workers.dev//enter", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      name: fullName,
-      message: messageField
-    })
-  }).catch(err => console.log("Worker error:", err));
-
-});
-  </script>
-
 </body>
 </html>
