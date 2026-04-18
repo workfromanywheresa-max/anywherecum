@@ -7,13 +7,20 @@
     "enabled": true
   },
 
-  // Add this to your wrangler.jsonc
   "kv_namespaces": [
+    {
+      "binding": "ENTRIES",
+      "id": "94fd46edaafc4c879bc02c516735ac08",
+      "preview_id": "<ID_OF_PREVIEW_KV_NAMESPACE_FOR_LOCAL_DEVELOPMENT>"
+    },
+    {
+      "binding": "META",
+      "id": "53bb0b5f8d1140c78639249a55081c1b",
+      "preview_id": "<ID_OF_PREVIEW_KV_NAMESPACE_FOR_LOCAL_DEVELOPMENT>"
+    },
     {
       "binding": "LAST_UPDATED",
       "id": "f3c921a42a15463bb64537c106f53adb",
-      
-      // Optional: preview_id used when running `wrangler dev` for local dev
       "preview_id": "<ID_OF_PREVIEW_KV_NAMESPACE_FOR_LOCAL_DEVELOPMENT>"
     }
   ]
