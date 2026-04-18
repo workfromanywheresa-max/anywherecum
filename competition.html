@@ -126,7 +126,7 @@ function maskEmail(email) {
   return n.slice(0,2) + "***@" + d;
 }
 
-/* ================= CACHE ================= */
+/* ================= CACHE (ONLY COUNT + TIME) ================= */
 const savedCount = localStorage.getItem("entryCount");
 if (savedCount !== null) {
   cachedCount = Number(savedCount);
@@ -137,12 +137,6 @@ const savedTime = localStorage.getItem("end_time");
 if (savedTime !== null) {
   endTime = Number(savedTime);
   updateTimer();
-}
-
-/* 🔒 Cached winner (only if allowed) */
-const cachedWinner = localStorage.getItem("winner_data");
-if (cachedWinner && canShowWinner()) {
-  showWinner(JSON.parse(cachedWinner));
 }
 
 /* ================= STATUS ================= */
@@ -169,7 +163,6 @@ function updateTimer() {
   if (diff <= 0) {
     el.innerText = "⏳ Giveaway Ended";
     document.getElementById("entryForm").style.display = "none";
-    loadWinner();
     return;
   }
 
@@ -199,7 +192,7 @@ function startRealtimeEntries() {
   });
 }
 
-/* ================= 🔥 REALTIME WINNER ================= */
+/* ================= 🔥 REALTIME WINNER (NO CACHE) ================= */
 function startRealtimeWinner() {
   const winnerRef = ref(db, "winner");
 
@@ -214,34 +207,7 @@ function startRealtimeWinner() {
     };
 
     showWinner(winner);
-    localStorage.setItem("winner_data", JSON.stringify(winner));
   });
-}
-
-/* ================= FALLBACK WINNER ================= */
-async function loadWinner() {
-  try {
-    if (!canShowWinner()) return;
-
-    const cached = localStorage.getItem("winner_data");
-    if (cached) {
-      showWinner(JSON.parse(cached));
-      return;
-    }
-
-    const res = await fetch(API + "/winner");
-    const data = await res.json();
-
-    if (data?.winner?.name) {
-      const winner = {
-        name: data.winner.name,
-        email: maskEmail(data.winner.email)
-      };
-
-      localStorage.setItem("winner_data", JSON.stringify(winner));
-      showWinner(winner);
-    }
-  } catch {}
 }
 
 /* ================= UI ================= */
@@ -286,7 +252,7 @@ window.submitEntry = submitEntry;
 async function init() {
   await loadStatus();
   startRealtimeEntries();
-  startRealtimeWinner(); // 🔥 LIVE winner updates
+  startRealtimeWinner(); // 🔥 always live, no cache
   setInterval(updateTimer, 1000);
   updateTimer();
 }
