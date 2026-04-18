@@ -62,15 +62,16 @@ input {
   font-size: 14px;
 }
 
-/* ✅ ONLY FIX HERE */
+/* FIXED WINNER BOX (NO FLICKER) */
 #winnerBox {
-  display: none;
   margin-top: 15px;
   padding: 10px;
   background: rgba(255,255,255,0.1);
   border-radius: 10px;
 
-  min-height: 70px; /* prevents blinking / layout jump */
+  min-height: 70px;
+
+  visibility: hidden; /* prevents blank flash */
 }
 </style>
 </head>
@@ -117,12 +118,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* STATE */
 let cachedCount = null;
 let endTime = null;
-
-/* IMPORTANT: DO NOT CACHE WINNER */
-let cachedWinner = null;
 
 /* CACHE ENTRY COUNT */
 const savedCount = localStorage.getItem("entryCount");
@@ -200,7 +197,7 @@ function startRealtimeEntries() {
   });
 }
 
-/* WINNER */
+/* WINNER FIX (NO FLICKER) */
 async function loadWinner() {
   try {
     const res = await fetch(API + "/winner");
@@ -209,12 +206,14 @@ async function loadWinner() {
     if (data?.winner?.name) {
       const winner = data.winner;
 
-      document.getElementById("winnerBox").style.display = "block";
       document.getElementById("winnerName").innerText =
         winner.name + " 🎉";
 
       document.getElementById("winnerEmail").innerText =
         maskEmail(winner.email);
+
+      // SHOW ONLY WHEN READY (prevents blank flash)
+      document.getElementById("winnerBox").style.visibility = "visible";
     }
 
   } catch (err) {
