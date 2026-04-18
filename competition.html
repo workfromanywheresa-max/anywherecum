@@ -62,7 +62,7 @@ input {
   font-size: 14px;
 }
 
-/* FIXED WINNER BOX (NO FLICKER) */
+/* WINNER BOX (NO FLICKER) */
 #winnerBox {
   margin-top: 15px;
   padding: 10px;
@@ -70,8 +70,7 @@ input {
   border-radius: 10px;
 
   min-height: 70px;
-
-  visibility: hidden; /* prevents blank flash */
+  visibility: hidden;
 }
 </style>
 </head>
@@ -87,7 +86,6 @@ input {
 
   <p>We’re selecting <b>1 random winner</b> 🎉</p>
 
-  <!-- ENTRY FORM -->
   <div id="entryForm">
     <input type="text" id="fullName" placeholder="Enter your full name">
     <input type="email" id="email" placeholder="Enter your email">
@@ -121,18 +119,31 @@ const db = getDatabase(app);
 let cachedCount = null;
 let endTime = null;
 
-/* CACHE ENTRY COUNT */
+/* ENTRY CACHE */
 const savedCount = localStorage.getItem("entryCount");
 if (savedCount !== null) {
   cachedCount = Number(savedCount);
   document.getElementById("entryCount").textContent = cachedCount;
 }
 
-/* CACHE TIMER */
+/* TIMER CACHE */
 const savedTime = localStorage.getItem("end_time");
 if (savedTime !== null) {
   endTime = Number(savedTime);
-  updateTimer();
+}
+
+/* =========================
+   WINNER CACHE (NEW FIX)
+   ========================= */
+const savedWinner = localStorage.getItem("winner");
+if (savedWinner) {
+  const winner = JSON.parse(savedWinner);
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("winnerName").innerText = winner.name + " 🎉";
+    document.getElementById("winnerEmail").innerText = maskEmail(winner.email);
+    document.getElementById("winnerBox").style.visibility = "visible";
+  });
 }
 
 /* LOAD STATUS */
@@ -156,9 +167,7 @@ async function loadStatus() {
 function updateTimer() {
   if (!endTime) return;
 
-  const now = Date.now();
-  const diff = endTime - now;
-
+  const diff = endTime - Date.now();
   const el = document.getElementById("countdown");
 
   if (diff <= 0) {
@@ -197,7 +206,7 @@ function startRealtimeEntries() {
   });
 }
 
-/* WINNER FIX (NO FLICKER) */
+/* WINNER LOAD + CACHE */
 async function loadWinner() {
   try {
     const res = await fetch(API + "/winner");
@@ -206,13 +215,15 @@ async function loadWinner() {
     if (data?.winner?.name) {
       const winner = data.winner;
 
+      // SAVE TO CACHE
+      localStorage.setItem("winner", JSON.stringify(winner));
+
       document.getElementById("winnerName").innerText =
         winner.name + " 🎉";
 
       document.getElementById("winnerEmail").innerText =
         maskEmail(winner.email);
 
-      // SHOW ONLY WHEN READY (prevents blank flash)
       document.getElementById("winnerBox").style.visibility = "visible";
     }
 
