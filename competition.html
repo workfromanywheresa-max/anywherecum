@@ -83,13 +83,17 @@ input {
 
   <p>We’re selecting <b>1 random winner</b> 🎉</p>
 
-  <input type="text" id="fullName" placeholder="Enter your full name">
-  <input type="email" id="email" placeholder="Enter your email">
+  <!-- ENTRY FORM -->
+  <div id="entryForm">
+    <input type="text" id="fullName" placeholder="Enter your full name">
+    <input type="email" id="email" placeholder="Enter your email">
 
-  <button class="btn" onclick="submitEntry()">👉 Enter Now</button>
+    <button class="btn" onclick="submitEntry()">👉 Enter Now</button>
+  </div>
 
   <div id="msg"></div>
 
+  <!-- WINNER -->
   <div id="winnerBox">
     🏆 Winner: <b id="winnerName">Loading...</b><br/>
     📧 Email: <b id="winnerEmail"></b>
@@ -102,7 +106,7 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10
 
 const API = "https://competition.workfromanywhere-sa.workers.dev";
 
-/* ================= FIREBASE ================= */
+/* FIREBASE */
 const firebaseConfig = {
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
 };
@@ -110,11 +114,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ================= STATE ================= */
+/* STATE */
 let cachedCount = null;
 let endTime = null;
 
-/* ================= RESTORE CACHE ================= */
+/* CACHE */
 const savedCount = localStorage.getItem("entryCount");
 if (savedCount !== null) {
   cachedCount = Number(savedCount);
@@ -127,7 +131,7 @@ if (savedTime !== null) {
   updateTimer();
 }
 
-/* ================= LOAD STATUS ================= */
+/* STATUS */
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status");
@@ -139,18 +143,17 @@ async function loadStatus() {
       updateTimer();
     }
 
-    // 🔥 NEW: check if winner already exists
     if (data?.winner_ready) {
       showWinner();
       loadWinner();
     }
 
   } catch {
-    console.log("Using cached status");
+    console.log("cached status");
   }
 }
 
-/* ================= TIMER ================= */
+/* TIMER */
 function updateTimer() {
   if (!endTime) return;
 
@@ -161,8 +164,14 @@ function updateTimer() {
 
   if (diff <= 0) {
     el.innerText = "⏳ Giveaway Ended";
-    showWinner(); // 🔥 auto show
+
+    // hide input form
+    document.getElementById("entryForm").style.display = "none";
+
+    // show winner
+    showWinner();
     loadWinner();
+
     return;
   }
 
@@ -176,12 +185,12 @@ function updateTimer() {
     String(s).padStart(2,'0');
 }
 
-/* ================= SHOW WINNER BOX ================= */
+/* SHOW WINNER */
 function showWinner() {
   document.getElementById("winnerBox").style.display = "block";
 }
 
-/* ================= ENTRIES ================= */
+/* ENTRIES */
 function startRealtimeEntries() {
   const entriesRef = ref(db, "entries");
 
@@ -198,7 +207,7 @@ function startRealtimeEntries() {
   });
 }
 
-/* ================= WINNER ================= */
+/* WINNER */
 async function loadWinner() {
   try {
     const res = await fetch(API + "/winner");
@@ -218,14 +227,14 @@ async function loadWinner() {
   }
 }
 
-/* ================= MASK EMAIL ================= */
+/* MASK EMAIL */
 function maskEmail(email) {
   if (!email?.includes("@")) return email;
   const [n, d] = email.split("@");
   return n.slice(0,2) + "***@" + d;
 }
 
-/* ================= SUBMIT ================= */
+/* SUBMIT */
 async function submitEntry() {
   const name = document.getElementById("fullName").value.trim();
   const email = document.getElementById("email").value.trim();
@@ -254,16 +263,13 @@ async function submitEntry() {
   }
 }
 
-/* ================= EXPOSE ================= */
+/* EXPOSE */
 window.submitEntry = submitEntry;
-window.loadWinner = loadWinner;
 
-/* ================= INIT ================= */
+/* INIT */
 async function init() {
   await loadStatus();
-
   startRealtimeEntries();
-
   setInterval(updateTimer, 1000);
   updateTimer();
 }
