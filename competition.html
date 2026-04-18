@@ -131,20 +131,18 @@ if (savedTime !== null) {
   updateTimer();
 }
 
-/* MASK EMAIL */
+/* EMAIL MASK */
 function maskEmail(email) {
   if (!email?.includes("@")) return email;
   const [n, d] = email.split("@");
   return n.slice(0,2) + "***@" + d;
 }
 
-/* 🔥 FIXED: LOAD CACHED WINNER */
+/* ✅ FIXED: ALWAYS SHOW MASKED WINNER ON REFRESH */
 const cachedWinner = localStorage.getItem("winner_data");
 if (cachedWinner) {
   const w = JSON.parse(cachedWinner);
-  document.getElementById("winnerName").innerText = w.name + " 🎉";
-  document.getElementById("winnerEmail").innerText = maskEmail(w.email);
-  document.getElementById("winnerBox").style.visibility = "visible";
+  showWinner(w);
 }
 
 /* LOAD STATUS */
@@ -207,14 +205,13 @@ function startRealtimeEntries() {
   });
 }
 
-/* WINNER */
+/* WINNER (FIXED — NO RAW EMAIL EVER STORED OR DISPLAYED) */
 async function loadWinner() {
   try {
 
     const cached = localStorage.getItem("winner_data");
     if (cached) {
-      const w = JSON.parse(cached);
-      showWinner(w);
+      showWinner(JSON.parse(cached));
       return;
     }
 
@@ -222,6 +219,7 @@ async function loadWinner() {
     const data = await res.json();
 
     if (data?.winner?.name) {
+
       const winner = {
         name: data.winner.name,
         email: maskEmail(data.winner.email)
@@ -239,7 +237,7 @@ async function loadWinner() {
 /* SHOW WINNER */
 function showWinner(winner) {
   document.getElementById("winnerName").innerText = winner.name + " 🎉";
-  document.getElementById("winnerEmail").innerText = winner.email;
+  document.getElementById("winnerEmail").innerText = maskEmail(winner.email);
   document.getElementById("winnerBox").style.visibility = "visible";
 }
 
