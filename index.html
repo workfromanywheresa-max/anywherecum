@@ -633,15 +633,16 @@ function googleTranslateElementInit() {
        align-items:center;
        justify-content:center;
        gap:8px;
-       padding:10px 20px;
+       padding:12px 22px;
        background:#000;
        color:#fff;
        text-decoration:none;
        font-size:18px;
        font-weight:bold;
-       border-radius:6px;
+       border-radius:8px;
      ">
     Enter VIP Exclusive Competition
+    <span id="miniCountdown" style="color:#00ffcc;">(00:00:00)</span>
   </a>
   </div>
 
@@ -1336,6 +1337,95 @@ loadLives();
   }
 
 })();
+  </script>
+
+  <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const API = "https://competition.workfromanywhere-sa.workers.dev";
+
+const firebaseConfig = {
+  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+let endTime = null;
+
+/* ================= CACHE ================= */
+const savedTime = localStorage.getItem("vip_end_time");
+if (savedTime) {
+  endTime = Number(savedTime);
+  startTimer();
+}
+
+/* ================= LOAD STATUS FROM API ================= */
+async function loadStatus() {
+  try {
+    const res = await fetch(API + "/status");
+    const data = await res.json();
+
+    if (data?.end_time) {
+      endTime = Number(data.end_time);
+      localStorage.setItem("vip_end_time", endTime);
+      startTimer();
+    }
+  } catch (e) {
+    console.log("Status load failed", e);
+  }
+}
+
+/* ================= TIMER ================= */
+function startTimer() {
+  updateTimer();
+  setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+  if (!endTime) return;
+
+  const diff = endTime - Date.now();
+
+  const btn = document.getElementById("miniCountdown");
+
+  if (diff <= 0) {
+    btn.innerText = "(Ended)";
+    return;
+  }
+
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+
+  const time =
+    String(h).padStart(2,'0') + ":" +
+    String(m).padStart(2,'0') + ":" +
+    String(s).padStart(2,'0');
+
+  btn.innerText = "(" + time + ")";
+}
+
+/* ================= REALTIME (OPTIONAL ENTRIES COUNT) ================= */
+function startEntryCounter() {
+  const entriesRef = ref(db, "entries");
+
+  onValue(entriesRef, (snapshot) => {
+    const data = snapshot.val();
+    const count = data ? Object.keys(data).length : 0;
+
+    console.log("Entries:", count);
+  });
+}
+
+/* ================= INIT ================= */
+async function init() {
+  await loadStatus();
+  startEntryCounter();
+}
+
+init();
   </script>
   
   <script type="module" src="views.js"></script>
