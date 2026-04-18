@@ -95,7 +95,7 @@ input {
 
   <!-- WINNER -->
   <div id="winnerBox">
-    🏆 Winner: <b id="winnerName">Loading...</b><br/>
+    🏆 Winner: <b id="winnerName"></b><br/>
     📧 Email: <b id="winnerEmail"></b>
   </div>
 </div>
@@ -117,17 +117,9 @@ const db = getDatabase(app);
 /* STATE */
 let cachedCount = null;
 let endTime = null;
-let cachedWinner = JSON.parse(localStorage.getItem("winner"));
 
-/* SHOW cached winner immediately (NO BLINK FIX) */
-if (cachedWinner?.name) {
-  document.getElementById("winnerBox").style.display = "block";
-  document.getElementById("winnerName").innerText =
-    cachedWinner.name + " 🎉";
-
-  document.getElementById("winnerEmail").innerText =
-    maskEmail(cachedWinner.email);
-}
+/* IMPORTANT: DO NOT CACHE WINNER (prevents early reveal) */
+let cachedWinner = null;
 
 /* CACHE ENTRY COUNT */
 const savedCount = localStorage.getItem("entryCount");
@@ -143,7 +135,7 @@ if (savedTime !== null) {
   updateTimer();
 }
 
-/* STATUS */
+/* LOAD STATUS */
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status");
@@ -153,11 +145,6 @@ async function loadStatus() {
       endTime = Number(data.end_time);
       localStorage.setItem("end_time", endTime);
       updateTimer();
-    }
-
-    if (data?.winner_ready) {
-      showWinner();
-      loadWinner();
     }
 
   } catch {
@@ -179,7 +166,7 @@ function updateTimer() {
 
     document.getElementById("entryForm").style.display = "none";
 
-    showWinner();
+    // ONLY NOW reveal winner
     loadWinner();
 
     return;
@@ -193,11 +180,6 @@ function updateTimer() {
     String(h).padStart(2,'0') + ":" +
     String(m).padStart(2,'0') + ":" +
     String(s).padStart(2,'0');
-}
-
-/* SHOW WINNER */
-function showWinner() {
-  document.getElementById("winnerBox").style.display = "block";
 }
 
 /* ENTRIES */
@@ -217,7 +199,7 @@ function startRealtimeEntries() {
   });
 }
 
-/* WINNER */
+/* WINNER (ONLY AFTER END TIME) */
 async function loadWinner() {
   try {
     const res = await fetch(API + "/winner");
@@ -232,12 +214,8 @@ async function loadWinner() {
 
       document.getElementById("winnerEmail").innerText =
         maskEmail(winner.email);
-
-      /* CACHE WINNER */
-      localStorage.setItem("winner", JSON.stringify(winner));
-    } else {
-      document.getElementById("winnerName").innerText = "No winner yet";
     }
+
   } catch (err) {
     console.log(err);
   }
@@ -279,7 +257,6 @@ async function submitEntry() {
   }
 }
 
-/* EXPOSE */
 window.submitEntry = submitEntry;
 
 /* INIT */
