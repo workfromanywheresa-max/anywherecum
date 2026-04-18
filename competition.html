@@ -106,6 +106,7 @@ import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10
 
 const API = "https://competition.workfromanywhere-sa.workers.dev";
 
+/* FIREBASE */
 const firebaseConfig = {
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
 };
@@ -116,24 +117,97 @@ const db = getDatabase(app);
 let cachedCount = null;
 let endTime = null;
 
-/* EMAIL MASK */
+/* CACHE ENTRY COUNT */
+const savedCount = localStorage.getItem("entryCount");
+if (savedCount !== null) {
+  cachedCount = Number(savedCount);
+  document.getElementById("entryCount").textContent = cachedCount;
+}
+
+/* CACHE TIMER */
+const savedTime = localStorage.getItem("end_time");
+if (savedTime !== null) {
+  endTime = Number(savedTime);
+  updateTimer();
+}
+
+/* MASK EMAIL */
 function maskEmail(email) {
   if (!email?.includes("@")) return email;
   const [n, d] = email.split("@");
   return n.slice(0,2) + "***@" + d;
 }
 
-/* LOAD CACHED WINNER (FIXED) */
+/* 🔥 FIXED: LOAD CACHED WINNER */
 const cachedWinner = localStorage.getItem("winner_data");
 if (cachedWinner) {
   const w = JSON.parse(cachedWinner);
-
   document.getElementById("winnerName").innerText = w.name + " 🎉";
-  document.getElementById("winnerEmail").innerText = w.email; // already masked
+  document.getElementById("winnerEmail").innerText = maskEmail(w.email);
   document.getElementById("winnerBox").style.visibility = "visible";
 }
 
-/* WINNER LOAD */
+/* LOAD STATUS */
+async function loadStatus() {
+  try {
+    const res = await fetch(API + "/status");
+    const data = await res.json();
+
+    if (data?.end_time) {
+      endTime = Number(data.end_time);
+      localStorage.setItem("end_time", endTime);
+      updateTimer();
+    }
+
+  } catch {
+    console.log("cached status");
+  }
+}
+
+/* TIMER */
+function updateTimer() {
+  if (!endTime) return;
+
+  const now = Date.now();
+  const diff = endTime - now;
+
+  const el = document.getElementById("countdown");
+
+  if (diff <= 0) {
+    el.innerText = "⏳ Giveaway Ended";
+    document.getElementById("entryForm").style.display = "none";
+    loadWinner();
+    return;
+  }
+
+  const h = Math.floor(diff / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+
+  el.innerText =
+    String(h).padStart(2,'0') + ":" +
+    String(m).padStart(2,'0') + ":" +
+    String(s).padStart(2,'0');
+}
+
+/* ENTRIES */
+function startRealtimeEntries() {
+  const entriesRef = ref(db, "entries");
+
+  onValue(entriesRef, (snapshot) => {
+    const data = snapshot.val();
+    const count = data ? Object.keys(data).length : 0;
+
+    if (count === cachedCount) return;
+
+    cachedCount = count;
+    document.getElementById("entryCount").textContent = count;
+
+    localStorage.setItem("entryCount", count);
+  });
+}
+
+/* WINNER */
 async function loadWinner() {
   try {
 
@@ -150,7 +224,7 @@ async function loadWinner() {
     if (data?.winner?.name) {
       const winner = {
         name: data.winner.name,
-        email: maskEmail(data.winner.email) // 🔥 STORE MASKED ONLY
+        email: maskEmail(data.winner.email)
       };
 
       localStorage.setItem("winner_data", JSON.stringify(winner));
@@ -166,11 +240,11 @@ async function loadWinner() {
 function showWinner(winner) {
   document.getElementById("winnerName").innerText = winner.name + " 🎉";
   document.getElementById("winnerEmail").innerText = winner.email;
-
   document.getElementById("winnerBox").style.visibility = "visible";
 }
 
-window.submitEntry = async function submitEntry() {
+/* SUBMIT */
+async function submitEntry() {
   const name = document.getElementById("fullName").value.trim();
   const email = document.getElementById("email").value.trim();
   const msg = document.getElementById("msg");
@@ -196,7 +270,19 @@ window.submitEntry = async function submitEntry() {
   } catch (err) {
     msg.innerText = "❌ " + err.message;
   }
-};
+}
+
+window.submitEntry = submitEntry;
+
+/* INIT */
+async function init() {
+  await loadStatus();
+  startRealtimeEntries();
+  setInterval(updateTimer, 1000);
+  updateTimer();
+}
+
+init();
 </script>
 
 </body>
