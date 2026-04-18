@@ -62,16 +62,14 @@ input {
   font-size: 14px;
 }
 
-/* FIXED WINNER BOX (NO FLICKER) */
+/* WINNER BOX (NO FLICKER) */
 #winnerBox {
   margin-top: 15px;
   padding: 10px;
   background: rgba(255,255,255,0.1);
   border-radius: 10px;
-
   min-height: 70px;
-
-  visibility: hidden; /* prevents blank flash */
+  visibility: hidden;
 }
 </style>
 </head>
@@ -85,12 +83,15 @@ input {
 
   <div class="live">👥 Entries: <span id="entryCount">0</span></div>
 
-  <p>We’re selecting <b>1 random winner</b> 🎉</p>
+  <!-- TEXT BLOCKS (CONTROLLED) -->
+  <p id="winnerText">We’re selecting <b>1 random winner</b> 🎉</p>
 
-  <p>🎁 Prize!! Login Details for VIP Exclusive folder, zero ads, uninterrupted streaming and downloading for 30 days.
-  
-  <p>To enter the draw fill in your details below:</p>
-  
+  <p id="prizeText">
+    🎁 Prize!! Login Details for VIP Exclusive folder, zero ads, uninterrupted streaming and downloading for 30 days.
+  </p>
+
+  <p id="entryText">To enter the draw fill in your details below:</p>
+
   <!-- ENTRY FORM -->
   <div id="entryForm">
     <input type="text" id="fullName" placeholder="Full Name">
@@ -102,15 +103,16 @@ input {
   <div id="msg"></div>
 
   <!-- WINNER -->
-<div id="winnerBox">
-  🏆 Winner: <b id="winnerName"></b><br/>
-  📧 Email: <b id="winnerEmail"></b>
+  <div id="winnerBox">
+    🏆 Winner: <b id="winnerName"></b><br/>
+    📧 Email: <b id="winnerEmail"></b>
 
-  <div style="margin-top:10px; font-size:12px; color:#ffcc00;">
-    ⏱ Didn’t receive your reward?<br/>
-    <a href="support.html" style="color:#00c6ff; text-decoration:none; font-weight:bold;">
-      👉 Contact Support
-    </a>
+    <div style="margin-top:10px; font-size:12px; color:#ffcc00;">
+      ⏱ Didn’t receive your reward?<br/>
+      <a href="support.html" style="color:#00c6ff; text-decoration:none; font-weight:bold;">
+        👉 Contact Support
+      </a>
+    </div>
   </div>
 </div>
 
@@ -176,6 +178,10 @@ function updateTimer() {
 
     document.getElementById("entryForm").style.display = "none";
 
+    // hide text blocks after end
+    document.getElementById("winnerText").style.display = "none";
+    document.getElementById("entryText").style.display = "none";
+
     loadWinner();
     return;
   }
@@ -207,7 +213,7 @@ function startRealtimeEntries() {
   });
 }
 
-/* WINNER FIX (NO FLICKER) */
+/* WINNER */
 async function loadWinner() {
   try {
     const res = await fetch(API + "/winner");
@@ -222,7 +228,6 @@ async function loadWinner() {
       document.getElementById("winnerEmail").innerText =
         maskEmail(winner.email);
 
-      // SHOW ONLY WHEN READY (prevents blank flash)
       document.getElementById("winnerBox").style.visibility = "visible";
     }
 
