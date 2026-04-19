@@ -369,16 +369,16 @@
     "qualities": [
       {
         "label": "480p (Standard)",
-        "embed": "https://mxdrop.sx/e/q1vmlvwqs6zngd",
-        "download": "https://mxdrop.sx/f/q1vmlvwqs6zngd",
-        "size": "85.0 MB",
+        "embed": "https://playmogo.com/e/rswrw0w7i0a7",
+        "download": "https://playmogo.com/d/rswrw0w7i0a7",
+        "size": "84.9 MB",
         "default": true
       },
       {
         "label": "1080p (HD - Recommended)",
-        "embed": "https://mxdrop.sx/e/mk19dek6i93nm7",
-        "download": "https://mxdrop.sx/f/mk19dek6i93nm7",
-        "size": "110.3 MB",
+        "embed": "https://playmogo.com/e/dhdg2x7clcvz",
+        "download": "https://playmogo.com/d/dhdg2x7clcvz",
+        "size": "110.0 MB",
         "recommended": true
       }
     ]
