@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstaticjs.com/firebasejs/12.10.0/firebase-database.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 /* ---------------- FIREBASE ---------------- */
 const app = initializeApp({
@@ -131,13 +131,7 @@ style.innerHTML = `
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
-}
-
-/* ✅ FIX: allow swipe */
-.videoFrameWrapper {
-  touch-action: pan-y;
-}
-`;
+}`;
 document.head.appendChild(style);
 
 /* ---------------- VIDEO BOX ---------------- */
@@ -220,35 +214,11 @@ function createVideoBox(video) {
 
   let startX = 0;
 
-  /* ❌ ORIGINAL (kept, not removed)
   preview.addEventListener("touchstart", e => {
     startX = e.touches[0].clientX;
   });
 
   preview.addEventListener("touchend", e => {
-    const diff = Math.abs(e.changedTouches[0].clientX - startX);
-
-    if (diff > 30) {
-      if (currentPreviewVideo && currentPreviewVideo !== preview) {
-        stopVideo(currentPreviewVideo);
-      }
-
-      if (!preview.paused) {
-        stopVideo(preview);
-      } else {
-        preview.play().catch(() => {});
-        currentPreviewVideo = preview;
-      }
-    }
-  });
-  */
-
-  /* ✅ FIX: swipe now works even in VIP (wrapper-based) */
-  wrapper.addEventListener("touchstart", e => {
-    startX = e.touches[0].clientX;
-  }, { passive: true });
-
-  wrapper.addEventListener("touchend", e => {
     const diff = Math.abs(e.changedTouches[0].clientX - startX);
 
     if (diff > 30) {
@@ -335,25 +305,27 @@ function createVideoBox(video) {
   box.appendChild(title);
 
   const actionBox = document.createElement("div");
-  actionBox.style.display = "flex";
-  actionBox.style.flexDirection = "column";
-  actionBox.style.alignItems = "center";
-  actionBox.style.gap = "-6px";
+actionBox.style.display = "flex";
+actionBox.style.flexDirection = "column";
+actionBox.style.alignItems = "center";
+actionBox.style.gap = "-6px";
 
-  actionBox.appendChild(downloadBtn);
-  actionBox.appendChild(downloadBox);
+actionBox.appendChild(downloadBtn);
+actionBox.appendChild(downloadBox);
 
-  box.appendChild(actionBox);
-
+box.appendChild(actionBox);
+  
   return box;
 }
 
-/* ---------------- UI UPDATE ---------------- */
+/* ---------------- UI UPDATE (TRENDING LOGIC HERE) ---------------- */
 function updateUI(id) {
   const v = videoDataMap[id];
   if (!v || !videoElements[id]) return;
 
   const total = v.totalViews || 0;
+
+  /* 🔥 TRENDING RULE */
   const isTrending = v.cycleViews >= 10;
 
   saveCache("views_" + id, total);
@@ -373,7 +345,7 @@ function updateUI(id) {
   }
 }
 
-/* ---------------- REORDER ---------------- */
+/* ---------------- REORDER (TRENDING PRIORITY) ---------------- */
 function reorderVideos(force = false) {
   const entries = Object.entries(videoDataMap);
 
