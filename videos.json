@@ -321,16 +321,16 @@
     "qualities": [
       {
         "label": "480p (Standard)",
-        "embed": "https://mxdrop.sx/e/q1vmxrp7ap60o0",
-        "download": "https://mxdrop.sx/f/q1vmxrp7ap60o0",
-        "size": "45.0 MB",
+        "embed": "https://myvidplay.com/e/5f6rf14tpj63",
+        "download": "https://myvidplay.com/d/5f6rf14tpj63",
+        "size": "38.3 MB",
         "default": true
       },
       {
         "label": "1080p (HD - Recommended)",
-        "embed": "https://mxdrop.sx/e/jdqj06gmbmg7l3",
-        "download": "https://mxdrop.sx/f/jdqj06gmbmg7l3",
-        "size": "79.3 MB",
+        "embed": "https://myvidplay.com/e/9zu5sghlrzsw",
+        "download": "https://myvidplay.com/d/9zu5sghlrzsw",
+        "size": "79.1 MB",
         "recommended": true
       }
     ]
