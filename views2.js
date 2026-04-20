@@ -199,7 +199,7 @@ function createVideoBox(video) {
   preview.preload = "metadata";
   preview.style.width = "100%";
   preview.style.height = "100%";
-  preview.style.objectFit = "cover";
+  preview.style.objectFit = "container";
 
   observer.observe(preview);
 
