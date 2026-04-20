@@ -309,22 +309,34 @@ footer {
   overflow: hidden;
   display: flex;
   align-items: center;
+  position: relative;
 }
 
-/* TRACK */
+/* LEFT SCROLL AREA */
 #liveContainer {
   overflow: hidden;
   display: flex;
-  width: 100%;
+  width: calc(100% - 70px);
 }
 
-/* 6 ITEMS TOTAL (5 videos + arrow) */
+/* FIXED RIGHT SIDE (ARROW + NUMBER) */
+.fixed-controls {
+  width: 70px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+/* VIDEO SLOT */
 .live-user {
-  flex: 0 0 16.6667%;
+  flex: 0 0 20%;
   text-align: center;
 }
 
-/* 🔴 LIVE CIRCLE */
+/* 🔴 LIVE CIRCLE (UNCHANGED SIZE) */
 .live-ring {
   width: 45px;
   height: 45px;
@@ -337,17 +349,18 @@ footer {
   overflow: hidden;
 }
 
-/* 🎥 VIDEO (NO FLICKER) */
+/* VIDEO */
 .video-ring video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
   background: #000;
-  opacity: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
-/* 🔴 LIVE BADGE */
+/* LIVE BADGE */
 .live-badge {
   position: absolute;
   top: -4px;
@@ -360,7 +373,7 @@ footer {
   font-weight: bold;
 }
 
-/* 👁️ VIEWERS */
+/* VIEWERS */
 .viewers {
   display: block;
   font-size: 9px;
@@ -368,21 +381,28 @@ footer {
   color: #ccc;
 }
 
-/* ➜ ARROW */
+/* FIXED ARROW */
 .arrow-ring {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(45deg, #ff0000, #ff7b00);
   font-size: 20px;
   font-weight: bold;
+  color: white;
 }
 
-.arrow {
-  transform: translateX(2px);
+/* FIXED NUMBER */
+.fixed-number {
+  font-size: 12px;
+  color: #fff;
+  font-weight: bold;
 }
 
-/* 🔥 PULSE */
+/* PULSE ANIMATION */
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); }
   70% { box-shadow: 0 0 0 8px rgba(255,0,0,0); }
