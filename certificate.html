@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Professional Website Certificate</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Official Website Certificate System</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -23,11 +23,11 @@ header {
   border-bottom: 1px solid #1f2937;
 }
 
-header h1 { margin: 0; font-size: 28px; }
-header p { margin-top: 8px; color: #9ca3af; }
+header h1 { margin: 0; }
+header p { color: #9ca3af; }
 
 .container {
-  max-width: 1000px;
+  max-width: 900px;
   margin: auto;
   padding: 20px;
 }
@@ -40,23 +40,22 @@ header p { margin-top: 8px; color: #9ca3af; }
   border: 1px solid #1f2937;
 }
 
-.badge {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  margin: 5px;
-  color: white;
-}
-
 .button {
   padding: 10px 16px;
   background: #3b82f6;
   color: white;
-  border-radius: 8px;
   border: none;
+  border-radius: 8px;
   cursor: pointer;
-  margin-top: 10px;
+}
+
+.badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  margin: 3px;
+  display: inline-block;
+  color: white;
 }
 
 input {
@@ -64,37 +63,23 @@ input {
   border-radius: 8px;
   border: none;
   width: 60%;
-  margin-right: 10px;
 }
 
 #qrcode { position: absolute; left: -9999px; }
 
-footer {
-  text-align: center;
-  padding: 20px;
-  color: #6b7280;
-  border-top: 1px solid #1f2937;
-}
-
-/* glowing seal */
+/* Seal */
 .seal {
-  width: 95px;
-  height: 95px;
+  width: 90px;
+  height: 90px;
   margin: auto;
   border-radius: 50%;
-  background: radial-gradient(circle at top,
-    #1de9b6, #3b82f6, #0f172a);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 20px rgba(59,130,246,0.6);
   overflow: hidden;
+  box-shadow: 0 0 15px rgba(59,130,246,0.6);
 }
 
 .seal img {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 </style>
@@ -103,87 +88,46 @@ footer {
 <body>
 
 <header>
-  <h1>Website Verification Certificate</h1>
-  <p>Official Digital Platform Validation Page</p>
+  <h1>Website Certificate Authority</h1>
+  <p>Official Digital Verification System</p>
 </header>
 
 <div class="container">
 
-  <!-- TRUST BADGE -->
   <div class="card" style="text-align:center;">
     <h2>Trust Seal</h2>
 
-    <!-- IMAGE REPLACEMENT -->
     <div class="seal">
-      <img src="https://anywherecum.pages.dev/images/file_00000000286871f893d95a65d803c4de.png" alt="Trust Seal" />
+      <img src="https://anywherecum.pages.dev/images/file_00000000286871f893d95a65d803c4de.png" />
     </div>
 
     <div style="margin-top:10px;">
-      <span class="badge" style="background:#3b82f6;">TRUST VERIFIED</span>
-      <span class="badge" style="background:#10b981;">SSL SECURE</span>
+      <span class="badge" style="background:#10b981;">VERIFIED</span>
+      <span class="badge" style="background:#3b82f6;">SECURE</span>
       <span class="badge" style="background:#f59e0b;">AUTHENTIC</span>
     </div>
-
-    <p style="color:#9ca3af;">
-      Official digital verification seal issued for platform identity validation.
-    </p>
   </div>
 
-  <!-- STATUS -->
-  <div class="card">
-    <h2>Status</h2>
-    <span class="badge" style="background:#10b981;">ACTIVE</span>
-    <span class="badge" style="background:#3b82f6;">HTTPS</span>
-    <span class="badge" style="background:#f59e0b;">VERIFIED</span>
-  </div>
-
-  <!-- DETAILS -->
-  <div class="card">
-    <h2>Details</h2>
-    <p><strong>Name:</strong> AnywhereCum</p>
-    <p><strong>Domain:</strong> https://anywherecum.pages.dev/</p>
-    <p><strong>Type:</strong> Digital Content Platform</p>
-  </div>
-
-  <!-- DOWNLOAD -->
   <div class="card">
     <h2>Certificate Actions</h2>
-    <button class="button" onclick="downloadPDF()">Download Certificate</button>
+    <button class="button" onclick="downloadPDF()">Download Government Certificate</button>
   </div>
 
-  <!-- VERIFY -->
   <div class="card">
-    <h2>Verify Certificate ID</h2>
-    <input id="certInput" placeholder="Enter Certificate ID" />
+    <h2>Verify Certificate</h2>
+    <input id="certInput" placeholder="Enter Certificate ID"/>
     <button class="button" onclick="verifyCertID()">Verify</button>
     <p id="verifyResult"></p>
-  </div>
-
-  <!-- PUBLIC LINK -->
-  <div class="card">
-    <h2>Public Verification Link</h2>
-    <button class="button" onclick="generatePublicLink()">Generate Link</button>
-    <p id="publicLink" style="word-break:break-all;"></p>
   </div>
 
 </div>
 
 <div id="qrcode"></div>
 
-<footer>
-© 2026 AnywhereCum | Certificate System
-</footer>
-
 <script>
 
-window.onload = function () {
-  const params = new URLSearchParams(window.location.search);
-  const cert = params.get("cert");
-  if (cert) autoVerify(cert);
-};
-
 function generateCertID() {
-  return "ANC-" + Date.now() + "-" + Math.floor(Math.random() * 10000);
+  return "ANC-" + Date.now() + "-" + Math.floor(Math.random() * 9999);
 }
 
 function saveCertID(id) {
@@ -192,20 +136,79 @@ function saveCertID(id) {
   localStorage.setItem("certIDs", JSON.stringify(list));
 }
 
-function downloadPDF() {
+function toBase64(url) {
+  return fetch(url)
+    .then(res => res.blob())
+    .then(blob => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    }));
+}
+
+async function downloadPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
   const certId = generateCertID();
   saveCertID(certId);
 
-  doc.text("OFFICIAL WEBSITE CERTIFICATE", 20, 30);
-  doc.text("Name: AnywhereCum", 20, 60);
-  doc.text("Domain: https://anywherecum.pages.dev/", 20, 70);
-  doc.text("Certificate ID: " + certId, 20, 90);
-  doc.text("✔ VERIFIED SEAL", 20, 110);
+  const url = `${window.location.origin}${window.location.pathname}?cert=${certId}`;
 
-  doc.save("certificate.pdf");
+  const imgUrl = "https://anywherecum.pages.dev/images/file_00000000286871f893d95a65d803c4de.png";
+  const imgData = await toBase64(imgUrl);
+
+  // QR CODE
+  const qrDiv = document.getElementById("qrcode");
+  qrDiv.innerHTML = "";
+
+  new QRCode(qrDiv, {
+    text: url,
+    width: 120,
+    height: 120
+  });
+
+  await new Promise(r => setTimeout(r, 300));
+
+  const qrCanvas = qrDiv.querySelector("canvas");
+  const qrData = qrCanvas.toDataURL("image/png");
+
+  // ===== GOVERNMENT STYLE CERTIFICATE =====
+
+  doc.setLineWidth(1);
+  doc.rect(10, 10, 190, 277);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.text("OFFICIAL WEBSITE CERTIFICATE", 105, 30, { align: "center" });
+
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+  doc.text("Digital Government Verification Document", 105, 38, { align: "center" });
+
+  doc.addImage(imgData, "PNG", 85, 45, 40, 40);
+
+  doc.setFontSize(12);
+  doc.text("This certifies the following platform is verified:", 20, 95);
+
+  doc.setFont("helvetica", "bold");
+  doc.text("Name: AnywhereCum", 20, 110);
+
+  doc.setFont("helvetica", "normal");
+  doc.text("Domain: https://anywherecum.pages.dev/", 20, 120);
+  doc.text("Certificate ID: " + certId, 20, 130);
+  doc.text("Status: VERIFIED DIGITAL PLATFORM", 20, 140);
+
+  doc.text("Scan QR to verify:", 150, 210);
+  doc.addImage(qrData, "PNG", 145, 215, 50, 50);
+
+  doc.setFontSize(10);
+  doc.text("This certificate is system-generated and digitally verifiable.", 105, 280, {
+    align: "center"
+  });
+
+  doc.save("government_certificate.pdf");
 }
 
 function verifyCertID() {
@@ -220,32 +223,6 @@ function verifyCertID() {
     result.style.color = "#ef4444";
     result.innerText = "✖ INVALID CERTIFICATE";
   }
-}
-
-function generatePublicLink() {
-  const certId = generateCertID();
-  saveCertID(certId);
-
-  const url = `${window.location.origin}${window.location.pathname}?cert=${certId}`;
-
-  document.getElementById("publicLink").innerHTML =
-    `<a href="${url}" target="_blank" style="color:#3b82f6;">${url}</a>`;
-}
-
-function autoVerify(certId) {
-  const list = JSON.parse(localStorage.getItem("certIDs") || "[]");
-
-  document.body.innerHTML = `
-    <div style="text-align:center;padding:40px;font-family:Arial;background:#0f172a;color:white;">
-      <h1>Certificate Verification</h1>
-      <h2>${certId}</h2>
-      ${
-        list.includes(certId)
-        ? `<h2 style="color:#10b981;">✔ VALID SEAL VERIFIED</h2>`
-        : `<h2 style="color:#ef4444;">✖ INVALID CERTIFICATE</h2>`
-      }
-    </div>
-  `;
 }
 
 </script>
