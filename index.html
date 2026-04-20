@@ -293,7 +293,7 @@ footer {
 </style>
   
   <style>
-    .wrapper {
+  .wrapper {
   width: 100%;
   max-width: 600px;
   padding: 4px;
@@ -339,12 +339,15 @@ footer {
   height: 45px;
   border-radius: 50%;
   padding: 2px;
-  background: linear-gradient(45deg, red, orange, red);
-  animation: pulse 1.5s infinite;
+  background: #000; /* ✅ removed orange gradient */
   position: relative;
   margin: 0 auto;
   overflow: hidden;
-  background-color: #000; /* prevents flash */
+}
+
+/* VIDEO WRAPPER */
+.video-ring {
+  background: #000;
 }
 
 /* VIDEO */
@@ -353,15 +356,14 @@ footer {
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
-  background: #000;
 
-  /* FIX FLASH */
+  /* ✅ REMOVE FLASH */
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
 }
 
-/* WHEN READY */
+/* SHOW WHEN READY */
 .video-ring video.ready {
   opacity: 1;
   visibility: visible;
@@ -398,17 +400,17 @@ footer {
   font-weight: bold;
 }
 
-.arrow {
-  transform: translateX(2px);
+/* OPTIONAL PULSE (disabled) */
+.live-ring {
+  animation: none;
 }
 
-/* PULSE */
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); }
   70% { box-shadow: 0 0 0 8px rgba(255,0,0,0); }
   100% { box-shadow: 0 0 0 0 rgba(255,0,0,0); }
-}
-    </style>
+  }
+  </style>
   
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 
