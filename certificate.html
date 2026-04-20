@@ -26,6 +26,7 @@ header {
   padding: 15px;
   text-align: center;
   border-bottom: 1px solid #1f2937;
+  flex-shrink: 0;
 }
 
 .container {
@@ -151,12 +152,8 @@ async function downloadPDF() {
 
   const verifyUrl = `${window.location.origin}${window.location.pathname}?cert=${CERT_ID}`;
 
-  const sealImg = await toBase64("https://anywherecum.pages.dev/images/certificate.png");
+  const imgData = await toBase64("https://anywherecum.pages.dev/images/certificate.png");
 
-  // ✅ Signature placeholder image
-  const signatureImg = await toBase64("https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Signature_example.svg/512px-Signature_example.svg.png");
-
-  // QR
   const qrDiv = document.getElementById("qrcode");
   qrDiv.innerHTML = "";
 
@@ -185,7 +182,7 @@ async function downloadPDF() {
   doc.text("Digital Verification Document", 105, 38, { align: "center" });
 
   // Seal
-  doc.addImage(sealImg, "PNG", 85, 45, 40, 40);
+  doc.addImage(imgData, "PNG", 85, 45, 40, 40);
 
   // Body
   doc.setFontSize(12);
@@ -209,21 +206,18 @@ async function downloadPDF() {
   doc.addImage(qrData, "PNG", 145, 205, 50, 50);
 
   // =========================
-  // SIGNATURE SECTION
+  // BOTTOM LEFT SIGNATURE
   // =========================
-
-  // Line
   doc.line(20, 240, 80, 240);
 
-  // Signature image
-  doc.addImage(signatureImg, "PNG", 20, 220, 60, 20);
-
-  // Label
   doc.setFontSize(10);
   doc.text("Authorized Signature", 20, 245);
 
-  // Issue date
-  doc.text("Issued: " + ISSUE_DATE, 20, 255);
+  doc.setFont("helvetica", "bold");
+  doc.text("Certificate Authority", 20, 252);
+
+  doc.setFont("helvetica", "normal");
+  doc.text("Issued: " + ISSUE_DATE, 20, 260);
 
   doc.save("certificate.pdf");
 }
