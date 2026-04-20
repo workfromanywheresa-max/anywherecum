@@ -3,65 +3,87 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Certificate Verification</title>
+<title>Official Website Certificate System</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
-body {
+html, body {
+  height: 100vh;
   margin: 0;
+  overflow: hidden;
   font-family: Arial, sans-serif;
-  background: #0b1220;
+  background: #0f172a;
   color: #e5e7eb;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  flex-direction: column;
+  padding-bottom: 120px;
 }
 
-/* MAIN CARD */
-.card {
-  width: 90%;
-  max-width: 520px;
+header {
   background: #111827;
-  border: 1px solid #1f2937;
-  border-radius: 14px;
-  padding: 25px;
+  padding: 15px;
   text-align: center;
-  box-shadow: 0 0 25px rgba(0,0,0,0.5);
+  border-bottom: 1px solid #1f2937;
+  flex-shrink: 0;
 }
 
-/* STATUS */
-.status {
-  font-size: 22px;
-  font-weight: bold;
-  margin-top: 15px;
+.container {
+  flex: 1;
+  max-width: 900px;
+  margin: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
 }
 
-.valid {
-  color: #10b981;
+.card {
+  background: #111827;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 12px;
+  border: 1px solid #1f2937;
 }
 
-.invalid {
-  color: #ef4444;
+.button {
+  padding: 10px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
-/* BADGE */
 .badge {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: 20px;
   font-size: 12px;
-  background: #1f2937;
+  margin: 3px;
+  display: inline-block;
+  color: white;
 }
 
-/* SEAL */
+input {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  width: 60%;
+}
+
+#qrcode {
+  position: absolute;
+  left: -9999px;
+}
+
 .seal {
-  width: 80px;
-  height: 80px;
+  width: 70px;
+  height: 70px;
   margin: auto;
   border-radius: 50%;
   overflow: hidden;
-  box-shadow: 0 0 15px rgba(59,130,246,0.5);
+  box-shadow: 0 0 15px rgba(59,130,246,0.6);
 }
 
 .seal img {
@@ -69,88 +91,179 @@ body {
   height: 100%;
   object-fit: cover;
 }
-
-/* INFO BOX */
-.info {
-  margin-top: 20px;
-  text-align: left;
-  font-size: 14px;
-  line-height: 1.6;
-  background: #0f172a;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #1f2937;
-}
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<header>
+  <h2>Website Certificate Authority</h2>
+  <p style="margin:5px 0;">Official Digital Verification System</p>
+</header>
 
-  <div class="seal">
-    <img src="https://anywherecum.pages.dev/images/certificate.png" />
+<div class="container">
+
+  <div class="card" style="text-align:center;">
+    <h3>Trust Seal</h3>
+
+    <div class="seal">
+      <img src="https://anywherecum.pages.dev/images/certificate.png" />
+    </div>
+
+    <div style="margin-top:8px;">
+      <span class="badge" style="background:#10b981;">VERIFIED</span>
+      <span class="badge" style="background:#3b82f6;">SECURE</span>
+      <span class="badge" style="background:#f59e0b;">AUTHENTIC</span>
+    </div>
   </div>
 
-  <h2>Website Certificate Verification</h2>
+  <div class="card" style="text-align:center;">
+    <h3>Certificate</h3>
+    <button class="button" onclick="downloadPDF()">Download PDF</button>
+  </div>
 
-  <div id="status" class="status">Checking...</div>
-
-  <div id="badge" class="badge">SECURE VERIFICATION SYSTEM</div>
-
-  <div class="info" id="infoBox" style="display:none;">
-    <div><b>Certificate ID:</b> <span id="certId"></span></div>
-    <div><b>Domain:</b> https://anywherecum.pages.dev/</div>
-    <div><b>Status:</b> Official Website Certificate</div>
+  <div class="card" style="text-align:center;">
+    <h3>Verify Certificate</h3>
+    <input id="certInput" placeholder="Enter Certificate ID"/>
+    <button class="button" onclick="verifyCertID()">Verify</button>
+    <p id="verifyResult"></p>
   </div>
 
 </div>
+
+<div id="qrcode"></div>
 
 <script>
 
 const WORKER_URL = "https://certificate.workfromanywhere-sa.workers.dev";
 
+// ===============================
+// 🔥 SINGLE GLOBAL CERTIFICATE ID
+// ===============================
 const CERT_ID = "ANC-OFFICIAL-SITE-001";
 
+// ===============================
+// PDF GENERATION
+// ===============================
+async function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const certId = CERT_ID;
+
+  const verifyUrl = `${window.location.origin}${window.location.pathname}?cert=${CERT_ID}`;
+
+  const imgData = await toBase64("https://anywherecum.pages.dev/images/certificate.png");
+
+  const qrDiv = document.getElementById("qrcode");
+  qrDiv.innerHTML = "";
+
+  new QRCode(qrDiv, {
+    text: verifyUrl,
+    width: 120,
+    height: 120
+  });
+
+  await new Promise(r => setTimeout(r, 300));
+
+  const qrCanvas = qrDiv.querySelector("canvas");
+  const qrData = qrCanvas.toDataURL("image/png");
+
+  doc.rect(10, 10, 190, 277);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.text("OFFICIAL WEBSITE CERTIFICATE", 105, 30, { align: "center" });
+
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+  doc.text("Digital Verification Document", 105, 38, { align: "center" });
+
+  doc.addImage(imgData, "PNG", 85, 45, 40, 40);
+
+  doc.text("Name: AnywhereCum", 20, 110);
+  doc.text("Domain: https://anywherecum.pages.dev/", 20, 120);
+  doc.text("Certificate ID: " + certId, 20, 130);
+  doc.text("Status: VERIFIED", 20, 140);
+
+  doc.text("Scan QR:", 150, 210);
+  doc.addImage(qrData, "PNG", 145, 215, 50, 50);
+
+  doc.save("certificate.pdf");
+}
+
+// ===============================
+// VERIFY CERTIFICATE
+// ===============================
+async function verifyCertID() {
+  const input = document.getElementById("certInput").value;
+  const result = document.getElementById("verifyResult");
+
+  if (!input) return;
+
+  try {
+    const res = await fetch(`${WORKER_URL}/verify?id=${input}`);
+    const data = await res.json();
+
+    if (data.exists) {
+      result.style.color = "#10b981";
+      result.innerText = "✔ VALID WEBSITE CERTIFICATE";
+    } else {
+      result.style.color = "#ef4444";
+      result.innerText = "✖ INVALID CERTIFICATE";
+    }
+
+  } catch (err) {
+    result.style.color = "#f59e0b";
+    result.innerText = "⚠ Verification error";
+  }
+}
+
+// ===============================
+// AUTO VERIFY FROM QR
+// ===============================
 window.addEventListener("load", () => {
   const params = new URLSearchParams(window.location.search);
   const cert = params.get("cert");
 
-  if (!cert) {
-    showInvalid("NO CERTIFICATE PROVIDED");
-    return;
+  if (cert) {
+    document.getElementById("certInput").value = cert;
+    autoVerify(cert);
   }
-
-  verify(cert);
 });
 
-async function verify(certId) {
-  const status = document.getElementById("status");
-  const info = document.getElementById("infoBox");
-  const certBox = document.getElementById("certId");
+async function autoVerify(certId) {
+  const result = document.getElementById("verifyResult");
 
   try {
     const res = await fetch(`${WORKER_URL}/verify?id=${certId}`);
     const data = await res.json();
 
-    if (data.exists && certId === CERT_ID) {
-      status.innerText = "✔ VERIFIED WEBSITE";
-      status.className = "status valid";
-
-      certBox.innerText = certId;
-      info.style.display = "block";
+    if (data.exists) {
+      result.style.color = "#10b981";
+      result.innerText = "✔ VALID WEBSITE CERTIFICATE (AUTO VERIFIED)";
     } else {
-      showInvalid("✖ INVALID CERTIFICATE");
+      result.style.color = "#ef4444";
+      result.innerText = "✖ INVALID CERTIFICATE";
     }
-
   } catch (err) {
-    showInvalid("⚠ VERIFICATION ERROR");
+    result.style.color = "#f59e0b";
+    result.innerText = "⚠ Verification error";
   }
 }
 
-function showInvalid(text) {
-  document.getElementById("status").innerText = text;
-  document.getElementById("status").className = "status invalid";
+// ===============================
+// BASE64 IMAGE HELPER
+// ===============================
+function toBase64(url) {
+  return fetch(url)
+    .then(res => res.blob())
+    .then(blob => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    }));
 }
 
 </script>
