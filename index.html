@@ -1166,89 +1166,68 @@ document.addEventListener("DOMContentLoaded", () => {
   </script>
     
   <script>
-const API_URL = "https://anywherecum.pages.dev/live.json";
+const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";
 
 let fullData = [];
 let startIndex = 0;
 
+const TOTAL_VIDEOS = 20;
 const VISIBLE_COUNT = 4;
-const SLIDE_INTERVAL = 10000; // 10 seconds
+const SLIDE_INTERVAL = 10000;
 
 let intervalStarted = false;
 
-// ✅ PRELOAD IMAGES
-function preloadImages(data) {
-  const promises = data.map(item => {
-    return new Promise(resolve => {
-      const img = new Image();
-      img.src = `https://anywherecum.pages.dev/images/${item.thumbnail}`;
-      img.onload = resolve;
-      img.onerror = resolve;
+// ✅ GENERATE VIDEO LIST (R2 FULL LINKS)
+function generateVideos() {
+  const arr = [];
+  for (let i = TOTAL_VIDEOS; i >= 1; i--) {
+    arr.push({
+      video: BASE + "live" + i + ".mp4"
     });
-  });
-  return Promise.all(promises);
+  }
+  return arr;
 }
 
-async function loadLives() {
-  try {
-    const res = await fetch(API_URL + "?t=" + Date.now());
-    fullData = await res.json();
+function loadLives() {
+  fullData = generateVideos();
 
-    if (!Array.isArray(fullData) || fullData.length === 0) {
-      console.error("JSON invalid or empty");
-      return;
-    }
+  if (!fullData.length) {
+    console.error("No videos found");
+    return;
+  }
 
-    // ✅ PRELOAD BEFORE FIRST RENDER
-    await preloadImages(fullData);
+  // ✅ RESTORE POSITION AFTER REFRESH
+  const savedIndex = parseInt(localStorage.getItem("liveIndex")) || 0;
+  const savedTime = parseInt(localStorage.getItem("liveTime")) || Date.now();
 
-    // ✅ RESTORE POSITION AFTER REFRESH
-    const savedIndex = parseInt(localStorage.getItem("liveIndex")) || 0;
-    const savedTime = parseInt(localStorage.getItem("liveTime")) || Date.now();
+  const elapsed = Date.now() - savedTime;
+  const stepsPassed = Math.floor(elapsed / SLIDE_INTERVAL);
 
-    const elapsed = Date.now() - savedTime;
-    const stepsPassed = Math.floor(elapsed / SLIDE_INTERVAL);
+  startIndex = (savedIndex + stepsPassed) % fullData.length;
 
-    startIndex = (savedIndex + stepsPassed) % fullData.length;
+  renderLives();
 
-    renderLives();
+  if (!intervalStarted) {
+    intervalStarted = true;
 
-    if (!intervalStarted) {
-      intervalStarted = true;
+    setInterval(() => {
 
-      setInterval(async () => {
+      // move 1 step
+      startIndex = (startIndex + 1) % fullData.length;
 
-        // ✅ refresh JSON
-        try {
-          const res = await fetch(API_URL + "?t=" + Date.now());
-          fullData = await res.json();
+      // ✅ SAVE STATE
+      localStorage.setItem("liveIndex", startIndex);
+      localStorage.setItem("liveTime", Date.now());
 
-          // ✅ preload new images (background)
-          preloadImages(fullData);
+      renderLives();
 
-        } catch(e){}
-
-        // move 1 step
-        startIndex = (startIndex + 1) % fullData.length;
-
-        // ✅ SAVE STATE
-        localStorage.setItem("liveIndex", startIndex);
-        localStorage.setItem("liveTime", Date.now());
-
-        renderLives();
-
-      }, SLIDE_INTERVAL);
-    }
-
-  } catch (err) {
-    console.error("Error loading JSON:", err);
+    }, SLIDE_INTERVAL);
   }
 }
 
 function renderLives() {
   const container = document.getElementById("liveContainer");
 
-  // smoother than opacity flicker
   container.style.visibility = "hidden";
 
   setTimeout(() => {
@@ -1267,17 +1246,23 @@ function renderLives() {
       div.onclick = () => {
         window.open("https://www.juicyads.rocks", "_blank");
         setTimeout(() => {
-          window.location.href = item.stream;
+          window.location.href = item.video;
         }, 1000);
       };
 
       div.innerHTML = `
-        <div class="live-ring">
+        <div class="live-ring video-ring">
           <span class="live-badge">LIVE</span>
-          <img src="https://anywherecum.pages.dev/images/${item.thumbnail}"
-               onerror="this.src='https://anywherecum.pages.dev/default.webp'">
+          <video 
+            src="${item.video}" 
+            muted 
+            autoplay 
+            loop 
+            playsinline 
+            preload="metadata">
+          </video>
         </div>
-        <span class="viewers">👁️ ${item.viewers || randomViews()}</span>
+        <span class="viewers">👁️ ${randomViews()}</span>
       `;
 
       container.appendChild(div);
@@ -1311,7 +1296,7 @@ function randomViews() {
 }
 
 loadLives();
-    </script>
+                </script>
 
   <script>
 (async function () {
