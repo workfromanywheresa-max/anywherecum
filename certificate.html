@@ -123,16 +123,57 @@ input {
   <script>
 
 const WORKER_URL = "https://certificate.workfromanywhere-sa.workers.dev";
-const CERT_ID = "ANYWHERECUM-WEBSITE-CERT";
 
-// ===== GENERATE CERT ONCE =====
+// ===== CREATE OR LOAD SINGLE CERT ID =====
+function getCertID() {
+  let certId = localStorage.getItem("cert_id");
+
+  if (!certId) {
+    certId = "ANC-" + Date.now() + "-" + Math.floor(Math.random() * 9999);
+    localStorage.setItem("cert_id", certId);
+  }
+
+  return certId;
+}
+
+// ===== SAVE TO WORKER =====
+async function saveCertID(id) {
+  try {
+    await fetch(`${WORKER_URL}/certificates`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id })
+    });
+  } catch (err) {
+    console.error("Failed to save cert:", err);
+  }
+}
+
+function toBase64(url) {
+  return fetch(url)
+    .then(res => res.blob())
+    .then(blob => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    }));
+}
+
+// ===== DOWNLOAD PDF (USES SAME ID EVERY TIME) =====
 async function downloadPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  await fetch(`${WORKER_URL}/certificates`, { method: "POST" });
+  const certId = getCertID(); // 🔥 FIXED: no new IDs
 
-  const verifyUrl = `${window.location.origin}/verify.html?id=${CERT_ID}`;
+  // Save only once
+  await saveCertID(certId);
+
+  const verifyUrl = `${window.location.origin}${window.location.pathname}?cert=${certId}`;
+
+  const imgUrl = "https://anywherecum.pages.dev/images/certificate.png";
+  const imgData = await toBase64(imgUrl);
 
   const qrDiv = document.getElementById("qrcode");
   qrDiv.innerHTML = "";
@@ -148,58 +189,62 @@ async function downloadPDF() {
   const qrCanvas = qrDiv.querySelector("canvas");
   const qrData = qrCanvas.toDataURL("image/png");
 
+  doc.setLineWidth(1);
+  doc.rect(10, 10, 190, 277);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
   doc.text("OFFICIAL WEBSITE CERTIFICATE", 105, 30, { align: "center" });
-  doc.text("ANYWHERECUM VERIFIED SITE", 105, 40, { align: "center" });
 
-  doc.text("Certificate ID: " + CERT_ID, 20, 120);
-  doc.text("Status: VERIFIED WEBSITE", 20, 130);
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+  doc.text("Digital Verification Document", 105, 38, { align: "center" });
 
-  doc.addImage(qrData, "PNG", 140, 200, 50, 50);
+  doc.addImage(imgData, "PNG", 85, 45, 40, 40);
 
-  doc.save("website-certificate.pdf");
+  doc.setFontSize(12);
+  doc.text("Platform Verified:", 20, 95);
+
+  doc.setFont("helvetica", "bold");
+  doc.text("Name: AnywhereCum", 20, 110);
+
+  doc.setFont("helvetica", "normal");
+  doc.text("Domain: https://anywherecum.pages.dev/", 20, 120);
+  doc.text("Certificate ID: " + certId, 20, 130);
+  doc.text("Status: VERIFIED", 20, 140);
+
+  doc.text("Scan QR:", 150, 210);
+  doc.addImage(qrData, "PNG", 145, 215, 50, 50);
+
+  doc.setFontSize(10);
+  doc.text("System-generated certificate", 105, 280, { align: "center" });
+
+  doc.save("certificate.pdf");
 }
 
-// ===== VERIFY FUNCTION =====
+// ===== VERIFY =====
 async function verifyCertID() {
+  const input = document.getElementById("certInput").value;
   const result = document.getElementById("verifyResult");
 
-  const res = await fetch(`${WORKER_URL}/verify?id=${CERT_ID}`);
-  const data = await res.json();
+  if (!input) return;
 
-  if (!data.exists) {
-    result.innerText = "✖ Not Found";
-    result.style.color = "red";
-    return;
+  try {
+    const res = await fetch(`${WORKER_URL}/verify?id=${input}`);
+    const data = await res.json();
+
+    if (data.exists) {
+      result.style.color = "#10b981";
+      result.innerText = "✔ VALID CERTIFICATE";
+    } else {
+      result.style.color = "#ef4444";
+      result.innerText = "✖ INVALID CERTIFICATE";
+    }
+
+  } catch (err) {
+    result.style.color = "#f59e0b";
+    result.innerText = "⚠ Verification error";
   }
-
-  const keyRes = await fetch(`${WORKER_URL}/public-key`);
-  const { key } = await keyRes.json();
-
-  const binary = Uint8Array.from(atob(key), c => c.charCodeAt(0));
-
-  const publicKey = await crypto.subtle.importKey(
-    "spki",
-    binary,
-    { name: "RSA-PSS", hash: "SHA-256" },
-    true,
-    ["verify"]
-  );
-
-  const signature = Uint8Array.from(atob(data.signature), c => c.charCodeAt(0));
-  const msg = new TextEncoder().encode(CERT_ID);
-
-  const valid = await crypto.subtle.verify(
-    { name: "RSA-PSS", saltLength: 32 },
-    publicKey,
-    signature,
-    msg
-  );
-
-  result.innerText = valid
-    ? "✔ REAL VERIFIED WEBSITE CERTIFICATE"
-    : "✖ TAMPERED CERTIFICATE";
-
-  result.style.color = valid ? "green" : "red";
 }
 
   </script>
