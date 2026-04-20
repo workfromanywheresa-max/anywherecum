@@ -1195,12 +1195,12 @@ let fullData = [];
 let startIndex = 0;
 
 const TOTAL_VIDEOS = 20;
-const VIDEO_COUNT = 5; // 5 videos + 1 arrow = 6 items
+const VISIBLE_COUNT = 4;
 const SLIDE_INTERVAL = 10000;
 
 let intervalStarted = false;
 
-// ✅ GENERATE VIDEO LIST
+// ✅ GENERATE VIDEOS
 function generateVideos() {
   const arr = [];
   for (let i = TOTAL_VIDEOS; i >= 1; i--) {
@@ -1229,7 +1229,7 @@ function preloadVideos(data) {
   return Promise.all(promises);
 }
 
-// ✅ INITIAL LOAD
+// ✅ LOAD
 function loadLives() {
   fullData = generateVideos();
   if (!fullData.length) return;
@@ -1243,20 +1243,27 @@ function loadLives() {
   startIndex = (savedIndex + stepsPassed) % fullData.length;
 
   const visible = [];
-  const count = Math.min(VIDEO_COUNT, fullData.length);
-
-  for (let i = 0; i < count; i++) {
-    const index = (startIndex + i) % fullData.length;
-    visible.push(fullData[index]);
+  for (let i = 0; i < VISIBLE_COUNT; i++) {
+    visible.push(fullData[(startIndex + i) % fullData.length]);
   }
 
-  preloadVideos(visible).then(() => {
-    renderLives();
-    startSlider();
-  });
+  preloadVideos(visible).then(renderLives);
+
+  if (!intervalStarted) {
+    intervalStarted = true;
+
+    setInterval(() => {
+      startIndex = (startIndex + 1) % fullData.length;
+
+      localStorage.setItem("liveIndex", startIndex);
+      localStorage.setItem("liveTime", Date.now());
+
+      renderLives();
+    }, SLIDE_INTERVAL);
+  }
 }
 
-// ✅ RENDER ONCE (NO REBUILD AFTER THIS)
+// ✅ RENDER
 function renderLives() {
   const container = document.getElementById("liveContainer");
 
@@ -1265,9 +1272,7 @@ function renderLives() {
   track.style.transition = "transform 0.4s ease";
   track.style.willChange = "transform";
 
-  const count = Math.min(VIDEO_COUNT, fullData.length);
-
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < VISIBLE_COUNT; i++) {
     const index = (startIndex + i) % fullData.length;
     const item = fullData[index];
 
@@ -1282,77 +1287,34 @@ function renderLives() {
       <span class="viewers">👁️ ${randomViews()}</span>
     `;
 
-    div.onclick = () => {
-      window.open("https://www.juicyads.rocks", "_blank");
-      setTimeout(() => {
-        window.location.href = item.video;
-      }, 1000);
-    };
-
     track.appendChild(div);
   }
-
-  // ➜ ARROW (6th item)
-  const arrow = document.createElement("div");
-  arrow.className = "live-user";
-
-  arrow.innerHTML = `
-    <div class="live-ring arrow-ring">
-      <span class="arrow">➜</span>
-    </div>
-    <span class="viewers">More</span>
-  `;
-
-  arrow.onclick = () => {
-    window.open("https://www.juicyads.rocks", "_blank");
-  };
-
-  track.appendChild(arrow);
 
   container.innerHTML = "";
   container.appendChild(track);
 
-  track.style.transform = "translateX(0%)";
+  // FIXED RIGHT PANEL (NOT MOVING)
+  const fixed = document.createElement("div");
+  fixed.className = "fixed-controls";
 
-  // autoplay first videos
+  fixed.innerHTML = `
+    <div class="arrow-ring">➜</div>
+    <div class="fixed-number">6</div>
+  `;
+
+  container.parentElement.appendChild(fixed);
+
+  // fade in
   const videos = track.querySelectorAll("video");
-  videos.forEach(v => v.play().catch(() => {}));
+  videos.forEach(v => {
+    v.style.opacity = "0";
+    v.onloadeddata = () => v.style.opacity = "1";
+  });
+
+  if (videos[0]) videos[0].play().catch(() => {});
 }
 
-// ✅ SLIDER (NO FLICKER, NO REBUILD)
-function startSlider() {
-  if (intervalStarted) return;
-  intervalStarted = true;
-
-  setInterval(() => {
-    const container = document.getElementById("liveContainer");
-    const track = container.querySelector("div");
-
-    if (!track) return;
-
-    // slide left
-    track.style.transition = "transform 0.4s ease";
-    track.style.transform = "translateX(-16.6667%)";
-
-    setTimeout(() => {
-      // move first item to end (infinite loop)
-      const first = track.firstElementChild;
-      track.appendChild(first);
-
-      track.style.transition = "none";
-      track.style.transform = "translateX(0)";
-    }, 400);
-
-    // update index
-    startIndex = (startIndex + 1) % fullData.length;
-
-    localStorage.setItem("liveIndex", startIndex);
-    localStorage.setItem("liveTime", Date.now());
-
-  }, SLIDE_INTERVAL);
-}
-
-// ✅ RANDOM VIEWS
+// ✅ RANDOM VIEWERS
 function randomViews() {
   const num = Math.floor(Math.random() * 9000 + 100);
   return num > 1000 ? (num / 1000).toFixed(1) + "k" : num;
