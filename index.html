@@ -1175,7 +1175,7 @@ let fullData = [];
 let startIndex = 0;
 
 const TOTAL_VIDEOS = 20;
-const VISIBLE_COUNT = 4;
+const VIDEO_COUNT = 5; // 5 videos + 1 arrow = 6 items
 const SLIDE_INTERVAL = 10000;
 
 let intervalStarted = false;
@@ -1191,7 +1191,7 @@ function generateVideos() {
   return arr;
 }
 
-// ✅ PRELOAD VIDEOS
+// ✅ PRELOAD
 function preloadVideos(data) {
   const promises = data.map(item => {
     return new Promise(resolve => {
@@ -1209,7 +1209,7 @@ function preloadVideos(data) {
   return Promise.all(promises);
 }
 
-// ✅ LOAD
+// ✅ INITIAL LOAD
 function loadLives() {
   fullData = generateVideos();
   if (!fullData.length) return;
@@ -1222,41 +1222,21 @@ function loadLives() {
 
   startIndex = (savedIndex + stepsPassed) % fullData.length;
 
-  const visibleVideos = [];
-  const count = Math.min(VISIBLE_COUNT + 1, fullData.length);
+  const visible = [];
+  const count = Math.min(VIDEO_COUNT, fullData.length);
 
   for (let i = 0; i < count; i++) {
     const index = (startIndex + i) % fullData.length;
-    visibleVideos.push(fullData[index]);
+    visible.push(fullData[index]);
   }
 
-  preloadVideos(visibleVideos).then(renderLives);
-
-  if (!intervalStarted) {
-    intervalStarted = true;
-
-    setInterval(() => {
-      const container = document.getElementById("liveContainer");
-      const track = container.querySelector("div");
-
-      if (track) {
-        track.style.transform = "translateX(-20%)";
-      }
-
-      setTimeout(() => {
-        startIndex = (startIndex + 1) % fullData.length;
-
-        localStorage.setItem("liveIndex", startIndex);
-        localStorage.setItem("liveTime", Date.now());
-
-        renderLives();
-      }, 400);
-
-    }, SLIDE_INTERVAL);
-  }
+  preloadVideos(visible).then(() => {
+    renderLives();
+    startSlider();
+  });
 }
 
-// ✅ RENDER (NO FLICKER FIXED)
+// ✅ RENDER ONCE (NO REBUILD AFTER THIS)
 function renderLives() {
   const container = document.getElementById("liveContainer");
 
@@ -1265,7 +1245,7 @@ function renderLives() {
   track.style.transition = "transform 0.4s ease";
   track.style.willChange = "transform";
 
-  const count = Math.min(VISIBLE_COUNT + 1, fullData.length);
+  const count = Math.min(VIDEO_COUNT, fullData.length);
 
   for (let i = 0; i < count; i++) {
     const index = (startIndex + i) % fullData.length;
@@ -1277,13 +1257,7 @@ function renderLives() {
     div.innerHTML = `
       <div class="live-ring video-ring">
         <span class="live-badge">LIVE</span>
-        <video 
-          src="${item.video}" 
-          muted 
-          autoplay 
-          loop 
-          playsinline>
-        </video>
+        <video src="${item.video}" muted autoplay loop playsinline></video>
       </div>
       <span class="viewers">👁️ ${randomViews()}</span>
     `;
@@ -1298,7 +1272,7 @@ function renderLives() {
     track.appendChild(div);
   }
 
-  // ➜ Arrow
+  // ➜ ARROW (6th item)
   const arrow = document.createElement("div");
   arrow.className = "live-user";
 
@@ -1320,26 +1294,42 @@ function renderLives() {
 
   track.style.transform = "translateX(0%)";
 
-  // ✅ fade-in videos (no orange flash)
+  // autoplay first videos
   const videos = track.querySelectorAll("video");
+  videos.forEach(v => v.play().catch(() => {}));
+}
 
-  videos.forEach(v => {
-    v.style.opacity = "0";
+// ✅ SLIDER (NO FLICKER, NO REBUILD)
+function startSlider() {
+  if (intervalStarted) return;
+  intervalStarted = true;
 
-    v.onloadeddata = () => {
-      v.style.opacity = "1";
-    };
-  });
+  setInterval(() => {
+    const container = document.getElementById("liveContainer");
+    const track = container.querySelector("div");
 
-  if (videos[0]) videos[0].play().catch(() => {});
+    if (!track) return;
 
-  setTimeout(() => {
-    videos.forEach((v, i) => {
-      if (i < VISIBLE_COUNT) {
-        v.play().catch(() => {});
-      }
-    });
-  }, 100);
+    // slide left
+    track.style.transition = "transform 0.4s ease";
+    track.style.transform = "translateX(-16.6667%)";
+
+    setTimeout(() => {
+      // move first item to end (infinite loop)
+      const first = track.firstElementChild;
+      track.appendChild(first);
+
+      track.style.transition = "none";
+      track.style.transform = "translateX(0)";
+    }, 400);
+
+    // update index
+    startIndex = (startIndex + 1) % fullData.length;
+
+    localStorage.setItem("liveIndex", startIndex);
+    localStorage.setItem("liveTime", Date.now());
+
+  }, SLIDE_INTERVAL);
 }
 
 // ✅ RANDOM VIEWS
