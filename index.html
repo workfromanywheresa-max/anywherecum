@@ -1211,18 +1211,22 @@ function generateVideos() {
   return arr;
 }
 
-// ✅ PRELOAD VIDEOS
+// ✅ PRELOAD (STRONGER VERSION)
 function preloadVideos(data) {
   const promises = data.map(item => {
     return new Promise(resolve => {
       const video = document.createElement("video");
+
       video.src = item.video;
       video.preload = "auto";
       video.muted = true;
       video.playsInline = true;
+      video.style.display = "none";
 
-      video.onloadeddata = () => resolve();
+      video.oncanplaythrough = () => resolve();
       video.onerror = () => resolve();
+
+      document.body.appendChild(video);
     });
   });
 
@@ -1259,7 +1263,13 @@ function loadLives() {
       const track = document.getElementById("liveTrack");
 
       if (track) {
-        track.style.transform = "translateX(-20%)";
+        track.style.transition = "none";
+        track.style.transform = "translateX(0%)";
+
+        requestAnimationFrame(() => {
+          track.style.transition = "transform 0.4s ease";
+          track.style.transform = "translateX(-20%)";
+        });
       }
 
       setTimeout(() => {
@@ -1278,10 +1288,8 @@ function loadLives() {
 // ✅ RENDER
 function renderLives() {
   const container = document.getElementById("liveContainer");
-
   container.innerHTML = "";
 
-  // 🔥 TRACK (SLIDING PART ONLY)
   const track = document.createElement("div");
   track.id = "liveTrack";
 
@@ -1312,7 +1320,7 @@ function renderLives() {
     track.appendChild(div);
   }
 
-  // ➜ FIXED ARROW (NOT INSIDE TRACK)
+  // Arrow
   const arrow = document.createElement("div");
   arrow.className = "live-user";
 
@@ -1330,15 +1338,15 @@ function renderLives() {
   container.appendChild(track);
   container.appendChild(arrow);
 
-  // reset animation
   track.style.transform = "translateX(0%)";
 
-  // fade-in videos
+  // ✅ FIX VIDEO FLASH
   const videos = track.querySelectorAll("video");
 
   videos.forEach(v => {
-    v.style.opacity = "0";
-    v.onloadeddata = () => v.style.opacity = "1";
+    v.oncanplaythrough = () => {
+      v.classList.add("ready");
+    };
   });
 
   if (videos[0]) videos[0].play().catch(() => {});
