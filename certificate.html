@@ -210,7 +210,6 @@ async function downloadPDF() {
   // =========================
   // SIGNATURE IMAGE
   // =========================
-  doc.line(20, 240, 80, 240);
 
   const signatureImg = await toBase64("https://anywherecum.pages.dev/images/signature.png");
 
@@ -219,6 +218,8 @@ async function downloadPDF() {
   doc.setFontSize(10);
   doc.text("Authorized Signature", 20, 265);
   doc.text("Issued: " + ISSUE_DATE, 20, 272);
+
+  doc.line(20, 240, 80, 240);
 
   doc.save("certificate.pdf");
 }
