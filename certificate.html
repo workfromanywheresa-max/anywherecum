@@ -9,34 +9,47 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
-body {
+html, body {
+  height: 100vh;
   margin: 0;
+  overflow: hidden; /* 🚫 NO SCROLL */
   font-family: Arial, sans-serif;
   background: #0f172a;
   color: #e5e7eb;
+  display: flex;
+  flex-direction: column;
 }
 
+/* HEADER */
 header {
   background: #111827;
-  padding: 20px;
+  padding: 15px;
   text-align: center;
   border-bottom: 1px solid #1f2937;
+  flex-shrink: 0;
 }
 
+/* MAIN CONTAINER */
 .container {
+  flex: 1;
   max-width: 900px;
   margin: auto;
-  padding: 20px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
 }
 
+/* CARDS */
 .card {
   background: #111827;
-  padding: 20px;
-  margin: 15px 0;
+  padding: 12px;
+  margin: 8px 0;
   border-radius: 12px;
   border: 1px solid #1f2937;
 }
 
+/* BUTTON */
 .button {
   padding: 10px 16px;
   background: #3b82f6;
@@ -46,6 +59,7 @@ header {
   cursor: pointer;
 }
 
+/* BADGES */
 .badge {
   padding: 5px 10px;
   border-radius: 20px;
@@ -55,6 +69,7 @@ header {
   color: white;
 }
 
+/* INPUT */
 input {
   padding: 10px;
   border-radius: 8px;
@@ -62,11 +77,16 @@ input {
   width: 60%;
 }
 
-#qrcode { position: absolute; left: -9999px; }
+/* QR hidden */
+#qrcode {
+  position: absolute;
+  left: -9999px;
+}
 
+/* SEAL */
 .seal {
-  width: 90px;
-  height: 90px;
+  width: 70px;
+  height: 70px;
   margin: auto;
   border-radius: 50%;
   overflow: hidden;
@@ -84,33 +104,36 @@ input {
 <body>
 
 <header>
-  <h1>Website Certificate Authority</h1>
-  <p>Official Digital Verification System</p>
+  <h2>Website Certificate Authority</h2>
+  <p style="margin:5px 0;">Official Digital Verification System</p>
 </header>
 
 <div class="container">
 
+  <!-- TRUST SEAL -->
   <div class="card" style="text-align:center;">
-    <h2>Trust Seal</h2>
+    <h3>Trust Seal</h3>
 
     <div class="seal">
       <img src="https://anywherecum.pages.dev/images/certificate.png" />
     </div>
 
-    <div style="margin-top:10px;">
+    <div style="margin-top:8px;">
       <span class="badge" style="background:#10b981;">VERIFIED</span>
       <span class="badge" style="background:#3b82f6;">SECURE</span>
       <span class="badge" style="background:#f59e0b;">AUTHENTIC</span>
     </div>
   </div>
 
-  <div class="card">
-    <h2>Certificate Actions</h2>
-    <button class="button" onclick="downloadPDF()">Generate Website Certificate</button>
+  <!-- ACTION -->
+  <div class="card" style="text-align:center;">
+    <h3>Certificate Actions</h3>
+    <button class="button" onclick="downloadPDF()">Generate Certificate</button>
   </div>
 
-  <div class="card">
-    <h2>Verify Certificate</h2>
+  <!-- VERIFY -->
+  <div class="card" style="text-align:center;">
+    <h3>Verify Certificate</h3>
     <input id="certInput" placeholder="Enter Certificate ID"/>
     <button class="button" onclick="verifyCertID()">Verify</button>
     <p id="verifyResult"></p>
@@ -120,11 +143,11 @@ input {
 
 <div id="qrcode"></div>
 
-  <script>
+<script>
 
 const WORKER_URL = "https://certificate.workfromanywhere-sa.workers.dev";
 
-// ===== CREATE OR LOAD SINGLE CERT ID =====
+// ===== CERT ID =====
 function getCertID() {
   let certId = localStorage.getItem("cert_id");
 
@@ -136,7 +159,7 @@ function getCertID() {
   return certId;
 }
 
-// ===== SAVE TO WORKER =====
+// ===== SAVE =====
 async function saveCertID(id) {
   try {
     await fetch(`${WORKER_URL}/certificates`, {
@@ -145,10 +168,11 @@ async function saveCertID(id) {
       body: JSON.stringify({ id })
     });
   } catch (err) {
-    console.error("Failed to save cert:", err);
+    console.error(err);
   }
 }
 
+// ===== IMAGE TO BASE64 =====
 function toBase64(url) {
   return fetch(url)
     .then(res => res.blob())
@@ -160,20 +184,17 @@ function toBase64(url) {
     }));
 }
 
-// ===== DOWNLOAD PDF (USES SAME ID EVERY TIME) =====
+// ===== PDF =====
 async function downloadPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
-  const certId = getCertID(); // 🔥 FIXED: no new IDs
-
-  // Save only once
+  const certId = getCertID();
   await saveCertID(certId);
 
   const verifyUrl = `${window.location.origin}${window.location.pathname}?cert=${certId}`;
 
-  const imgUrl = "https://anywherecum.pages.dev/images/certificate.png";
-  const imgData = await toBase64(imgUrl);
+  const imgData = await toBase64("https://anywherecum.pages.dev/images/certificate.png");
 
   const qrDiv = document.getElementById("qrcode");
   qrDiv.innerHTML = "";
@@ -189,7 +210,6 @@ async function downloadPDF() {
   const qrCanvas = qrDiv.querySelector("canvas");
   const qrData = qrCanvas.toDataURL("image/png");
 
-  doc.setLineWidth(1);
   doc.rect(10, 10, 190, 277);
 
   doc.setFont("helvetica", "bold");
@@ -202,22 +222,13 @@ async function downloadPDF() {
 
   doc.addImage(imgData, "PNG", 85, 45, 40, 40);
 
-  doc.setFontSize(12);
-  doc.text("Platform Verified:", 20, 95);
-
-  doc.setFont("helvetica", "bold");
   doc.text("Name: AnywhereCum", 20, 110);
-
-  doc.setFont("helvetica", "normal");
   doc.text("Domain: https://anywherecum.pages.dev/", 20, 120);
   doc.text("Certificate ID: " + certId, 20, 130);
   doc.text("Status: VERIFIED", 20, 140);
 
   doc.text("Scan QR:", 150, 210);
   doc.addImage(qrData, "PNG", 145, 215, 50, 50);
-
-  doc.setFontSize(10);
-  doc.text("System-generated certificate", 105, 280, { align: "center" });
 
   doc.save("certificate.pdf");
 }
@@ -247,7 +258,7 @@ async function verifyCertID() {
   }
 }
 
-  </script>
+</script>
 
 </body>
 </html>
