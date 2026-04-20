@@ -1196,8 +1196,9 @@ function preloadVideos(data) {
     return new Promise(resolve => {
       const video = document.createElement("video");
       video.src = item.video;
-      video.preload = "metadata";
+      video.preload = "auto";
       video.muted = true;
+      video.playsInline = true;
 
       video.onloadeddata = () => resolve();
       video.onerror = () => resolve();
@@ -1207,9 +1208,9 @@ function preloadVideos(data) {
   return Promise.all(promises);
 }
 
+// ✅ LOAD
 function loadLives() {
   fullData = generateVideos();
-
   if (!fullData.length) return;
 
   const savedIndex = parseInt(localStorage.getItem("liveIndex")) || 0;
@@ -1221,27 +1222,24 @@ function loadLives() {
   startIndex = (savedIndex + stepsPassed) % fullData.length;
 
   const visibleVideos = [];
-  const count = Math.min(VISIBLE_COUNT, fullData.length);
+  const count = Math.min(VISIBLE_COUNT + 1, fullData.length);
 
   for (let i = 0; i < count; i++) {
     const index = (startIndex + i) % fullData.length;
     visibleVideos.push(fullData[index]);
   }
 
-  preloadVideos(visibleVideos).then(() => {
-    renderLives();
-  });
+  preloadVideos(visibleVideos).then(renderLives);
 
   if (!intervalStarted) {
     intervalStarted = true;
 
     setInterval(() => {
-
       const container = document.getElementById("liveContainer");
       const track = container.querySelector("div");
 
       if (track) {
-        track.style.transform = "translateX(-25%)";
+        track.style.transform = "translateX(-20%)";
       }
 
       setTimeout(() => {
@@ -1251,14 +1249,13 @@ function loadLives() {
         localStorage.setItem("liveTime", Date.now());
 
         renderLives();
-
       }, 400);
 
     }, SLIDE_INTERVAL);
   }
 }
 
-// ✅ MAIN RENDER (NO FLICKER VERSION)
+// ✅ RENDER (NO FLICKER FIXED)
 function renderLives() {
   const container = document.getElementById("liveContainer");
 
@@ -1284,8 +1281,7 @@ function renderLives() {
           muted 
           autoplay 
           loop 
-          playsinline 
-          preload="metadata">
+          playsinline>
         </video>
       </div>
       <span class="viewers">👁️ ${randomViews()}</span>
@@ -1301,7 +1297,7 @@ function renderLives() {
     track.appendChild(div);
   }
 
-  // ➜ Arrow item
+  // ➜ Arrow
   const arrow = document.createElement("div");
   arrow.className = "live-user";
 
@@ -1318,16 +1314,21 @@ function renderLives() {
 
   track.appendChild(arrow);
 
-  // ✅ swap instantly (no orange flash)
   container.innerHTML = "";
   container.appendChild(track);
 
   track.style.transform = "translateX(0%)";
 
-  // play only visible videos
+  // ✅ fade-in videos (no orange flash)
   const videos = track.querySelectorAll("video");
 
-  videos.forEach(v => v.pause());
+  videos.forEach(v => {
+    v.style.opacity = "0";
+
+    v.onloadeddata = () => {
+      v.style.opacity = "1";
+    };
+  });
 
   if (videos[0]) videos[0].play().catch(() => {});
 
@@ -1340,7 +1341,7 @@ function renderLives() {
   }, 100);
 }
 
-// ✅ RANDOM VIEWERS
+// ✅ RANDOM VIEWS
 function randomViews() {
   const num = Math.floor(Math.random() * 9000 + 100);
   return num > 1000 ? (num / 1000).toFixed(1) + "k" : num;
