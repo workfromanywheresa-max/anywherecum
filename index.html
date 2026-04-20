@@ -1191,7 +1191,7 @@ document.addEventListener("DOMContentLoaded", () => {
   </script>
 
   <script>
-const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";
+  const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";
 
 let fullData = [];
 let startIndex = 0;
@@ -1213,12 +1213,11 @@ function generateVideos() {
   return arr;
 }
 
-// ✅ PRELOAD (STRONGER VERSION)
+// ✅ PRELOAD
 function preloadVideos(data) {
   const promises = data.map(item => {
     return new Promise(resolve => {
       const video = document.createElement("video");
-
       video.src = item.video;
       video.preload = "auto";
       video.muted = true;
@@ -1307,7 +1306,14 @@ function renderLives() {
     div.innerHTML = `
       <div class="live-ring video-ring">
         <span class="live-badge">LIVE</span>
-        <video src="${item.video}" muted autoplay loop playsinline></video>
+        <video 
+          src="${item.video}" 
+          muted 
+          autoplay 
+          loop 
+          playsinline 
+          preload="auto"
+        ></video>
       </div>
       <span class="viewers">👁️ ${randomViews()}</span>
     `;
@@ -1328,7 +1334,7 @@ function renderLives() {
 
   arrow.innerHTML = `
     <div class="live-ring arrow-ring">
-      <span class="arrow">➜</span>
+      <span>➜</span>
     </div>
     <span class="viewers">More</span>
   `;
@@ -1342,22 +1348,21 @@ function renderLives() {
 
   track.style.transform = "translateX(0%)";
 
-  // ✅ FIX VIDEO FLASH
+  // ✅ FIX FLASH (core fix)
   const videos = track.querySelectorAll("video");
 
   videos.forEach(v => {
-    v.oncanplaythrough = () => {
+    v.style.opacity = "0";
+    v.style.visibility = "hidden";
+
+    v.addEventListener("loadeddata", () => {
       v.classList.add("ready");
-    };
-  });
-
-  if (videos[0]) videos[0].play().catch(() => {});
-
-  setTimeout(() => {
-    videos.forEach((v, i) => {
-      if (i < VISIBLE_COUNT) v.play().catch(() => {});
+      v.style.opacity = "1";
+      v.style.visibility = "visible";
     });
-  }, 100);
+
+    v.play().catch(() => {});
+  });
 }
 
 // ✅ RANDOM VIEWS
