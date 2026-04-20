@@ -311,14 +311,16 @@ footer {
   align-items: center;
 }
 
+/* TRACK */
 #liveContainer {
   overflow: hidden;
   display: flex;
-  background: transparent;
+  width: 100%;
 }
 
+/* 6 ITEMS TOTAL (5 videos + arrow) */
 .live-user {
-  flex: 0 0 20%; /* 4 videos + 1 arrow */
+  flex: 0 0 16.6667%;
   text-align: center;
 }
 
@@ -335,15 +337,14 @@ footer {
   overflow: hidden;
 }
 
-/* 🎥 VIDEO */
+/* 🎥 VIDEO (NO FLICKER) */
 .video-ring video {
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
   background: #000;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  opacity: 1;
 }
 
 /* 🔴 LIVE BADGE */
@@ -381,12 +382,12 @@ footer {
   transform: translateX(2px);
 }
 
-/* 🔥 PULSE ANIMATION */
+/* 🔥 PULSE */
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); }
   70% { box-shadow: 0 0 0 8px rgba(255,0,0,0); }
   100% { box-shadow: 0 0 0 0 rgba(255,0,0,0); }
-        }
+}
     </style>
 
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
