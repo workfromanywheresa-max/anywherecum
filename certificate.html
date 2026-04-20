@@ -257,6 +257,41 @@ async function verifyCertID() {
     result.innerText = "⚠ Verification error";
   }
 }
+  // ===== AUTO VERIFY FROM QR LINK =====
+window.addEventListener("load", () => {
+  const params = new URLSearchParams(window.location.search);
+  const cert = params.get("cert");
+
+  if (cert) {
+    // auto-fill input
+    const input = document.getElementById("certInput");
+    input.value = cert;
+
+    // auto verify
+    autoVerify(cert);
+  }
+});
+
+// ===== AUTO VERIFY FUNCTION =====
+async function autoVerify(certId) {
+  const result = document.getElementById("verifyResult");
+
+  try {
+    const res = await fetch(`${WORKER_URL}/verify?id=${certId}`);
+    const data = await res.json();
+
+    if (data.exists) {
+      result.style.color = "#10b981";
+      result.innerText = "✔ VALID CERTIFICATE (AUTO VERIFIED)";
+    } else {
+      result.style.color = "#ef4444";
+      result.innerText = "✖ INVALID CERTIFICATE";
+    }
+  } catch (err) {
+    result.style.color = "#f59e0b";
+    result.innerText = "⚠ Verification error";
+  }
+}
 
 </script>
 
