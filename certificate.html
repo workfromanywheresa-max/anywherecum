@@ -1,8 +1,14 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Professional Website Certificate</title><!-- Libraries --><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script><style>
+<title>Professional Website Certificate</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -17,15 +23,8 @@ header {
   border-bottom: 1px solid #1f2937;
 }
 
-header h1 {
-  margin: 0;
-  font-size: 28px;
-}
-
-header p {
-  margin-top: 8px;
-  color: #9ca3af;
-}
+header h1 { margin: 0; font-size: 28px; }
+header p { margin-top: 8px; color: #9ca3af; }
 
 .container {
   max-width: 1000px;
@@ -44,15 +43,13 @@ header p {
 .badge {
   display: inline-block;
   padding: 6px 12px;
-  background: #10b981;
-  color: white;
   border-radius: 20px;
   font-size: 12px;
-  margin-right: 8px;
+  margin: 5px;
+  color: white;
 }
 
 .button {
-  display: inline-block;
   padding: 10px 16px;
   background: #3b82f6;
   color: white;
@@ -70,53 +67,100 @@ input {
   margin-right: 10px;
 }
 
+#qrcode { position: absolute; left: -9999px; }
+
 footer {
   text-align: center;
   padding: 20px;
   color: #6b7280;
   border-top: 1px solid #1f2937;
-  margin-top: 30px;
 }
+</style>
+</head>
 
-#qrcode {
-  position: absolute;
-  left: -9999px;
-}
-</style></head>
-<body><header>
+<body>
+
+<header>
   <h1>Website Verification Certificate</h1>
   <p>Official Digital Platform Validation Page</p>
-</header><div class="container">  <div class="card">
+</header>
+
+<div class="container">
+
+  <!-- TRUST BADGE -->
+  <div class="card" style="text-align:center;">
+    <h2>Trust Badge</h2>
+
+    <div style="width:90px;height:90px;margin:auto;border-radius:50%;
+    background:linear-gradient(135deg,#10b981,#3b82f6);
+    display:flex;align-items:center;justify-content:center;
+    font-size:40px;color:white;">
+      ✔
+    </div>
+
+    <div>
+      <span class="badge" style="background:#3b82f6;">TRUSTED SITE</span>
+      <span class="badge" style="background:#10b981;">SSL SECURED</span>
+      <span class="badge" style="background:#f59e0b;">VERIFIED PLATFORM</span>
+    </div>
+
+    <p style="color:#9ca3af;">
+      Digital trust badge issued for identification purposes.
+    </p>
+  </div>
+
+  <!-- STATUS -->
+  <div class="card">
     <h2>Status</h2>
-    <span class="badge">Active</span>
-    <span class="badge">HTTPS Secure</span>
-    <span class="badge">Verified</span>
-    <p>Website is operational and publicly accessible.</p>
-  </div>  <div class="card">
+    <span class="badge" style="background:#10b981;">ACTIVE</span>
+    <span class="badge" style="background:#3b82f6;">HTTPS</span>
+    <span class="badge" style="background:#f59e0b;">VERIFIED</span>
+  </div>
+
+  <!-- DETAILS -->
+  <div class="card">
     <h2>Details</h2>
     <p><strong>Name:</strong> AnywhereCum</p>
     <p><strong>Domain:</strong> https://anywherecum.pages.dev/</p>
     <p><strong>Type:</strong> Digital Content Platform</p>
-  </div>  <div class="card">
+  </div>
+
+  <!-- DOWNLOAD -->
+  <div class="card">
     <h2>Certificate Actions</h2>
-    <button class="button" onclick="downloadPDF()">Download Official Certificate</button>
-  </div>  <div class="card">
+    <button class="button" onclick="downloadPDF()">Download Certificate</button>
+  </div>
+
+  <!-- VERIFY INPUT -->
+  <div class="card">
     <h2>Verify Certificate ID</h2>
-    <p>Enter your Certificate ID to verify authenticity:</p>
-    <input type="text" id="certInput" placeholder="Enter Certificate ID" />
+    <input id="certInput" placeholder="Enter Certificate ID" />
     <button class="button" onclick="verifyCertID()">Verify</button>
     <p id="verifyResult"></p>
-  </div></div><div id="qrcode"></div><footer>
-  © 2026 AnywhereCum | Official Certificate Page
-</footer><script>
-function generateQR() {
-  document.getElementById("qrcode").innerHTML = "";
-  new QRCode(document.getElementById("qrcode"), {
-    text: "https://anywherecum.pages.dev/",
-    width: 120,
-    height: 120
-  });
-}
+  </div>
+
+  <!-- PUBLIC LINK -->
+  <div class="card">
+    <h2>Public Verification Link</h2>
+    <button class="button" onclick="generatePublicLink()">Generate Link</button>
+    <p id="publicLink" style="word-break:break-all;"></p>
+  </div>
+
+</div>
+
+<div id="qrcode"></div>
+
+<footer>
+© 2026 AnywhereCum | Certificate System
+</footer>
+
+<script>
+
+window.onload = function () {
+  const params = new URLSearchParams(window.location.search);
+  const cert = params.get("cert");
+  if (cert) autoVerify(cert);
+};
 
 function generateCertID() {
   return "ANC-" + Date.now() + "-" + Math.floor(Math.random() * 10000);
@@ -128,49 +172,33 @@ function saveCertID(id) {
   localStorage.setItem("certIDs", JSON.stringify(list));
 }
 
-function downloadPDF() {
-  generateQR();
+function generateQR(certId) {
+  document.getElementById("qrcode").innerHTML = "";
 
+  const url = `${window.location.origin}${window.location.pathname}?cert=${certId}`;
+
+  new QRCode(document.getElementById("qrcode"), {
+    text: url,
+    width: 120,
+    height: 120
+  });
+}
+
+function downloadPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
   const certId = generateCertID();
   saveCertID(certId);
+  generateQR(certId);
 
-  doc.setFillColor(245, 245, 245);
-  doc.rect(0, 0, 210, 297, "F");
+  doc.text("OFFICIAL WEBSITE CERTIFICATE", 20, 30);
+  doc.text("Name: AnywhereCum", 20, 60);
+  doc.text("Domain: https://anywherecum.pages.dev/", 20, 70);
+  doc.text("Certificate ID: " + certId, 20, 90);
+  doc.text("✔ VERIFIED", 150, 90);
 
-  doc.setDrawColor(180, 180, 180);
-  doc.rect(10, 10, 190, 277);
-
-  doc.setFontSize(20);
-  doc.setTextColor(0, 0, 0);
-  doc.text("OFFICIAL WEBSITE CERTIFICATE", 35, 30);
-
-  doc.setFontSize(12);
-  doc.text("This certifies that the following website is verified and operational:", 20, 50);
-
-  doc.setFontSize(14);
-  doc.text("Name: AnywhereCum", 20, 70);
-  doc.text("Domain: https://anywherecum.pages.dev/", 20, 80);
-  doc.text("Status: Active & Secure (HTTPS)", 20, 90);
-  doc.text("Type: Digital Content Platform", 20, 100);
-
-  doc.text("Certificate ID: " + certId, 20, 115);
-
-  doc.setTextColor(184, 134, 11);
-  doc.setFontSize(18);
-  doc.text("✔ VERIFIED", 140, 90);
-
-  doc.setTextColor(0, 0, 0);
-  doc.setFontSize(12);
-  doc.text("Authorized by:", 20, 150);
-  doc.text("Site Administrator", 20, 160);
-
-  doc.setFontSize(10);
-  doc.text("This certificate is automatically generated for informational purposes only.", 20, 180);
-
-  doc.save("AnywhereCum_Official_Certificate.pdf");
+  doc.save("certificate.pdf");
 }
 
 function verifyCertID() {
@@ -180,11 +208,40 @@ function verifyCertID() {
 
   if (list.includes(input)) {
     result.style.color = "#10b981";
-    result.innerText = "✔ Certificate is VALID and generated by this system.";
+    result.innerText = "✔ VALID CERTIFICATE";
   } else {
     result.style.color = "#ef4444";
-    result.innerText = "✖ Certificate NOT FOUND or INVALID.";
+    result.innerText = "✖ INVALID CERTIFICATE";
   }
 }
-</script></body>
+
+function generatePublicLink() {
+  const certId = generateCertID();
+  saveCertID(certId);
+
+  const url = `${window.location.origin}${window.location.pathname}?cert=${certId}`;
+
+  document.getElementById("publicLink").innerHTML =
+    `<a href="${url}" target="_blank" style="color:#3b82f6;">${url}</a>`;
+}
+
+function autoVerify(certId) {
+  const list = JSON.parse(localStorage.getItem("certIDs") || "[]");
+
+  document.body.innerHTML = `
+    <div style="text-align:center;padding:40px;font-family:Arial;background:#0f172a;color:white;">
+      <h1>Certificate Verification</h1>
+      <h2>${certId}</h2>
+      ${
+        list.includes(certId)
+        ? `<h2 style="color:#10b981;">✔ VALID</h2>`
+        : `<h2 style="color:#ef4444;">✖ INVALID</h2>`
+      }
+    </div>
+  `;
+}
+
+</script>
+
+</body>
 </html>
