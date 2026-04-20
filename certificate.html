@@ -67,7 +67,6 @@ input {
 
 #qrcode { position: absolute; left: -9999px; }
 
-/* Seal */
 .seal {
   width: 90px;
   height: 90px;
@@ -110,7 +109,7 @@ input {
 
   <div class="card">
     <h2>Certificate Actions</h2>
-    <button class="button" onclick="downloadPDF()">Download Government Certificate</button>
+    <button class="button" onclick="downloadPDF()">Download Certificate</button>
   </div>
 
   <div class="card">
@@ -126,14 +125,23 @@ input {
 
 <script>
 
+const WORKER_URL = "https://certificate.workfromanywhere-sa.workers.dev";
+
 function generateCertID() {
   return "ANC-" + Date.now() + "-" + Math.floor(Math.random() * 9999);
 }
 
-function saveCertID(id) {
-  let list = JSON.parse(localStorage.getItem("certIDs") || "[]");
-  list.push(id);
-  localStorage.setItem("certIDs", JSON.stringify(list));
+// ===== SAVE TO WORKER =====
+async function saveCertID(id) {
+  try {
+    await fetch(`${WORKER_URL}/certificates`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id })
+    });
+  } catch (err) {
+    console.error("Failed to save cert:", err);
+  }
 }
 
 function toBase64(url) {
@@ -152,19 +160,20 @@ async function downloadPDF() {
   const doc = new jsPDF();
 
   const certId = generateCertID();
-  saveCertID(certId);
 
-  const url = `${window.location.origin}${window.location.pathname}?cert=${certId}`;
+  // SAVE ONLINE (Worker)
+  await saveCertID(certId);
+
+  const verifyUrl = `${window.location.origin}${window.location.pathname}?cert=${certId}`;
 
   const imgUrl = "https://anywherecum.pages.dev/images/certificate.png";
   const imgData = await toBase64(imgUrl);
 
-  // QR CODE
   const qrDiv = document.getElementById("qrcode");
   qrDiv.innerHTML = "";
 
   new QRCode(qrDiv, {
-    text: url,
+    text: verifyUrl,
     width: 120,
     height: 120
   });
@@ -173,8 +182,6 @@ async function downloadPDF() {
 
   const qrCanvas = qrDiv.querySelector("canvas");
   const qrData = qrCanvas.toDataURL("image/png");
-
-  // ===== GOVERNMENT STYLE CERTIFICATE =====
 
   doc.setLineWidth(1);
   doc.rect(10, 10, 190, 277);
@@ -185,12 +192,12 @@ async function downloadPDF() {
 
   doc.setFontSize(11);
   doc.setFont("helvetica", "normal");
-  doc.text("Digital Government Verification Document", 105, 38, { align: "center" });
+  doc.text("Digital Verification Document", 105, 38, { align: "center" });
 
   doc.addImage(imgData, "PNG", 85, 45, 40, 40);
 
   doc.setFontSize(12);
-  doc.text("This certifies the following platform is verified:", 20, 95);
+  doc.text("Platform Verified:", 20, 95);
 
   doc.setFont("helvetica", "bold");
   doc.text("Name: AnywhereCum", 20, 110);
@@ -198,30 +205,39 @@ async function downloadPDF() {
   doc.setFont("helvetica", "normal");
   doc.text("Domain: https://anywherecum.pages.dev/", 20, 120);
   doc.text("Certificate ID: " + certId, 20, 130);
-  doc.text("Status: VERIFIED DIGITAL PLATFORM", 20, 140);
+  doc.text("Status: VERIFIED", 20, 140);
 
-  doc.text("Scan QR to verify:", 150, 210);
+  doc.text("Scan QR:", 150, 210);
   doc.addImage(qrData, "PNG", 145, 215, 50, 50);
 
   doc.setFontSize(10);
-  doc.text("This certificate is system-generated and digitally verifiable.", 105, 280, {
-    align: "center"
-  });
+  doc.text("System-generated certificate", 105, 280, { align: "center" });
 
-  doc.save("government_certificate.pdf");
+  doc.save("certificate.pdf");
 }
 
-function verifyCertID() {
+// ===== VERIFY FROM WORKER =====
+async function verifyCertID() {
   const input = document.getElementById("certInput").value;
-  const list = JSON.parse(localStorage.getItem("certIDs") || "[]");
   const result = document.getElementById("verifyResult");
 
-  if (list.includes(input)) {
-    result.style.color = "#10b981";
-    result.innerText = "✔ VALID CERTIFICATE";
-  } else {
-    result.style.color = "#ef4444";
-    result.innerText = "✖ INVALID CERTIFICATE";
+  if (!input) return;
+
+  try {
+    const res = await fetch(`${WORKER_URL}/verify?id=${input}`);
+    const data = await res.json();
+
+    if (data.exists) {
+      result.style.color = "#10b981";
+      result.innerText = "✔ VALID CERTIFICATE";
+    } else {
+      result.style.color = "#ef4444";
+      result.innerText = "✖ INVALID CERTIFICATE";
+    }
+
+  } catch (err) {
+    result.style.color = "#f59e0b";
+    result.innerText = "⚠ Verification error";
   }
 }
 
