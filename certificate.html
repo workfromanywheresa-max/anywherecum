@@ -141,7 +141,9 @@ const WORKER_URL = "https://certificate.workfromanywhere-sa.workers.dev";
 // CERT DATA
 // ===============================
 const CERT_ID = "ANC-OFFICIAL-SITE-001";
-const ISSUE_DATE = "16 Feb 2025";
+
+// numeric date format
+const ISSUE_DATE = "2025-02-16";
 
 // ===============================
 // PDF GENERATION
@@ -181,7 +183,7 @@ async function downloadPDF() {
   doc.setFont("helvetica", "normal");
   doc.text("Digital Verification Document", 105, 38, { align: "center" });
 
-  // Seal
+  // Seal image
   doc.addImage(imgData, "PNG", 85, 45, 40, 40);
 
   // Body
@@ -206,18 +208,17 @@ async function downloadPDF() {
   doc.addImage(qrData, "PNG", 145, 205, 50, 50);
 
   // =========================
-  // BOTTOM LEFT SIGNATURE
+  // SIGNATURE IMAGE
   // =========================
   doc.line(20, 240, 80, 240);
 
+  const signatureImg = await toBase64("https://anywherecum.pages.dev/images/certificate.png");
+
+  doc.addImage(signatureImg, "PNG", 25, 242, 40, 20);
+
   doc.setFontSize(10);
-  doc.text("Authorized Signature", 20, 245);
-
-  doc.setFont("helvetica", "bold");
-  doc.text("Certificate Authority", 20, 252);
-
-  doc.setFont("helvetica", "normal");
-  doc.text("Issued: " + ISSUE_DATE, 20, 260);
+  doc.text("Authorized Signature", 20, 265);
+  doc.text("Issued: " + ISSUE_DATE, 20, 272);
 
   doc.save("certificate.pdf");
 }
