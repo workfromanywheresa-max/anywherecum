@@ -67,20 +67,16 @@ input {
 
 #qrcode { position: absolute; left: -9999px; }
 
-/* Seal */
+/* CLEAN IMAGE SECTION (NO STYLING) */
 .seal {
-  width: 90px;
-  height: 90px;
   margin: auto;
-  border-radius: 50%;
-  overflow: hidden;
-  box-shadow: 0 0 15px rgba(59,130,246,0.6);
+  text-align: center;
 }
 
 .seal img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: auto;
+  height: auto;
+  display: inline-block;
 }
 </style>
 </head>
@@ -97,8 +93,9 @@ input {
   <div class="card" style="text-align:center;">
     <h2>Trust Seal</h2>
 
+    <!-- CLEAN IMAGE (NO CSS EFFECTS) -->
     <div class="seal">
-      <img src="https://anywherecum.pages.dev/images/certificate. png" />
+      <img src="https://anywherecum.pages.dev/images/certificate.png" />
     </div>
 
     <div style="margin-top:10px;">
@@ -159,7 +156,6 @@ async function downloadPDF() {
   const imgUrl = "https://anywherecum.pages.dev/images/certificate.png";
   const imgData = await toBase64(imgUrl);
 
-  // QR CODE
   const qrDiv = document.getElementById("qrcode");
   qrDiv.innerHTML = "";
 
@@ -173,8 +169,6 @@ async function downloadPDF() {
 
   const qrCanvas = qrDiv.querySelector("canvas");
   const qrData = qrCanvas.toDataURL("image/png");
-
-  // ===== GOVERNMENT STYLE CERTIFICATE =====
 
   doc.setLineWidth(1);
   doc.rect(10, 10, 190, 277);
