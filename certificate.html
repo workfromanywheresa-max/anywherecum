@@ -76,7 +76,7 @@ footer {
   border-top: 1px solid #1f2937;
 }
 
-/* 🔥 NEW: glowing seal animation */
+/* glowing seal */
 .seal {
   width: 95px;
   height: 95px;
@@ -88,6 +88,14 @@ footer {
   align-items: center;
   justify-content: center;
   box-shadow: 0 0 20px rgba(59,130,246,0.6);
+  overflow: hidden;
+}
+
+.seal img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 </style>
 </head>
@@ -105,23 +113,9 @@ footer {
   <div class="card" style="text-align:center;">
     <h2>Trust Seal</h2>
 
-    <!-- ✅ PROFESSIONAL SVG BADGE -->
+    <!-- IMAGE REPLACEMENT -->
     <div class="seal">
-      <svg width="58" height="58" viewBox="0 0 24 24" fill="none"
-        xmlns="http://www.w3.org/2000/svg">
-
-        <!-- Shield -->
-        <path d="M12 2L4 5V11C4 16.55 7.84 21.74 12 23
-                 C16.16 21.74 20 16.55 20 11V5L12 2Z"
-          fill="white" opacity="0.95"/>
-
-        <!-- Check -->
-        <path d="M9 12.5L11.2 14.7L15.5 10"
-          stroke="#10b981"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"/>
-      </svg>
+      <img src="https://anywherecum.pages.dev/images/file_00000000286871f893d95a65d803c4de.png" alt="Trust Seal" />
     </div>
 
     <div style="margin-top:10px;">
