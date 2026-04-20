@@ -75,6 +75,20 @@ footer {
   color: #6b7280;
   border-top: 1px solid #1f2937;
 }
+
+/* 🔥 NEW: glowing seal animation */
+.seal {
+  width: 95px;
+  height: 95px;
+  margin: auto;
+  border-radius: 50%;
+  background: radial-gradient(circle at top,
+    #1de9b6, #3b82f6, #0f172a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(59,130,246,0.6);
+}
 </style>
 </head>
 
@@ -89,23 +103,35 @@ footer {
 
   <!-- TRUST BADGE -->
   <div class="card" style="text-align:center;">
-    <h2>Trust Badge</h2>
+    <h2>Trust Seal</h2>
 
-    <div style="width:90px;height:90px;margin:auto;border-radius:50%;
-    background:linear-gradient(135deg,#10b981,#3b82f6);
-    display:flex;align-items:center;justify-content:center;
-    font-size:40px;color:white;">
-      ✔
+    <!-- ✅ PROFESSIONAL SVG BADGE -->
+    <div class="seal">
+      <svg width="58" height="58" viewBox="0 0 24 24" fill="none"
+        xmlns="http://www.w3.org/2000/svg">
+
+        <!-- Shield -->
+        <path d="M12 2L4 5V11C4 16.55 7.84 21.74 12 23
+                 C16.16 21.74 20 16.55 20 11V5L12 2Z"
+          fill="white" opacity="0.95"/>
+
+        <!-- Check -->
+        <path d="M9 12.5L11.2 14.7L15.5 10"
+          stroke="#10b981"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+      </svg>
     </div>
 
-    <div>
-      <span class="badge" style="background:#3b82f6;">TRUSTED SITE</span>
-      <span class="badge" style="background:#10b981;">SSL SECURED</span>
-      <span class="badge" style="background:#f59e0b;">VERIFIED PLATFORM</span>
+    <div style="margin-top:10px;">
+      <span class="badge" style="background:#3b82f6;">TRUST VERIFIED</span>
+      <span class="badge" style="background:#10b981;">SSL SECURE</span>
+      <span class="badge" style="background:#f59e0b;">AUTHENTIC</span>
     </div>
 
     <p style="color:#9ca3af;">
-      Digital trust badge issued for identification purposes.
+      Official digital verification seal issued for platform identity validation.
     </p>
   </div>
 
@@ -131,7 +157,7 @@ footer {
     <button class="button" onclick="downloadPDF()">Download Certificate</button>
   </div>
 
-  <!-- VERIFY INPUT -->
+  <!-- VERIFY -->
   <div class="card">
     <h2>Verify Certificate ID</h2>
     <input id="certInput" placeholder="Enter Certificate ID" />
@@ -172,31 +198,18 @@ function saveCertID(id) {
   localStorage.setItem("certIDs", JSON.stringify(list));
 }
 
-function generateQR(certId) {
-  document.getElementById("qrcode").innerHTML = "";
-
-  const url = `${window.location.origin}${window.location.pathname}?cert=${certId}`;
-
-  new QRCode(document.getElementById("qrcode"), {
-    text: url,
-    width: 120,
-    height: 120
-  });
-}
-
 function downloadPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
   const certId = generateCertID();
   saveCertID(certId);
-  generateQR(certId);
 
   doc.text("OFFICIAL WEBSITE CERTIFICATE", 20, 30);
   doc.text("Name: AnywhereCum", 20, 60);
   doc.text("Domain: https://anywherecum.pages.dev/", 20, 70);
   doc.text("Certificate ID: " + certId, 20, 90);
-  doc.text("✔ VERIFIED", 150, 90);
+  doc.text("✔ VERIFIED SEAL", 20, 110);
 
   doc.save("certificate.pdf");
 }
@@ -234,8 +247,8 @@ function autoVerify(certId) {
       <h2>${certId}</h2>
       ${
         list.includes(certId)
-        ? `<h2 style="color:#10b981;">✔ VALID</h2>`
-        : `<h2 style="color:#ef4444;">✖ INVALID</h2>`
+        ? `<h2 style="color:#10b981;">✔ VALID SEAL VERIFIED</h2>`
+        : `<h2 style="color:#ef4444;">✖ INVALID CERTIFICATE</h2>`
       }
     </div>
   `;
