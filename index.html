@@ -339,15 +339,25 @@ footer {
   height: 45px;
   border-radius: 50%;
   padding: 2px;
-  background: #000; /* ✅ removed orange gradient */
+  background: #222; /* ✅ FIXED (no harsh black flash) */
   position: relative;
   margin: 0 auto;
   overflow: hidden;
 }
 
+/* placeholder layer to prevent flash */
+.live-ring::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #222;
+  border-radius: 50%;
+  z-index: 0;
+}
+
 /* VIDEO WRAPPER */
 .video-ring {
-  background: #000;
+  background: transparent;
 }
 
 /* VIDEO */
@@ -357,16 +367,16 @@ footer {
   object-fit: cover;
   border-radius: 50%;
 
-  /* ✅ REMOVE FLASH */
+  position: relative;
+  z-index: 1;
+
   opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.25s ease;
+  transition: opacity 0.2s ease;
 }
 
 /* SHOW WHEN READY */
 .video-ring video.ready {
   opacity: 1;
-  visibility: visible;
 }
 
 /* LIVE BADGE */
@@ -380,6 +390,7 @@ footer {
   padding: 1px 4px;
   border-radius: 4px;
   font-weight: bold;
+  z-index: 2;
 }
 
 /* VIEWERS */
@@ -398,18 +409,7 @@ footer {
   background: linear-gradient(45deg, #ff0000, #ff7b00);
   font-size: 20px;
   font-weight: bold;
-}
-
-/* OPTIONAL PULSE (disabled) */
-.live-ring {
-  animation: none;
-}
-
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); }
-  70% { box-shadow: 0 0 0 8px rgba(255,0,0,0); }
-  100% { box-shadow: 0 0 0 0 rgba(255,0,0,0); }
-  }
+    }
   </style>
   
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
