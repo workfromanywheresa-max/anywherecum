@@ -60,7 +60,7 @@ h2 {
 }
 
 /* =========================
-   VIDEO GRID (NO JUMPING)
+   VIDEO GRID (UNCHANGED)
 ========================= */
 #normalVideos {
   display: grid;
@@ -71,7 +71,7 @@ h2 {
 }
 
 /* =========================
-   VIDEO BOX
+   VIDEO BOX (UNCHANGED SIZE)
 ========================= */
 .videoBox {
   background: #222;
@@ -81,11 +81,12 @@ h2 {
 
   display: flex;
   flex-direction: column;
-
-  align-items: center; /* ✅ center everything horizontally */
+  align-items: center;
 }
 
-/* VIDEO WRAPPER */
+/* =========================
+   VIDEO WRAPPER (FIX ONLY HERE)
+========================= */
 .videoFrameWrapper {
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -93,14 +94,23 @@ h2 {
   background: #000;
   overflow: hidden;
   flex-shrink: 0;
+
+  /* keeps content centered nicely */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* 🔥 FIX: NO ZOOM / NO CROP */
 .videoFrameWrapper iframe,
+.videoFrameWrapper video,
 .videoFrameWrapper img {
   width: 100%;
   height: 100%;
   border: 0;
-  object-fit: cover;
+
+  object-fit: contain;   /* ✅ FIX: full video visible */
+  background: #000;      /* black padding for portrait videos */
   display: block;
 }
 
@@ -111,7 +121,6 @@ h2 {
   cursor: pointer;
   text-decoration: underline;
   text-align: center;
-
   min-height: 32px;
 }
 
@@ -120,21 +129,21 @@ h2 {
   margin: 2px 0;
   font-size: 12px;
   text-align: center;
-
   min-height: 16px;
 }
-  .downloadBtn {
+
+.downloadBtn {
   transform: translateY(-10px);
-  }
-  
+}
+
 /* =========================
-   DROPDOWN (FIXED)
+   DROPDOWN (UNCHANGED)
 ========================= */
 select {
   display: block;
-  width: fit-content;     /* ✅ prevents full width */
+  width: fit-content;
   max-width: 90%;
-  margin: 6px auto;       /* ✅ center horizontally */
+  margin: 6px auto;
 
   padding: 5px 10px;
   border-radius: 5px;
@@ -155,7 +164,7 @@ footer {
 }
 
 /* =========================
-   MOBILE FIX
+   MOBILE FIX (UNCHANGED)
 ========================= */
 @media (max-width: 768px) {
 
