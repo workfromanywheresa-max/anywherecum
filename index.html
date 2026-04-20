@@ -1190,7 +1190,7 @@ const SLIDE_INTERVAL = 10000;
 
 let intervalStarted = false;
 
-// ✅ GENERATE VIDEOS
+// ✅ GENERATE VIDEO LIST
 function generateVideos() {
   const arr = [];
   for (let i = TOTAL_VIDEOS; i >= 1; i--) {
@@ -1201,7 +1201,7 @@ function generateVideos() {
   return arr;
 }
 
-// ✅ PRELOAD
+// ✅ PRELOAD VIDEOS
 function preloadVideos(data) {
   const promises = data.map(item => {
     return new Promise(resolve => {
@@ -1232,23 +1232,35 @@ function loadLives() {
 
   startIndex = (savedIndex + stepsPassed) % fullData.length;
 
-  const visible = [];
-  for (let i = 0; i < VISIBLE_COUNT; i++) {
-    visible.push(fullData[(startIndex + i) % fullData.length]);
+  const visibleVideos = [];
+  const count = Math.min(VISIBLE_COUNT, fullData.length);
+
+  for (let i = 0; i < count; i++) {
+    const index = (startIndex + i) % fullData.length;
+    visibleVideos.push(fullData[index]);
   }
 
-  preloadVideos(visible).then(renderLives);
+  preloadVideos(visibleVideos).then(renderLives);
 
   if (!intervalStarted) {
     intervalStarted = true;
 
     setInterval(() => {
-      startIndex = (startIndex + 1) % fullData.length;
+      const track = document.getElementById("liveTrack");
 
-      localStorage.setItem("liveIndex", startIndex);
-      localStorage.setItem("liveTime", Date.now());
+      if (track) {
+        track.style.transform = "translateX(-20%)";
+      }
 
-      renderLives();
+      setTimeout(() => {
+        startIndex = (startIndex + 1) % fullData.length;
+
+        localStorage.setItem("liveIndex", startIndex);
+        localStorage.setItem("liveTime", Date.now());
+
+        renderLives();
+      }, 400);
+
     }, SLIDE_INTERVAL);
   }
 }
@@ -1257,12 +1269,15 @@ function loadLives() {
 function renderLives() {
   const container = document.getElementById("liveContainer");
 
-  const track = document.createElement("div");
-  track.style.display = "flex";
-  track.style.transition = "transform 0.4s ease";
-  track.style.willChange = "transform";
+  container.innerHTML = "";
 
-  for (let i = 0; i < VISIBLE_COUNT; i++) {
+  // 🔥 TRACK (SLIDING PART ONLY)
+  const track = document.createElement("div");
+  track.id = "liveTrack";
+
+  const count = Math.min(VISIBLE_COUNT, fullData.length);
+
+  for (let i = 0; i < count; i++) {
     const index = (startIndex + i) % fullData.length;
     const item = fullData[index];
 
@@ -1277,34 +1292,55 @@ function renderLives() {
       <span class="viewers">👁️ ${randomViews()}</span>
     `;
 
+    div.onclick = () => {
+      window.open("https://www.juicyads.rocks", "_blank");
+      setTimeout(() => {
+        window.location.href = item.video;
+      }, 1000);
+    };
+
     track.appendChild(div);
   }
 
-  container.innerHTML = "";
-  container.appendChild(track);
+  // ➜ FIXED ARROW (NOT INSIDE TRACK)
+  const arrow = document.createElement("div");
+  arrow.className = "live-user";
 
-  // FIXED RIGHT PANEL (NOT MOVING)
-  const fixed = document.createElement("div");
-  fixed.className = "fixed-controls";
-
-  fixed.innerHTML = `
-    <div class="arrow-ring">➜</div>
-    <div class="fixed-number">6</div>
+  arrow.innerHTML = `
+    <div class="live-ring arrow-ring">
+      <span class="arrow">➜</span>
+    </div>
+    <span class="viewers">More</span>
   `;
 
-  container.parentElement.appendChild(fixed);
+  arrow.onclick = () => {
+    window.open("https://www.juicyads.rocks", "_blank");
+  };
 
-  // fade in
+  container.appendChild(track);
+  container.appendChild(arrow);
+
+  // reset animation
+  track.style.transform = "translateX(0%)";
+
+  // fade-in videos
   const videos = track.querySelectorAll("video");
+
   videos.forEach(v => {
     v.style.opacity = "0";
     v.onloadeddata = () => v.style.opacity = "1";
   });
 
   if (videos[0]) videos[0].play().catch(() => {});
+
+  setTimeout(() => {
+    videos.forEach((v, i) => {
+      if (i < VISIBLE_COUNT) v.play().catch(() => {});
+    });
+  }, 100);
 }
 
-// ✅ RANDOM VIEWERS
+// ✅ RANDOM VIEWS
 function randomViews() {
   const num = Math.floor(Math.random() * 9000 + 100);
   return num > 1000 ? (num / 1000).toFixed(1) + "k" : num;
