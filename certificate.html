@@ -212,7 +212,7 @@ async function downloadPDF() {
   // =========================
   doc.line(20, 240, 80, 240);
 
-  const signatureImg = await toBase64("https://anywherecum.pages.dev/images/certificate.png");
+  const signatureImg = await toBase64("https://anywherecum.pages.dev/images/signature.png");
 
   doc.addImage(signatureImg, "PNG", 25, 242, 40, 20);
 
