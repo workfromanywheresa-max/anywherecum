@@ -1183,7 +1183,7 @@ const SLIDE_INTERVAL = 10000;
 
 let intervalStarted = false;
 
-// ✅ GENERATE VIDEO LIST (R2 FULL LINKS)
+// ✅ GENERATE VIDEO LIST
 function generateVideos() {
   const arr = [];
   for (let i = TOTAL_VIDEOS; i >= 1; i--) {
@@ -1192,6 +1192,27 @@ function generateVideos() {
     });
   }
   return arr;
+}
+
+// ✅ PRELOAD VIDEOS (IMPORTANT FIX)
+function preloadVideos(data) {
+  const promises = data.map(item => {
+    return new Promise(resolve => {
+      const video = document.createElement("video");
+
+      video.src = item.video;
+      video.preload = "auto";
+      video.muted = true;
+
+      // When video is ready to display
+      video.onloadeddata = () => resolve();
+
+      // Prevent blocking if error
+      video.onerror = () => resolve();
+    });
+  });
+
+  return Promise.all(promises);
 }
 
 function loadLives() {
@@ -1211,21 +1232,40 @@ function loadLives() {
 
   startIndex = (savedIndex + stepsPassed) % fullData.length;
 
-  renderLives();
+  // ✅ PRELOAD ONLY VISIBLE VIDEOS (FAST + SMART)
+  const visibleVideos = [];
+  const count = Math.min(VISIBLE_COUNT, fullData.length);
+
+  for (let i = 0; i < count; i++) {
+    const index = (startIndex + i) % fullData.length;
+    visibleVideos.push(fullData[index]);
+  }
+
+  preloadVideos(visibleVideos).then(() => {
+    renderLives();
+  });
 
   if (!intervalStarted) {
     intervalStarted = true;
 
     setInterval(() => {
 
-      // move 1 step
       startIndex = (startIndex + 1) % fullData.length;
 
       // ✅ SAVE STATE
       localStorage.setItem("liveIndex", startIndex);
       localStorage.setItem("liveTime", Date.now());
 
-      renderLives();
+      // ✅ PRELOAD NEXT SET BEFORE RENDER
+      const nextVideos = [];
+      for (let i = 0; i < count; i++) {
+        const index = (startIndex + i) % fullData.length;
+        nextVideos.push(fullData[index]);
+      }
+
+      preloadVideos(nextVideos).then(() => {
+        renderLives();
+      });
 
     }, SLIDE_INTERVAL);
   }
@@ -1265,7 +1305,7 @@ function renderLives() {
             autoplay 
             loop 
             playsinline 
-            preload="metadata">
+            preload="auto">
           </video>
         </div>
         <span class="viewers">👁️ ${randomViews()}</span>
@@ -1302,7 +1342,7 @@ function randomViews() {
 }
 
 loadLives();
-                </script>
+  </script>
 
   <script>
 (async function () {
