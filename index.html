@@ -1224,7 +1224,7 @@ function preloadVideos(data) {
       video.playsInline = true;
       video.style.display = "none";
 
-      video.oncanplay = () => resolve();
+      video.oncanplaythrough = () => resolve();
       video.onerror = () => resolve();
 
       document.body.appendChild(video);
@@ -1328,6 +1328,7 @@ function renderLives() {
     track.appendChild(div);
   }
 
+  // Arrow
   const arrow = document.createElement("div");
   arrow.className = "live-user";
 
@@ -1347,14 +1348,17 @@ function renderLives() {
 
   track.style.transform = "translateX(0%)";
 
-  // ✅ FIXED VIDEO REVEAL (no flash)
+  // ✅ FIX FLASH (core fix)
   const videos = track.querySelectorAll("video");
 
   videos.forEach(v => {
-    v.addEventListener("canplay", () => {
-      requestAnimationFrame(() => {
-        v.classList.add("ready");
-      });
+    v.style.opacity = "0";
+    v.style.visibility = "hidden";
+
+    v.addEventListener("loadeddata", () => {
+      v.classList.add("ready");
+      v.style.opacity = "1";
+      v.style.visibility = "visible";
     });
 
     v.play().catch(() => {});
