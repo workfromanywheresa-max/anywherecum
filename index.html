@@ -1221,8 +1221,6 @@ function generateVideos() {
 // =====================  
 function initLivesOnce() {  
   const container = document.getElementById("liveContainer");  
-  if (!container) return;
-
   container.innerHTML = "";  
 
   const track = document.createElement("div");  
@@ -1278,14 +1276,11 @@ function initLivesOnce() {
 }  
 
 // =====================  
-// CLICK (SAFE)  
+// CLICK  
 // =====================  
-const banner = document.querySelector(".banner");  
-if (banner) {  
-  banner.addEventListener("click", () => {  
-    window.open("https://www.juicyads.rocks", "_blank");  
-  });  
-}  
+document.querySelector(".banner").addEventListener("click", () => {  
+  window.open("https://www.juicyads.rocks", "_blank");  
+});  
 
 // =====================  
 // MOVE RIGHT  
@@ -1299,8 +1294,6 @@ function moveRight() {
   if (startIndex === fullData.length) {  
     requestAnimationFrame(() => {  
       const track = document.getElementById("liveTrack");  
-      if (!track) return;
-
       track.style.transition = "none";  
       startIndex = 0;  
       updateTrackPosition(false);  
@@ -1333,7 +1326,6 @@ function controlVideoPlayback() {
 
   items.forEach((item, index) => {  
     const video = item.querySelector("video");  
-    if (!video) return;
 
     if (index >= startIndex && index < startIndex + 5) {  
       if (video.paused) video.play().catch(() => {});  
@@ -1353,13 +1345,6 @@ function startSlider() {
   if (sliderInterval) return;  
   sliderInterval = setInterval(moveRight, SLIDE_INTERVAL);  
 }  
-
-function stopSlider() {
-  if (sliderInterval) {
-    clearInterval(sliderInterval);
-    sliderInterval = null;
-  }
-}
 
 // =====================  
 // RANDOM VIEWS  
@@ -1381,28 +1366,7 @@ function loadLives() {
 loadLives();  
 
 // =====================  
-// VISIBILITY FIX (IMPORTANT)  
-// =====================  
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible") {
-    if (!sliderInterval && intervalStarted) {
-      startSlider();
-    }
-
-    updateTrackPosition(false);
-    controlVideoPlayback();
-
-    document.querySelectorAll(".live-user video").forEach(v => {
-      v.play().catch(() => {});
-    });
-
-  } else {
-    stopSlider();
-  }
-});
-
-// =====================  
-// INTERSECTION OBSERVER  
+// PAUSE WHEN OUT OF VIEW (SAFE FIX)  
 // =====================  
 function setupVisibilityPause() {
   const liveContainer = document.getElementById("liveContainer");
@@ -1411,7 +1375,10 @@ function setupVisibilityPause() {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (!entry.isIntersecting) {
-        stopSlider();
+        if (sliderInterval) {
+          clearInterval(sliderInterval);
+          sliderInterval = null;
+        }
       } else {
         if (!sliderInterval && intervalStarted) {
           startSlider();
@@ -1427,8 +1394,8 @@ function setupVisibilityPause() {
 
 setupVisibilityPause();
 
-    </script>  
-
+      </script>
+    
   <script>
 (async function () {
 
