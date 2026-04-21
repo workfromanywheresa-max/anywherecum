@@ -1191,7 +1191,7 @@ document.addEventListener("DOMContentLoaded", () => {
   </script>
 
   <script>
-    const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";
+  const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";
 const CACHE_NAME = "live-video-cache-v1";
 
 let fullData = [];
@@ -1199,9 +1199,10 @@ let startIndex = 0;
 
 const TOTAL_VIDEOS = 20;
 const VISIBLE_COUNT = 5;
-const SLIDE_INTERVAL = 15000;
+const SLIDE_INTERVAL = 10000;
 
 let intervalStarted = false;
+let videoElements = []; // ✅ keeps videos alive
 
 // ✅ GENERATE LIST
 function generateVideos() {
@@ -1214,7 +1215,7 @@ function generateVideos() {
   return arr;
 }
 
-// ✅ CACHE VIDEOS (IMPORTANT FIX)
+// ✅ CACHE VIDEOS
 async function cacheVideos(data) {
   const cache = await caches.open(CACHE_NAME);
 
@@ -1248,16 +1249,8 @@ async function loadLives() {
 
   startIndex = (savedIndex + stepsPassed) % fullData.length;
 
-  const visibleVideos = [];
-  const count = Math.min(VISIBLE_COUNT, fullData.length);
-
-  for (let i = 0; i < count; i++) {
-    const index = (startIndex + i) % fullData.length;
-    visibleVideos.push(fullData[index]);
-  }
-
-  // ✅ PRE-CACHE ON FIRST LOAD ONLY
-  await cacheVideos(visibleVideos);
+  // preload cache once
+  await cacheVideos(fullData);
 
   renderLives();
 
@@ -1265,92 +1258,107 @@ async function loadLives() {
     intervalStarted = true;
 
     setInterval(() => {
-      const track = document.getElementById("liveTrack");
+      startIndex = (startIndex + 1) % fullData.length;
 
-      if (track) {
-        track.style.transition = "transform 0.4s ease";
-        track.style.transform = "translateX(-20%)";
-      }
+      localStorage.setItem("liveIndex", startIndex);
+      localStorage.setItem("liveTime", Date.now());
 
-      setTimeout(() => {
-        startIndex = (startIndex + 1) % fullData.length;
-
-        localStorage.setItem("liveIndex", startIndex);
-        localStorage.setItem("liveTime", Date.now());
-
-        renderLives();
-      }, 400);
-
+      renderLives(); // ONLY moves track, does NOT rebuild videos
     }, SLIDE_INTERVAL);
   }
 }
 
-// ✅ RENDER
+// ✅ RENDER (NO REBUILD = NO VIDEO RESET)
 function renderLives() {
   const container = document.getElementById("liveContainer");
-  container.innerHTML = "";
 
-  const track = document.createElement("div");
-  track.id = "liveTrack";
+  let track = document.getElementById("liveTrack");
 
-  const count = Math.min(VISIBLE_COUNT, fullData.length);
-
-  for (let i = 0; i < count; i++) {
-    const index = (startIndex + i) % fullData.length;
-    const item = fullData[index];
-
-    const div = document.createElement("div");
-    div.className = "live-user";
-
-    div.innerHTML = `
-      <div class="live-ring video-ring">
-        <span class="live-badge">LIVE</span>
-        <video 
-          src="${item.video}" 
-          muted 
-          autoplay 
-          loop 
-          playsinline 
-          preload="auto"
-        ></video>
-      </div>
-      <span class="viewers">👁️ ${randomViews()}</span>
-    `;
-
-    div.onclick = () => {
-      window.open("https://www.juicyads.rocks", "_blank");
-      setTimeout(() => {
-        window.location.href = item.video;
-      }, 1000);
-    };
-
-    track.appendChild(div);
+  // create track once
+  if (!track) {
+    track = document.createElement("div");
+    track.id = "liveTrack";
+    container.innerHTML = "";
+    container.appendChild(track);
   }
 
-  const arrow = document.createElement("div");
-  arrow.className = "live-user";
+  // build videos ONLY ON FIRST LOAD
+  if (videoElements.length === 0) {
+    for (let i = 0; i < fullData.length; i++) {
+      const item = fullData[i];
 
-  arrow.innerHTML = `
-    <div class="live-ring arrow-ring">
-      <span>➜</span>
-    </div>
-    <span class="viewers">More</span>
-  `;
+      const div = document.createElement("div");
+      div.className = "live-user";
 
-  arrow.onclick = () => {
-    window.open("https://www.juicyads.rocks", "_blank");
-  };
+      const ring = document.createElement("div");
+      ring.className = "live-ring video-ring";
 
-  container.appendChild(track);
-  container.appendChild(arrow);
+      const badge = document.createElement("span");
+      badge.className = "live-badge";
+      badge.textContent = "LIVE";
+
+      const video = document.createElement("video");
+      video.src = item.video;
+      video.muted = true;
+      video.autoplay = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.preload = "auto";
+
+      ring.appendChild(badge);
+      ring.appendChild(video);
+
+      const views = document.createElement("span");
+      views.className = "viewers";
+      views.textContent = "👁️ " + randomViews();
+
+      div.appendChild(ring);
+      div.appendChild(views);
+
+      div.onclick = () => {
+        window.open("https://www.juicyads.rocks", "_blank");
+        setTimeout(() => {
+          window.location.href = item.video;
+        }, 1000);
+      };
+
+      videoElements.push(div);
+    }
+
+    videoElements.forEach(el => track.appendChild(el));
+
+    // arrow button
+    const arrow = document.createElement("div");
+    arrow.className = "live-user";
+
+    arrow.innerHTML = `
+      <div class="live-ring arrow-ring">
+        <span>➜</span>
+      </div>
+      <span class="viewers">More</span>
+    `;
+
+    arrow.onclick = () => {
+      window.open("https://www.juicyads.rocks", "_blank");
+    };
+
+    track.appendChild(arrow);
+  }
+
+  // ✅ ONLY MOVE TRACK (NO RELOAD, NO RESET)
+  const offset = -(startIndex * (100 / VISIBLE_COUNT));
+
+  track.style.transition = "transform 0.4s ease";
+  track.style.transform = `translateX(${offset}%)`;
 }
 
-// ✅ VIEWS
+// ✅ RANDOM VIEWS
 function randomViews() {
   const num = Math.floor(Math.random() * 9000 + 100);
   return num > 1000 ? (num / 1000).toFixed(1) + "k" : num;
 }
 
+// START
 loadLives();
   </script>
 
