@@ -1221,14 +1221,19 @@ function generateVideos() {
 // =====================
 function initLivesOnce() {
   const container = document.getElementById("liveContainer");
+
+  if (!container) {
+    console.error("Missing #liveContainer in HTML");
+    return;
+  }
+
   container.innerHTML = "";
 
   const track = document.createElement("div");
   track.id = "liveTrack";
 
-  const loopData = [...fullData, fullData[0]];
-
-  loopData.forEach((item, index) => {
+  // ❌ FIX: no fake loop item
+  fullData.forEach((item, index) => {
     const div = document.createElement("div");
     div.className = "live-user";
 
@@ -1241,16 +1246,16 @@ function initLivesOnce() {
     video.autoplay = false;
     video.loop = true;
     video.playsInline = true;
-    video.preload = "metadata";
+    video.preload = "auto";
+    video.controls = false;
 
-    if (index === 0) {
-      video.addEventListener("loadeddata", () => {
-        if (!intervalStarted) {
-          intervalStarted = true;
-          startSlider();
-        }
-      });
-    }
+    video.addEventListener("loadeddata", () => {
+      if (!intervalStarted && index === 0) {
+        intervalStarted = true;
+        startSlider();
+        controlVideoPlayback();
+      }
+    });
 
     const badge = document.createElement("span");
     badge.className = "live-badge";
@@ -1278,8 +1283,13 @@ function initLivesOnce() {
 // =====================
 // CLICK
 // =====================
-document.querySelector(".banner").addEventListener("click", () => {
-  window.open("https://www.juicyads.rocks", "_blank");
+document.addEventListener("DOMContentLoaded", () => {
+  const banner = document.querySelector(".banner");
+  if (banner) {
+    banner.addEventListener("click", () => {
+      window.open("https://www.juicyads.rocks", "_blank");
+    });
+  }
 });
 
 // =====================
@@ -1288,18 +1298,12 @@ document.querySelector(".banner").addEventListener("click", () => {
 function moveRight() {
   startIndex++;
 
+  if (startIndex >= fullData.length) {
+    startIndex = 0;
+  }
+
   updateTrackPosition();
   controlVideoPlayback();
-
-  if (startIndex === fullData.length) {
-    requestAnimationFrame(() => {
-      const track = document.getElementById("liveTrack");
-      track.style.transition = "none";
-      startIndex = 0;
-      updateTrackPosition(false);
-      controlVideoPlayback();
-    });
-  }
 
   localStorage.setItem("liveIndex", startIndex);
 }
@@ -1310,6 +1314,7 @@ function moveRight() {
 function updateTrackPosition(animate = true) {
   const track = document.getElementById("liveTrack");
   const item = document.querySelector(".live-user");
+
   if (!track || !item) return;
 
   const width = item.offsetWidth;
@@ -1319,26 +1324,21 @@ function updateTrackPosition(animate = true) {
 }
 
 // =====================
-// 🔥 PLAY ONLY 5 VIDEOS (CIRCULAR FIX)
+// PLAY ONLY 5 VIDEOS
 // =====================
 function controlVideoPlayback() {
   const items = document.querySelectorAll(".live-user");
-  const total = fullData.length;
 
   items.forEach((item, index) => {
     const video = item.querySelector("video");
 
-    let relativeIndex = (index - startIndex + total) % total;
+    const relativeIndex = index - startIndex;
 
     if (relativeIndex >= 0 && relativeIndex < 5) {
-      if (video.paused) {
-        video.play().catch(() => {});
-      }
+      video.play().catch(() => {});
     } else {
-      if (!video.paused) {
-        video.pause();
-        video.currentTime = 0;
-      }
+      video.pause();
+      video.currentTime = 0;
     }
   });
 }
@@ -1365,6 +1365,7 @@ function randomViews() {
 function loadLives() {
   fullData = generateVideos();
   startIndex = parseInt(localStorage.getItem("liveIndex")) || 0;
+
   initLivesOnce();
 }
 
