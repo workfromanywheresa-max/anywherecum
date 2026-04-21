@@ -1226,7 +1226,6 @@ function initLivesOnce() {
   const track = document.createElement("div");
   track.id = "liveTrack";
 
-  // clone first for smooth loop
   const loopData = [...fullData, fullData[0]];
 
   loopData.forEach((item, index) => {
@@ -1239,12 +1238,11 @@ function initLivesOnce() {
     const video = document.createElement("video");
     video.src = item.video;
     video.muted = true;
-    video.autoplay = false; // 🔥 IMPORTANT
+    video.autoplay = false;
     video.loop = true;
     video.playsInline = true;
     video.preload = "metadata";
 
-    // start slider once first video is ready
     if (index === 0) {
       video.addEventListener("loadeddata", () => {
         if (!intervalStarted) {
@@ -1274,7 +1272,7 @@ function initLivesOnce() {
   container.appendChild(track);
 
   updateTrackPosition(false);
-  controlVideoPlayback(); // 🔥 start correct videos
+  controlVideoPlayback();
 }
 
 // =====================
@@ -1293,7 +1291,6 @@ function moveRight() {
   updateTrackPosition();
   controlVideoPlayback();
 
-  // seamless loop reset
   if (startIndex === fullData.length) {
     requestAnimationFrame(() => {
       const track = document.getElementById("liveTrack");
@@ -1322,22 +1319,25 @@ function updateTrackPosition(animate = true) {
 }
 
 // =====================
-// 🔥 PLAY ONLY 5 VIDEOS
+// 🔥 PLAY ONLY 5 VIDEOS (CIRCULAR FIX)
 // =====================
 function controlVideoPlayback() {
   const items = document.querySelectorAll(".live-user");
+  const total = fullData.length;
 
   items.forEach((item, index) => {
     const video = item.querySelector("video");
 
-    if (index >= startIndex && index < startIndex + 5) {
+    let relativeIndex = (index - startIndex + total) % total;
+
+    if (relativeIndex >= 0 && relativeIndex < 5) {
       if (video.paused) {
         video.play().catch(() => {});
       }
     } else {
       if (!video.paused) {
         video.pause();
-        video.currentTime = 0; // remove this line if you don't want reset
+        video.currentTime = 0;
       }
     }
   });
@@ -1348,7 +1348,6 @@ function controlVideoPlayback() {
 // =====================
 function startSlider() {
   if (sliderInterval) return;
-
   sliderInterval = setInterval(moveRight, SLIDE_INTERVAL);
 }
 
