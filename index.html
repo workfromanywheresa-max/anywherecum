@@ -1191,7 +1191,7 @@ document.addEventListener("DOMContentLoaded", () => {
   </script>
 
   <script>
-    const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";
+      const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";
 const CACHE_NAME = "live-video-cache-v1";
 
 let fullData = [];
@@ -1202,10 +1202,6 @@ const VISIBLE_COUNT = 5;
 const SLIDE_INTERVAL = 10000;
 
 let intervalStarted = false;
-
-// store DOM once (important fix)
-let trackEl = null;
-let videoElements = [];
 
 // ✅ GENERATE LIST
 function generateVideos() {
@@ -1260,6 +1256,7 @@ async function loadLives() {
     visibleVideos.push(fullData[index]);
   }
 
+  // ✅ PRE-CACHE ON FIRST LOAD ONLY
   await cacheVideos(visibleVideos);
 
   renderLives();
@@ -1268,9 +1265,11 @@ async function loadLives() {
     intervalStarted = true;
 
     setInterval(() => {
-      if (trackEl) {
-        trackEl.style.transition = "transform 0.4s ease";
-        trackEl.style.transform = "translateX(-20%)";
+      const track = document.getElementById("liveTrack");
+
+      if (track) {
+        track.style.transition = "transform 0.4s ease";
+        track.style.transform = "translateX(-20%)";
       }
 
       setTimeout(() => {
@@ -1279,96 +1278,88 @@ async function loadLives() {
         localStorage.setItem("liveIndex", startIndex);
         localStorage.setItem("liveTime", Date.now());
 
-        renderLives(); // only shifts, does NOT rebuild videos
+        renderLives();
+
       }, 400);
 
     }, SLIDE_INTERVAL);
   }
 }
 
-// ✅ RENDER (NO RESET VERSION)
+// ✅ RENDER
 function renderLives() {
   const container = document.getElementById("liveContainer");
+  container.innerHTML = "";
 
-  if (!trackEl) {
-    trackEl = document.createElement("div");
-    trackEl.id = "liveTrack";
-    container.appendChild(trackEl);
-  }
+  const track = document.createElement("div");
+  track.id = "liveTrack";
 
   const count = Math.min(VISIBLE_COUNT, fullData.length);
 
-  // build ONLY ON FIRST LOAD
-  if (videoElements.length === 0) {
-    for (let i = 0; i < count; i++) {
-      const index = (startIndex + i) % fullData.length;
-      const item = fullData[index];
+  for (let i = 0; i < count; i++) {
+    const index = (startIndex + i) % fullData.length;
+    const item = fullData[index];
 
-      const div = document.createElement("div");
-      div.className = "live-user";
+    const div = document.createElement("div");
+    div.className = "live-user";
 
-      const ring = document.createElement("div");
-      ring.className = "live-ring video-ring";
-
-      const badge = document.createElement("span");
-      badge.className = "live-badge";
-      badge.textContent = "LIVE";
-
-      const video = document.createElement("video");
-      video.src = item.video;
-      video.muted = true;
-      video.autoplay = true;
-      video.loop = true;
-      video.playsInline = true;
-      video.preload = "auto";
-
-      ring.appendChild(badge);
-      ring.appendChild(video);
-
-      const views = document.createElement("span");
-      views.className = "viewers";
-      views.textContent = "👁️ " + randomViews();
-
-      div.appendChild(ring);
-      div.appendChild(views);
-
-      div.onclick = () => {
-        window.open("https://www.juicyads.rocks", "_blank");
-        setTimeout(() => {
-          window.location.href = item.video;
-        }, 1000);
-      };
-
-      videoElements.push(div);
-    }
-
-    videoElements.forEach(el => trackEl.appendChild(el));
-
-    // arrow
-    const arrow = document.createElement("div");
-    arrow.className = "live-user";
-
-    arrow.innerHTML = `
-      <div class="live-ring arrow-ring">
-        <span>➜</span>
+    div.innerHTML = `
+      <div class="live-ring video-ring">
+        <span class="live-badge">LIVE</span>
+        <video 
+          src="${item.video}" 
+          muted 
+          autoplay 
+          loop 
+          playsinline 
+          preload="auto"
+        ></video>
       </div>
-      <span class="viewers">More</span>
+      <span class="viewers">👁️ ${randomViews()}</span>
     `;
 
-    arrow.onclick = () => {
+    div.onclick = () => {
       window.open("https://www.juicyads.rocks", "_blank");
+      setTimeout(() => {
+        window.location.href = item.video;
+      }, 1000);
     };
 
-    trackEl.appendChild(arrow);
+    track.appendChild(div);
   }
 
-  // ✅ ONLY MOVE (NO RELOAD / NO RESET)
-  const offset = -(startIndex * (100 / VISIBLE_COUNT));
-  trackEl.style.transition = "transform 0.4s ease";
-  trackEl.style.transform = `translateX(${offset}%)`;
+  const arrow = document.createElement("div");
+  arrow.className = "live-user";
+
+  arrow.innerHTML = `
+    <div class="live-ring arrow-ring">
+      <span>➜</span>
+    </div>
+    <span class="viewers">More</span>
+  `;
+
+  arrow.onclick = () => {
+    window.open("https://www.juicyads.rocks", "_blank");
+  };
+
+  container.appendChild(track);
+  container.appendChild(arrow);
+
+  // ✅ IMPORTANT: FORCE PLAY ALL VIDEOS
+  playAllVisibleVideos();
 }
 
-// ✅ RANDOM VIEWS
+// ✅ FORCE ALL 5 VIDEOS TO PLAY CONTINUOUSLY
+function playAllVisibleVideos() {
+  const videos = document.querySelectorAll("#liveTrack video");
+
+  videos.forEach(video => {
+    video.muted = true;
+    video.play().catch(() => {});
+  });
+}
+
+// ✅ VIEWS
 function randomViews() {
   const num = Math.floor(Math.random() * 9000 + 100);
   return num > 1000 ? (num / 1000).toFixed(1) + "k" : num;
