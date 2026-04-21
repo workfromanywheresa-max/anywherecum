@@ -1226,9 +1226,11 @@ function initLivesOnce() {
   track.id = "liveTrack";
 
   let videosLoaded = 0;
-  const totalVideos = fullData.length;
 
-  fullData.forEach((item) => {
+  // 🔥 CLONE FIRST ITEM FOR SMOOTH LOOP
+  const loopData = [...fullData, fullData[0]];
+
+  loopData.forEach((item) => {
     const div = document.createElement("div");
     div.className = "live-user";
 
@@ -1242,16 +1244,11 @@ function initLivesOnce() {
     video.loop = true;
     video.playsInline = true;
 
-    // ✅ WAIT UNTIL VIDEO IS READY
     video.addEventListener("loadeddata", () => {
       videosLoaded++;
-
-      if (videosLoaded === totalVideos) {
-        // ALL VIDEOS LOADED → START SLIDER
-        if (!intervalStarted) {
-          intervalStarted = true;
-          startSlider();
-        }
+      if (videosLoaded === loopData.length && !intervalStarted) {
+        intervalStarted = true;
+        startSlider();
       }
     });
 
@@ -1288,12 +1285,22 @@ document.querySelector(".banner").addEventListener("click", () => {
 // MOVE RIGHT
 // =====================
 function moveRight() {
-  startIndex = (startIndex + 1) % fullData.length;
-
-  localStorage.setItem("liveIndex", startIndex);
+  startIndex++;
 
   updateTrackPosition();
   playAllVisibleVideos();
+
+  // 🔥 RESET AFTER CLONE (SEAMLESS)
+  if (startIndex === fullData.length) {
+    setTimeout(() => {
+      const track = document.getElementById("liveTrack");
+      track.style.transition = "none";
+      startIndex = 0;
+      updateTrackPosition(false);
+    }, 400); // must match CSS transition
+  }
+
+  localStorage.setItem("liveIndex", startIndex);
 }
 
 // =====================
@@ -1343,7 +1350,7 @@ function loadLives() {
 
   startIndex = parseInt(localStorage.getItem("liveIndex")) || 0;
 
-  initLivesOnce(); // slider starts AFTER videos load
+  initLivesOnce();
 }
 
 loadLives();
