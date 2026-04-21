@@ -1195,16 +1195,16 @@ document.addEventListener("DOMContentLoaded", () => {
   <script>  
 const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";  
 const CACHE_NAME = "live-video-cache-v1";  
-  
+
 let fullData = [];  
 let startIndex = 0;  
-  
+
 const TOTAL_VIDEOS = 20;  
 const SLIDE_INTERVAL = 15000;  
-  
+
 let intervalStarted = false;  
 let sliderInterval = null;  
-  
+
 // =====================  
 // GENERATE LIST  
 // =====================  
@@ -1215,36 +1215,35 @@ function generateVideos() {
   }  
   return arr;  
 }  
-  
+
 // =====================  
 // INIT  
 // =====================  
 function initLivesOnce() {  
   const container = document.getElementById("liveContainer");  
   container.innerHTML = "";  
-  
+
   const track = document.createElement("div");  
   track.id = "liveTrack";  
-  
-  // clone first for smooth loop  
-  const loopData = [...fullData, fullData[0]];  
-  
+
+  // ✅ FIX: add 5 extra clones so sliding never runs out
+  const loopData = [...fullData, ...fullData.slice(0, 5)];  
+
   loopData.forEach((item, index) => {  
     const div = document.createElement("div");  
     div.className = "live-user";  
-  
+
     const ring = document.createElement("div");  
     ring.className = "live-ring";  
-  
+
     const video = document.createElement("video");  
     video.src = item.video;  
     video.muted = true;  
-    video.autoplay = false; // 🔥 IMPORTANT  
+    video.autoplay = false;  
     video.loop = true;  
     video.playsInline = true;  
     video.preload = "metadata";  
-  
-    // start slider once first video is ready  
+
     if (index === 0) {  
       video.addEventListener("loadeddata", () => {  
         if (!intervalStarted) {  
@@ -1253,47 +1252,46 @@ function initLivesOnce() {
         }  
       });  
     }  
-  
+
     const badge = document.createElement("span");  
     badge.className = "live-badge";  
     badge.textContent = "LIVE";  
-  
+
     ring.appendChild(video);  
     ring.appendChild(badge);  
-  
+
     const viewers = document.createElement("div");  
     viewers.className = "viewers";  
     viewers.textContent = "👁️ " + randomViews();  
-  
+
     div.appendChild(ring);  
     div.appendChild(viewers);  
-  
+
     track.appendChild(div);  
   });  
-  
+
   container.appendChild(track);  
-  
+
   updateTrackPosition(false);  
-  controlVideoPlayback(); // 🔥 start correct videos  
+  controlVideoPlayback();  
 }  
-  
+
 // =====================  
 // CLICK  
 // =====================  
 document.querySelector(".banner").addEventListener("click", () => {  
   window.open("https://www.juicyads.rocks", "_blank");  
 });  
-  
+
 // =====================  
 // MOVE RIGHT  
 // =====================  
 function moveRight() {  
   startIndex++;  
-  
+
   updateTrackPosition();  
   controlVideoPlayback();  
-  
-  // seamless loop reset  
+
   if (startIndex === fullData.length) {  
     requestAnimationFrame(() => {  
       const track = document.getElementById("liveTrack");  
@@ -1303,10 +1301,10 @@ function moveRight() {
       controlVideoPlayback();  
     });  
   }  
-  
+
   localStorage.setItem("liveIndex", startIndex);  
 }  
-  
+
 // =====================  
 // POSITION  
 // =====================  
@@ -1314,44 +1312,41 @@ function updateTrackPosition(animate = true) {
   const track = document.getElementById("liveTrack");  
   const item = document.querySelector(".live-user");  
   if (!track || !item) return;  
-  
+
   const width = item.offsetWidth;  
-  
+
   track.style.transition = animate ? "transform 0.4s ease" : "none";  
   track.style.transform = `translateX(-${startIndex * width}px)`;  
 }  
-  
+
 // =====================  
-// 🔥 PLAY ONLY 5 VIDEOS  
+// PLAY ONLY 5 VIDEOS  
 // =====================  
 function controlVideoPlayback() {  
   const items = document.querySelectorAll(".live-user");  
-  
+
   items.forEach((item, index) => {  
     const video = item.querySelector("video");  
-  
+
     if (index >= startIndex && index < startIndex + 5) {  
-      if (video.paused) {  
-        video.play().catch(() => {});  
-      }  
+      if (video.paused) video.play().catch(() => {});  
     } else {  
       if (!video.paused) {  
         video.pause();  
-        video.currentTime = 0; // remove this line if you don't want reset  
+        video.currentTime = 0;  
       }  
     }  
   });  
 }  
-  
+
 // =====================  
 // SLIDER  
 // =====================  
 function startSlider() {  
   if (sliderInterval) return;  
-  
   sliderInterval = setInterval(moveRight, SLIDE_INTERVAL);  
 }  
-  
+
 // =====================  
 // RANDOM VIEWS  
 // =====================  
@@ -1359,7 +1354,7 @@ function randomViews() {
   const num = Math.floor(Math.random() * 9000 + 100);  
   return num > 1000 ? (num / 1000).toFixed(1) + "k" : num;  
 }  
-  
+
 // =====================  
 // LOAD  
 // =====================  
@@ -1368,9 +1363,9 @@ function loadLives() {
   startIndex = parseInt(localStorage.getItem("liveIndex")) || 0;  
   initLivesOnce();  
 }  
-  
+
 loadLives();  
-  </script>
+      </script>
  
   <script>
 (async function () {
