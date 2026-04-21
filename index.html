@@ -1193,7 +1193,7 @@ document.addEventListener("DOMContentLoaded", () => {
   </script>
 
   <script>
-  const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";
+const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";
 const CACHE_NAME = "live-video-cache-v1";
 
 let fullData = [];
@@ -1225,6 +1225,9 @@ function initLivesOnce() {
   const track = document.createElement("div");
   track.id = "liveTrack";
 
+  let videosLoaded = 0;
+  const totalVideos = fullData.length;
+
   fullData.forEach((item) => {
     const div = document.createElement("div");
     div.className = "live-user";
@@ -1238,6 +1241,19 @@ function initLivesOnce() {
     video.autoplay = true;
     video.loop = true;
     video.playsInline = true;
+
+    // ✅ WAIT UNTIL VIDEO IS READY
+    video.addEventListener("loadeddata", () => {
+      videosLoaded++;
+
+      if (videosLoaded === totalVideos) {
+        // ALL VIDEOS LOADED → START SLIDER
+        if (!intervalStarted) {
+          intervalStarted = true;
+          startSlider();
+        }
+      }
+    });
 
     const badge = document.createElement("span");
     badge.className = "live-badge";
@@ -1262,7 +1278,7 @@ function initLivesOnce() {
 }
 
 // =====================
-// CLICK HANDLING (FIXED)
+// CLICK HANDLING
 // =====================
 document.querySelector(".banner").addEventListener("click", () => {
   window.open("https://www.juicyads.rocks", "_blank");
@@ -1281,7 +1297,7 @@ function moveRight() {
 }
 
 // =====================
-// FIXED SLIDE POSITION
+// SLIDE POSITION
 // =====================
 function updateTrackPosition(animate = true) {
   const track = document.getElementById("liveTrack");
@@ -1295,7 +1311,7 @@ function updateTrackPosition(animate = true) {
 }
 
 // =====================
-// PLAY VISIBLE VIDEOS
+// PLAY VIDEOS
 // =====================
 function playAllVisibleVideos() {
   document.querySelectorAll("#liveTrack video").forEach(v => {
@@ -1327,17 +1343,12 @@ function loadLives() {
 
   startIndex = parseInt(localStorage.getItem("liveIndex")) || 0;
 
-  initLivesOnce();
-
-  if (!intervalStarted) {
-    intervalStarted = true;
-    startSlider();
-  }
+  initLivesOnce(); // slider starts AFTER videos load
 }
 
 loadLives();
   </script>
-
+ 
   <script>
 (async function () {
 
