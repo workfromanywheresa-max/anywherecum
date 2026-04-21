@@ -1262,18 +1262,15 @@ function initLivesOnce() {
 }
 
 // =====================
-// CLICK ARROW (CSS ZONE)
+// CLICK ANYWHERE ON BANNER → OPEN LINK
 // =====================
-document.addEventListener("click", (e) => {
+document.addEventListener("DOMContentLoaded", () => {
   const banner = document.querySelector(".banner");
-  if (!banner) return;
 
-  const rect = banner.getBoundingClientRect();
-  const clickX = e.clientX - rect.left;
-
-  // right side = arrow area
-  if (clickX > rect.width - 70) {
-    moveRight();
+  if (banner) {
+    banner.addEventListener("click", () => {
+      window.open("https://www.juicyads.rocks", "_blank");
+    });
   }
 });
 
