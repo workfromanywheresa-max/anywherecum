@@ -1192,6 +1192,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   <script>
     const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";
+const CACHE_NAME = "live-video-cache-v1";
 
 let fullData = [];
 let startIndex = 0;
@@ -1202,7 +1203,7 @@ const SLIDE_INTERVAL = 10000;
 
 let intervalStarted = false;
 
-// ✅ GENERATE VIDEO LIST
+// ✅ GENERATE LIST
 function generateVideos() {
   const arr = [];
   for (let i = TOTAL_VIDEOS; i >= 1; i--) {
@@ -1213,29 +1214,29 @@ function generateVideos() {
   return arr;
 }
 
-// ✅ PRELOAD
-function preloadVideos(data) {
-  const promises = data.map(item => {
-    return new Promise(resolve => {
-      const video = document.createElement("video");
-      video.src = item.video;
-      video.preload = "auto";
-      video.muted = true;
-      video.playsInline = true;
-      video.style.display = "none";
+// ✅ CACHE VIDEOS (IMPORTANT FIX)
+async function cacheVideos(data) {
+  const cache = await caches.open(CACHE_NAME);
 
-      video.oncanplaythrough = () => resolve();
-      video.onerror = () => resolve();
+  const promises = data.map(async (item) => {
+    const request = new Request(item.video);
 
-      document.body.appendChild(video);
-    });
+    const cached = await cache.match(request);
+    if (!cached) {
+      try {
+        const response = await fetch(request, { mode: "no-cors" });
+        await cache.put(request, response.clone());
+      } catch (e) {
+        console.log("Cache fail:", item.video);
+      }
+    }
   });
 
   return Promise.all(promises);
 }
 
 // ✅ LOAD
-function loadLives() {
+async function loadLives() {
   fullData = generateVideos();
   if (!fullData.length) return;
 
@@ -1255,7 +1256,10 @@ function loadLives() {
     visibleVideos.push(fullData[index]);
   }
 
-  preloadVideos(visibleVideos).then(renderLives);
+  // ✅ PRE-CACHE ON FIRST LOAD ONLY
+  await cacheVideos(visibleVideos);
+
+  renderLives();
 
   if (!intervalStarted) {
     intervalStarted = true;
@@ -1264,13 +1268,8 @@ function loadLives() {
       const track = document.getElementById("liveTrack");
 
       if (track) {
-        track.style.transition = "none";
-        track.style.transform = "translateX(0%)";
-
-        requestAnimationFrame(() => {
-          track.style.transition = "transform 0.4s ease";
-          track.style.transform = "translateX(-20%)";
-        });
+        track.style.transition = "transform 0.4s ease";
+        track.style.transform = "translateX(-20%)";
       }
 
       setTimeout(() => {
@@ -1328,7 +1327,6 @@ function renderLives() {
     track.appendChild(div);
   }
 
-  // Arrow
   const arrow = document.createElement("div");
   arrow.className = "live-user";
 
@@ -1345,27 +1343,9 @@ function renderLives() {
 
   container.appendChild(track);
   container.appendChild(arrow);
-
-  track.style.transform = "translateX(0%)";
-
-  // ✅ FIX FLASH (core fix)
-  const videos = track.querySelectorAll("video");
-
-  videos.forEach(v => {
-    v.style.opacity = "0";
-    v.style.visibility = "hidden";
-
-    v.addEventListener("loadeddata", () => {
-      v.classList.add("ready");
-      v.style.opacity = "1";
-      v.style.visibility = "visible";
-    });
-
-    v.play().catch(() => {});
-  });
 }
 
-// ✅ RANDOM VIEWS
+// ✅ VIEWS
 function randomViews() {
   const num = Math.floor(Math.random() * 9000 + 100);
   return num > 1000 ? (num / 1000).toFixed(1) + "k" : num;
