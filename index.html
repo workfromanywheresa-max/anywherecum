@@ -1192,7 +1192,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
   </script>
 
-  <script>  
+    <script>  
 const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";  
 const CACHE_NAME = "live-video-cache-v1";  
 
@@ -1226,7 +1226,6 @@ function initLivesOnce() {
   const track = document.createElement("div");  
   track.id = "liveTrack";  
 
-  // ✅ FIX: add 5 extra clones so sliding never runs out
   const loopData = [...fullData, ...fullData.slice(0, 5)];  
 
   loopData.forEach((item, index) => {  
@@ -1367,28 +1366,33 @@ function loadLives() {
 loadLives();  
 
 // =====================  
-// PAUSE SLIDER WHEN OUT OF VIEW  
+// PAUSE WHEN OUT OF VIEW (SAFE FIX)  
 // =====================  
-const liveContainer = document.getElementById("liveContainer");
+function setupVisibilityPause() {
+  const liveContainer = document.getElementById("liveContainer");
+  if (!liveContainer) return;
 
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (!entry.isIntersecting) {
-      if (sliderInterval) {
-        clearInterval(sliderInterval);
-        sliderInterval = null;
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) {
+        if (sliderInterval) {
+          clearInterval(sliderInterval);
+          sliderInterval = null;
+        }
+      } else {
+        if (!sliderInterval && intervalStarted) {
+          startSlider();
+        }
       }
-    } else {
-      if (!sliderInterval && intervalStarted) {
-        startSlider();
-      }
-    }
+    });
+  }, {
+    threshold: 0.2
   });
-}, {
-  threshold: 0.2
-});
 
-observer.observe(liveContainer);
+  observer.observe(liveContainer);
+}
+
+setupVisibilityPause();
 
                    </script>
  
