@@ -1239,6 +1239,27 @@ async function cacheVideos(data) {
 }
 
 // =====================
+// INTERSECTION OBSERVER (STOP VIDEO)
+// =====================
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    const video = entry.target;
+
+    if (entry.isIntersecting) {
+      // ▶️ PLAY when visible
+      video.play().catch(() => {});
+    } else {
+      // ⛔ FULL STOP when out of view
+      video.pause();
+      video.currentTime = 0;
+      video.load(); // hard reset (true stop)
+    }
+  });
+}, {
+  threshold: 0.5
+});
+
+// =====================
 // INIT ONCE RENDER
 // =====================
 function initLivesOnce() {
@@ -1265,6 +1286,9 @@ function initLivesOnce() {
     video.playsInline = true;
     video.preload = "auto";
 
+    // ✅ observe each video
+    observer.observe(video);
+
     const ring = document.createElement("div");
     ring.className = "live-ring video-ring";
 
@@ -1283,8 +1307,8 @@ function initLivesOnce() {
     div.appendChild(viewers);
 
     div.onclick = () => {
-  window.open("https://www.juicyads.rocks", "_blank");
-};
+      window.open("https://www.juicyads.rocks", "_blank");
+    };
 
     track.appendChild(div);
   }
@@ -1325,7 +1349,6 @@ function startSlider() {
       localStorage.setItem("liveIndex", startIndex);
       localStorage.setItem("liveTime", Date.now());
 
-      // SHIFT ONLY (NO REBUILD)
       const first = track.firstElementChild;
       track.appendChild(first);
 
@@ -1340,14 +1363,25 @@ function startSlider() {
 }
 
 // =====================
-// FORCE PLAY
+// FORCE PLAY (VISIBLE ONLY)
 // =====================
 function playAllVisibleVideos() {
   const videos = document.querySelectorAll("#liveTrack video");
 
   videos.forEach(video => {
-    video.muted = true;
-    video.play().catch(() => {});
+    const rect = video.getBoundingClientRect();
+
+    const isVisible =
+      rect.top < window.innerHeight &&
+      rect.bottom > 0;
+
+    if (isVisible) {
+      video.play().catch(() => {});
+    } else {
+      video.pause();
+      video.currentTime = 0;
+      video.load(); // FULL STOP
+    }
   });
 }
 
