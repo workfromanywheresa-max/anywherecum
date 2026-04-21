@@ -1365,6 +1365,7 @@ function loadLives() {
 }  
 
 loadLives();  
+
 // =====================  
 // PAUSE SLIDER WHEN OUT OF VIEW  
 // =====================  
@@ -1373,13 +1374,11 @@ const liveContainer = document.getElementById("liveContainer");
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (!entry.isIntersecting) {
-      // pause slider
       if (sliderInterval) {
         clearInterval(sliderInterval);
         sliderInterval = null;
       }
     } else {
-      // resume slider
       if (!sliderInterval && intervalStarted) {
         startSlider();
       }
@@ -1390,7 +1389,8 @@ const observer = new IntersectionObserver((entries) => {
 });
 
 observer.observe(liveContainer);
-      </script>
+
+                   </script>
  
   <script>
 (async function () {
