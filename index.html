@@ -1203,6 +1203,7 @@ const TOTAL_VIDEOS = 20;
 const SLIDE_INTERVAL = 15000;
 
 let intervalStarted = false;
+let sliderInterval = null;
 
 // =====================
 // GENERATE LIST
@@ -1225,7 +1226,7 @@ function initLivesOnce() {
   const track = document.createElement("div");
   track.id = "liveTrack";
 
-  // 🔥 CLONE FIRST ITEM FOR SMOOTH LOOP
+  // clone first for smooth loop
   const loopData = [...fullData, fullData[0]];
 
   loopData.forEach((item, index) => {
@@ -1238,17 +1239,20 @@ function initLivesOnce() {
     const video = document.createElement("video");
     video.src = item.video;
     video.muted = true;
-    video.autoplay = true;
+    video.autoplay = false; // 🔥 IMPORTANT
     video.loop = true;
     video.playsInline = true;
+    video.preload = "metadata";
 
-    // 🔥 START SLIDER WHEN FIRST VIDEO LOADS
-    video.addEventListener("loadeddata", () => {
-      if (!intervalStarted) {
-        intervalStarted = true;
-        startSlider();
-      }
-    });
+    // start slider once first video is ready
+    if (index === 0) {
+      video.addEventListener("loadeddata", () => {
+        if (!intervalStarted) {
+          intervalStarted = true;
+          startSlider();
+        }
+      });
+    }
 
     const badge = document.createElement("span");
     badge.className = "live-badge";
@@ -1270,10 +1274,11 @@ function initLivesOnce() {
   container.appendChild(track);
 
   updateTrackPosition(false);
+  controlVideoPlayback(); // 🔥 start correct videos
 }
 
 // =====================
-// CLICK HANDLING
+// CLICK
 // =====================
 document.querySelector(".banner").addEventListener("click", () => {
   window.open("https://www.juicyads.rocks", "_blank");
@@ -1286,23 +1291,24 @@ function moveRight() {
   startIndex++;
 
   updateTrackPosition();
-  playAllVisibleVideos();
+  controlVideoPlayback();
 
-  // 🔥 RESET AFTER CLONE (SEAMLESS)
+  // seamless loop reset
   if (startIndex === fullData.length) {
-    setTimeout(() => {
+    requestAnimationFrame(() => {
       const track = document.getElementById("liveTrack");
       track.style.transition = "none";
       startIndex = 0;
       updateTrackPosition(false);
-    }, 400); // must match CSS transition
+      controlVideoPlayback();
+    });
   }
 
   localStorage.setItem("liveIndex", startIndex);
 }
 
 // =====================
-// SLIDE POSITION
+// POSITION
 // =====================
 function updateTrackPosition(animate = true) {
   const track = document.getElementById("liveTrack");
@@ -1316,20 +1322,34 @@ function updateTrackPosition(animate = true) {
 }
 
 // =====================
-// PLAY VIDEOS
+// 🔥 PLAY ONLY 5 VIDEOS
 // =====================
-function playAllVisibleVideos() {
-  document.querySelectorAll("#liveTrack video").forEach(v => {
-    v.muted = true;
-    v.play().catch(() => {});
+function controlVideoPlayback() {
+  const items = document.querySelectorAll(".live-user");
+
+  items.forEach((item, index) => {
+    const video = item.querySelector("video");
+
+    if (index >= startIndex && index < startIndex + 5) {
+      if (video.paused) {
+        video.play().catch(() => {});
+      }
+    } else {
+      if (!video.paused) {
+        video.pause();
+        video.currentTime = 0; // remove this line if you don't want reset
+      }
+    }
   });
 }
 
 // =====================
-// AUTO SLIDE
+// SLIDER
 // =====================
 function startSlider() {
-  setInterval(moveRight, SLIDE_INTERVAL);
+  if (sliderInterval) return;
+
+  sliderInterval = setInterval(moveRight, SLIDE_INTERVAL);
 }
 
 // =====================
@@ -1345,9 +1365,7 @@ function randomViews() {
 // =====================
 function loadLives() {
   fullData = generateVideos();
-
   startIndex = parseInt(localStorage.getItem("liveIndex")) || 0;
-
   initLivesOnce();
 }
 
