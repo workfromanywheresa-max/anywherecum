@@ -1225,12 +1225,10 @@ function initLivesOnce() {
   const track = document.createElement("div");
   track.id = "liveTrack";
 
-  let videosLoaded = 0;
-
   // 🔥 CLONE FIRST ITEM FOR SMOOTH LOOP
   const loopData = [...fullData, fullData[0]];
 
-  loopData.forEach((item) => {
+  loopData.forEach((item, index) => {
     const div = document.createElement("div");
     div.className = "live-user";
 
@@ -1244,9 +1242,9 @@ function initLivesOnce() {
     video.loop = true;
     video.playsInline = true;
 
+    // 🔥 START SLIDER WHEN FIRST VIDEO LOADS
     video.addEventListener("loadeddata", () => {
-      videosLoaded++;
-      if (videosLoaded === loopData.length && !intervalStarted) {
+      if (!intervalStarted) {
         intervalStarted = true;
         startSlider();
       }
