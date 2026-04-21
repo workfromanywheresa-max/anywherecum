@@ -1202,6 +1202,8 @@ const TOTAL_VIDEOS = 20;
 const VISIBLE_COUNT = 5;
 const SLIDE_INTERVAL = 10000;
 
+const MAX_START_INDEX = TOTAL_VIDEOS - VISIBLE_COUNT;
+
 let intervalStarted = false;
 
 // =====================
@@ -1239,7 +1241,7 @@ async function cacheVideos(data) {
 }
 
 // =====================
-// INIT (RENDER ALL 20)
+// INIT RENDER (ALL 20)
 // =====================
 function initLivesOnce() {
   const container = document.getElementById("liveContainer");
@@ -1248,7 +1250,6 @@ function initLivesOnce() {
   const track = document.createElement("div");
   track.id = "liveTrack";
 
-  // IMPORTANT: render ALL videos
   fullData.forEach((item) => {
     const div = document.createElement("div");
     div.className = "live-user";
@@ -1292,11 +1293,16 @@ function initLivesOnce() {
 }
 
 // =====================
-// SLIDE LOGIC (loops all 20)
+// SLIDER LOOP (FIXED)
 // =====================
 function startSlider() {
   setInterval(() => {
-    startIndex = (startIndex + 1) % fullData.length;
+    startIndex++;
+
+    // LOOP ONLY VALID RANGE (0 → 15)
+    if (startIndex > MAX_START_INDEX) {
+      startIndex = 0;
+    }
 
     localStorage.setItem("liveIndex", startIndex);
     localStorage.setItem("liveTime", Date.now());
@@ -1314,14 +1320,14 @@ function updateTrackPosition(animate = true) {
   const track = document.getElementById("liveTrack");
   if (!track) return;
 
-  const percent = 100 / VISIBLE_COUNT; // 20% per item
+  const percent = 100 / VISIBLE_COUNT;
 
   track.style.transition = animate ? "transform 0.4s ease" : "none";
   track.style.transform = `translateX(-${startIndex * percent}%)`;
 }
 
 // =====================
-// FORCE PLAY
+// FORCE PLAY VISIBLE
 // =====================
 function playAllVisibleVideos() {
   const videos = document.querySelectorAll("#liveTrack video");
@@ -1332,7 +1338,7 @@ function playAllVisibleVideos() {
 }
 
 // =====================
-// LOAD
+// LOAD + RESUME STATE
 // =====================
 async function loadLives() {
   fullData = generateVideos();
@@ -1343,7 +1349,7 @@ async function loadLives() {
   const elapsed = Date.now() - savedTime;
   const stepsPassed = Math.floor(elapsed / SLIDE_INTERVAL);
 
-  startIndex = (savedIndex + stepsPassed) % fullData.length;
+  startIndex = (savedIndex + stepsPassed) % (MAX_START_INDEX + 1);
 
   await cacheVideos(fullData);
 
@@ -1356,7 +1362,7 @@ async function loadLives() {
 }
 
 // =====================
-// VIEWS
+// VIEW COUNT
 // =====================
 function randomViews() {
   const num = Math.floor(Math.random() * 9000 + 100);
