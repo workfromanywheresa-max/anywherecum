@@ -1191,7 +1191,7 @@ document.addEventListener("DOMContentLoaded", () => {
   </script>
 
   <script>
-      const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";
+  const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";
 const CACHE_NAME = "live-video-cache-v1";
 
 let fullData = [];
@@ -1203,7 +1203,9 @@ const SLIDE_INTERVAL = 10000;
 
 let intervalStarted = false;
 
-// ✅ GENERATE LIST
+// =====================
+// GENERATE LIST
+// =====================
 function generateVideos() {
   const arr = [];
   for (let i = TOTAL_VIDEOS; i >= 1; i--) {
@@ -1214,11 +1216,13 @@ function generateVideos() {
   return arr;
 }
 
-// ✅ CACHE VIDEOS
+// =====================
+// CACHE
+// =====================
 async function cacheVideos(data) {
   const cache = await caches.open(CACHE_NAME);
 
-  const promises = data.map(async (item) => {
+  for (const item of data) {
     const request = new Request(item.video);
 
     const cached = await cache.match(request);
@@ -1230,64 +1234,13 @@ async function cacheVideos(data) {
         console.log("Cache fail:", item.video);
       }
     }
-  });
-
-  return Promise.all(promises);
-}
-
-// ✅ LOAD
-async function loadLives() {
-  fullData = generateVideos();
-  if (!fullData.length) return;
-
-  const savedIndex = parseInt(localStorage.getItem("liveIndex")) || 0;
-  const savedTime = parseInt(localStorage.getItem("liveTime")) || Date.now();
-
-  const elapsed = Date.now() - savedTime;
-  const stepsPassed = Math.floor(elapsed / SLIDE_INTERVAL);
-
-  startIndex = (savedIndex + stepsPassed) % fullData.length;
-
-  const visibleVideos = [];
-  const count = Math.min(VISIBLE_COUNT, fullData.length);
-
-  for (let i = 0; i < count; i++) {
-    const index = (startIndex + i) % fullData.length;
-    visibleVideos.push(fullData[index]);
-  }
-
-  // ✅ PRE-CACHE ON FIRST LOAD ONLY
-  await cacheVideos(visibleVideos);
-
-  renderLives();
-
-  if (!intervalStarted) {
-    intervalStarted = true;
-
-    setInterval(() => {
-      const track = document.getElementById("liveTrack");
-
-      if (track) {
-        track.style.transition = "transform 0.4s ease";
-        track.style.transform = "translateX(-20%)";
-      }
-
-      setTimeout(() => {
-        startIndex = (startIndex + 1) % fullData.length;
-
-        localStorage.setItem("liveIndex", startIndex);
-        localStorage.setItem("liveTime", Date.now());
-
-        renderLives();
-
-      }, 400);
-
-    }, SLIDE_INTERVAL);
   }
 }
 
-// ✅ RENDER
-function renderLives() {
+// =====================
+// INIT ONCE RENDER
+// =====================
+function initLivesOnce() {
   const container = document.getElementById("liveContainer");
   container.innerHTML = "";
 
@@ -1303,20 +1256,30 @@ function renderLives() {
     const div = document.createElement("div");
     div.className = "live-user";
 
-    div.innerHTML = `
-      <div class="live-ring video-ring">
-        <span class="live-badge">LIVE</span>
-        <video 
-          src="${item.video}" 
-          muted 
-          autoplay 
-          loop 
-          playsinline 
-          preload="auto"
-        ></video>
-      </div>
-      <span class="viewers">👁️ ${randomViews()}</span>
-    `;
+    const video = document.createElement("video");
+    video.src = item.video;
+    video.muted = true;
+    video.autoplay = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.preload = "auto";
+
+    const ring = document.createElement("div");
+    ring.className = "live-ring video-ring";
+
+    const badge = document.createElement("span");
+    badge.className = "live-badge";
+    badge.textContent = "LIVE";
+
+    ring.appendChild(badge);
+    ring.appendChild(video);
+
+    const viewers = document.createElement("span");
+    viewers.className = "viewers";
+    viewers.textContent = "👁️ " + randomViews();
+
+    div.appendChild(ring);
+    div.appendChild(viewers);
 
     div.onclick = () => {
       window.open("https://www.juicyads.rocks", "_blank");
@@ -1330,7 +1293,6 @@ function renderLives() {
 
   const arrow = document.createElement("div");
   arrow.className = "live-user";
-
   arrow.innerHTML = `
     <div class="live-ring arrow-ring">
       <span>➜</span>
@@ -1345,11 +1307,43 @@ function renderLives() {
   container.appendChild(track);
   container.appendChild(arrow);
 
-  // ✅ IMPORTANT: FORCE PLAY ALL VIDEOS
   playAllVisibleVideos();
 }
 
-// ✅ FORCE ALL 5 VIDEOS TO PLAY CONTINUOUSLY
+// =====================
+// SLIDE (ONLY MOVE, NO REBUILD)
+// =====================
+function startSlider() {
+  setInterval(() => {
+    const track = document.getElementById("liveTrack");
+    if (!track) return;
+
+    track.style.transition = "transform 0.4s ease";
+    track.style.transform = "translateX(-20%)";
+
+    setTimeout(() => {
+      startIndex = (startIndex + 1) % fullData.length;
+
+      localStorage.setItem("liveIndex", startIndex);
+      localStorage.setItem("liveTime", Date.now());
+
+      // SHIFT ONLY (NO REBUILD)
+      const first = track.firstElementChild;
+      track.appendChild(first);
+
+      track.style.transition = "none";
+      track.style.transform = "translateX(0)";
+
+      playAllVisibleVideos();
+
+    }, 400);
+
+  }, SLIDE_INTERVAL);
+}
+
+// =====================
+// FORCE PLAY
+// =====================
 function playAllVisibleVideos() {
   const videos = document.querySelectorAll("#liveTrack video");
 
@@ -1359,7 +1353,34 @@ function playAllVisibleVideos() {
   });
 }
 
-// ✅ VIEWS
+// =====================
+// LOAD
+// =====================
+async function loadLives() {
+  fullData = generateVideos();
+  if (!fullData.length) return;
+
+  const savedIndex = parseInt(localStorage.getItem("liveIndex")) || 0;
+  const savedTime = parseInt(localStorage.getItem("liveTime")) || Date.now();
+
+  const elapsed = Date.now() - savedTime;
+  const stepsPassed = Math.floor(elapsed / SLIDE_INTERVAL);
+
+  startIndex = (savedIndex + stepsPassed) % fullData.length;
+
+  await cacheVideos(fullData);
+
+  initLivesOnce();
+
+  if (!intervalStarted) {
+    intervalStarted = true;
+    startSlider();
+  }
+}
+
+// =====================
+// VIEWS
+// =====================
 function randomViews() {
   const num = Math.floor(Math.random() * 9000 + 100);
   return num > 1000 ? (num / 1000).toFixed(1) + "k" : num;
