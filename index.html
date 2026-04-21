@@ -1264,24 +1264,8 @@ function initLivesOnce() {
 // =====================
 // CLICK HANDLING (FIXED)
 // =====================
-document.addEventListener("DOMContentLoaded", () => {
-  const banner = document.querySelector(".banner");
-  const arrow = document.querySelector(".arrow-ring");
-
-  // Banner click (optional)
-  if (banner) {
-    banner.addEventListener("click", () => {
-      window.open("https://www.juicyads.rocks", "_blank");
-    });
-  }
-
-  // ✅ ARROW ONLY OPENS LINK — NOTHING ELSE
-  if (arrow) {
-    arrow.addEventListener("click", (e) => {
-      e.stopPropagation();
-      window.open("https://www.juicyads.rocks", "_blank");
-    });
-  }
+document.querySelector(".banner").addEventListener("click", () => {
+  window.open("https://www.juicyads.rocks", "_blank");
 });
 
 // =====================
