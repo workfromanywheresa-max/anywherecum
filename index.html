@@ -1191,7 +1191,7 @@ document.addEventListener("DOMContentLoaded", () => {
   </script>
 
   <script>
-  const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";
+    const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";
 const CACHE_NAME = "live-video-cache-v1";
 
 let fullData = [];
@@ -1202,7 +1202,10 @@ const VISIBLE_COUNT = 5;
 const SLIDE_INTERVAL = 10000;
 
 let intervalStarted = false;
-let videoElements = []; // ✅ keeps videos alive
+
+// store DOM once (important fix)
+let trackEl = null;
+let videoElements = [];
 
 // ✅ GENERATE LIST
 function generateVideos() {
@@ -1249,8 +1252,15 @@ async function loadLives() {
 
   startIndex = (savedIndex + stepsPassed) % fullData.length;
 
-  // preload cache once
-  await cacheVideos(fullData);
+  const visibleVideos = [];
+  const count = Math.min(VISIBLE_COUNT, fullData.length);
+
+  for (let i = 0; i < count; i++) {
+    const index = (startIndex + i) % fullData.length;
+    visibleVideos.push(fullData[index]);
+  }
+
+  await cacheVideos(visibleVideos);
 
   renderLives();
 
@@ -1258,34 +1268,41 @@ async function loadLives() {
     intervalStarted = true;
 
     setInterval(() => {
-      startIndex = (startIndex + 1) % fullData.length;
+      if (trackEl) {
+        trackEl.style.transition = "transform 0.4s ease";
+        trackEl.style.transform = "translateX(-20%)";
+      }
 
-      localStorage.setItem("liveIndex", startIndex);
-      localStorage.setItem("liveTime", Date.now());
+      setTimeout(() => {
+        startIndex = (startIndex + 1) % fullData.length;
 
-      renderLives(); // ONLY moves track, does NOT rebuild videos
+        localStorage.setItem("liveIndex", startIndex);
+        localStorage.setItem("liveTime", Date.now());
+
+        renderLives(); // only shifts, does NOT rebuild videos
+      }, 400);
+
     }, SLIDE_INTERVAL);
   }
 }
 
-// ✅ RENDER (NO REBUILD = NO VIDEO RESET)
+// ✅ RENDER (NO RESET VERSION)
 function renderLives() {
   const container = document.getElementById("liveContainer");
 
-  let track = document.getElementById("liveTrack");
-
-  // create track once
-  if (!track) {
-    track = document.createElement("div");
-    track.id = "liveTrack";
-    container.innerHTML = "";
-    container.appendChild(track);
+  if (!trackEl) {
+    trackEl = document.createElement("div");
+    trackEl.id = "liveTrack";
+    container.appendChild(trackEl);
   }
 
-  // build videos ONLY ON FIRST LOAD
+  const count = Math.min(VISIBLE_COUNT, fullData.length);
+
+  // build ONLY ON FIRST LOAD
   if (videoElements.length === 0) {
-    for (let i = 0; i < fullData.length; i++) {
-      const item = fullData[i];
+    for (let i = 0; i < count; i++) {
+      const index = (startIndex + i) % fullData.length;
+      const item = fullData[index];
 
       const div = document.createElement("div");
       div.className = "live-user";
@@ -1325,9 +1342,9 @@ function renderLives() {
       videoElements.push(div);
     }
 
-    videoElements.forEach(el => track.appendChild(el));
+    videoElements.forEach(el => trackEl.appendChild(el));
 
-    // arrow button
+    // arrow
     const arrow = document.createElement("div");
     arrow.className = "live-user";
 
@@ -1342,14 +1359,13 @@ function renderLives() {
       window.open("https://www.juicyads.rocks", "_blank");
     };
 
-    track.appendChild(arrow);
+    trackEl.appendChild(arrow);
   }
 
-  // ✅ ONLY MOVE TRACK (NO RELOAD, NO RESET)
+  // ✅ ONLY MOVE (NO RELOAD / NO RESET)
   const offset = -(startIndex * (100 / VISIBLE_COUNT));
-
-  track.style.transition = "transform 0.4s ease";
-  track.style.transform = `translateX(${offset}%)`;
+  trackEl.style.transition = "transform 0.4s ease";
+  trackEl.style.transform = `translateX(${offset}%)`;
 }
 
 // ✅ RANDOM VIEWS
@@ -1358,7 +1374,6 @@ function randomViews() {
   return num > 1000 ? (num / 1000).toFixed(1) + "k" : num;
 }
 
-// START
 loadLives();
   </script>
 
