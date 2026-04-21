@@ -1205,7 +1205,7 @@ const SLIDE_INTERVAL = 10000;
 let intervalStarted = false;
 
 // =====================
-// GENERATE LIST (20 VIDEOS)
+// GENERATE LIST
 // =====================
 function generateVideos() {
   const arr = [];
@@ -1239,26 +1239,7 @@ async function cacheVideos(data) {
 }
 
 // =====================
-// OBSERVER (PLAY/STOP)
-// =====================
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    const video = entry.target;
-
-    if (entry.isIntersecting) {
-      video.play().catch(() => {});
-    } else {
-      video.pause();
-      video.currentTime = 0;
-      video.load();
-    }
-  });
-}, {
-  threshold: 0.5
-});
-
-// =====================
-// INIT RENDER (5 VISIBLE SLICE)
+// INIT ONCE RENDER
 // =====================
 function initLivesOnce() {
   const container = document.getElementById("liveContainer");
@@ -1284,8 +1265,6 @@ function initLivesOnce() {
     video.playsInline = true;
     video.preload = "auto";
 
-    observer.observe(video);
-
     const ring = document.createElement("div");
     ring.className = "live-ring video-ring";
 
@@ -1304,8 +1283,8 @@ function initLivesOnce() {
     div.appendChild(viewers);
 
     div.onclick = () => {
-      window.open("https://www.juicyads.rocks", "_blank");
-    };
+  window.open("https://www.juicyads.rocks", "_blank");
+};
 
     track.appendChild(div);
   }
@@ -1330,7 +1309,7 @@ function initLivesOnce() {
 }
 
 // =====================
-// SLIDER (FULL 20 LOOP)
+// SLIDE (ONLY MOVE, NO REBUILD)
 // =====================
 function startSlider() {
   setInterval(() => {
@@ -1338,7 +1317,7 @@ function startSlider() {
     if (!track) return;
 
     track.style.transition = "transform 0.4s ease";
-    track.style.transform = `translateX(-${100 / VISIBLE_COUNT}%)`;
+    track.style.transform = "translateX(-20%)";
 
     setTimeout(() => {
       startIndex = (startIndex + 1) % fullData.length;
@@ -1346,6 +1325,7 @@ function startSlider() {
       localStorage.setItem("liveIndex", startIndex);
       localStorage.setItem("liveTime", Date.now());
 
+      // SHIFT ONLY (NO REBUILD)
       const first = track.firstElementChild;
       track.appendChild(first);
 
@@ -1353,31 +1333,21 @@ function startSlider() {
       track.style.transform = "translateX(0)";
 
       playAllVisibleVideos();
+
     }, 400);
 
   }, SLIDE_INTERVAL);
 }
 
 // =====================
-// FORCE PLAY ONLY VISIBLE
+// FORCE PLAY
 // =====================
 function playAllVisibleVideos() {
   const videos = document.querySelectorAll("#liveTrack video");
 
   videos.forEach(video => {
-    const rect = video.getBoundingClientRect();
-
-    const isVisible =
-      rect.top < window.innerHeight &&
-      rect.bottom > 0;
-
-    if (isVisible) {
-      video.play().catch(() => {});
-    } else {
-      video.pause();
-      video.currentTime = 0;
-      video.load();
-    }
+    video.muted = true;
+    video.play().catch(() => {});
   });
 }
 
@@ -1386,6 +1356,7 @@ function playAllVisibleVideos() {
 // =====================
 async function loadLives() {
   fullData = generateVideos();
+  if (!fullData.length) return;
 
   const savedIndex = parseInt(localStorage.getItem("liveIndex")) || 0;
   const savedTime = parseInt(localStorage.getItem("liveTime")) || Date.now();
@@ -1406,7 +1377,7 @@ async function loadLives() {
 }
 
 // =====================
-// RANDOM VIEWS
+// VIEWS
 // =====================
 function randomViews() {
   const num = Math.floor(Math.random() * 9000 + 100);
