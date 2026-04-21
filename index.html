@@ -322,12 +322,15 @@ footer {
 /* SLIDING TRACK */
 #liveTrack {
   display: flex;
-  flex: 0 0 auto;
-  width: 2000%; /* 20 items × 100%/5 view logic */
+  flex: 1;
+  transition: transform 0.4s ease;
+  will-change: transform;
 }
 
+/* EACH ITEM */
 .live-user {
-  flex: 0 0 5%;
+  flex: 0 0 20%;
+  text-align: center;
 }
 
 /* LIVE CIRCLE */
