@@ -670,8 +670,10 @@ const visitId = localStorage.getItem("visit_id");
 const btn = document.getElementById("getCodeBtn");
 const box = document.getElementById("codeBox");
 
+let claimed = false; // 🔥 track if user already clicked
+
 async function checkUnlock() {
-  if (!visitId) return;
+  if (!visitId || claimed) return; // 🚫 stop if already claimed
 
   try {
     const res = await fetch(
@@ -689,14 +691,16 @@ async function checkUnlock() {
   }
 }
 
-// poll unlock status
-setInterval(checkUnlock, 3000);
+// start polling
+const interval = setInterval(checkUnlock, 3000);
 
-// 🔥 Hide button instantly on click
+// click handler
 btn.addEventListener("click", async function () {
 
-  // hide immediately
+  claimed = true; // 🔥 mark as claimed
   btn.style.display = "none";
+
+  clearInterval(interval); // 🔥 stop polling completely
 
   try {
     const res = await fetch(
