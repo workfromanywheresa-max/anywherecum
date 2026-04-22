@@ -139,6 +139,16 @@ function countDownloadOnce(videoId) {
   increaseViews(videoId);
 }
 
+function showReward(code) {
+  const box = document.getElementById("reward-box");
+  const text = document.getElementById("reward-code");
+
+  if (!code) return;
+
+  text.textContent = code;
+  box.style.display = "block";
+}
+
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
 
