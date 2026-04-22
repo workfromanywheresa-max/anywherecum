@@ -834,29 +834,6 @@ window.VIDEO_CONFIG = {
 
 })();
   </script>
-
-  <script>
-    const bottomAd = document.getElementById("bottom-ad-container");
-
-if (bottomAd) {
-  bottomAd.addEventListener("click", () => {
-    const adClicked = sessionStorage.getItem("bottom_ad_clicked");
-
-    if (adClicked) return;
-
-    sessionStorage.setItem("bottom_ad_clicked", "1");
-
-    fetch("https://task.workfromanywhere-sa.workers.dev/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        event: "bottom-ad-click",
-        visitId: localStorage.getItem("visit_id")
-      })
-    }).catch(console.error);
-  });
-}
-  </script>
   
 <script type="module" src="views2.js"></script>
 
