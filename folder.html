@@ -659,8 +659,11 @@ window.addEventListener("load", function () {
 });
 </script>
 
-<button id="getCodeBtn" style="display:none;">Get Code</button>
-<div id="codeBox"></div>
+<div style="text-align:center; margin-top:40px;">
+  <button id="getCodeBtn" style="display:none;">Get Code</button>
+  
+  <div id="codeBox" style="margin-top:20px;"></div>
+</div>
 
 <script>
 const visitId = localStorage.getItem("visit_id");
@@ -680,7 +683,7 @@ async function checkUnlock() {
 
     // show button when ready
     if (data.ready) {
-      btn.style.display = "block";
+      btn.style.display = "inline-block";
     }
 
   } catch (err) {
@@ -691,7 +694,7 @@ async function checkUnlock() {
 // poll unlock status
 setInterval(checkUnlock, 3000);
 
-// 🔥 IMPORTANT: now we FETCH the REAL CODE from backend
+// fetch code on click
 btn.addEventListener("click", async function () {
   const res = await fetch(
     `https://task.workfromanywhere-sa.workers.dev/?visitId=${visitId}`
