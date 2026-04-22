@@ -845,7 +845,18 @@ const WORKER_URL = "https://task.workfromanywhere-sa.workers.dev/";
 
 let visitId = localStorage.getItem("visitId");
 
-// 🔥 RUN IMMEDIATELY WHEN PAGE LOADS
+// 🔥 SHOW REWARD FUNCTION
+function showReward(code) {
+  const box = document.getElementById("reward-box");
+  const text = document.getElementById("reward-code");
+
+  if (!code) return;
+
+  text.textContent = code;
+  box.style.display = "block";
+}
+
+// 🔥 INIT VISIT + CONNECT TO UI
 async function initVisit() {
   if (!visitId) {
     const res = await fetch(WORKER_URL, {
@@ -855,12 +866,20 @@ async function initVisit() {
     });
 
     const data = await res.json();
-    visitId = data.visitId;
 
+    visitId = data.visitId;
     localStorage.setItem("visitId", visitId);
+
     console.log("🆔 New visitId:", visitId);
+
+    // ✅ SHOW IT ON SCREEN
+    showReward(visitId);
+
   } else {
     console.log("🆔 Existing visitId:", visitId);
+
+    // ✅ SHOW EXISTING ONE
+    showReward(visitId);
   }
 }
 
