@@ -107,23 +107,6 @@ function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
-async function send5MinWatch(videoId) {
-  try {
-    await fetch("https://task.workfromanywhere-sa.workers.dev/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type: "watch5min",   // 🔥 REQUIRED
-        videoId,
-        visitId,             // 🔥 MUST EXIST
-        time: Date.now()
-      })
-    });
-  } catch (err) {
-    console.error("5 min watch worker failed:", err);
-  }
-}
-
 /* ---------------- COUNTING ---------------- */
 function countWatchOnce(videoId) {
   const key = `${visitId}_watch_${videoId}`;
@@ -139,16 +122,6 @@ function countDownloadOnce(videoId) {
   increaseViews(videoId);
 }
 
-function showReward(code) {
-  const box = document.getElementById("reward-box");
-  const text = document.getElementById("reward-code");
-
-  if (!code) return;
-
-  text.textContent = code;
-  box.style.display = "block";
-}
-
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
 
@@ -162,9 +135,6 @@ style.innerHTML = `
 document.head.appendChild(style);
 
 /* ---------------- VIDEO BOX ---------------- */
-let watchTimer = null;
-let watchStarted = false;
-
 function createVideoBox(video) {
 
   const box = document.createElement("div");
@@ -238,19 +208,9 @@ function createVideoBox(video) {
   });
 
   preview.onclick = () => {
-
-  countWatchOnce(video.id);
-  loadPlayer();
-
-  // 🔥 START 5 MIN TIMER (ONLY ON FIRST CLICK)
-  if (!watchStarted) {
-    watchStarted = true;
-
-    watchTimer = setTimeout(() => {
-      send5MinWatch(video.id);
-    }, 5 * 60 * 1000);
-  }
-};
+    countWatchOnce(video.id);
+    loadPlayer();
+  };
 
   let startX = 0;
 
@@ -466,15 +426,6 @@ fetch(dataSource)
           updateUI(v.id);
         }
       });
-
-      /* ---------------- ⭐ REWARD CODE (ADD THIS) ---------------- */
-  onValue(ref(db, "sessions/" + v.id + "/code"), snap => {
-    const data = snap.val();
-
-    if (data && data.code) {
-      showReward(data.code); // 👈 show popup
-    }
-  });
 
       onValue(ref(db, "cycleViews/" + v.id), snap => {
         const val = snap.val();
