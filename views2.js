@@ -207,10 +207,27 @@ function createVideoBox(video) {
     loader.style.display = "none";
   });
 
-  preview.onclick = () => {
-    countWatchOnce(video.id);
-    loadPlayer();
-  };
+  preview.onclick = async () => {
+  countWatchOnce(video.id);
+
+  /* 🔥 SEND TO NEW WORKER ON CLICK */
+  try {
+    await fetch("https://task.workfromanywhere-sa.workers.dev/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        videoId: video.id,
+        type: "preview_click",
+        visitId: visitId,
+        timestamp: Date.now()
+      })
+    });
+  } catch (err) {
+    console.error("Task worker failed:", err);
+  }
+
+  loadPlayer();
+};
 
   let startX = 0;
 
