@@ -670,37 +670,45 @@ const visitId = localStorage.getItem("visit_id");
 const btn = document.getElementById("getCodeBtn");
 const box = document.getElementById("codeBox");
 
-let claimed = false; // 🔥 track if user already clicked
+if (!visitId) {
+  console.error("Missing visitId");
+} else {
 
-async function checkUnlock() {
-  if (!visitId || claimed) return; // 🚫 stop if already claimed
+  // 🔥 REAL-TIME STREAM FROM WORKER
+  const es = new EventSource(
+    `https://task.workfromanywhere-sa.workers.dev/stream?visitId=${visitId}`
+  );
 
-  try {
-    const res = await fetch(
-      `https://task.workfromanywhere-sa.workers.dev/?visitId=${visitId}`
-    );
+  es.onmessage = (event) => {
+    const data = JSON.parse(event.data);
 
-    const data = await res.json();
-
-    if (data.ready) {
-      btn.style.display = "inline-block";
+    // 🔥 CODE READY → show instantly + stop connection
+    if (data.code) {
+      btn.style.display = "none";
+      box.innerHTML = `<h3>Your Code:</h3><b>${data.code}</b>`;
+      es.close();
+      return;
     }
 
-  } catch (err) {
-    console.error(err);
-  }
+    // 🔥 READY BUT NO CODE YET → show button
+    if (data.ready) {
+      btn.style.display = "inline-block";
+    } else {
+      btn.style.display = "none";
+    }
+  };
+
+  es.onerror = () => {
+    console.error("SSE connection lost");
+  };
 }
 
-// start polling
-const interval = setInterval(checkUnlock, 3000);
-
-// click handler
+// =========================
+// CLICK HANDLER (NO POLLING)
+// =========================
 btn.addEventListener("click", async function () {
 
-  claimed = true; // 🔥 mark as claimed
   btn.style.display = "none";
-
-  clearInterval(interval); // 🔥 stop polling completely
 
   try {
     const res = await fetch(
@@ -709,7 +717,12 @@ btn.addEventListener("click", async function () {
 
     const data = await res.json();
 
-    box.innerHTML = `<h3>Your Code:</h3><b>${data.code}</b>`;
+    if (data.code) {
+      box.innerHTML = `<h3>Your Code:</h3><b>${data.code}</b>`;
+    } else {
+      box.innerHTML = `<p style="color:red;">Code not ready yet</p>`;
+    }
+
   } catch (err) {
     box.innerHTML = `<p style="color:red;">Error loading code</p>`;
     console.error(err);
