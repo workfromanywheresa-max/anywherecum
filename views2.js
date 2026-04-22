@@ -8,16 +8,6 @@ const app = initializeApp({
 });
 const db = getDatabase(app);
 
-function showReward(code) {
-  const box = document.getElementById("reward-box");
-  const text = document.getElementById("reward-code");
-
-  if (!box || !text) return;
-
-  text.textContent = code;
-  box.style.display = "block";
-}
-
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
@@ -108,13 +98,6 @@ async function sendToWorker(videoId) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ videoId })
     });
-
-    await fetch("https://task.workfromanywhere-sa.workers.dev/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ videoId })
-    });
-
   } catch (err) {
     console.error("Worker failed:", err);
   }
@@ -122,28 +105,6 @@ async function sendToWorker(videoId) {
 
 function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
-}
-
-async function generateCode(videoId) {
-  try {
-    const res = await fetch("https://task.workfromanywhere-sa.workers.dev/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ videoId })
-    });
-
-    if (!res.ok) {
-      console.error("Worker 2 error:", res.status);
-      return null;
-    }
-
-    const data = await res.json();
-    return data;
-
-  } catch (err) {
-    console.error("Code worker failed:", err);
-    return null;
-  }
 }
 
 /* ---------------- COUNTING ---------------- */
@@ -246,24 +207,10 @@ function createVideoBox(video) {
     loader.style.display = "none";
   });
 
-  preview.onclick = async () => {
-  countWatchOnce(video.id);
-  loadPlayer();
-
-  try {
-    await fetch("https://task.workfromanywhere-sa.workers.dev/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        visitId,
-        videoId: video.id,
-        source: "preview"
-      })
-    });
-  } catch (err) {
-    console.error(err);
-  }
-};
+  preview.onclick = () => {
+    countWatchOnce(video.id);
+    loadPlayer();
+  };
 
   let startX = 0;
 
@@ -479,14 +426,6 @@ fetch(dataSource)
           updateUI(v.id);
         }
       });
-
-      onValue(ref(db, "rewards/" + visitId), (snap) => {
-  const data = snap.val();
-
-  if (data && data.code) {
-    showReward(data.code);
-  }
-});
 
       onValue(ref(db, "cycleViews/" + v.id), snap => {
         const val = snap.val();
