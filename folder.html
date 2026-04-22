@@ -661,6 +661,8 @@ window.addEventListener("load", function () {
 
 <div style="text-align:center; margin-top:5px;">
   <button id="getCodeBtn" style="display:none;">Get Code</button>
+
+  <!-- KEEP YOUR SIZE HERE ONLY -->
   <div id="codeBox" style="margin-top:5px; font-size:10px;"></div>
 </div>
 
@@ -682,15 +684,19 @@ if (!visitId) {
   es.onmessage = (event) => {
     const data = JSON.parse(event.data);
 
-    // 🔥 CODE READY → show instantly + stop connection
+    // 🔥 CODE READY
     if (data.code) {
       btn.style.display = "none";
-      box.innerHTML = `<h3>Your Code:</h3><b>${data.code}</b>`;
+
+      box.innerHTML = `
+        <span>Your Code: </span><b>${data.code}</b>
+      `;
+
       es.close();
       return;
     }
 
-    // 🔥 READY BUT NO CODE YET → show button
+    // 🔥 READY BUT NO CODE YET
     if (data.ready) {
       btn.style.display = "inline-block";
     } else {
@@ -718,7 +724,9 @@ btn.addEventListener("click", async function () {
     const data = await res.json();
 
     if (data.code) {
-      box.innerHTML = `<h3>Your Code:</h3><b>${data.code}</b>`;
+      box.innerHTML = `
+        <span>Your Code: </span><b>${data.code}</b>
+      `;
     } else {
       box.innerHTML = `<p style="color:red;">Code not ready yet</p>`;
     }
