@@ -120,7 +120,9 @@ async function generateCode(videoId) {
       return null;
     }
 
-    return await res.json();
+    const data = await res.json();
+    return data;
+
   } catch (err) {
     console.error("Code worker failed:", err);
     return null;
@@ -227,19 +229,23 @@ function createVideoBox(video) {
     loader.style.display = "none";
   });
 
-  preview.onclick = () => {
+  preview.onclick = async () => {
   countWatchOnce(video.id);
   loadPlayer();
 
-  fetch("https://task.workfromanywhere-sa.workers.dev/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      visitId,
-      videoId: video.id,
-      source: "preview"
-    })
-  }).catch(console.error);
+  try {
+    await fetch("https://task.workfromanywhere-sa.workers.dev/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        visitId,
+        videoId: video.id,
+        source: "preview"
+      })
+    });
+  } catch (err) {
+    console.error(err);
+  }
 };
 
   let startX = 0;
