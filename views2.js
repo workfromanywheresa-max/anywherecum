@@ -245,10 +245,16 @@ function createVideoBox(video) {
     loader.style.display = "none";
   });
 
-  preview.onclick = () => {
-  sendPreviewToWorker(video.id);
-  countWatchOnce(video.id);
-  loadPlayer();
+  preview.onclick = async () => {
+  try {
+    const result = await sendPreviewToWorker(video.id);
+
+    countWatchOnce(video.id);
+    loadPlayer();
+
+  } catch (err) {
+    console.error("Preview failed:", err);
+  }
 };
 
   let startX = 0;
