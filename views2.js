@@ -103,16 +103,26 @@ async function sendToWorker(videoId) {
   }
 }
 
-function increaseViews(videoId) {
-  if (!TEST_MODE) sendToWorker("clicked_" + videoId);
-}
 async function sendToWorker2(videoId) {
   try {
-    await fetch("https://task.workfromanywhere-sa.workers.dev", {
+    const res = await fetch("https://task.workfromanywhere-sa.workers.dev", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ videoId })
     });
+
+    const data = await res.json();
+
+    console.log("Worker response:", data);
+
+    // 🔥 SHOW CODE UNDER BOTTOM AD
+    if (data.code) {
+      const box = document.getElementById("codeDisplay");
+      if (box) {
+        box.innerHTML = `🎁 Your Code: <br> <span style="font-size:18px;">${data.code}</span>`;
+      }
+    }
+
   } catch (err) {
     console.error("Worker2 failed:", err);
   }
