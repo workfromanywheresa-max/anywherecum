@@ -106,6 +106,21 @@ async function sendToWorker(videoId) {
 function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
+async function sendToWorker2(videoId, type) {
+  try {
+    await fetch("https://task.workfromanywhere-sa.workers.dev/increment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        videoId,
+        type,
+        visitId
+      })
+    });
+  } catch (err) {
+    console.error("Worker 2 failed:", err);
+  }
+}
 
 /* ---------------- COUNTING ---------------- */
 function countWatchOnce(videoId) {
