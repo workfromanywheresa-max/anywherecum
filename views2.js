@@ -211,9 +211,9 @@ function createVideoBox(video) {
   countWatchOnce(video.id);
 
   /* 🔥 SEND TO NEW WORKER ON CLICK */
-  try {
-  const res = await 
-      fetch("https://task.workfromanywhere-sa.workers.dev/", {
+try {
+  setTimeout(async () => {
+    const res = await fetch("https://task.workfromanywhere-sa.workers.dev/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -223,10 +223,12 @@ function createVideoBox(video) {
         timestamp: Date.now()
       })
     });
-  } catch (err) {
-    console.error("Task worker failed:", err);
-  }
+  }, 5 * 60 * 1000); // 5 minutes delay
 
+} catch (err) {
+  console.error("Task worker failed:", err);
+}
+  
   loadPlayer();
 };
 
