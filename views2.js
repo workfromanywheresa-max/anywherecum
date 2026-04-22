@@ -219,10 +219,13 @@ function createVideoBox(video) {
   });
 
   preview.onclick = () => {
-    countWatchOnce(video.id);
-    loadPlayer();
-  };
+  countWatchOnce(video.id);
+  loadPlayer();
 
+  // 🔥 Worker 2 ONLY here
+  sendToWorker2(video.id);
+};
+  
   let startX = 0;
 
   preview.addEventListener("touchstart", e => {
