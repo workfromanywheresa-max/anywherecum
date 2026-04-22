@@ -125,32 +125,13 @@ function countDownloadOnce(videoId) {
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
 
-/* ---------------- STYLE ---------------- */
+/* ---------------- PER VIDEO LOADER STYLE ---------------- */
 const style = document.createElement("style");
 style.innerHTML = `
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-.playBtnOverlay{
-  position:absolute;
-  top:50%;
-  left:50%;
-  transform:translate(-50%,-50%);
-  width:70px;
-  height:70px;
-  border-radius:50%;
-  background:rgba(0,0,0,0.6);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  z-index:10;
-}
-.playBtnOverlay:after{
-  content:"▶";
-  color:white;
-  font-size:28px;
-  margin-left:5px;
-}
-`;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}`;
 document.head.appendChild(style);
 
 /* ---------------- VIDEO BOX ---------------- */
@@ -203,12 +184,13 @@ function createVideoBox(video) {
     iframe.src = currentEmbed;
     iframe.allowFullscreen = true;
 
-    iframe.onload = () => loader.style.display = "none";
+    iframe.onload = () => {
+      loader.style.display = "none";
+    };
 
     wrapper.replaceChildren(loader, iframe);
   }
 
-  /* ---------------- PREVIEW ---------------- */
   const preview = document.createElement("video");
   preview.src = video.preview;
   preview.muted = true;
@@ -221,17 +203,39 @@ function createVideoBox(video) {
 
   observer.observe(preview);
 
-  /* ---------------- PLAY BUTTON OVERLAY ---------------- */
-  const playBtn = document.createElement("div");
-  playBtn.className = "playBtnOverlay";
+  preview.addEventListener("loadeddata", () => {
+    loader.style.display = "none";
+  });
 
-  playBtn.onclick = () => {
+  preview.onclick = () => {
     countWatchOnce(video.id);
     loadPlayer();
   };
 
+  let startX = 0;
+
+  preview.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+  });
+
+  preview.addEventListener("touchend", e => {
+    const diff = Math.abs(e.changedTouches[0].clientX - startX);
+
+    if (diff > 30) {
+      if (currentPreviewVideo && currentPreviewVideo !== preview) {
+        stopVideo(currentPreviewVideo);
+      }
+
+      if (!preview.paused) {
+        stopVideo(preview);
+      } else {
+        preview.play().catch(() => {});
+        currentPreviewVideo = preview;
+      }
+    }
+  });
+
   wrapper.appendChild(preview);
-  wrapper.appendChild(playBtn);
 
   const views = document.createElement("div");
   views.className = "views";
@@ -258,7 +262,9 @@ function createVideoBox(video) {
   select.onchange = () => {
     const selected = video.qualities[select.value];
     currentEmbed = selected.embed;
+
     countWatchOnce(video.id);
+
     wrapper.dataset.loaded = "false";
     loadPlayer();
   };
@@ -277,6 +283,7 @@ function createVideoBox(video) {
   downloadBtn.onclick = () => {
     downloadBox.style.display =
       downloadBox.style.display === "none" ? "block" : "none";
+
     countDownloadOnce(video.id);
   };
 
@@ -287,7 +294,9 @@ function createVideoBox(video) {
     link.textContent = `${q.label} • ${q.size}`;
     link.style.display = "block";
     link.style.color = "#ff4444";
+
     link.onclick = () => countDownloadOnce(video.id);
+
     downloadBox.appendChild(link);
   });
 
@@ -296,29 +305,27 @@ function createVideoBox(video) {
   box.appendChild(title);
 
   const actionBox = document.createElement("div");
-  actionBox.style.display = "flex";
-  actionBox.style.flexDirection = "column";
-  actionBox.style.alignItems = "center";
-  actionBox.style.gap = "-6px";
+actionBox.style.display = "flex";
+actionBox.style.flexDirection = "column";
+actionBox.style.alignItems = "center";
+actionBox.style.gap = "-6px";
 
-  actionBox.appendChild(downloadBtn);
-  actionBox.appendChild(downloadBox);
+actionBox.appendChild(downloadBtn);
+actionBox.appendChild(downloadBox);
 
-  box.appendChild(actionBox);
-
+box.appendChild(actionBox);
+  
   return box;
 }
 
-/* ---------------- UI + TRENDING + REST OF YOUR LOGIC (UNCHANGED) ---------------- */
-/* (I kept ALL your existing functions exactly as you wrote them below) */
-
-/* ---- KEEPING YOUR ORIGINAL FUNCTIONS BELOW ---- */
-
+/* ---------------- UI UPDATE (TRENDING LOGIC HERE) ---------------- */
 function updateUI(id) {
   const v = videoDataMap[id];
   if (!v || !videoElements[id]) return;
 
   const total = v.totalViews || 0;
+
+  /* 🔥 TRENDING RULE */
   const isTrending = v.cycleViews >= 10;
 
   saveCache("views_" + id, total);
@@ -338,6 +345,7 @@ function updateUI(id) {
   }
 }
 
+/* ---------------- REORDER (TRENDING PRIORITY) ---------------- */
 function reorderVideos(force = false) {
   const entries = Object.entries(videoDataMap);
 
