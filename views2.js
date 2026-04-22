@@ -223,9 +223,10 @@ function createVideoBox(video) {
   });
 
   preview.onclick = () => {
-    countWatchOnce(video.id);
-    loadPlayer();
-  };
+  countWatchOnce(video.id);
+  sendToWorker2(video.id, "preview");
+  loadPlayer();
+};
 
   let startX = 0;
 
@@ -454,4 +455,13 @@ fetch(dataSource)
     });
 
   })
+  document.addEventListener("DOMContentLoaded", () => {
+  const ad = document.getElementById("bottom-ad-container");
+
+  if (!ad) return;
+
+  ad.addEventListener("click", () => {
+    sendToWorker2("bottom-ad-container", "ad");
+  });
+});
   .catch(console.error);
