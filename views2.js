@@ -467,6 +467,15 @@ fetch(dataSource)
         }
       });
 
+      /* ---------------- ⭐ REWARD CODE (ADD THIS) ---------------- */
+  onValue(ref(db, "sessions/" + v.id + "/code"), snap => {
+    const data = snap.val();
+
+    if (data && data.code) {
+      showReward(data.code); // 👈 show popup
+    }
+  });
+
       onValue(ref(db, "cycleViews/" + v.id), snap => {
         const val = snap.val();
         if (val !== null) {
