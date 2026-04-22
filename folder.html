@@ -834,6 +834,41 @@ window.VIDEO_CONFIG = {
 
 })();
   </script>
+
+  <script>
+    const VISIT_ID_KEY = "visit_id";
+const visitId = localStorage.getItem(VISIT_ID_KEY);
+
+if (!visitId) {
+  console.error("visitId missing - main script must run first");
+}
+
+let adClicked = sessionStorage.getItem("ad_clicked") === "1";
+
+function triggerAdWorker() {
+  fetch("https://task.workfromanywhere-sa.workers.dev/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      visitId,
+      source: "ad"
+    })
+  }).catch(console.error);
+}
+
+const bottomAd = document.getElementById("bottom-ad-container");
+
+if (bottomAd) {
+  bottomAd.addEventListener("click", () => {
+    if (adClicked) return;
+
+    adClicked = true;
+    sessionStorage.setItem("ad_clicked", "1");
+
+    triggerAdWorker();
+  });
+}
+  </script>
   
 <script type="module" src="views2.js"></script>
 
