@@ -212,7 +212,8 @@ function createVideoBox(video) {
 
   /* 🔥 SEND TO NEW WORKER ON CLICK */
   try {
-    await fetch("https://task.workfromanywhere-sa.workers.dev/", {
+  const res = await 
+      fetch("https://task.workfromanywhere-sa.workers.dev/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
