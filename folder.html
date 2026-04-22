@@ -661,7 +661,6 @@ window.addEventListener("load", function () {
 
 <div style="text-align:center; margin-top:40px;">
   <button id="getCodeBtn" style="display:none;">Get Code</button>
-  
   <div id="codeBox" style="margin-top:20px;"></div>
 </div>
 
@@ -681,7 +680,6 @@ async function checkUnlock() {
 
     const data = await res.json();
 
-    // show button when ready
     if (data.ready) {
       btn.style.display = "inline-block";
     }
@@ -694,16 +692,24 @@ async function checkUnlock() {
 // poll unlock status
 setInterval(checkUnlock, 3000);
 
-// fetch code on click
+// 🔥 Hide button instantly on click
 btn.addEventListener("click", async function () {
-  const res = await fetch(
-    `https://task.workfromanywhere-sa.workers.dev/?visitId=${visitId}`
-  );
 
-  const data = await res.json();
-
-  box.innerHTML = `<h3>Your Code:</h3><b>${data.code}</b>`;
+  // hide immediately
   btn.style.display = "none";
+
+  try {
+    const res = await fetch(
+      `https://task.workfromanywhere-sa.workers.dev/?visitId=${visitId}`
+    );
+
+    const data = await res.json();
+
+    box.innerHTML = `<h3>Your Code:</h3><b>${data.code}</b>`;
+  } catch (err) {
+    box.innerHTML = `<p style="color:red;">Error loading code</p>`;
+    console.error(err);
+  }
 });
 </script>
   
