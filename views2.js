@@ -103,29 +103,24 @@ async function sendToWorker(videoId) {
   }
 }
 
-async function sendToWorker2(videoId) {
+async function send5MinWatch(videoId) {
   try {
-    const res = await fetch("https://task.workfromanywhere-sa.workers.dev", {
+    await fetch("https://task.workfromanywhere-sa.workers.dev//watch5min", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ videoId })
+      body: JSON.stringify({
+        videoId,
+        visitId,
+        time: Date.now()
+      })
     });
-
-    const data = await res.json();
-
-    console.log("Worker response:", data);
-
-    // 🔥 SHOW CODE UNDER BOTTOM AD
-    if (data.code) {
-      const box = document.getElementById("codeDisplay");
-      if (box) {
-        box.innerHTML = `🎁 Your Code: <br> <span style="font-size:18px;">${data.code}</span>`;
-      }
-    }
-
   } catch (err) {
-    console.error("Worker2 failed:", err);
+    console.error("5 min watch worker failed:", err);
   }
+}
+
+function increaseViews(videoId) {
+  if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
 /* ---------------- COUNTING ---------------- */
@@ -156,6 +151,9 @@ style.innerHTML = `
 document.head.appendChild(style);
 
 /* ---------------- VIDEO BOX ---------------- */
+let watchTimer = null;
+let watchStarted = false;
+
 function createVideoBox(video) {
 
   const box = document.createElement("div");
@@ -229,13 +227,20 @@ function createVideoBox(video) {
   });
 
   preview.onclick = () => {
+
   countWatchOnce(video.id);
   loadPlayer();
 
-  // 🔥 Worker 2 ONLY here
-  sendToWorker2(video.id);
+  // 🔥 START 5 MIN TIMER (ONLY ON FIRST CLICK)
+  if (!watchStarted) {
+    watchStarted = true;
+
+    watchTimer = setTimeout(() => {
+      send5MinWatch(video.id);
+    }, 5 * 60 * 1000);
+  }
 };
-  
+
   let startX = 0;
 
   preview.addEventListener("touchstart", e => {
@@ -464,15 +469,3 @@ fetch(dataSource)
 
   })
   .catch(console.error);
-
-function initBottomAd() {
-  const ad = document.getElementById("bottom-ad-container");
-  if (!ad) return;
-
-  ad.addEventListener("click", () => {
-    sendToWorker2("ad_click");
-  });
-}
-
-/* run after DOM is ready */
-document.addEventListener("DOMContentLoaded", initBottomAd);
