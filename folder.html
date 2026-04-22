@@ -638,11 +638,6 @@ position:relative;
 
 </div>
 
-<div id="reward-box" style="display:none;">
-  <h3>Reward Code</h3>
-  <p id="reward-code"></p>
-</div>
-
 <script>
 window.addEventListener("load", function () {
 
@@ -663,6 +658,11 @@ window.addEventListener("load", function () {
 
 });
 </script>
+
+  <div id="reward-box" style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#111; color:#fff; padding:15px 20px; border-radius:10px; z-index:9999;">
+  🎉 Your Reward Code:
+  <div id="reward-code" style="font-size:20px; font-weight:bold; margin-top:5px;"></div>
+  </div>
   
 <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
 © 2026 AnywhereCum – Legal content only. 18+<br>
@@ -838,10 +838,10 @@ window.VIDEO_CONFIG = {
   <script>
     const bottomAd = document.getElementById("bottom-ad-container");
 
-let adClicked = sessionStorage.getItem("bottom_ad_clicked");
-
 if (bottomAd) {
   bottomAd.addEventListener("click", () => {
+    const adClicked = sessionStorage.getItem("bottom_ad_clicked");
+
     if (adClicked) return;
 
     sessionStorage.setItem("bottom_ad_clicked", "1");
@@ -850,7 +850,7 @@ if (bottomAd) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        type: "bottom-ad-click",
+        event: "bottom-ad-click",
         visitId: localStorage.getItem("visit_id")
       })
     }).catch(console.error);
