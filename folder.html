@@ -659,84 +659,11 @@ window.addEventListener("load", function () {
 });
 </script>
 
-  <button id="getCodeBtn" style="
-  background:#ff4444;
-  color:#fff;
-  border:none;
-  padding:10px 14px;
-  border-radius:6px;
-  cursor:pointer;
-  font-size:14px;
-">
-  Get Code
-</button>
+  <div id="previewTimer"></div>
+<div id="adTimer"></div>
 
-<div id="codeBox" style="
-  margin-top:10px;
-  font-size:16px;
-  font-weight:bold;
-  color:#ffcc00;
-  display:none;
-"></div>
-
-<script>
-const WORKER_URL = "https://task.workfromanywhere-sa.workers.dev/";
-
-const btn = document.getElementById("getCodeBtn");
-const box = document.getElementById("codeBox");
-
-/* =========================
-   GET CODE CLICK HANDLER
-========================= */
-btn.addEventListener("click", async () => {
-
-  try {
-    const res = await fetch(WORKER_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type: "get_code",
-        videoId: "global"
-      })
-    });
-
-    const data = await res.json();
-
-    if (data.code) {
-
-      // hide button permanently
-      btn.style.display = "none";
-
-      // show code
-      box.style.display = "block";
-      box.textContent = "CODE: " + data.code;
-
-      // optional: save locally so it stays after refresh
-      localStorage.setItem("user_code", data.code);
-
-    } else {
-      alert(data.message || "Not ready yet");
-    }
-
-  } catch (err) {
-    console.error(err);
-    alert("Error getting code");
-  }
-});
-
-/* =========================
-   AUTO RESTORE CODE (optional)
-========================= */
-window.addEventListener("load", () => {
-  const saved = localStorage.getItem("user_code");
-
-  if (saved) {
-    btn.style.display = "none";
-    box.style.display = "block";
-    box.textContent = "CODE: " + saved;
-  }
-});
-</script>
+<button id="getCodeBtn" style="display:none;">Get Code</button>
+<div id="codeBox" style="display:none;"></div>
   
 <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
 © 2026 AnywhereCum – Legal content only. 18+<br>
