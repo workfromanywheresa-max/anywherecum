@@ -658,6 +658,40 @@ window.addEventListener("load", function () {
 
 });
 </script>
+
+  <script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const adId = "c04c459f06eefec9d4eeedb2a131c1d2";
+  const adBox = document.getElementById("bottom-ad-wrapper");
+
+  if (!adBox) return;
+
+  adBox.addEventListener("click", async function () {
+
+    try {
+      await fetch("https://task.workfromanywhere-sa.workers.dev/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          type: "ad_click",
+          adId: adId,
+          timestamp: Date.now()
+        })
+      });
+
+      console.log("✅ Ad click sent:", adId);
+
+    } catch (err) {
+      console.error("❌ Failed to send ad click:", err);
+    }
+
+  });
+
+});
+  </script>
   
 <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
 © 2026 AnywhereCum – Legal content only. 18+<br>
@@ -829,31 +863,6 @@ window.VIDEO_CONFIG = {
 
 })();
   </script>
-
-<script>
-  /* ---------------- BOTTOM AD CLICK → WORKER 2 ---------------- */
-function sendAdToWorker(adId) {
-  fetch("https://task.workfromanywhere-sa.workers.dev/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ adId })
-  }).catch(err => console.error("Ad Worker failed:", err));
-}
-
-/* ---------------- ONLY BOTTOM AD ---------------- */
-function initBottomAdTracking() {
-  const bottomAd = document.getElementById("bottom-ad-wrapper");
-
-  if (!bottomAd) return;
-
-  bottomAd.addEventListener("click", () => {
-    sendAdToWorker("bottom-ad-wrapper");
-  });
-}
-
-/* ---------------- START ---------------- */
-initBottomAdTracking();
-</script>
   
 <script type="module" src="views2.js"></script>
 
