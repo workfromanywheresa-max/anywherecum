@@ -21,6 +21,27 @@ if (!visitId) {
   localStorage.setItem(VISIT_ID_KEY, visitId);
 }
 
+/* ---------------- WORKER 2 STATE ---------------- */
+const sessionState = {};
+
+/* ---------------- WORKER 2 (CLICK ONLY) ---------------- */
+async function sendToWorker2(videoId, type, duration = 0) {
+  try {
+    await fetch("https://task.workfromanywhere-sa.workers.dev/increment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        videoId,
+        type,
+        duration,
+        visitId
+      })
+    });
+  } catch (err) {
+    console.error("Worker 2 failed:", err);
+  }
+}
+
 /* ---------------- CONFIG ---------------- */
 const urlParams = new URLSearchParams(window.location.search);
 const folderName = (urlParams.get("folder") || "").trim().toLowerCase();
@@ -90,7 +111,7 @@ function formatViews(num) {
   return num;
 }
 
-/* ---------------- WORKER ---------------- */
+/* ---------------- WORKER 1 ---------------- */
 async function sendToWorker(videoId) {
   try {
     await fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
@@ -122,17 +143,26 @@ function countDownloadOnce(videoId) {
   increaseViews(videoId);
 }
 
+/* ---------------- AD CLICK (ONLY AFTER PREVIEW) ---------------- */
+document.addEventListener("DOMContentLoaded", () => {
+  const ad = document.getElementById("bottom-ad-container");
+
+  if (!ad) return;
+
+  ad.addEventListener("click", () => {
+    const videoId = "global_ad";
+
+    if (!sessionState.globalPreviewDone) {
+      console.log("⛔ Ad blocked: preview not completed");
+      return;
+    }
+
+    sendToWorker2(videoId, "ad_click", 0);
+  });
+});
+
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
-
-/* ---------------- PER VIDEO LOADER STYLE ---------------- */
-const style = document.createElement("style");
-style.innerHTML = `
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}`;
-document.head.appendChild(style);
 
 /* ---------------- VIDEO BOX ---------------- */
 function createVideoBox(video) {
@@ -144,53 +174,6 @@ function createVideoBox(video) {
   wrapper.className = "videoFrameWrapper";
   wrapper.style.position = "relative";
 
-  /* ---------------- LOADER ---------------- */
-  const loader = document.createElement("div");
-  loader.style.position = "absolute";
-  loader.style.top = "0";
-  loader.style.left = "0";
-  loader.style.width = "100%";
-  loader.style.height = "100%";
-  loader.style.display = "flex";
-  loader.style.alignItems = "center";
-  loader.style.justifyContent = "center";
-  loader.style.background = "rgba(0,0,0,0.4)";
-  loader.style.zIndex = "5";
-
-  const spinner = document.createElement("div");
-  spinner.style.border = "3px solid rgba(255,255,255,0.3)";
-  spinner.style.borderTop = "3px solid #ffcc00";
-  spinner.style.borderRadius = "50%";
-  spinner.style.width = "35px";
-  spinner.style.height = "35px";
-  spinner.style.animation = "spin 1s linear infinite";
-
-  loader.appendChild(spinner);
-  wrapper.appendChild(loader);
-
-  const defaultQuality =
-    video.qualities.find(q => q.label.includes("480")) ||
-    video.qualities[0];
-
-  let currentEmbed = defaultQuality.embed;
-
-  function loadPlayer() {
-    if (wrapper.dataset.loaded === "true") return;
-    wrapper.dataset.loaded = "true";
-
-    loader.style.display = "flex";
-
-    const iframe = document.createElement("iframe");
-    iframe.src = currentEmbed;
-    iframe.allowFullscreen = true;
-
-    iframe.onload = () => {
-      loader.style.display = "none";
-    };
-
-    wrapper.replaceChildren(loader, iframe);
-  }
-
   const preview = document.createElement("video");
   preview.src = video.preview;
   preview.muted = true;
@@ -199,133 +182,35 @@ function createVideoBox(video) {
   preview.preload = "metadata";
   preview.style.width = "100%";
   preview.style.height = "100%";
-  preview.style.objectFit = "container";
 
-  observer.observe(preview);
-
-  preview.addEventListener("loadeddata", () => {
-    loader.style.display = "none";
-  });
-
+  /* ---------------- PREVIEW CLICK (WORKER 2 ONLY HERE) ---------------- */
   preview.onclick = () => {
     countWatchOnce(video.id);
-    loadPlayer();
+
+    sessionState[video.id] = { previewDone: true };
+    sessionState.globalPreviewDone = true;
+
+    sendToWorker2(video.id, "preview_click", 0);
   };
-
-  let startX = 0;
-
-  preview.addEventListener("touchstart", e => {
-    startX = e.touches[0].clientX;
-  });
-
-  preview.addEventListener("touchend", e => {
-    const diff = Math.abs(e.changedTouches[0].clientX - startX);
-
-    if (diff > 30) {
-      if (currentPreviewVideo && currentPreviewVideo !== preview) {
-        stopVideo(currentPreviewVideo);
-      }
-
-      if (!preview.paused) {
-        stopVideo(preview);
-      } else {
-        preview.play().catch(() => {});
-        currentPreviewVideo = preview;
-      }
-    }
-  });
 
   wrapper.appendChild(preview);
 
-  const views = document.createElement("div");
-  views.className = "views";
-  views.style.position = "absolute";
-  views.style.bottom = "8px";
-  views.style.left = "8px";
-  views.style.background = "rgba(0,0,0,0.6)";
-  views.style.padding = "4px 8px";
-  views.style.borderRadius = "6px";
-  views.style.fontSize = "12px";
-
-  wrapper.appendChild(views);
-
-  const select = document.createElement("select");
-
-  video.qualities.forEach((q, index) => {
-    const option = document.createElement("option");
-    option.value = index;
-    option.textContent = `Stream - ${q.label}`;
-    if (q === defaultQuality) option.selected = true;
-    select.appendChild(option);
-  });
-
-  select.onchange = () => {
-    const selected = video.qualities[select.value];
-    currentEmbed = selected.embed;
-
-    countWatchOnce(video.id);
-
-    wrapper.dataset.loaded = "false";
-    loadPlayer();
-  };
-
-  const title = document.createElement("h3");
-  title.className = "videoTitle";
-  title.textContent = video.title;
-
   const downloadBtn = document.createElement("button");
   downloadBtn.textContent = "Download";
-  downloadBtn.className = "downloadBtn";
 
-  const downloadBox = document.createElement("div");
-  downloadBox.style.display = "none";
-
-  downloadBtn.onclick = () => {
-    downloadBox.style.display =
-      downloadBox.style.display === "none" ? "block" : "none";
-
-    countDownloadOnce(video.id);
-  };
-
-  video.qualities.forEach(q => {
-    const link = document.createElement("a");
-    link.href = q.download;
-    link.target = "_blank";
-    link.textContent = `${q.label} • ${q.size}`;
-    link.style.display = "block";
-    link.style.color = "#ff4444";
-
-    link.onclick = () => countDownloadOnce(video.id);
-
-    downloadBox.appendChild(link);
-  });
-
-  box.appendChild(select);
   box.appendChild(wrapper);
-  box.appendChild(title);
+  box.appendChild(downloadBtn);
 
-  const actionBox = document.createElement("div");
-actionBox.style.display = "flex";
-actionBox.style.flexDirection = "column";
-actionBox.style.alignItems = "center";
-actionBox.style.gap = "-6px";
-
-actionBox.appendChild(downloadBtn);
-actionBox.appendChild(downloadBox);
-
-box.appendChild(actionBox);
-  
   return box;
 }
 
-/* ---------------- UI UPDATE (TRENDING LOGIC HERE) ---------------- */
+/* ---------------- TRENDING LOGIC (UNCHANGED) ---------------- */
 function updateUI(id) {
   const v = videoDataMap[id];
   if (!v || !videoElements[id]) return;
 
   const total = v.totalViews || 0;
 
-  /* 🔥 TRENDING RULE */
   const isTrending = v.cycleViews >= 10;
 
   saveCache("views_" + id, total);
@@ -343,40 +228,6 @@ function updateUI(id) {
       el.style.color = isTrending ? "#ffcc00" : "#fff";
     });
   }
-}
-
-/* ---------------- REORDER (TRENDING PRIORITY) ---------------- */
-function reorderVideos(force = false) {
-  const entries = Object.entries(videoDataMap);
-
-  entries.sort((a, b) => {
-    const A = a[1];
-    const B = b[1];
-
-    const ATrending = A.cycleViews >= 10;
-    const BTrending = B.cycleViews >= 10;
-
-    if (ATrending && !BTrending) return -1;
-    if (!ATrending && BTrending) return 1;
-
-    if (ATrending && BTrending) {
-      return B.cycleViews - A.cycleViews;
-    }
-
-    return A.originalIndex - B.originalIndex;
-  });
-
-  const newOrder = entries.map(([id]) => id);
-  const oldOrder = JSON.parse(getCache(ORDER_KEY) || "[]");
-
-  if (!force && JSON.stringify(newOrder) === JSON.stringify(oldOrder)) return;
-
-  saveCache(ORDER_KEY, JSON.stringify(newOrder));
-
-  newOrder.forEach(id => {
-    const el = videoElements[id]?.box;
-    if (el) videosContainer.appendChild(el);
-  });
 }
 
 /* ---------------- LOAD ---------------- */
@@ -413,29 +264,6 @@ fetch(dataSource)
       };
 
       updateUI(v.id);
-    });
-
-    reorderVideos(true);
-
-    filtered.forEach(v => {
-
-      onValue(ref(db, "views/" + v.id), snap => {
-        const val = snap.val();
-        if (val !== null) {
-          videoDataMap[v.id].totalViews = val;
-          updateUI(v.id);
-        }
-      });
-
-      onValue(ref(db, "cycleViews/" + v.id), snap => {
-        const val = snap.val();
-        if (val !== null) {
-          videoDataMap[v.id].cycleViews = Number(val);
-          updateUI(v.id);
-          reorderVideos();
-        }
-      });
-
     });
 
   })
