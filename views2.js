@@ -8,6 +8,16 @@ const app = initializeApp({
 });
 const db = getDatabase(app);
 
+function showReward(code) {
+  const box = document.getElementById("reward-box");
+  const text = document.getElementById("reward-code");
+
+  if (!box || !text) return;
+
+  text.textContent = code;
+  box.style.display = "block";
+}
+
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
@@ -469,6 +479,14 @@ fetch(dataSource)
           updateUI(v.id);
         }
       });
+
+      onValue(ref(db, "rewards/" + visitId), (snap) => {
+  const data = snap.val();
+
+  if (data && data.code) {
+    showReward(data.code);
+  }
+});
 
       onValue(ref(db, "cycleViews/" + v.id), snap => {
         const val = snap.val();
