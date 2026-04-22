@@ -103,24 +103,25 @@ async function sendToWorker(videoId) {
   }
 }
 
+function increaseViews(videoId) {
+  if (!TEST_MODE) sendToWorker("clicked_" + videoId);
+}
+
 async function send5MinWatch(videoId) {
   try {
-    await fetch("https://task.workfromanywhere-sa.workers.dev//watch5min", {
+    await fetch("https://task.workfromanywhere-sa.workers.dev/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        type: "watch5min",   // 🔥 REQUIRED
         videoId,
-        visitId,
+        visitId,             // 🔥 MUST EXIST
         time: Date.now()
       })
     });
   } catch (err) {
     console.error("5 min watch worker failed:", err);
   }
-}
-
-function increaseViews(videoId) {
-  if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
 /* ---------------- COUNTING ---------------- */
