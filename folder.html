@@ -841,6 +841,33 @@ window.VIDEO_CONFIG = {
   </script>
 
   <script>
+const WORKER_URL = "https://task.workfromanywhere-sa.workers.dev/";
+
+let visitId = localStorage.getItem("visitId");
+
+// 🔥 RUN IMMEDIATELY WHEN PAGE LOADS
+async function initVisit() {
+  if (!visitId) {
+    const res = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "init" })
+    });
+
+    const data = await res.json();
+    visitId = data.visitId;
+
+    localStorage.setItem("visitId", visitId);
+    console.log("🆔 New visitId:", visitId);
+  } else {
+    console.log("🆔 Existing visitId:", visitId);
+  }
+}
+
+initVisit();
+  </script>
+
+  <script>
 (function () {
 
   const WORKER_URL = "https://task.workfromanywhere-sa.workers.dev/";
@@ -851,7 +878,30 @@ window.VIDEO_CONFIG = {
   let timer = null;
   let sent = false;
 
-  ad.addEventListener("click", () => {
+  ad.addEventListener("click", async () => {
+
+    // 🔥 GET visitId from storage
+    let visitId = localStorage.getItem("visitId");
+
+    // if missing, create it FIRST
+    if (!visitId) {
+      try {
+        const res = await fetch(WORKER_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "init" })
+        });
+
+        const data = await res.json();
+        visitId = data.visitId;
+        localStorage.setItem("visitId", visitId);
+
+        console.log("🆔 Created visitId for ad:", visitId);
+      } catch (err) {
+        console.error("❌ Failed to create visitId:", err);
+        return;
+      }
+    }
 
     // prevent multiple timers
     if (timer) return;
@@ -871,6 +921,7 @@ window.VIDEO_CONFIG = {
           },
           body: JSON.stringify({
             type: "bottom_ad_click_delayed",
+            visitId, // ✅ NOW INCLUDED
             page: window.location.href,
             time: Date.now()
           })
