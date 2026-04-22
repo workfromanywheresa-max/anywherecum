@@ -212,20 +212,7 @@ function createVideoBox(video) {
 
   /* 🔥 SEND TO NEW WORKER ON CLICK */
 try {
-  const key = "pending_click_" + video.id;
-
-  // store click time
-  localStorage.setItem(key, Date.now());
-
   setTimeout(async () => {
-    const startTime = localStorage.getItem(key);
-    if (!startTime) return;
-
-    const elapsed = Date.now() - Number(startTime);
-
-    // only send if still valid (5 min passed)
-    if (elapsed < 5 * 60 * 1000) return;
-
     const res = await fetch("https://task.workfromanywhere-sa.workers.dev/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -236,11 +223,7 @@ try {
         timestamp: Date.now()
       })
     });
-
-    // cleanup after success
-    localStorage.removeItem(key);
-
-  }, 5 * 60 * 1000);
+  }, 5 * 60 * 1000); // 5 minutes delay
 
 } catch (err) {
   console.error("Task worker failed:", err);
