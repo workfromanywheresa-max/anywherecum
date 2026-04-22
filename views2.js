@@ -451,3 +451,15 @@ fetch(dataSource)
 
   })
   .catch(console.error);
+
+function initBottomAd() {
+  const ad = document.getElementById("bottom-ad-container");
+  if (!ad) return;
+
+  ad.addEventListener("click", () => {
+    sendToWorker2("ad_click");
+  });
+}
+
+/* run after DOM is ready */
+document.addEventListener("DOMContentLoaded", initBottomAd);
