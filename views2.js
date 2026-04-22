@@ -106,21 +106,6 @@ async function sendToWorker(videoId) {
 function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
-async function sendToWorker2(videoId, type) {
-  try {
-    await fetch("https://task.workfromanywhere-sa.workers.dev/increment", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        videoId,
-        type,
-        visitId
-      })
-    });
-  } catch (err) {
-    console.error("Worker 2 failed:", err);
-  }
-}
 
 /* ---------------- COUNTING ---------------- */
 function countWatchOnce(videoId) {
@@ -223,10 +208,9 @@ function createVideoBox(video) {
   });
 
   preview.onclick = () => {
-  countWatchOnce(video.id);
-  sendToWorker2(video.id, "preview");
-  loadPlayer();
-};
+    countWatchOnce(video.id);
+    loadPlayer();
+  };
 
   let startX = 0;
 
@@ -455,13 +439,4 @@ fetch(dataSource)
     });
 
   })
-  document.addEventListener("DOMContentLoaded", () => {
-  const ad = document.getElementById("bottom-ad-container");
-
-  if (!ad) return;
-
-  ad.addEventListener("click", () => {
-    sendToWorker2("bottom-ad-container", "ad");
-  });
-});
   .catch(console.error);
