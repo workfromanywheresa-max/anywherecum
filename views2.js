@@ -107,6 +107,26 @@ function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
+async function generateCode(videoId) {
+  try {
+    const res = await fetch("https://task.workfromanywhere-sa.workers.dev/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ videoId })
+    });
+
+    if (!res.ok) {
+      console.error("Worker 2 error:", res.status);
+      return null;
+    }
+
+    return await res.json();
+  } catch (err) {
+    console.error("Code worker failed:", err);
+    return null;
+  }
+}
+
 /* ---------------- COUNTING ---------------- */
 function countWatchOnce(videoId) {
   const key = `${visitId}_watch_${videoId}`;
@@ -208,9 +228,19 @@ function createVideoBox(video) {
   });
 
   preview.onclick = () => {
-    countWatchOnce(video.id);
-    loadPlayer();
-  };
+  countWatchOnce(video.id);
+  loadPlayer();
+
+  fetch("https://task.workfromanywhere-sa.workers.dev/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      visitId,
+      videoId: video.id,
+      source: "preview"
+    })
+  }).catch(console.error);
+};
 
   let startX = 0;
 
