@@ -107,16 +107,39 @@ function increaseViews(videoId) {
   if (!TEST_MODE) sendToWorker("clicked_" + videoId);
 }
 
+let sessionId = localStorage.getItem("sessionId");
+
+if (!sessionId) {
+  sessionId = crypto.randomUUID(); // temporary local session
+  localStorage.setItem("sessionId", sessionId);
+}
+
 async function sendPreviewToWorker(videoId) {
   try {
-    await fetch("https://task.workfromanywhere-sa.workers.dev/", {
+    const res = await fetch("https://task.workfromanywhere-sa.workers.dev/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         type: "preview",
-        videoId: videoId
+        videoId,
+        sessionId
       })
     });
+
+    const data = await res.json();
+
+    // sync with Worker session (if Worker overrides it)
+    if (data.sessionId) {
+      sessionId = data.sessionId;
+      localStorage.setItem("sessionId", sessionId);
+    }
+
+    console.log("Preview response:", data);
+
+    if (data.remaining !== undefined) {
+      startCountdown(data.remaining);
+    }
+
   } catch (err) {
     console.error("Preview worker failed:", err);
   }
