@@ -845,46 +845,34 @@ const WORKER_URL = "https://task.workfromanywhere-sa.workers.dev/";
 
 let visitId = localStorage.getItem("visitId");
 
-// 🔥 SHOW REWARD FUNCTION
-function showReward(code) {
-  const box = document.getElementById("reward-box");
-  const text = document.getElementById("reward-code");
-
-  if (!code) return;
-
-  text.textContent = code;
-  box.style.display = "block";
-}
-
-// 🔥 INIT VISIT + CONNECT TO UI
+// 🔥 INIT VISIT ONLY
 async function initVisit() {
   if (!visitId) {
-    const res = await fetch(WORKER_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "init" })
-    });
+    try {
+      const res = await fetch(WORKER_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "init" })
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    visitId = data.visitId;
-    localStorage.setItem("visitId", visitId);
+      visitId = data.visitId;
+      localStorage.setItem("visitId", visitId);
 
-    console.log("🆔 New visitId:", visitId);
+      console.log("🆔 New visitId:", visitId);
 
-    // ✅ SHOW IT ON SCREEN
-    showReward(visitId);
+    } catch (err) {
+      console.error("❌ Init failed:", err);
+    }
 
   } else {
     console.log("🆔 Existing visitId:", visitId);
-
-    // ✅ SHOW EXISTING ONE
-    showReward(visitId);
   }
 }
 
 initVisit();
-  </script>
+        </script>
 
   <script>
 (function () {
