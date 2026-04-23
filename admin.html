@@ -109,7 +109,7 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="totalSubscribers"></div>
 </div>
 
-  <div class="card">
+  <div class="card vip">
   <h2>📌 Task Completion Codes</h2>
   <ul id="taskCodesList"></ul>
   </div>
@@ -595,7 +595,7 @@ function renderTaskCodes(items) {
   taskCodesList.innerHTML = items.length
     ? items.map(item => `
         <li>
-          <span><b>🔑 ${item.code || "NOT READY"}</b></span>
+          <span><b>${item.code || "NOT READY"}</b></span>
 
           <span class="sub-date">
             Visit: ${item.visitId}
