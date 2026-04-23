@@ -108,38 +108,6 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="cycleViewsTotal"></div>
   <div id="totalSubscribers"></div>
 </div>
-
-  <button onclick="resetGiveaway()">🔄 Reset Giveaway</button>
-
-  <div id="msg"></div>
-</div>
-
-<script>
-const API = "https://competition.workfromanywhere-sa.workers.dev";
-
-async function resetGiveaway() {
-  const msg = document.getElementById("msg");
-
-  const confirmReset = confirm("Are you sure you want to reset the giveaway?");
-  if (!confirmReset) return;
-
-  msg.innerText = "⏳ Resetting...";
-
-  try {
-    const res = await fetch(API + "/reset");
-    const data = await res.json();
-
-    if (data.reset) {
-      msg.innerText = "✅ Giveaway reset successfully!";
-    } else {
-      msg.innerText = "❌ Reset failed";
-    }
-
-  } catch (err) {
-    msg.innerText = "❌ " + err.message;
-  }
-}
-      </script>
   
 <button onclick="generateKey()">Generate VIP Key</button>
 
