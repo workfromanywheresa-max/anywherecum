@@ -109,6 +109,11 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="totalSubscribers"></div>
 </div>
 
+  <div class="card">
+  <h2>📌 Task Completion Codes</h2>
+  <ul id="taskCodesList"></ul>
+  </div>
+
   <div class="card vip">
   <h2>🔑 VIP Keys</h2>
   <ul id="vipKeysList"></ul>
@@ -577,6 +582,90 @@ function renderVipKeys(keys) {
 loadVipKeys();
 setInterval(loadVipKeys, 5000);
 </script>
+
+  <script>
+    const taskCodesList = document.getElementById("taskCodesList");
+
+const API_BASE = "https://task.workfromanywhere-sa.workers.dev";
+
+/* ---------- RENDER ---------- */
+function renderTaskCodes(items) {
+  if (!Array.isArray(items)) return;
+
+  taskCodesList.innerHTML = items.length
+    ? items.map(item => `
+        <li>
+          <span><b>🔑 ${item.code || "NOT READY"}</b></span>
+
+          <span class="sub-date">
+            Visit: ${item.visitId}
+          </span>
+
+          <span class="sub-date">
+            Status: ${
+              item.adClicked && item.previewClicked
+                ? "✅ COMPLETED"
+                : "⏳ IN PROGRESS"
+            }
+          </span>
+
+          <span class="sub-date">
+            Created: ${item.createdAtSAST || "N/A"}
+          </span>
+
+          <span class="sub-date">
+            Code Time: ${item.codeGeneratedAtSAST || "N/A"}
+          </span>
+        </li>
+      `).join("")
+    : "<li>No task completions yet</li>";
+}
+
+/* ---------- INITIAL LOAD ---------- */
+async function loadTaskCodes() {
+  try {
+    const res = await fetch(API_BASE + "/admin-codes", {
+      cache: "no-store"
+    });
+
+    const data = await res.json();
+    renderTaskCodes(data.codes || []);
+
+  } catch (e) {
+    console.log("Load error:", e);
+    taskCodesList.innerHTML = "<li>❌ Failed to load task codes</li>";
+  }
+}
+
+/* ---------- SSE STREAM ---------- */
+function startTaskStream() {
+  const es = new EventSource(API_BASE + "/stream");
+
+  es.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+
+      if (!data) return;
+
+      // refresh list when worker updates anything
+      loadTaskCodes();
+
+    } catch (e) {
+      console.log("SSE error:", e);
+    }
+  };
+
+  es.onerror = () => {
+    console.log("SSE disconnected, retrying...");
+    es.close();
+    setTimeout(startTaskStream, 3000);
+  };
+}
+
+/* ---------- START ---------- */
+loadTaskCodes();
+startTaskStream();
+  </script>
   
 </body>
 </html>
