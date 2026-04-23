@@ -109,46 +109,6 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="totalSubscribers"></div>
 </div>
 
-  <div style="text-align: right;">
-  <button id="resetBtn">Reset</button>
-</div>
-
-<script>
-const visitId = localStorage.getItem("visit_id");
-const btn = document.getElementById("resetBtn");
-
-btn.onclick = async () => {
-  if (!visitId) return alert("No visitId found");
-
-  btn.disabled = true;
-
-  try {
-    const res = await fetch("https://task.workfromanywhere-sa.workers.dev/reset", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ visitId })
-    });
-
-    const data = await res.json();
-
-    if (!data.success) {
-      alert("Reset failed");
-      return;
-    }
-
-    localStorage.removeItem("code_claimed");
-    alert("Reset done");
-
-    location.reload();
-
-  } catch (e) {
-    alert("Error resetting");
-  }
-
-  btn.disabled = false;
-};
-</script>
-
   <button onclick="resetGiveaway()">🔄 Reset Giveaway</button>
 
   <div id="msg"></div>
@@ -243,6 +203,46 @@ async function generateKey() {
   <h2>🌍 Countries</h2>
   <ul id="countryList"></ul>
 </div>
+
+  <div style="text-align: right;">
+  <button id="resetBtn">Reset</button>
+</div>
+
+<script>
+const visitId = localStorage.getItem("visit_id");
+const btn = document.getElementById("resetBtn");
+
+btn.onclick = async () => {
+  if (!visitId) return alert("No visitId found");
+
+  btn.disabled = true;
+
+  try {
+    const res = await fetch("https://task.workfromanywhere-sa.workers.dev/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ visitId })
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      alert("Reset failed");
+      return;
+    }
+
+    localStorage.removeItem("code_claimed");
+    alert("Reset done");
+
+    location.reload();
+
+  } catch (e) {
+    alert("Error resetting");
+  }
+
+  btn.disabled = false;
+};
+</script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
