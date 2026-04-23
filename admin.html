@@ -212,6 +212,41 @@ btn.onclick = async () => {
 };
 </script>
 
+  <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+
+  <button onclick="resetGiveaway()">🔄 Reset Giveaway</button>
+
+  <div id="msg" style="margin-top:10px;"></div>
+
+</div>
+
+<script>
+const API = "https://competition.workfromanywhere-sa.workers.dev";
+
+async function resetGiveaway() {
+  const msg = document.getElementById("msg");
+
+  const confirmReset = confirm("Are you sure you want to reset the giveaway?");
+  if (!confirmReset) return;
+
+  msg.innerText = "⏳ Resetting...";
+
+  try {
+    const res = await fetch(API + "/reset");
+    const data = await res.json();
+
+    if (data.reset) {
+      msg.innerText = "✅ Giveaway reset successfully!";
+    } else {
+      msg.innerText = "❌ Reset failed";
+    }
+
+  } catch (err) {
+    msg.innerText = "❌ " + err.message;
+  }
+}
+</script>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
