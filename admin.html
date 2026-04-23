@@ -108,39 +108,6 @@ if (!localStorage.getItem("adminLoggedIn")) {
   <div id="cycleViewsTotal"></div>
   <div id="totalSubscribers"></div>
 </div>
-  
-<button onclick="generateKey()">Generate VIP Key</button>
-
-<script>
-async function generateKey() {
-  try {
-    const res = await fetch(
-      "https://vipkeys.workfromanywhere-sa.workers.dev/generate-key"
-    );
-
-    if (!res.ok) throw new Error("HTTP " + res.status);
-
-    // ✅ FIX: Worker returns plain text, NOT JSON
-    const key = await res.text();
-
-    if (!key) {
-      alert("❌ Failed to generate key");
-      return;
-    }
-
-    alert("✅ New VIP Key: " + key);
-
-    // 🔄 refresh list
-    if (typeof loadVipKeys === "function") {
-      loadVipKeys();
-    }
-
-  } catch (e) {
-    console.log(e);
-    alert("❌ Network error");
-  }
-}
-</script>
 
   <div class="card vip">
   <h2>🔑 VIP Keys</h2>
@@ -246,6 +213,38 @@ async function resetGiveaway() {
   }
 }
 </script>
+
+  <button onclick="generateKey()">Generate VIP Key</button>
+  <script>
+async function generateKey() {
+  try {
+    const res = await fetch(
+      "https://vipkeys.workfromanywhere-sa.workers.dev/generate-key"
+    );
+
+    if (!res.ok) throw new Error("HTTP " + res.status);
+
+    // ✅ FIX: Worker returns plain text, NOT JSON
+    const key = await res.text();
+
+    if (!key) {
+      alert("❌ Failed to generate key");
+      return;
+    }
+
+    alert("✅ New VIP Key: " + key);
+
+    // 🔄 refresh list
+    if (typeof loadVipKeys === "function") {
+      loadVipKeys();
+    }
+
+  } catch (e) {
+    console.log(e);
+    alert("❌ Network error");
+  }
+}
+  </script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
