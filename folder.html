@@ -672,11 +672,23 @@ const visitId = localStorage.getItem("visit_id");
 const btn = document.getElementById("getCodeBtn");
 const box = document.getElementById("codeBox");
 
+// =========================
+// COPY FUNCTION (SILENT)
+// =========================
+function copyCode() {
+  const codeText = document.getElementById("codeValue")?.innerText;
+  if (!codeText) return;
+
+  navigator.clipboard.writeText(codeText);
+}
+
+// =========================
+// INIT STREAM
+// =========================
 if (!visitId) {
   console.error("Missing visitId");
 } else {
 
-  // 🔥 REAL-TIME STREAM FROM WORKER
   const es = new EventSource(
     `https://task.workfromanywhere-sa.workers.dev/stream?visitId=${visitId}`
   );
@@ -689,7 +701,17 @@ if (!visitId) {
       btn.style.display = "none";
 
       box.innerHTML = `
-        <span>Your Code: </span><b>${data.code}</b>
+        <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
+          <span>Your Code:</span>
+          <b id="codeValue">${data.code}</b>
+
+          <button onclick="copyCode()" style="border:none; background:none; cursor:pointer;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <rect x="3" y="5" width="13" height="13" rx="2"></rect>
+              <rect x="9" y="1" width="13" height="13" rx="2"></rect>
+            </svg>
+          </button>
+        </div>
       `;
 
       es.close();
@@ -725,7 +747,17 @@ btn.addEventListener("click", async function () {
 
     if (data.code) {
       box.innerHTML = `
-        <span>Your Code: </span><b>${data.code}</b>
+        <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
+          <span>Your Code:</span>
+          <b id="codeValue">${data.code}</b>
+
+          <button onclick="copyCode()" style="border:none; background:none; cursor:pointer;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+              <rect x="3" y="5" width="13" height="13" rx="2"></rect>
+              <rect x="9" y="1" width="13" height="13" rx="2"></rect>
+            </svg>
+          </button>
+        </div>
       `;
     } else {
       box.innerHTML = `<p style="color:red;">Code not ready yet</p>`;
