@@ -324,12 +324,9 @@ try {
 embedBtn.textContent = "Embed";
 embedBtn.className = "embedBtn";
 
-const embedBox = document.createElement("div");  
+const embedBox = document.createElement("div");
 embedBox.style.display = "none";
-embedBox.style.display = "flex";
-embedBox.style.flexDirection = "column";
-embedBox.style.gap = "6px";
-  
+
   video.qualities.forEach(q => {
   if (!q.label.includes("480") && !q.label.includes("1080")) return;
 
@@ -337,6 +334,7 @@ embedBox.style.gap = "6px";
   row.style.display = "flex";
   row.style.alignItems = "center";
   row.style.gap = "10px";
+  row.style.marginBottom = "6px";
 
   // TEXT ONLY (not clickable)
   const text = document.createElement("div");
