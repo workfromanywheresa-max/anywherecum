@@ -379,6 +379,11 @@ video.qualities.forEach(q => {
 
 /* ---------------- TOGGLE EMBED BOX ---------------- */
 embedBtn.onclick = () => {
+
+  // ❌ close download box if open
+  downloadBox.style.display = "none";
+
+  // toggle embed box
   embedBox.style.display =
     embedBox.style.display === "none" ? "flex" : "none";
 };
@@ -428,11 +433,16 @@ shareBtn.onclick = async () => {
 };
 
   downloadBtn.onclick = () => {
-    downloadBox.style.display =
-      downloadBox.style.display === "none" ? "block" : "none";
 
-    countDownloadOnce(video.id);
-  };
+  // ❌ close embed box if open
+  embedBox.style.display = "none";
+
+  // toggle download box
+  downloadBox.style.display =
+    downloadBox.style.display === "none" ? "block" : "none";
+
+  countDownloadOnce(video.id);
+};
 
   video.qualities.forEach(q => {
     const link = document.createElement("a");
