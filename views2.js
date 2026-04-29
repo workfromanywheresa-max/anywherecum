@@ -123,6 +123,14 @@ downloadModal.onclick = (e) => {
   }
 };
 
+/* ---------------- BACK BUTTON SUPPORT (DOWNLOAD MODAL) ---------------- */
+window.addEventListener("popstate", () => {
+  if (downloadModal.style.display === "flex") {
+    downloadModal.style.display = "none";
+    history.pushState(null, "");
+  }
+});
+
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
@@ -679,6 +687,7 @@ shareBtn.onclick = async () => {
   });
 
   downloadModal.style.display = "flex";
+history.pushState({ downloadOpen: true }, "");
 };
 
   box.appendChild(select);
