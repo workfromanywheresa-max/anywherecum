@@ -126,6 +126,20 @@ function countDownloadOnce(videoId) {
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
 
+function scrollToVideoFromHash() {
+  const hash = window.location.hash;
+
+  if (!hash) return;
+
+  const el = document.querySelector(hash);
+
+  if (el) {
+    setTimeout(() => {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 500);
+  }
+}
+
 /* ---------------- PER VIDEO LOADER STYLE ---------------- */
 const style = document.createElement("style");
 style.innerHTML = `
