@@ -319,7 +319,7 @@ downloadBtn.className = "downloadBtn";
 /* make it behave like your donate button */
 downloadBtn.innerHTML = `
   <img src="https://anywherecum.pages.dev/images/download.png"
-       width="18"
+       width="22"
        height="12"
        style="display:block;">
 `;
