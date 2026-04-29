@@ -404,7 +404,16 @@ function copySVG() {
   /* ---------------- EMBED LINKS (COPY ICON RIGHT SIDE) ---------------- */
 embedBtn.onclick = () => {
 
+  // close other box
   downloadBox.style.display = "none";
+
+  // toggle modal
+  const isOpen = embedModal.style.display === "flex";
+
+  if (isOpen) {
+    embedModal.style.display = "none";
+    return;
+  }
 
   const container = document.getElementById("embedContent");
   container.innerHTML = "";
@@ -421,9 +430,11 @@ embedBtn.onclick = () => {
       <div style="font-size:12px;margin-bottom:5px;color:#aaa;">
         ${q.label}
       </div>
+
       <textarea style="width:100%;height:80px;background:#000;color:#0f0;border:none;padding:8px;">
-        ${iframe}
+${iframe}
       </textarea>
+
       <button class="copyBtn"
         data-code="${encodeURIComponent(iframe)}"
         style="margin-top:5px;width:100%;padding:6px;background:#ff4444;color:white;border:none;">
