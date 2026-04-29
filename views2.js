@@ -322,7 +322,6 @@ try {
 
   const embedBtn = document.createElement("button");
 embedBtn.textContent = "Embed";
-embedBtn.className = "embedBtn";
 
 const embedBox = document.createElement("div");
 embedBox.style.display = "none";
@@ -354,10 +353,22 @@ video.qualities.forEach(q => {
   text.style.fontSize = "12px";
   text.textContent = `${q.label} - ${q.embed}`;
 
-  // COPY SVG BUTTON (REPLACES OLD BUTTON)
+  // COPY BUTTON (NO CLASS)
   const copyBtn = document.createElement("button");
-  copyBtn.className = "copy-icon";
   copyBtn.innerHTML = copySVG();
+
+  // INLINE STYLE ONLY
+  copyBtn.style.border = "none";
+  copyBtn.style.background = "none";
+  copyBtn.style.cursor = "pointer";
+  copyBtn.style.padding = "4px";
+  copyBtn.style.display = "flex";
+  copyBtn.style.alignItems = "center";
+  copyBtn.style.justifyContent = "center";
+  copyBtn.style.color = "#ff4444";
+
+  copyBtn.style.width = "28px";
+  copyBtn.style.height = "28px";
 
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(q.embed);
