@@ -337,6 +337,14 @@ shareBtn.onclick = async () => {
       await navigator.share({
   url: shareUrl
 });
+      /* ---------------- EMBED BUTTON ---------------- */
+const embedBtn = document.createElement("button");
+embedBtn.textContent = "Embed";
+embedBtn.className = "embedBtn";
+
+/* embed box (same style as downloadBox) */
+const embedBox = document.createElement("div");
+embedBox.style.display = "none";
 
       increaseViews(video.id); // optional tracking
 
