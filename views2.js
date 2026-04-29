@@ -337,14 +337,6 @@ shareBtn.onclick = async () => {
       await navigator.share({
   url: shareUrl
 });
-      /* ---------------- EMBED BUTTON ---------------- */
-const embedBtn = document.createElement("button");
-embedBtn.textContent = "Embed";
-embedBtn.className = "embedBtn";
-
-/* embed box (same style as downloadBox) */
-const embedBox = document.createElement("div");
-embedBox.style.display = "none";
 
       increaseViews(video.id); // optional tracking
 
@@ -363,34 +355,6 @@ embedBox.style.display = "none";
       shareBox.style.display === "none" ? "block" : "none";
   }
 };
-
-  video.qualities.forEach(q => {
-  const link = document.createElement("div");
-  link.style.display = "flex";
-  link.style.alignItems = "center";
-  link.style.justifyContent = "space-between";
-  link.style.margin = "5px 0";
-  link.style.color = "#fff";
-
-  const urlText = document.createElement("span");
-  urlText.textContent = q.embed;
-  urlText.style.fontSize = "12px";
-  urlText.style.wordBreak = "break-all";
-  urlText.style.flex = "1";
-
-  const copyBtn = document.createElement("button");
-  copyBtn.textContent = "Copy";
-  copyBtn.className = "copyBtn";
-
-  copyBtn.onclick = () => {
-    navigator.clipboard.writeText(q.embed);
-  };
-
-  link.appendChild(urlText);
-  link.appendChild(copyBtn);
-
-  embedBox.appendChild(link);
-});
 
   downloadBtn.onclick = () => {
     downloadBox.style.display =
