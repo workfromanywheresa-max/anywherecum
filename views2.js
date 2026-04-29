@@ -551,6 +551,8 @@ scrollToVideoFromHash();
     preview.currentTime = 0.1;
   }
     }
+  }
+    }
 
     filtered.forEach(v => {
 
