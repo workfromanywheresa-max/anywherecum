@@ -327,23 +327,26 @@ embedBtn.className = "embedBtn";
 const embedBox = document.createElement("div");
 embedBox.style.display = "none";
 
-        video.qualities.forEach(q => {
-
+  video.qualities.forEach(q => {
   if (!q.label.includes("480") && !q.label.includes("1080")) return;
 
   const row = document.createElement("div");
-  row.style.display = "block";
+  row.style.display = "flex";
+  row.style.alignItems = "center";
+  row.style.gap = "10px";
+  row.style.marginBottom = "6px";
 
   const link = document.createElement("a");
   link.href = q.embed;
   link.target = "_blank";
-  link.textContent = `${q.label} • Embed`;
-  link.style.display = "block";
+  link.textContent = "Embed Link";
+  link.style.flex = "1";
   link.style.color = "#ff4444";
 
   const copyBtn = document.createElement("button");
-  copyBtn.textContent = "Copy Embed";
+  copyBtn.textContent = "Copy";
   copyBtn.className = "downloadBtn";
+  copyBtn.style.whiteSpace = "nowrap";
 
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(q.embed);
@@ -351,10 +354,9 @@ embedBox.style.display = "none";
 
   row.appendChild(link);
   row.appendChild(copyBtn);
-
   embedBox.appendChild(row);
 });
-
+        
   embedBtn.onclick = () => {
   embedBox.style.display =
     embedBox.style.display === "none" ? "block" : "none";
