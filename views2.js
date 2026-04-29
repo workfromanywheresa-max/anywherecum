@@ -328,8 +328,16 @@ downloadBtn.innerHTML = `
   downloadBox.style.display = "none";
 
   const embedBtn = document.createElement("button");
-embedBtn.textContent = "Embed";
+embedBtn.className = "embedBtn";
 
+/* use image like download button */
+embedBtn.innerHTML = `
+  <img src="https://anywherecum.pages.dev/images/embed.png"
+       width="18"
+       height="12"
+       style="display:block;">
+`;
+  
 embedBtn.style.marginBottom = "0px";
 
 const embedBox = document.createElement("div");
@@ -415,9 +423,16 @@ donateBtn.onclick = () => {
     
   /* ---------------- SHARE BUTTON ---------------- */
 const shareBtn = document.createElement("button");
-shareBtn.textContent = "Share";
 shareBtn.className = "shareBtn";
 
+/* use image like others */
+shareBtn.innerHTML = `
+  <img src="https://anywherecum.pages.dev/images/share.png"
+       width="18"
+       height="12"
+       style="display:block;">
+`;
+  
 /* fallback box (desktop only) */
 const shareBox = document.createElement("div");
 shareBox.style.display = "none";
