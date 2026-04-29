@@ -81,6 +81,13 @@ document.addEventListener("click", (e) => {
   }
 });
 
+window.addEventListener("popstate", () => {
+  if (embedModal.style.display === "flex") {
+    embedModal.style.display = "none";
+    history.pushState(null, "");
+  }
+});
+
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
@@ -506,6 +513,7 @@ embedBtn.onclick = () => {
 });
 
   embedModal.style.display = "flex";
+  history.pushState({ embedOpen: true }, "");
 };
 
 /* ---------------- TOGGLE EMBED BOX ---------------- */
