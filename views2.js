@@ -325,11 +325,12 @@ embedBtn.textContent = "Embed";
 
 const embedBox = document.createElement("div");
 
-/* ✅ MAKE EMBED BOX MATCH DOWNLOAD STYLE */
+/* ✅ START HIDDEN */
 embedBox.style.display = "none";
-embedBox.style.display = "flex";
+
+/* layout style (applies when shown) */
 embedBox.style.flexDirection = "column";
-embedBox.style.gap = "0px"; // same tight stacking as download links
+embedBox.style.gap = "0px";
 
 /* ---------------- COPY SVG ---------------- */
 function copySVG() {
@@ -346,12 +347,10 @@ video.qualities.forEach(q => {
 
   const row = document.createElement("div");
 
-  /* same structure as download list (clean stack) */
   row.style.display = "flex";
   row.style.alignItems = "center";
   row.style.gap = "10px";
 
-  // TEXT
   const text = document.createElement("div");
   text.style.flex = "1";
   text.style.color = "#ff4444";
@@ -359,7 +358,6 @@ video.qualities.forEach(q => {
   text.style.fontSize = "12px";
   text.textContent = `${q.label} - ${q.embed}`;
 
-  // COPY BUTTON
   const copyBtn = document.createElement("button");
   copyBtn.innerHTML = copySVG();
 
