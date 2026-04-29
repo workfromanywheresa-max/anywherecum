@@ -541,14 +541,23 @@ scrollToVideoFromHash();
 
     if (preview) {
 
-  preview.load(); // force loading
+  preview.load(); // force load
 
-  preview.addEventListener("loadeddata", () => {
+  const showFirstFrame = () => {
     preview.currentTime = 0.1;
-  }, { once: true });
+
+    // 🔥 FORCE RENDER FRAME (this is the missing part)
+    preview.play()
+      .then(() => {
+        preview.pause();
+      })
+      .catch(() => {});
+  };
+
+  preview.addEventListener("loadeddata", showFirstFrame, { once: true });
 
   if (preview.readyState >= 2) {
-    preview.currentTime = 0.1;
+    showFirstFrame();
   }
     }
   }
