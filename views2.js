@@ -449,16 +449,6 @@ ${iframe}
 };
 
 /* ---------------- TOGGLE EMBED BOX ---------------- */
-embedBtn.onclick = () => {
-
-  // ❌ close download box if open
-  downloadBox.style.display = "none";
-
-  // toggle embed box
-  embedModal.style.display =
-    embedModal.style.display === "none" ? "flex" : "none";
-};
-
 const donateBtn = document.createElement("button");
 donateBtn.className = "donateBtn";
 
