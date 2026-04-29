@@ -28,7 +28,21 @@ embedModal.innerHTML = `
     padding:15px;
     border-radius:10px;
     color:white;
+    position:relative;
   ">
+    
+    <!-- ❌ CLOSE BUTTON -->
+    <button id="closeEmbedModal" style="
+      position:absolute;
+      top:10px;
+      right:10px;
+      background:transparent;
+      border:none;
+      color:white;
+      font-size:20px;
+      cursor:pointer;
+    ">✕</button>
+
     <h3 style="margin-bottom:10px;">Embed Options</h3>
     <div id="embedContent"></div>
   </div>
@@ -58,6 +72,12 @@ document.addEventListener("click", async (e) => {
     } catch (err) {
       console.error("Copy failed:", err);
     }
+  }
+});
+
+document.addEventListener("click", (e) => {
+  if (e.target.id === "closeEmbedModal") {
+    embedModal.style.display = "none";
   }
 });
 
