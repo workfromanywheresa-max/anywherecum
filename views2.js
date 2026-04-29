@@ -42,6 +42,38 @@ embedModal.onclick = (e) => {
   }
 };
 
+function openEmbedModal(video) {
+  const container = document.getElementById("embedContent");
+  container.innerHTML = "";
+
+  video.qualities.forEach(q => {
+    if (!q.label.includes("480") && !q.label.includes("1080")) return;
+
+    const iframe = document.createElement("iframe");
+    iframe.src = q.embed;
+    iframe.width = "100%";
+    iframe.height = "300";
+    iframe.frameBorder = "0";
+    iframe.allowFullscreen = true;
+
+    const label = document.createElement("div");
+    label.textContent = q.label;
+    label.style.fontSize = "12px";
+    label.style.color = "#aaa";
+    label.style.marginBottom = "5px";
+
+    const block = document.createElement("div");
+    block.style.marginBottom = "15px";
+
+    block.appendChild(label);
+    block.appendChild(iframe);
+
+    container.appendChild(block);
+  });
+
+  embedModal.style.display = "flex";
+}
+
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
@@ -404,49 +436,18 @@ function copySVG() {
   /* ---------------- EMBED LINKS (COPY ICON RIGHT SIDE) ---------------- */
 embedBtn.onclick = () => {
 
-  // close other box
+  // close other UI
   downloadBox.style.display = "none";
 
   // toggle modal
-  const isOpen = embedModal.style.display === "flex";
-
-  if (isOpen) {
+  if (embedModal.style.display === "flex") {
     embedModal.style.display = "none";
     return;
   }
 
-  const container = document.getElementById("embedContent");
-  container.innerHTML = "";
-
-  video.qualities.forEach(q => {
-
-  const iframe = `<iframe src="${q.embed}" width="100%" height="300" frameborder="0" allowfullscreen></iframe>`;
-
-  const block = document.createElement("div");
-  block.style.marginBottom = "15px";
-
-  block.innerHTML = `
-    <div style="font-size:12px;margin-bottom:5px;color:#aaa;">
-      ${q.label}
-    </div>
-
-    <textarea style="width:100%;height:80px;background:#000;color:#0f0;border:none;padding:8px;">
-${iframe}
-    </textarea>
-
-    <button class="copyBtn"
-      data-code="${encodeURIComponent(iframe)}"
-      style="margin-top:5px;width:100%;padding:6px;background:#ff4444;color:white;border:none;">
-      Copy Embed
-    </button>
-  `;
-
-  container.appendChild(block);
-}); 
-
-  embedModal.style.display = "flex";
+  openEmbedModal(video);
 };
-
+  
 /* ---------------- TOGGLE EMBED BOX ---------------- */
 const donateBtn = document.createElement("button");
 donateBtn.className = "donateBtn";
