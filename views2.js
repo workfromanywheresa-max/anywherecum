@@ -327,6 +327,15 @@ embedBtn.className = "embedBtn";
 const embedBox = document.createElement("div");
 embedBox.style.display = "none";
 
+/* ---------------- COPY SVG ---------------- */
+function copySVG() {
+  return `
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+    <rect x="3" y="5" width="13" height="13" rx="2"></rect>
+    <rect x="9" y="1" width="13" height="13" rx="2"></rect>
+  </svg>`;
+}
+
 /* ---------------- EMBED LINKS ---------------- */
 video.qualities.forEach(q => {
   if (!q.label.includes("480") && !q.label.includes("1080")) return;
@@ -337,19 +346,18 @@ video.qualities.forEach(q => {
   row.style.gap = "10px";
   row.style.marginBottom = "6px";
 
-  // TEXT (smaller font size here)
+  // TEXT
   const text = document.createElement("div");
   text.style.flex = "1";
   text.style.color = "#ff4444";
   text.style.wordBreak = "break-all";
-  text.style.fontSize = "12px"; // ✅ REDUCED FONT SIZE
+  text.style.fontSize = "12px";
   text.textContent = `${q.label} - ${q.embed}`;
 
-  // COPY BUTTON
+  // COPY SVG BUTTON (REPLACES OLD BUTTON)
   const copyBtn = document.createElement("button");
-  copyBtn.textContent = "Copy";
-  copyBtn.className = "downloadBtn";
-  copyBtn.style.whiteSpace = "nowrap";
+  copyBtn.className = "copy-icon";
+  copyBtn.innerHTML = copySVG();
 
   copyBtn.onclick = () => {
     navigator.clipboard.writeText(q.embed);
