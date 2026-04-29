@@ -462,9 +462,9 @@ const btnRow = document.createElement("div");
 btnRow.style.display = "flex";
 btnRow.style.gap = "10px";
 
-btnRow.appendChild(downloadBtn);
 btnRow.appendChild(shareBtn);
 btnRow.appendChild(embedBtn);
+btnRow.appendChild(downloadBtn);
 btnRow.appendChild(donateBtn); // ✅ ADD THIS LINE
   
 actionBox.appendChild(btnRow);
