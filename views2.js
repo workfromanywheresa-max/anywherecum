@@ -404,8 +404,10 @@ function copySVG() {
   /* ---------------- EMBED LINKS (COPY ICON RIGHT SIDE) ---------------- */
 embedBtn.onclick = () => {
 
+  // close other box
   downloadBox.style.display = "none";
 
+  // toggle modal
   const isOpen = embedModal.style.display === "flex";
 
   if (isOpen) {
@@ -416,51 +418,31 @@ embedBtn.onclick = () => {
   const container = document.getElementById("embedContent");
   container.innerHTML = "";
 
-  const embeds = video.qualities.filter(q => q.embed);
+  video.qualities.forEach(q => {
 
-  embeds.forEach(q => {
+  const iframe = `<iframe src="${q.embed}" width="100%" height="300" frameborder="0" allowfullscreen></iframe>`;
 
-    const wrapper = document.createElement("div");
-    wrapper.style.marginBottom = "15px";
-    wrapper.style.border = "1px solid #333";
-    wrapper.style.padding = "10px";
-    wrapper.style.borderRadius = "8px";
+  const block = document.createElement("div");
+  block.style.marginBottom = "15px";
 
-    const title = document.createElement("div");
-    title.textContent = q.label;
-    title.style.fontSize = "12px";
-    title.style.color = "#aaa";
-    title.style.marginBottom = "6px";
+  block.innerHTML = `
+    <div style="font-size:12px;margin-bottom:5px;color:#aaa;">
+      ${q.label}
+    </div>
 
-    const input = document.createElement("input");
-    input.value = q.embed;
-    input.readOnly = true;
-    input.style.width = "100%";
-    input.style.padding = "6px";
-    input.style.background = "#000";
-    input.style.color = "#0f0";
-    input.style.border = "none";
+    <textarea style="width:100%;height:80px;background:#000;color:#0f0;border:none;padding:8px;">
+${iframe}
+    </textarea>
 
-    const btn = document.createElement("button");
-    btn.textContent = "Copy";
-    btn.style.width = "100%";
-    btn.style.marginTop = "6px";
-    btn.style.padding = "6px";
-    btn.style.background = "#ff4444";
-    btn.style.color = "white";
-    btn.style.border = "none";
+    <button class="copyBtn"
+      data-code="${encodeURIComponent(iframe)}"
+      style="margin-top:5px;width:100%;padding:6px;background:#ff4444;color:white;border:none;">
+      Copy Embed
+    </button>
+  `;
 
-    // ✅ no "Copied" text, just copy action
-    btn.onclick = () => {
-      navigator.clipboard.writeText(q.embed);
-    };
-
-    wrapper.appendChild(title);
-    wrapper.appendChild(input);
-    wrapper.appendChild(btn);
-
-    container.appendChild(wrapper);
-  });
+  container.appendChild(block);
+}); 
 
   embedModal.style.display = "flex";
 };
