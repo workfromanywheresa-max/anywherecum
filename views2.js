@@ -454,8 +454,12 @@ embedBtn.onclick = () => {
   label.style.marginBottom = "5px";
   label.style.color = "#aaa";
 
-  // ✅ FULL IFRAME CODE (TEXT ONLY)
   const iframeCode = `<iframe src="${q.embed}" width="100%" height="300" frameborder="0" allowfullscreen></iframe>`;
+
+  /* 👇 PASTE YOUR WRAPPER CODE HERE */
+  const wrapper = document.createElement("div");
+  wrapper.style.position = "relative";
+  wrapper.style.width = "100%";
 
   const textarea = document.createElement("textarea");
   textarea.style.width = "100%";
@@ -469,50 +473,44 @@ embedBtn.onclick = () => {
   textarea.readOnly = true;
 
   const btn = document.createElement("div");
-btn.style.marginTop = "5px";
-btn.style.display = "flex";
-btn.style.justifyContent = "flex-end";
-btn.style.cursor = "pointer";
+  btn.style.position = "absolute";
+  btn.style.top = "6px";
+  btn.style.right = "6px";
+  btn.style.cursor = "pointer";
+  btn.style.zIndex = "10";
 
-const icon = document.createElement("div");
-icon.innerHTML = copySVG();
+  const icon = document.createElement("div");
+  icon.innerHTML = copySVG();
 
-icon.style.width = "30px";
-icon.style.height = "30px";
-icon.style.display = "flex";
-icon.style.alignItems = "center";
-icon.style.justifyContent = "center";
-icon.style.background = "transparent"; // ✅ changed here
-icon.style.borderRadius = "6px";
-icon.style.padding = "6px";
+  icon.style.width = "28px";
+  icon.style.height = "28px";
+  icon.style.display = "flex";
+  icon.style.alignItems = "center";
+  icon.style.justifyContent = "center";
+  icon.style.background = "rgba(0,0,0,0.6)";
+  icon.style.borderRadius = "6px";
 
-icon.onclick = async () => {
-  try {
-    await navigator.clipboard.writeText(iframeCode);
-
-    icon.style.background = "#00c853"; // success flash
-    setTimeout(() => {
-      icon.style.background = "transparent"; // ✅ reset back to no background
-    }, 800);
-
-  } catch (err) {
-    console.error("Copy failed:", err);
-  }
-};
-
-btn.appendChild(icon);
-
-  btn.onclick = async () => {
+  icon.onclick = async () => {
     try {
       await navigator.clipboard.writeText(iframeCode);
+
+      icon.style.background = "#00c853";
+      setTimeout(() => {
+        icon.style.background = "rgba(0,0,0,0.6)";
+      }, 800);
+
     } catch (err) {
       console.error("Copy failed:", err);
     }
   };
 
+  btn.appendChild(icon);
+
+  wrapper.appendChild(textarea);
+  wrapper.appendChild(btn);
+
   block.appendChild(label);
-  block.appendChild(textarea);
-  block.appendChild(btn);
+  block.appendChild(wrapper);
 
   container.appendChild(block);
 });
