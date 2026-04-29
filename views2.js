@@ -324,7 +324,12 @@ try {
 embedBtn.textContent = "Embed";
 
 const embedBox = document.createElement("div");
+
+/* ✅ MAKE EMBED BOX MATCH DOWNLOAD STYLE */
 embedBox.style.display = "none";
+embedBox.style.display = "flex";
+embedBox.style.flexDirection = "column";
+embedBox.style.gap = "0px"; // same tight stacking as download links
 
 /* ---------------- COPY SVG ---------------- */
 function copySVG() {
@@ -340,10 +345,11 @@ video.qualities.forEach(q => {
   if (!q.label.includes("480") && !q.label.includes("1080")) return;
 
   const row = document.createElement("div");
+
+  /* same structure as download list (clean stack) */
   row.style.display = "flex";
   row.style.alignItems = "center";
   row.style.gap = "10px";
-  row.style.marginBottom = "6px";
 
   // TEXT
   const text = document.createElement("div");
@@ -353,11 +359,10 @@ video.qualities.forEach(q => {
   text.style.fontSize = "12px";
   text.textContent = `${q.label} - ${q.embed}`;
 
-  // COPY BUTTON (NO CLASS)
+  // COPY BUTTON
   const copyBtn = document.createElement("button");
   copyBtn.innerHTML = copySVG();
 
-  // INLINE STYLE ONLY
   copyBtn.style.border = "none";
   copyBtn.style.background = "none";
   copyBtn.style.cursor = "pointer";
@@ -366,7 +371,6 @@ video.qualities.forEach(q => {
   copyBtn.style.alignItems = "center";
   copyBtn.style.justifyContent = "center";
   copyBtn.style.color = "#ff4444";
-
   copyBtn.style.width = "28px";
   copyBtn.style.height = "28px";
 
@@ -382,7 +386,7 @@ video.qualities.forEach(q => {
 /* ---------------- TOGGLE EMBED BOX ---------------- */
 embedBtn.onclick = () => {
   embedBox.style.display =
-    embedBox.style.display === "none" ? "block" : "none";
+    embedBox.style.display === "none" ? "flex" : "none";
 };
     
   /* ---------------- SHARE BUTTON ---------------- */
