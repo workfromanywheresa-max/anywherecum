@@ -586,7 +586,6 @@ btnRow.appendChild(donateBtn); // ✅ ADD THIS LINE
 actionBox.appendChild(btnRow);
 actionBox.appendChild(downloadBox);
 actionBox.appendChild(shareBox);
-actionBox.appendChild(embedModal);
 
 box.appendChild(actionBox);
   
