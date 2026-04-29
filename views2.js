@@ -343,7 +343,7 @@ function copySVG() {
   </svg>`;
 }
 
-  /* ---------------- EMBED LINKS (FIXED COPY SVG) ---------------- */
+  /* ---------------- EMBED LINKS (COPY ICON RIGHT SIDE) ---------------- */
 video.qualities.forEach(q => {
   if (!q.label.includes("480") && !q.label.includes("1080")) return;
 
@@ -351,15 +351,26 @@ video.qualities.forEach(q => {
 
   link.style.display = "flex";
   link.style.alignItems = "center";
+  link.style.justifyContent = "space-between";
   link.style.gap = "6px";
   link.style.color = "#ff4444";
   link.style.fontSize = "10px";
   link.style.wordBreak = "break-all";
   link.style.cursor = "pointer";
+  link.style.width = "100%";
 
-  link.innerHTML = `${copySVG()} <span>${q.label} • ${q.embed}</span>`;
+  const text = document.createElement("span");
+  text.textContent = `${q.label} • ${q.embed}`;
 
-  link.onclick = () => {
+  const icon = document.createElement("span");
+  icon.innerHTML = copySVG();
+  icon.style.display = "flex";
+
+  link.appendChild(text);
+  link.appendChild(icon);
+
+  icon.onclick = (e) => {
+    e.stopPropagation();
     navigator.clipboard.writeText(q.embed);
   };
 
