@@ -139,8 +139,9 @@ document.head.appendChild(style);
 function createVideoBox(video) {
 
   const box = document.createElement("div");
-  box.className = "videoBox";
-
+box.className = "videoBox";
+box.id = `video-${video.id}`; // ✅ ADD THIS HERE
+  
   const wrapper = document.createElement("div");
   wrapper.className = "videoFrameWrapper";
   wrapper.style.position = "relative";
