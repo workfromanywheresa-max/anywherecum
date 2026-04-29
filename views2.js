@@ -312,7 +312,7 @@ shareBox.style.display = "none";
 
 /* native share */
 shareBtn.onclick = async () => {
-  const shareUrl = `${window.location.origin}/folder.html?folder=${encodeURIComponent(rawFolderName)}&video=${video.id}`;
+  const shareUrl = `https://share.workfromanywhere-sa.workers.dev/?video=${video.id}`;
   if (navigator.share) {
     try {
       await navigator.share({
