@@ -436,6 +436,7 @@ btnRow.appendChild(embedBtn);
 actionBox.appendChild(btnRow);
 actionBox.appendChild(downloadBox);
 actionBox.appendChild(shareBox);
+actionBox.appendChild(embedBox);
 
 box.appendChild(actionBox);
   
