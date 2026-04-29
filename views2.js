@@ -324,52 +324,39 @@ try {
 embedBtn.textContent = "Embed";
 embedBtn.className = "embedBtn";
 
-const embedBox = document.createElement("div");
+const embedBox = document.createElement("div");  
 embedBox.style.display = "none";
-
-  embedBox.innerHTML = "";
-
-video.qualities.forEach(q => {
-  const label = q.label.toLowerCase();
-
-  let qualityText = null;
-
-  if (label.includes("480")) {
-    qualityText = "480p";
-  } else if (label.includes("1080")) {
-    qualityText = "1080p";
-  } else {
-    return; // ignore everything else
-  }
+embedBox.style.display = "flex";
+embedBox.style.flexDirection = "column";
+embedBox.style.gap = "6px";
+  
+  video.qualities.forEach(q => {
+  if (!q.label.includes("480") && !q.label.includes("1080")) return;
 
   const row = document.createElement("div");
   row.style.display = "flex";
   row.style.alignItems = "center";
-  row.style.justifyContent = "space-between";
   row.style.gap = "10px";
-  row.style.marginBottom = "6px";
 
-  // LEFT: simple label
+  // TEXT ONLY (not clickable)
   const text = document.createElement("div");
-  text.textContent = qualityText;
+  text.style.flex = "1";
   text.style.color = "#ff4444";
-  text.style.fontWeight = "bold";
+  text.style.wordBreak = "break-all";
+  text.textContent = `${q.label} - ${q.embed}`;
 
-  // RIGHT: link text (not full URL cluttered)
-  const link = document.createElement("div");
-  link.textContent = "Copy Link";
-  link.style.color = "#fff";
-  link.style.background = "#333";
-  link.style.padding = "4px 8px";
-  link.style.borderRadius = "6px";
-  link.style.cursor = "pointer";
+  // COPY BUTTON
+  const copyBtn = document.createElement("button");
+  copyBtn.textContent = "Copy";
+  copyBtn.className = "downloadBtn";
+  copyBtn.style.whiteSpace = "nowrap";
 
-  link.onclick = () => {
+  copyBtn.onclick = () => {
     navigator.clipboard.writeText(q.embed);
   };
 
   row.appendChild(text);
-  row.appendChild(link);
+  row.appendChild(copyBtn);
   embedBox.appendChild(row);
 });
         
