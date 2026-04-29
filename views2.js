@@ -42,6 +42,25 @@ embedModal.onclick = (e) => {
   }
 };
 
+document.addEventListener("click", async (e) => {
+  if (e.target.classList.contains("copyBtn")) {
+
+    const btn = e.target;
+    const textarea = btn.parentElement.querySelector("textarea");
+
+    if (!textarea) return;
+
+    try {
+      await navigator.clipboard.writeText(textarea.value);
+
+      // nothing changes visually anymore
+
+    } catch (err) {
+      console.error("Copy failed:", err);
+    }
+  }
+});
+
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
