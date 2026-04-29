@@ -323,6 +323,8 @@ try {
   const embedBtn = document.createElement("button");
 embedBtn.textContent = "Embed";
 
+embedBtn.style.marginBottom = "2px";
+
 const embedBox = document.createElement("div");
 
 /* ✅ START HIDDEN */
