@@ -345,6 +345,11 @@ shareBtn.onclick = async () => {
   url: shareUrl
 });
 
+    embedBtn.onclick = () => {
+  embedBox.style.display =
+    embedBox.style.display === "none" ? "block" : "none";
+};
+
       increaseViews(video.id); // optional tracking
 
     } catch (err) {
