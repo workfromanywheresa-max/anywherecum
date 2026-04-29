@@ -320,6 +320,13 @@ try {
   const downloadBox = document.createElement("div");
   downloadBox.style.display = "none";
 
+    const embedBtn = document.createElement("button");
+embedBtn.textContent = "Embed";
+embedBtn.className = "embedBtn";
+
+const embedBox = document.createElement("div");
+embedBox.style.display = "none";
+
   /* ---------------- SHARE BUTTON ---------------- */
 const shareBtn = document.createElement("button");
 shareBtn.textContent = "Share";
