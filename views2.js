@@ -336,13 +336,14 @@ embedBox.style.display = "none";
   row.style.gap = "10px";
   row.style.marginBottom = "6px";
 
-  const link = document.createElement("a");
-  link.href = q.embed;
-  link.target = "_blank";
-  link.textContent = "Embed Link";
-  link.style.flex = "1";
-  link.style.color = "#ff4444";
+  // TEXT ONLY (not clickable)
+  const text = document.createElement("div");
+  text.style.flex = "1";
+  text.style.color = "#ff4444";
+  text.style.wordBreak = "break-all";
+  text.textContent = `${q.label} - ${q.embed}`;
 
+  // COPY BUTTON
   const copyBtn = document.createElement("button");
   copyBtn.textContent = "Copy";
   copyBtn.className = "downloadBtn";
@@ -352,7 +353,7 @@ embedBox.style.display = "none";
     navigator.clipboard.writeText(q.embed);
   };
 
-  row.appendChild(link);
+  row.appendChild(text);
   row.appendChild(copyBtn);
   embedBox.appendChild(row);
 });
