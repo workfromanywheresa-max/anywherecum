@@ -416,32 +416,6 @@ shareBtn.onclick = async () => {
     downloadBox.appendChild(link);
   });
 
-  video.qualities.forEach(q => {
-
-  if (!q.label.includes("480") && !q.label.includes("1080")) return;
-
-  const input = document.createElement("input");
-  input.value = q.embed;
-  input.readOnly = true;
-  input.style.width = "90%";
-  input.style.padding = "5px";
-
-  const copyBtn = document.createElement("button");
-  copyBtn.textContent = `Copy ${q.label} Embed`;
-
-  copyBtn.onclick = () => {
-    navigator.clipboard.writeText(q.embed);
-  };
-
-  const wrap = document.createElement("div");
-  wrap.style.margin = "5px 0";
-
-  wrap.appendChild(input);
-  wrap.appendChild(copyBtn);
-
-  embedBox.appendChild(wrap);
-});
-
   box.appendChild(select);
   box.appendChild(wrapper);
   box.appendChild(title);
