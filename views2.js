@@ -364,6 +364,34 @@ embedBox.style.display = "none";
   }
 };
 
+  video.qualities.forEach(q => {
+  const link = document.createElement("div");
+  link.style.display = "flex";
+  link.style.alignItems = "center";
+  link.style.justifyContent = "space-between";
+  link.style.margin = "5px 0";
+  link.style.color = "#fff";
+
+  const urlText = document.createElement("span");
+  urlText.textContent = q.embed;
+  urlText.style.fontSize = "12px";
+  urlText.style.wordBreak = "break-all";
+  urlText.style.flex = "1";
+
+  const copyBtn = document.createElement("button");
+  copyBtn.textContent = "Copy";
+  copyBtn.className = "copyBtn";
+
+  copyBtn.onclick = () => {
+    navigator.clipboard.writeText(q.embed);
+  };
+
+  link.appendChild(urlText);
+  link.appendChild(copyBtn);
+
+  embedBox.appendChild(link);
+});
+
   downloadBtn.onclick = () => {
     downloadBox.style.display =
       downloadBox.style.display === "none" ? "block" : "none";
