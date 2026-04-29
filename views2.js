@@ -393,6 +393,11 @@ donateBtn.textContent = "Donate";
 donateBtn.className = "donateBtn";
 
 donateBtn.onclick = () => {
+
+  // 🔥 CLOSE OPEN BOXES FIRST
+  embedBox.style.display = "none";
+  downloadBox.style.display = "none";
+
   window.location.href = "donate.html";
 };
     
@@ -407,20 +412,25 @@ shareBox.style.display = "none";
 
 /* native share */
 shareBtn.onclick = async () => {
+
+  // 🔥 CLOSE OPEN BOXES FIRST
+  embedBox.style.display = "none";
+  downloadBox.style.display = "none";
+
   const shareUrl = `https://share.workfromanywhere-sa.workers.dev/?video=${video.id}`;
+
   if (navigator.share) {
     try {
       await navigator.share({
-  url: shareUrl
-});
+        url: shareUrl
+      });
 
-      increaseViews(video.id); // optional tracking
+      increaseViews(video.id);
 
     } catch (err) {
       console.log("Share cancelled");
     }
   } else {
-    /* fallback if not supported */
     shareBox.innerHTML = `
       <input value="${shareUrl}" readonly style="width:90%;padding:5px;">
       <button onclick="navigator.clipboard.writeText('${shareUrl}')">
