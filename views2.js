@@ -540,16 +540,15 @@ scrollToVideoFromHash();
     const preview = target.box.querySelector("video");
 
     if (preview) {
-      preview.addEventListener("loadeddata", () => {
-        // force first visible frame without playing
-        preview.currentTime = 0.1;
-      }, { once: true });
 
-      // if already loaded, apply immediately
-      if (preview.readyState >= 2) {
-        preview.currentTime = 0.1;
-      }
-    }
+  preview.load(); // force loading
+
+  preview.addEventListener("loadeddata", () => {
+    preview.currentTime = 0.1;
+  }, { once: true });
+
+  if (preview.readyState >= 2) {
+    preview.currentTime = 0.1;
   }
     }
 
