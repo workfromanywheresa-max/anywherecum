@@ -373,6 +373,7 @@ video.qualities.forEach(q => {
   link.style.wordBreak = "break-all";
   link.style.cursor = "pointer";
   link.style.width = "100%";
+  link.style.marginBottom = "6px";
 
   const text = document.createElement("span");
   text.textContent = `${q.label} • ${q.embed}`;
