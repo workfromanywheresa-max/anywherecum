@@ -314,8 +314,15 @@ try {
   title.textContent = video.title;
 
   const downloadBtn = document.createElement("button");
-  downloadBtn.textContent = "Download";
-  downloadBtn.className = "downloadBtn";
+downloadBtn.className = "downloadBtn";
+
+/* make it behave like your donate button */
+downloadBtn.innerHTML = `
+  <img src="https://anywherecum.pages.dev/images/download.png"
+       width="18"
+       height="12"
+       style="display:block;">
+`;
 
   const downloadBox = document.createElement("div");
   downloadBox.style.display = "none";
