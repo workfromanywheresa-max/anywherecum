@@ -492,21 +492,19 @@ fetch(dataSource)
   if (target) {
     target.box.scrollIntoView({ behavior: "smooth", block: "center" });
 
-    setTimeout(() => {
-      const preview = target.box.querySelector("video");
+    const preview = target.box.querySelector("video");
 
-      if (preview) {
-        // FORCE browser to repaint + load frame
-        preview.style.visibility = "hidden";
+    if (preview) {
+      preview.addEventListener("loadeddata", () => {
+        // force first visible frame without playing
+        preview.currentTime = 0.1;
+      }, { once: true });
 
-        requestAnimationFrame(() => {
-          preview.style.visibility = "visible";
-        });
-
-        // re-trigger observer manually
-        observer.observe(preview);
+      // if already loaded, apply immediately
+      if (preview.readyState >= 2) {
+        preview.currentTime = 0.1;
       }
-    }, 600);
+    }
   }
     }
 
