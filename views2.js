@@ -335,10 +335,8 @@ shareBtn.onclick = async () => {
   if (navigator.share) {
     try {
       await navigator.share({
-        title: video.title,
-        text: "Watch this video 👇",
-        url: shareUrl
-      });
+  url: shareUrl
+});
 
       increaseViews(video.id); // optional tracking
 
