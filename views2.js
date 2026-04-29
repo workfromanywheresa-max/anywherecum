@@ -452,6 +452,14 @@ embedBtn.onclick = () => {
   embedModal.style.display = "flex";
 };
 
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("copyBtn")) {
+    navigator.clipboard.writeText(
+      decodeURIComponent(e.target.dataset.code)
+    );
+  }
+});
+
 /* ---------------- TOGGLE EMBED BOX ---------------- */
 embedBtn.onclick = () => {
 
