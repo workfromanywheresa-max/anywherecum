@@ -8,6 +8,40 @@ const app = initializeApp({
 });
 const db = getDatabase(app);
 
+const embedModal = document.createElement("div");
+embedModal.style.position = "fixed";
+embedModal.style.top = "0";
+embedModal.style.left = "0";
+embedModal.style.width = "100%";
+embedModal.style.height = "100%";
+embedModal.style.background = "rgba(0,0,0,0.85)";
+embedModal.style.display = "none";
+embedModal.style.alignItems = "center";
+embedModal.style.justifyContent = "center";
+embedModal.style.zIndex = "99999";
+
+embedModal.innerHTML = `
+  <div style="
+    background:#111;
+    width:90%;
+    max-width:500px;
+    padding:15px;
+    border-radius:10px;
+    color:white;
+  ">
+    <h3 style="margin-bottom:10px;">Embed Options</h3>
+    <div id="embedContent"></div>
+  </div>
+`;
+
+document.body.appendChild(embedModal);
+
+embedModal.onclick = (e) => {
+  if (e.target === embedModal) {
+    embedModal.style.display = "none";
+  }
+};
+
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
