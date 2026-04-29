@@ -485,6 +485,9 @@ embedBtn.onclick = () => {
   container.appendChild(block);
 });
 
+  embedModal.style.display = "flex";
+};
+
 /* ---------------- TOGGLE EMBED BOX ---------------- */
 const donateBtn = document.createElement("button");
 donateBtn.className = "donateBtn";
