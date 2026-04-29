@@ -25,6 +25,7 @@ if (!visitId) {
 const urlParams = new URLSearchParams(window.location.search);
 const folderName = (urlParams.get("folder") || "").trim().toLowerCase();
 const rawFolderName = (urlParams.get("folder") || "").trim();
+const videoIdFromURL = urlParams.get("video");
 const config = window.VIDEO_CONFIG || {};
 const dataSource = config.dataSource || "videos.json";
 
