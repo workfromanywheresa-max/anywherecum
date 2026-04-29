@@ -223,6 +223,10 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
     loader.style.display = "none";
   });
 
+  preview.addEventListener("canplay", () => {
+  preview.currentTime = 0.1;
+}, { once: true });
+
   preview.onclick = async () => {
   countWatchOnce(video.id);
 
