@@ -526,7 +526,9 @@ fetch(dataSource)
   }, 100);
     }
 
-    reorderVideos(true);
+  reorderVideos(true);
+
+scrollToVideoFromHash(); 
 
     /* ---------------- AUTO OPEN SHARED VIDEO ---------------- */
     if (videoIdFromURL) {
