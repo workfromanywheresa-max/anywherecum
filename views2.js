@@ -323,7 +323,7 @@ try {
   const embedBtn = document.createElement("button");
 embedBtn.textContent = "Embed";
 
-embedBtn.style.marginBottom = "-5px";
+embedBtn.style.marginBottom = "0px";
 
 const embedBox = document.createElement("div");
 
