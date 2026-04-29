@@ -382,6 +382,14 @@ embedBtn.onclick = () => {
   embedBox.style.display =
     embedBox.style.display === "none" ? "flex" : "none";
 };
+
+const donateBtn = document.createElement("button");
+donateBtn.textContent = "Donate";
+donateBtn.className = "donateBtn";
+
+donateBtn.onclick = () => {
+  window.location.href = "donate.html";
+};
     
   /* ---------------- SHARE BUTTON ---------------- */
 const shareBtn = document.createElement("button");
@@ -457,6 +465,7 @@ btnRow.style.gap = "10px";
 btnRow.appendChild(downloadBtn);
 btnRow.appendChild(shareBtn);
 btnRow.appendChild(embedBtn);
+btnRow.appendChild(donateBtn); // ✅ ADD THIS LINE
   
 actionBox.appendChild(btnRow);
 actionBox.appendChild(downloadBox);
