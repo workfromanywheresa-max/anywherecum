@@ -343,18 +343,21 @@ function copySVG() {
   </svg>`;
 }
 
-  /* ---------------- EMBED LINKS (SAME LAYOUT AS DOWNLOAD) ---------------- */
+  /* ---------------- EMBED LINKS (FIXED COPY SVG) ---------------- */
 video.qualities.forEach(q => {
   if (!q.label.includes("480") && !q.label.includes("1080")) return;
 
   const link = document.createElement("div");
 
-  link.textContent = `${q.label} • ${q.embed}`;
-
-  link.style.display = "block";
+  link.style.display = "flex";
+  link.style.alignItems = "center";
+  link.style.gap = "6px";
   link.style.color = "#ff4444";
   link.style.fontSize = "10px";
   link.style.wordBreak = "break-all";
+  link.style.cursor = "pointer";
+
+  link.innerHTML = `${copySVG()} <span>${q.label} • ${q.embed}</span>`;
 
   link.onclick = () => {
     navigator.clipboard.writeText(q.embed);
