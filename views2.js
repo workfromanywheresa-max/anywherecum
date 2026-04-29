@@ -300,6 +300,45 @@ try {
   const downloadBox = document.createElement("div");
   downloadBox.style.display = "none";
 
+  /* ---------------- SHARE BUTTON ---------------- */
+const shareBtn = document.createElement("button");
+shareBtn.textContent = "Share";
+shareBtn.className = "shareBtn";
+
+/* fallback box (desktop only) */
+const shareBox = document.createElement("div");
+shareBox.style.display = "none";
+
+/* native share */
+shareBtn.onclick = async () => {
+  const shareUrl = `${window.location.origin}?video=${video.id}`;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: video.title,
+        text: "Watch this video 👇",
+        url: shareUrl
+      });
+
+      increaseViews(video.id); // optional tracking
+
+    } catch (err) {
+      console.log("Share cancelled");
+    }
+  } else {
+    /* fallback if not supported */
+    shareBox.innerHTML = `
+      <input value="${shareUrl}" readonly style="width:90%;padding:5px;">
+      <button onclick="navigator.clipboard.writeText('${shareUrl}')">
+        Copy Link
+      </button>
+    `;
+    shareBox.style.display =
+      shareBox.style.display === "none" ? "block" : "none";
+  }
+};
+
   downloadBtn.onclick = () => {
     downloadBox.style.display =
       downloadBox.style.display === "none" ? "block" : "none";
@@ -328,10 +367,19 @@ try {
 actionBox.style.display = "flex";
 actionBox.style.flexDirection = "column";
 actionBox.style.alignItems = "center";
-actionBox.style.gap = "-6px";
+actionBox.style.gap = "5px";
 
-actionBox.appendChild(downloadBtn);
+/* buttons row */
+const btnRow = document.createElement("div");
+btnRow.style.display = "flex";
+btnRow.style.gap = "10px";
+
+btnRow.appendChild(downloadBtn);
+btnRow.appendChild(shareBtn);
+
+actionBox.appendChild(btnRow);
 actionBox.appendChild(downloadBox);
+actionBox.appendChild(shareBox);
 
 box.appendChild(actionBox);
   
