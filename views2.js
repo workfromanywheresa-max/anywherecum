@@ -6,7 +6,7 @@ const app = initializeApp({
   apiKey: "AIzaSyCEX...",
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
 });
-const db = getDatabase(app);
+const db = getDatabase(app); 
 
 const embedModal = document.createElement("div");
 embedModal.style.position = "fixed";
