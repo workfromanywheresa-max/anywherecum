@@ -486,13 +486,29 @@ fetch(dataSource)
     reorderVideos(true);
 
     /* ---------------- AUTO OPEN SHARED VIDEO ---------------- */
-if (videoIdFromURL) {
+    if (videoIdFromURL) {
   const target = videoElements[videoIdFromURL];
 
   if (target) {
     target.box.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    setTimeout(() => {
+      const preview = target.box.querySelector("video");
+
+      if (preview) {
+        // FORCE browser to repaint + load frame
+        preview.style.visibility = "hidden";
+
+        requestAnimationFrame(() => {
+          preview.style.visibility = "visible";
+        });
+
+        // re-trigger observer manually
+        observer.observe(preview);
+      }
+    }, 600);
   }
-}
+    }
 
     filtered.forEach(v => {
 
