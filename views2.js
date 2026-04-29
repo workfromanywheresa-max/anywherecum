@@ -320,14 +320,15 @@ try {
   const downloadBox = document.createElement("div");
   downloadBox.style.display = "none";
 
-    const embedBtn = document.createElement("button");
+  const embedBtn = document.createElement("button");
 embedBtn.textContent = "Embed";
 embedBtn.className = "embedBtn";
 
 const embedBox = document.createElement("div");
 embedBox.style.display = "none";
 
-  video.qualities.forEach(q => {
+/* ---------------- EMBED LINKS ---------------- */
+video.qualities.forEach(q => {
   if (!q.label.includes("480") && !q.label.includes("1080")) return;
 
   const row = document.createElement("div");
@@ -336,11 +337,12 @@ embedBox.style.display = "none";
   row.style.gap = "10px";
   row.style.marginBottom = "6px";
 
-  // TEXT ONLY (not clickable)
+  // TEXT (smaller font size here)
   const text = document.createElement("div");
   text.style.flex = "1";
   text.style.color = "#ff4444";
   text.style.wordBreak = "break-all";
+  text.style.fontSize = "12px"; // ✅ REDUCED FONT SIZE
   text.textContent = `${q.label} - ${q.embed}`;
 
   // COPY BUTTON
@@ -357,12 +359,13 @@ embedBox.style.display = "none";
   row.appendChild(copyBtn);
   embedBox.appendChild(row);
 });
-        
-  embedBtn.onclick = () => {
+
+/* ---------------- TOGGLE EMBED BOX ---------------- */
+embedBtn.onclick = () => {
   embedBox.style.display =
     embedBox.style.display === "none" ? "block" : "none";
 };
-
+    
   /* ---------------- SHARE BUTTON ---------------- */
 const shareBtn = document.createElement("button");
 shareBtn.textContent = "Share";
