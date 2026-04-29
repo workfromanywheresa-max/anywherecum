@@ -437,43 +437,53 @@ embedBtn.onclick = () => {
 
   video.qualities.forEach(q => {
 
-    const block = document.createElement("div");
-    block.style.marginBottom = "15px";
+  const block = document.createElement("div");
+  block.style.marginBottom = "15px";
 
-    const label = document.createElement("div");
-    label.textContent = q.label;
-    label.style.fontSize = "12px";
-    label.style.marginBottom = "5px";
-    label.style.color = "#aaa";
+  const label = document.createElement("div");
+  label.textContent = q.label;
+  label.style.fontSize = "12px";
+  label.style.marginBottom = "5px";
+  label.style.color = "#aaa";
 
-    const textarea = document.createElement("textarea");
-    textarea.style.width = "100%";
-    textarea.style.height = "80px";
-    textarea.style.background = "#000";
-    textarea.style.color = "#0f0";
-    textarea.style.border = "none";
-    textarea.style.padding = "8px";
-    textarea.value = `<iframe src="${q.embed}" width="100%" height="300" frameborder="0" allowfullscreen></iframe>`;
+  // ✅ FULL IFRAME CODE (TEXT ONLY)
+  const iframeCode = `<iframe src="${q.embed}" width="100%" height="300" frameborder="0" allowfullscreen></iframe>`;
 
-    const btn = document.createElement("button");
-    btn.className = "copyBtn";
-    btn.style.marginTop = "5px";
-    btn.style.width = "100%";
-    btn.style.padding = "6px";
-    btn.style.background = "#ff4444";
-    btn.style.color = "white";
-    btn.style.border = "none";
-    btn.textContent = "Copy Embed";
+  const textarea = document.createElement("textarea");
+  textarea.style.width = "100%";
+  textarea.style.height = "90px";
+  textarea.style.background = "#000";
+  textarea.style.color = "#0f0";
+  textarea.style.border = "1px solid #333";
+  textarea.style.padding = "8px";
+  textarea.style.fontSize = "12px";
+  textarea.value = iframeCode;
+  textarea.readOnly = true;
 
-    block.appendChild(label);
-    block.appendChild(textarea);
-    block.appendChild(btn);
+  const btn = document.createElement("button");
+  btn.className = "copyBtn";
+  btn.style.marginTop = "5px";
+  btn.style.width = "100%";
+  btn.style.padding = "6px";
+  btn.style.background = "#ff4444";
+  btn.style.color = "white";
+  btn.style.border = "none";
+  btn.textContent = "Copy Iframe";
 
-    container.appendChild(block);
-  });
+  btn.onclick = async () => {
+    try {
+      await navigator.clipboard.writeText(iframeCode);
+    } catch (err) {
+      console.error("Copy failed:", err);
+    }
+  };
 
-  embedModal.style.display = "flex";
-};
+  block.appendChild(label);
+  block.appendChild(textarea);
+  block.appendChild(btn);
+
+  container.appendChild(block);
+});
 
 /* ---------------- TOGGLE EMBED BOX ---------------- */
 const donateBtn = document.createElement("button");
