@@ -327,6 +327,11 @@ embedBtn.className = "embedBtn";
 const embedBox = document.createElement("div");
 embedBox.style.display = "none";
 
+  embedBtn.onclick = () => {
+  embedBox.style.display =
+    embedBox.style.display === "none" ? "block" : "none";
+};
+
   /* ---------------- SHARE BUTTON ---------------- */
 const shareBtn = document.createElement("button");
 shareBtn.textContent = "Share";
@@ -344,11 +349,6 @@ shareBtn.onclick = async () => {
       await navigator.share({
   url: shareUrl
 });
-
-    embedBtn.onclick = () => {
-  embedBox.style.display =
-    embedBox.style.display === "none" ? "block" : "none";
-};
 
       increaseViews(video.id); // optional tracking
 
