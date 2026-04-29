@@ -392,15 +392,6 @@ embedBtn.innerHTML = `
   
 embedBtn.style.marginBottom = "0px";
 
-const embedBox = document.createElement("div");
-
-/* ✅ START HIDDEN */
-embedBox.style.display = "none";
-
-/* layout style (applies when shown) */
-embedBox.style.flexDirection = "column";
-embedBox.style.gap = "0px";
-
 /* ---------------- COPY SVG ---------------- */
 function copySVG() {
   return `
@@ -411,39 +402,55 @@ function copySVG() {
 }
 
   /* ---------------- EMBED LINKS (COPY ICON RIGHT SIDE) ---------------- */
-video.qualities.forEach(q => {
-  if (!q.label.includes("480") && !q.label.includes("1080")) return;
+embedBtn.onclick = () => {
 
-  const link = document.createElement("div");
+  downloadBox.style.display = "none";
 
-  link.style.display = "flex";
-  link.style.alignItems = "center";
-  link.style.justifyContent = "space-between";
-  link.style.gap = "6px";
-  link.style.color = "#ff4444";
-  link.style.fontSize = "10px";
-  link.style.wordBreak = "break-all";
-  link.style.cursor = "pointer";
-  link.style.width = "100%";
-  link.style.marginBottom = "6px";
+  const container = document.getElementById("embedContent");
 
-  const text = document.createElement("span");
-  text.textContent = `${q.label} • ${q.embed}`;
+  container.innerHTML = "";
 
-  const icon = document.createElement("span");
-  icon.innerHTML = copySVG();
-  icon.style.display = "flex";
+  video.qualities.forEach(q => {
+    if (!q.label.includes("480") && !q.label.includes("1080")) return;
 
-  link.appendChild(text);
-  link.appendChild(icon);
+    const iframe = `<iframe src="${q.embed}" width="100%" height="300" frameborder="0" allowfullscreen></iframe>`;
 
-  icon.onclick = (e) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(q.embed);
-  };
+    const block = document.createElement("div");
+    block.style.marginBottom = "15px";
 
-  embedBox.appendChild(link);
-});
+    block.innerHTML = `
+      <div style="font-size:12px;margin-bottom:5px;color:#aaa;">
+        ${q.label}
+      </div>
+
+      <textarea style="
+        width:100%;
+        height:80px;
+        background:#000;
+        color:#0f0;
+        border:none;
+        padding:8px;
+      ">${iframe}</textarea>
+
+      <button class="copyBtn"
+        data-code="${encodeURIComponent(iframe)}"
+        style="
+          margin-top:5px;
+          width:100%;
+          padding:6px;
+          background:#ff4444;
+          color:white;
+          border:none;
+        ">
+        Copy Embed
+      </button>
+    `;
+
+    container.appendChild(block);
+  });
+
+  embedModal.style.display = "flex";
+};
 
 /* ---------------- TOGGLE EMBED BOX ---------------- */
 embedBtn.onclick = () => {
