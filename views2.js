@@ -353,7 +353,7 @@ video.qualities.forEach(q => {
 
   link.style.display = "block";
   link.style.color = "#ff4444";
-  link.style.fontSize = "8px";
+  link.style.fontSize = "10px";
   link.style.wordBreak = "break-all";
 
   link.onclick = () => {
