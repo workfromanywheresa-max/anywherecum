@@ -651,28 +651,35 @@ shareBtn.onclick = async () => {
 
   downloadBtn.onclick = () => {
 
-  // ❌ close embed box if open
   embedModal.style.display = "none";
 
-  // toggle download box
-  downloadBox.style.display =
-    downloadBox.style.display === "none" ? "block" : "none";
-
-  countDownloadOnce(video.id);
-};
+  const container = document.getElementById("downloadContent");
+  container.innerHTML = "";
 
   video.qualities.forEach(q => {
+
     const link = document.createElement("a");
     link.href = q.download;
     link.target = "_blank";
+    link.rel = "noopener noreferrer";
+
     link.textContent = `${q.label} • ${q.size}`;
+
     link.style.display = "block";
+    link.style.padding = "10px";
+    link.style.marginBottom = "8px";
+    link.style.background = "#222";
+    link.style.borderRadius = "6px";
     link.style.color = "#ff4444";
+    link.style.textDecoration = "none";
 
     link.onclick = () => countDownloadOnce(video.id);
 
-    downloadBox.appendChild(link);
+    container.appendChild(link);
   });
+
+  downloadModal.style.display = "flex";
+};
 
   box.appendChild(select);
   box.appendChild(wrapper);
@@ -695,7 +702,6 @@ btnRow.appendChild(downloadBtn);
 btnRow.appendChild(donateBtn); // ✅ ADD THIS LINE
   
 actionBox.appendChild(btnRow);
-actionBox.appendChild(downloadBox);
 actionBox.appendChild(shareBox);
 
 box.appendChild(actionBox);
