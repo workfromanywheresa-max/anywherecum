@@ -407,7 +407,6 @@ embedBtn.onclick = () => {
   downloadBox.style.display = "none";
 
   const container = document.getElementById("embedContent");
-
   container.innerHTML = "";
 
   video.qualities.forEach(q => {
@@ -422,26 +421,12 @@ embedBtn.onclick = () => {
       <div style="font-size:12px;margin-bottom:5px;color:#aaa;">
         ${q.label}
       </div>
-
-      <textarea style="
-        width:100%;
-        height:80px;
-        background:#000;
-        color:#0f0;
-        border:none;
-        padding:8px;
-      ">${iframe}</textarea>
-
+      <textarea style="width:100%;height:80px;background:#000;color:#0f0;border:none;padding:8px;">
+        ${iframe}
+      </textarea>
       <button class="copyBtn"
         data-code="${encodeURIComponent(iframe)}"
-        style="
-          margin-top:5px;
-          width:100%;
-          padding:6px;
-          background:#ff4444;
-          color:white;
-          border:none;
-        ">
+        style="margin-top:5px;width:100%;padding:6px;background:#ff4444;color:white;border:none;">
         Copy Embed
       </button>
     `;
@@ -452,14 +437,6 @@ embedBtn.onclick = () => {
   embedModal.style.display = "flex";
 };
 
-document.addEventListener("click", (e) => {
-  if (e.target.classList.contains("copyBtn")) {
-    navigator.clipboard.writeText(
-      decodeURIComponent(e.target.dataset.code)
-    );
-  }
-});
-
 /* ---------------- TOGGLE EMBED BOX ---------------- */
 embedBtn.onclick = () => {
 
@@ -467,8 +444,8 @@ embedBtn.onclick = () => {
   downloadBox.style.display = "none";
 
   // toggle embed box
-  embedBox.style.display =
-    embedBox.style.display === "none" ? "flex" : "none";
+  embedModal.style.display =
+    embedModal.style.display === "none" ? "flex" : "none";
 };
 
 const donateBtn = document.createElement("button");
@@ -483,7 +460,7 @@ donateBtn.innerHTML = `
 donateBtn.onclick = () => {
 
   // 🔥 CLOSE OPEN BOXES FIRST
-  embedBox.style.display = "none";
+  embedModal.style.display = "none";
   downloadBox.style.display = "none";
 
   window.location.href = "donate.html";
@@ -518,7 +495,7 @@ shareBox.style.display = "none";
 shareBtn.onclick = async () => {
 
   // 🔥 CLOSE OPEN BOXES FIRST
-  embedBox.style.display = "none";
+  embedModal.style.display = "none";
   downloadBox.style.display = "none";
 
   const shareUrl = `https://share.workfromanywhere-sa.workers.dev/?video=${video.id}`;
@@ -549,7 +526,7 @@ shareBtn.onclick = async () => {
   downloadBtn.onclick = () => {
 
   // ❌ close embed box if open
-  embedBox.style.display = "none";
+  embedModal.style.display = "none";
 
   // toggle download box
   downloadBox.style.display =
@@ -594,7 +571,7 @@ btnRow.appendChild(donateBtn); // ✅ ADD THIS LINE
 actionBox.appendChild(btnRow);
 actionBox.appendChild(downloadBox);
 actionBox.appendChild(shareBox);
-actionBox.appendChild(embedBox);
+actionBox.appendChild(embedModal);
 
 box.appendChild(actionBox);
   
