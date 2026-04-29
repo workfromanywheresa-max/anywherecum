@@ -482,17 +482,19 @@ icon.style.height = "30px";
 icon.style.display = "flex";
 icon.style.alignItems = "center";
 icon.style.justifyContent = "center";
-icon.style.background = "#ff4444";
+icon.style.background = "transparent"; // ✅ changed here
 icon.style.borderRadius = "6px";
 icon.style.padding = "6px";
 
 icon.onclick = async () => {
   try {
     await navigator.clipboard.writeText(iframeCode);
-    icon.style.background = "#00c853"; // optional success color
+
+    icon.style.background = "#00c853"; // success flash
     setTimeout(() => {
-      icon.style.background = "#ff4444";
+      icon.style.background = "transparent"; // ✅ reset back to no background
     }, 800);
+
   } catch (err) {
     console.error("Copy failed:", err);
   }
