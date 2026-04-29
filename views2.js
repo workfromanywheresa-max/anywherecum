@@ -311,7 +311,7 @@ shareBox.style.display = "none";
 
 /* native share */
 shareBtn.onclick = async () => {
-  const shareUrl = `${window.location.origin}?video=${video.id}`;
+  const shareUrl = `${window.location.origin}?folder=${encodeURIComponent(rawFolderName)}&video=${video.id}`;
 
   if (navigator.share) {
     try {
