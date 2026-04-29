@@ -69,6 +69,60 @@ window.addEventListener("popstate", () => {
   }
 });
 
+/* ---------------- DOWNLOAD MODAL ---------------- */
+const downloadModal = document.createElement("div");
+downloadModal.style.position = "fixed";
+downloadModal.style.top = "0";
+downloadModal.style.left = "0";
+downloadModal.style.width = "100%";
+downloadModal.style.height = "100%";
+downloadModal.style.background = "rgba(0,0,0,0.85)";
+downloadModal.style.display = "none";
+downloadModal.style.alignItems = "center";
+downloadModal.style.justifyContent = "center";
+downloadModal.style.zIndex = "99999";
+
+downloadModal.innerHTML = `
+  <div style="
+    background:#111;
+    width:90%;
+    max-width:500px;
+    padding:15px;
+    border-radius:10px;
+    color:white;
+    position:relative;
+  ">
+    <button id="closeDownloadModal" style="
+      position:absolute;
+      top:10px;
+      right:10px;
+      background:transparent;
+      border:none;
+      color:white;
+      font-size:20px;
+      cursor:pointer;
+    ">✕</button>
+
+    <h3 style="margin-bottom:10px;">Download Options</h3>
+    <div id="downloadContent"></div>
+  </div>
+`;
+
+document.body.appendChild(downloadModal);
+
+/* close handlers */
+document.addEventListener("click", (e) => {
+  if (e.target.id === "closeDownloadModal") {
+    downloadModal.style.display = "none";
+  }
+});
+
+downloadModal.onclick = (e) => {
+  if (e.target === downloadModal) {
+    downloadModal.style.display = "none";
+  }
+};
+
 /* ---------------- TEST MODE ---------------- */
 const TEST_MODE = localStorage.getItem("testMode") === "true";
 
