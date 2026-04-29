@@ -483,6 +483,34 @@ fetch(dataSource)
       updateUI(v.id);
     });
 
+    if (videoIdFromURL) {
+
+  const waitForData = setInterval(() => {
+    const v = videoDataMap[videoIdFromURL];
+
+    if (v) {
+      clearInterval(waitForData);
+
+      document.title = v.title;
+
+      const setMeta = (property, content) => {
+        let tag = document.querySelector(`meta[property='${property}']`);
+        if (!tag) {
+          tag = document.createElement("meta");
+          tag.setAttribute("property", property);
+          document.head.appendChild(tag);
+        }
+        tag.setAttribute("content", content);
+      };
+
+      setMeta("og:title", v.title);
+      setMeta("og:image", v.thumbnail);
+      setMeta("og:url", window.location.href);
+      setMeta("og:type", "video.other");
+    }
+  }, 100);
+    }
+
     reorderVideos(true);
 
     /* ---------------- AUTO OPEN SHARED VIDEO ---------------- */
