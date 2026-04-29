@@ -435,26 +435,39 @@ embedBtn.onclick = () => {
   const container = document.getElementById("embedContent");
   container.innerHTML = "";
 
-  // 👇 PUT YOUR CODE HERE
   video.qualities.forEach(q => {
+
     const block = document.createElement("div");
     block.style.marginBottom = "15px";
 
-    block.innerHTML = `
-      <div style="font-size:12px;margin-bottom:5px;color:#aaa;">
-        ${q.label}
-      </div>
+    const label = document.createElement("div");
+    label.textContent = q.label;
+    label.style.fontSize = "12px";
+    label.style.marginBottom = "5px";
+    label.style.color = "#aaa";
 
-      <textarea style="width:100%;height:80px;background:#000;color:#0f0;border:none;padding:8px;">
-<iframe src="${q.embed}" width="100%" height="300" frameborder="0" allowfullscreen></iframe>
-      </textarea>
+    const textarea = document.createElement("textarea");
+    textarea.style.width = "100%";
+    textarea.style.height = "80px";
+    textarea.style.background = "#000";
+    textarea.style.color = "#0f0";
+    textarea.style.border = "none";
+    textarea.style.padding = "8px";
+    textarea.value = `<iframe src="${q.embed}" width="100%" height="300" frameborder="0" allowfullscreen></iframe>`;
 
-      <button class="copyBtn"
-        data-code="${encodeURIComponent(q.embed)}"
-        style="margin-top:5px;width:100%;padding:6px;background:#ff4444;color:white;border:none;">
-        Copy Embed
-      </button>
-    `;
+    const btn = document.createElement("button");
+    btn.className = "copyBtn";
+    btn.style.marginTop = "5px";
+    btn.style.width = "100%";
+    btn.style.padding = "6px";
+    btn.style.background = "#ff4444";
+    btn.style.color = "white";
+    btn.style.border = "none";
+    btn.textContent = "Copy Embed";
+
+    block.appendChild(label);
+    block.appendChild(textarea);
+    block.appendChild(btn);
 
     container.appendChild(block);
   });
