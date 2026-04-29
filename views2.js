@@ -343,44 +343,24 @@ function copySVG() {
   </svg>`;
 }
 
-/* ---------------- EMBED LINKS ---------------- */
+  /* ---------------- EMBED LINKS (SAME LAYOUT AS DOWNLOAD) ---------------- */
 video.qualities.forEach(q => {
   if (!q.label.includes("480") && !q.label.includes("1080")) return;
 
-  const row = document.createElement("div");
+  const link = document.createElement("div");
 
-  row.style.display = "flex";
-  row.style.alignItems = "center";
-  row.style.gap = "10px";
+  link.textContent = `${q.label} • ${q.embed}`;
 
-  const text = document.createElement("div");
-  text.style.flex = "1";
-  text.style.color = "#ff4444";
-  text.style.wordBreak = "break-all";
-  text.style.fontSize = "12px";
-  text.textContent = `${q.label} - ${q.embed}`;
+  link.style.display = "block";
+  link.style.color = "#ff4444";
+  link.style.fontSize = "12px";
+  link.style.wordBreak = "break-all";
 
-  const copyBtn = document.createElement("button");
-  copyBtn.innerHTML = copySVG();
-
-  copyBtn.style.border = "none";
-  copyBtn.style.background = "none";
-  copyBtn.style.cursor = "pointer";
-  copyBtn.style.padding = "4px";
-  copyBtn.style.display = "flex";
-  copyBtn.style.alignItems = "center";
-  copyBtn.style.justifyContent = "center";
-  copyBtn.style.color = "#ff4444";
-  copyBtn.style.width = "28px";
-  copyBtn.style.height = "28px";
-
-  copyBtn.onclick = () => {
+  link.onclick = () => {
     navigator.clipboard.writeText(q.embed);
   };
 
-  row.appendChild(text);
-  row.appendChild(copyBtn);
-  embedBox.appendChild(row);
+  embedBox.appendChild(link);
 });
 
 /* ---------------- TOGGLE EMBED BOX ---------------- */
