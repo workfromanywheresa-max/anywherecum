@@ -486,6 +486,22 @@ fetch(dataSource)
 
     reorderVideos(true);
 
+    /* ---------------- AUTO OPEN SHARED VIDEO ---------------- */
+if (videoIdFromURL) {
+  const target = videoElements[videoIdFromURL];
+
+  if (target) {
+    // scroll to video
+    target.box.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    // simulate click after small delay (ensures DOM ready)
+    setTimeout(() => {
+      const preview = target.box.querySelector("video");
+      if (preview) preview.click();
+    }, 500);
+  }
+}
+
     filtered.forEach(v => {
 
       onValue(ref(db, "views/" + v.id), snap => {
