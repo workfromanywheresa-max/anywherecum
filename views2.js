@@ -370,7 +370,7 @@ embedBox.style.gap = "0px";
 /* ---------------- COPY SVG ---------------- */
 function copySVG() {
   return `
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+  <svg viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" width="12" height="12">
     <rect x="3" y="5" width="13" height="13" rx="2"></rect>
     <rect x="9" y="1" width="13" height="13" rx="2"></rect>
   </svg>`;
