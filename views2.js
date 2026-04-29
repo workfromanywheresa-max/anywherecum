@@ -468,15 +468,37 @@ embedBtn.onclick = () => {
   textarea.value = iframeCode;
   textarea.readOnly = true;
 
-  const btn = document.createElement("button");
-  btn.className = "copyBtn";
-  btn.style.marginTop = "5px";
-  btn.style.width = "100%";
-  btn.style.padding = "6px";
-  btn.style.background = "#ff4444";
-  btn.style.color = "white";
-  btn.style.border = "none";
-  btn.textContent = "Copy Iframe";
+  const btn = document.createElement("div");
+btn.style.marginTop = "5px";
+btn.style.display = "flex";
+btn.style.justifyContent = "flex-end";
+btn.style.cursor = "pointer";
+
+const icon = document.createElement("div");
+icon.innerHTML = copySVG();
+
+icon.style.width = "30px";
+icon.style.height = "30px";
+icon.style.display = "flex";
+icon.style.alignItems = "center";
+icon.style.justifyContent = "center";
+icon.style.background = "#ff4444";
+icon.style.borderRadius = "6px";
+icon.style.padding = "6px";
+
+icon.onclick = async () => {
+  try {
+    await navigator.clipboard.writeText(iframeCode);
+    icon.style.background = "#00c853"; // optional success color
+    setTimeout(() => {
+      icon.style.background = "#ff4444";
+    }, 800);
+  } catch (err) {
+    console.error("Copy failed:", err);
+  }
+};
+
+btn.appendChild(icon);
 
   btn.onclick = async () => {
     try {
