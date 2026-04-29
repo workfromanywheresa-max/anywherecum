@@ -431,7 +431,8 @@ btnRow.style.gap = "10px";
 
 btnRow.appendChild(downloadBtn);
 btnRow.appendChild(shareBtn);
-
+btnRow.appendChild(embedBtn);
+  
 actionBox.appendChild(btnRow);
 actionBox.appendChild(downloadBox);
 actionBox.appendChild(shareBox);
