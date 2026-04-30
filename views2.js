@@ -663,10 +663,19 @@ likeBtn.style.display = "flex";
 likeBtn.style.alignItems = "center";
 likeBtn.style.justifyContent = "center";
 likeBtn.style.cursor = "pointer";
-likeBtn.style.border = "1px solid white";
-likeBtn.style.borderRadius = "50%";
-likeBtn.style.padding = "4px";
 
+likeBtn.style.display = "flex";
+likeBtn.style.alignItems = "center";
+likeBtn.style.gap = "6px";
+
+likeBtn.style.border = "1px solid white";
+likeBtn.style.borderRadius = "6px";
+likeBtn.style.padding = "6px 10px";
+
+likeBtn.style.cursor = "pointer";
+likeBtn.style.userSelect = "none";
+likeBtn.style.background = "transparent";
+  
 /* YOUR SVG */
 likeBtn.innerHTML = `
 <svg xmlns="http://www.w3.org/2000/svg"
