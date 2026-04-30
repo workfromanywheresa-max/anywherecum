@@ -731,35 +731,6 @@ btnRow.appendChild(downloadBtn);
 btnRow.appendChild(donateBtn); // ✅ ADD THIS LINE
 btnRow.appendChild(likeWrapper);
   
-const likeWrapper = document.createElement("div");
-likeWrapper.style.display = "flex";
-likeWrapper.style.alignItems = "center";
-likeWrapper.style.gap = "5px";
-likeWrapper.style.cursor = "pointer";
-
-/* SVG BUTTON */
-const likeBtn = document.createElement("img");
-likeBtn.src = "https://images.icon-icons.com/688/SVG/like-thumbs-up-hand-social-media_icon-icons.com_61429.svg";
-likeBtn.style.width = "26px";
-likeBtn.style.height = "26px";
-
-/* NUMBER */
-const likeCount = document.createElement("span");
-likeCount.style.color = "white";
-likeCount.style.fontSize = "14px";
-likeCount.textContent = "0";
-
-/* CLICK */
-likeBtn.onclick = () => {
-  toggleLike(video.id, likeCount, likeBtn);
-};
-
-/* LIVE LOAD */
-updateLikeCount(video.id, likeCount);
-
-likeWrapper.appendChild(likeBtn);
-likeWrapper.appendChild(likeCount);
-  
 actionBox.appendChild(btnRow);
 actionBox.appendChild(shareBox);
 
