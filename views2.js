@@ -835,12 +835,13 @@ const btnRow = document.createElement("div");
 btnRow.style.display = "flex";
 btnRow.style.width = "100%";
 btnRow.style.alignItems = "center";
-btnRow.style.justifyContent = "space-between";
+btnRow.style.justifyContent = "flex-start"; // change from space-between
 
 /* LEFT SIDE (all buttons) */
 const leftGroup = document.createElement("div");
 leftGroup.style.display = "flex";
 leftGroup.style.gap = "10px";
+leftGroup.style.alignItems = "center";
 
 leftGroup.appendChild(shareBtn);
 leftGroup.appendChild(embedBtn);
@@ -852,12 +853,18 @@ const rightGroup = document.createElement("div");
 rightGroup.style.display = "flex";
 rightGroup.style.alignItems = "center";
 
-/* IMPORTANT: no marginLeft auto here */
+/* 🔥 PUSH TO FAR RIGHT EDGE */
+rightGroup.style.marginLeft = "auto";
+
 rightGroup.appendChild(likeWrapper);
 
 /* assemble */
 btnRow.appendChild(leftGroup);
 btnRow.appendChild(rightGroup);
+
+/* IMPORTANT: ensure parent stretches full width */
+actionBox.style.width = "100%";
+actionBox.style.display = "block";
 
 /* mount into UI */
 actionBox.appendChild(btnRow);
@@ -865,8 +872,8 @@ actionBox.appendChild(shareBox);
 
 box.appendChild(actionBox);
 
-return box; 
-}
+return box;
+  }
 
 /* ---------------- UI UPDATE (TRENDING LOGIC HERE) ---------------- */
 function updateUI(id) {
