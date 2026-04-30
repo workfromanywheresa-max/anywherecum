@@ -600,6 +600,7 @@ embedBtn.onclick = () => {
   embedModal.style.display = "flex";
   history.pushState({ embedOpen: true }, "");
 };
+  
  const likeWrapper = document.createElement("div");
 likeWrapper.style.display = "flex";
 likeWrapper.style.alignItems = "center";
@@ -607,11 +608,33 @@ likeWrapper.style.gap = "5px";
 likeWrapper.style.cursor = "pointer";
 
 /* SVG BUTTON */
-const likeBtn = document.createElement("img");
-likeBtn.src = "https://images.icon-icons.com/688/SVG/like-thumbs-up-hand-social-media_icon-icons.com_61429.svg";
+const likeBtn = document.createElement("div");
 likeBtn.style.width = "26px";
 likeBtn.style.height = "26px";
+likeBtn.style.display = "flex";
+likeBtn.style.alignItems = "center";
+likeBtn.style.justifyContent = "center";
+likeBtn.style.cursor = "pointer";
 
+/* YOUR SVG */
+likeBtn.innerHTML = `
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 64 64"
+     width="26"
+     height="26"
+     fill="#ffffff">
+  <g>
+    <g transform="translate(78, 528)">
+      <path d="M-22-495.6c0-3.2-2.5-4.9-6-4.9h-10.1c0.7-2.7,1.1-5.3,1.1-7.5
+      c0-8.7-2.4-10.5-4.5-10.5c-1.4,0-2.4,0.1-3.8,1c-0.4,0.2-0.6,0.6-0.7,1l-1.5,8.1
+      c-1.6,4.3-5.7,8-9,10.5v21.4c1.1,0,2.5,0.6,3.8,1.3c1.6,0.8,3.3,1.6,5.2,1.6h14.3
+      c3,0,5.2-2.4,5.2-4.5c0-0.4,0-0.8-0.1-1.1c1.9-0.7,3.1-2.3,3.1-4.1c0-0.9-0.2-1.7-0.5-2.3
+      c1.1-0.8,2.3-2.1,2.3-3.7c0-0.8-0.4-1.8-1-2.5C-22.9-492.8-22-494.2-22-495.6z"/>
+    </g>
+  </g>
+</svg>
+`;
+  
 /* NUMBER */
 const likeCount = document.createElement("span");
 likeCount.style.color = "white";
@@ -628,7 +651,6 @@ updateLikeCount(video.id, likeCount);
 
 likeWrapper.appendChild(likeBtn);
 likeWrapper.appendChild(likeCount); 
-
   
 /* ---------------- TOGGLE EMBED BOX ---------------- */
 const donateBtn = document.createElement("button");
