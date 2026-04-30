@@ -835,7 +835,7 @@ const btnRow = document.createElement("div");
 btnRow.style.display = "flex";
 btnRow.style.width = "100%";
 btnRow.style.alignItems = "center";
-btnRow.style.justifyContent = "space-between"; // 🔥 key change
+btnRow.style.justifyContent = "space-between";
 
 /* LEFT SIDE (all buttons) */
 const leftGroup = document.createElement("div");
@@ -852,16 +852,20 @@ const rightGroup = document.createElement("div");
 rightGroup.style.display = "flex";
 rightGroup.style.alignItems = "center";
 
-/* IMPORTANT: remove marginLeft:auto (delete this line)
-likeWrapper.style.marginLeft = "auto";
-*/
-
+/* IMPORTANT: no marginLeft auto here */
 rightGroup.appendChild(likeWrapper);
 
 /* assemble */
 btnRow.appendChild(leftGroup);
 btnRow.appendChild(rightGroup);
-  
+
+/* mount into UI */
+actionBox.appendChild(btnRow);
+actionBox.appendChild(shareBox);
+
+box.appendChild(actionBox);
+
+return box;  
 
 /* ---------------- UI UPDATE (TRENDING LOGIC HERE) ---------------- */
 function updateUI(id) {
