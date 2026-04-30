@@ -865,7 +865,8 @@ actionBox.appendChild(shareBox);
 
 box.appendChild(actionBox);
 
-return box;  
+return box; 
+}
 
 /* ---------------- UI UPDATE (TRENDING LOGIC HERE) ---------------- */
 function updateUI(id) {
