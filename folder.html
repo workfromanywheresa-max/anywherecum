@@ -878,7 +878,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   /* =========================
-     1. INSTANT NO-BLINK CSS BLOCK
+     1. INSTANT CSS BLOCK (NO FLASH)
   ========================= */
 
   const style = document.createElement("style");
@@ -898,7 +898,9 @@ document.addEventListener("DOMContentLoaded", function () {
     #onesignal-slidedown-container,
     #google_translate_element,
     a[href*="Instruction_On_How_To_Watch"],
-    a[href*="streamtape"] {
+    a[href*="streamtape"],
+    .shareBtn,
+    .embedBtn {
       display: none !important;
       visibility: hidden !important;
       opacity: 0 !important;
@@ -908,16 +910,10 @@ document.addEventListener("DOMContentLoaded", function () {
   document.head.appendChild(style);
 
   /* =========================
-     2. BLOCK AD + POPUNDER SCRIPTS (VIP ONLY)
+     2. BLOCK AD SCRIPTS
   ========================= */
 
-  const blockedKeywords = [
-    "ads",
-    "profit",
-    "cpm",
-    "pop",
-    "banner"
-  ];
+  const blockedKeywords = ["ads", "profit", "cpm", "pop", "banner"];
 
   const blockedExactScripts = [
     "https://pl28956604.profitablecpmratenetwork.com/c7/ba/1d/c7ba1d0cd42bd7cbdf437d03bd000409.js"
@@ -925,48 +921,42 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function isBlockedScript(src) {
     const lower = src.toLowerCase();
-
     return (
       blockedKeywords.some(k => lower.includes(k)) ||
       blockedExactScripts.includes(src)
     );
   }
 
-  const observer = new MutationObserver((mutations) => {
-  for (const m of mutations) {
-    for (const node of m.addedNodes) {
+  /* =========================
+     3. HARD OBSERVER (FULL DOM SCAN)
+  ========================= */
 
-      /* ✅ REMOVE SHARE + EMBED BUTTONS */
-      if (
-        node.classList &&
-        (node.classList.contains("shareBtn") ||
-         node.classList.contains("embedBtn"))
-      ) {
-        console.log("🚫 VIP REMOVED BUTTON:", node.className);
-        node.remove();
-        continue; // skip further checks for this node
+  const observer = new MutationObserver(() => {
+    document.querySelectorAll(`
+      .shareBtn,
+      .embedBtn,
+      [class*="share"],
+      [class*="embed"]
+    `).forEach(el => {
+      console.log("🚫 VIP REMOVED:", el.className);
+      el.remove();
+    });
+
+    document.querySelectorAll("script").forEach(script => {
+      if (script.src && isBlockedScript(script.src)) {
+        console.log("🚫 BLOCKED SCRIPT:", script.src);
+        script.remove();
       }
+    });
 
-      /* EXISTING SCRIPT BLOCK */
-      if (node.tagName === "SCRIPT" && node.src) {
-        if (isBlockedScript(node.src)) {
-          console.log("🚫 VIP BLOCKED SCRIPT:", node.src);
-          node.remove();
-        }
+    document.querySelectorAll("iframe").forEach(iframe => {
+      const src = iframe.src || "";
+      if (src.includes("pop") || src.includes("profit") || src.includes("cpm")) {
+        console.log("🚫 BLOCKED IFRAME:", src);
+        iframe.remove();
       }
-
-      /* EXISTING IFRAME BLOCK */
-      if (node.tagName === "IFRAME" && node.src) {
-        const src = node.src.toLowerCase();
-        if (src.includes("pop") || src.includes("profit") || src.includes("cpm")) {
-          console.log("🚫 VIP BLOCKED IFRAME:", node.src);
-          node.remove();
-        }
-      }
-
-    }
-  }
-});
+    });
+  });
 
   observer.observe(document.documentElement, {
     childList: true,
@@ -974,33 +964,31 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   /* =========================
-     3. SAFETY CLEANUP LOOP
+     4. SAFETY CLEANUP LOOP
   ========================= */
 
   function removeVIPNoise() {
-  const selectors = [
-    "#topAdMain",
-    "#bottom-ad-wrapper",
-    "#adContainerTop",
-    "[id*='ad']",
-    "#topBanner",
-    ".onesignal-bell-launcher",
-    ".onesignal-bell-container",
-    "#google_translate_element",
-
-    /* ✅ ADD THESE */
-    ".shareBtn",
-    ".embedBtn"
-  ];
-
-  selectors.forEach(sel => {
-    document.querySelectorAll(sel).forEach(el => el.remove());
-  });
-}
+    document.querySelectorAll(`
+      #topAdMain,
+      #bottom-ad-wrapper,
+      #adContainerTop,
+      [id*='ad'],
+      #topBanner,
+      .onesignal-bell-launcher,
+      .onesignal-bell-container,
+      #google_translate_element,
+      .shareBtn,
+      .embedBtn,
+      [class*="share"],
+      [class*="embed"]
+    `).forEach(el => el.remove());
+  }
 
   removeVIPNoise();
+  window.addEventListener("DOMContentLoaded", removeVIPNoise);
   window.addEventListener("load", removeVIPNoise);
-  setInterval(removeVIPNoise, 5000);
+
+  setInterval(removeVIPNoise, 2000);
 
 })();
   </script>
