@@ -657,15 +657,14 @@ likeWrapper.style.cursor = "pointer";
 
 /* SVG BUTTON */
 const likeBtn = document.createElement("div");
+likeWrapper.style.width = "46px";
+likeWrapper.style.height = "32px";
 likeWrapper.style.border = "1px solid white";
 likeWrapper.style.borderRadius = "0px";
-likeWrapper.style.padding = "4px 8px";
 likeWrapper.style.display = "flex";
 likeWrapper.style.alignItems = "center";
 likeWrapper.style.justifyContent = "center";
-likeWrapper.style.gap = "5px";
-likeWrapper.style.width = "fit-content";
-likeWrapper.style.height = "fit-content";
+likeWrapper.style.gap = "4px";
 
 /* YOUR SVG */
 likeBtn.innerHTML = `
