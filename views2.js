@@ -776,8 +776,11 @@ actionBox.style.gap = "5px";
 const btnRow = document.createElement("div");
 btnRow.style.display = "flex";
 btnRow.style.gap = "10px";
+btnRow.style.display = "flex";
 btnRow.style.width = "100%";
-btnRow.style.justifyContent = "flex-start";
+
+likeWrapper.style.marginLeft = "auto";
+likeWrapper.style.flexShrink = "0";
 
 btnRow.appendChild(shareBtn);
 btnRow.appendChild(embedBtn);
