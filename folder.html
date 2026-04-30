@@ -933,28 +933,40 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   const observer = new MutationObserver((mutations) => {
-    for (const m of mutations) {
-      for (const node of m.addedNodes) {
+  for (const m of mutations) {
+    for (const node of m.addedNodes) {
 
-        if (node.tagName === "SCRIPT" && node.src) {
-          if (isBlockedScript(node.src)) {
-            console.log("🚫 VIP BLOCKED SCRIPT:", node.src);
-            node.remove();
-          }
-        }
-
-        // Extra protection: iframe popunders
-        if (node.tagName === "IFRAME" && node.src) {
-          const src = node.src.toLowerCase();
-          if (src.includes("pop") || src.includes("profit") || src.includes("cpm")) {
-            console.log("🚫 VIP BLOCKED IFRAME:", node.src);
-            node.remove();
-          }
-        }
-
+      /* ✅ REMOVE SHARE + EMBED BUTTONS */
+      if (
+        node.classList &&
+        (node.classList.contains("shareBtn") ||
+         node.classList.contains("embedBtn"))
+      ) {
+        console.log("🚫 VIP REMOVED BUTTON:", node.className);
+        node.remove();
+        continue; // skip further checks for this node
       }
+
+      /* EXISTING SCRIPT BLOCK */
+      if (node.tagName === "SCRIPT" && node.src) {
+        if (isBlockedScript(node.src)) {
+          console.log("🚫 VIP BLOCKED SCRIPT:", node.src);
+          node.remove();
+        }
+      }
+
+      /* EXISTING IFRAME BLOCK */
+      if (node.tagName === "IFRAME" && node.src) {
+        const src = node.src.toLowerCase();
+        if (src.includes("pop") || src.includes("profit") || src.includes("cpm")) {
+          console.log("🚫 VIP BLOCKED IFRAME:", node.src);
+          node.remove();
+        }
+      }
+
     }
-  });
+  }
+});
 
   observer.observe(document.documentElement, {
     childList: true,
@@ -966,21 +978,25 @@ document.addEventListener("DOMContentLoaded", function () {
   ========================= */
 
   function removeVIPNoise() {
-    const selectors = [
-      "#topAdMain",
-      "#bottom-ad-wrapper",
-      "#adContainerTop",
-      "[id*='ad']",
-      "#topBanner",
-      ".onesignal-bell-launcher",
-      ".onesignal-bell-container",
-      "#google_translate_element"
-    ];
+  const selectors = [
+    "#topAdMain",
+    "#bottom-ad-wrapper",
+    "#adContainerTop",
+    "[id*='ad']",
+    "#topBanner",
+    ".onesignal-bell-launcher",
+    ".onesignal-bell-container",
+    "#google_translate_element",
 
-    selectors.forEach(sel => {
-      document.querySelectorAll(sel).forEach(el => el.remove());
-    });
-  }
+    /* ✅ ADD THESE */
+    ".shareBtn",
+    ".embedBtn"
+  ];
+
+  selectors.forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => el.remove());
+  });
+}
 
   removeVIPNoise();
   window.addEventListener("load", removeVIPNoise);
