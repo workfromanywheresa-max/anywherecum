@@ -663,6 +663,9 @@ likeBtn.style.display = "flex";
 likeBtn.style.alignItems = "center";
 likeBtn.style.justifyContent = "center";
 likeBtn.style.cursor = "pointer";
+likeBtn.style.border = "1px solid white";
+likeBtn.style.borderRadius = "50%";
+likeBtn.style.padding = "4px";
 
 /* YOUR SVG */
 likeBtn.innerHTML = `
