@@ -651,9 +651,9 @@ likeBtn.onclick = () => {
   const isLiked = likeBtn.dataset.liked === "true";
 
   if (isLiked) {
-    // UNLIKE → back to black outline
+    // UNLIKE → back to white outline
     icon.setAttribute("fill", "none");
-    icon.setAttribute("stroke", "black");
+    icon.setAttribute("stroke", "white");
     likeBtn.dataset.liked = "false";
   } else {
     // LIKE → white filled
@@ -664,7 +664,7 @@ likeBtn.onclick = () => {
     toggleLike(video.id, likeCount, likeBtn);
   }
 };
-
+  
 /* LIVE LOAD */
 updateLikeCount(video.id, likeCount);
 
