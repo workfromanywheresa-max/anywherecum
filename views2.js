@@ -729,7 +729,8 @@ btnRow.appendChild(shareBtn);
 btnRow.appendChild(embedBtn);
 btnRow.appendChild(downloadBtn);
 btnRow.appendChild(donateBtn); // ✅ ADD THIS LINE
-
+btnRow.appendChild(likeWrapper);
+  
 const likeWrapper = document.createElement("div");
 likeWrapper.style.display = "flex";
 likeWrapper.style.alignItems = "center";
