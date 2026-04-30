@@ -118,7 +118,7 @@ document.addEventListener("click", (e) => {
 });
 
 downloadModal.onclick = (e) => {
-  if (e.target === dlModal) {
+  if (e.target === downloadModal) {
     downloadModal.style.display = "none";
   }
 };
