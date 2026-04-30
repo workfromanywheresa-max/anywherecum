@@ -170,6 +170,26 @@ const videoDataMap = {};
 const videoElements = {};
 let currentPreviewVideo = null;
 
+function toggleLike(videoId, likeCountEl, likeBtn) {
+  const likeRef = ref(db, `likes/${videoId}/${visitId}`);
+
+  runTransaction(likeRef, (current) => {
+    return current ? null : true; // toggle like
+  }).then(() => {
+    updateLikeCount(videoId, likeCountEl);
+  });
+}
+
+function updateLikeCount(videoId, el) {
+  const countRef = ref(db, `likes/${videoId}`);
+
+  onValue(countRef, (snap) => {
+    const data = snap.val() || {};
+    const count = Object.keys(data).length;
+    el.textContent = count;
+  });
+}
+
 /* ---------------- STOP VIDEO ---------------- */
 function stopVideo(video) {
   if (!video) return;
