@@ -658,7 +658,7 @@ likeWrapper.style.cursor = "pointer";
 /* SVG BUTTON */
 const likeBtn = document.createElement("div");
 likeWrapper.style.width = "46px";
-likeWrapper.style.height = "32px";
+likeWrapper.style.height = "28px";
 likeWrapper.style.border = "1px solid white";
 likeWrapper.style.borderRadius = "6px"; // 👈 rounded corners
 likeWrapper.style.display = "flex";
