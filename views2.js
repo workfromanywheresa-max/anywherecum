@@ -606,6 +606,7 @@ likeWrapper.style.display = "flex";
 likeWrapper.style.alignItems = "center";
 likeWrapper.style.gap = "5px";
 likeWrapper.style.cursor = "pointer";
+likeWrapper.style.marginLeft = "auto";
 
 /* SVG BUTTON */
 const likeBtn = document.createElement("div");
