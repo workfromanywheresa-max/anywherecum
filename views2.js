@@ -622,7 +622,10 @@ likeBtn.innerHTML = `
      viewBox="0 0 64 64"
      width="26"
      height="26"
-     fill="#ffffff">
+     fill="none"
+     stroke="black"
+     stroke-width="3"
+     id="likeIcon">
   <g>
     <g transform="translate(78, 528)">
       <path d="M-22-495.6c0-3.2-2.5-4.9-6-4.9h-10.1c0.7-2.7,1.1-5.3,1.1-7.5
@@ -643,7 +646,23 @@ likeCount.textContent = "0";
 
 /* CLICK */
 likeBtn.onclick = () => {
-  toggleLike(video.id, likeCount, likeBtn);
+  const icon = likeBtn.querySelector("#likeIcon");
+
+  const isLiked = likeBtn.dataset.liked === "true";
+
+  if (isLiked) {
+    // UNLIKE → back to black outline
+    icon.setAttribute("fill", "none");
+    icon.setAttribute("stroke", "black");
+    likeBtn.dataset.liked = "false";
+  } else {
+    // LIKE → white filled
+    icon.setAttribute("fill", "white");
+    icon.setAttribute("stroke", "white");
+    likeBtn.dataset.liked = "true";
+
+    toggleLike(video.id, likeCount, likeBtn);
+  }
 };
 
 /* LIVE LOAD */
