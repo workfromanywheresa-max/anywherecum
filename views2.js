@@ -198,7 +198,7 @@ function updateLikeCount(videoId, el) {
     const data = snap.val() || {};
     const count = Object.keys(data).length;
 
-    el.textContent = count;
+    el.textContent = formatViews(count);
     setLikeCache(videoId, count);
   });
 }
