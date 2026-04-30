@@ -668,8 +668,8 @@ likeBtn.style.cursor = "pointer";
 likeBtn.innerHTML = `
 <svg xmlns="http://www.w3.org/2000/svg"
      viewBox="0 0 64 64"
-     width="26"
-     height="26"
+     width="20"
+     height="20"
      fill="none"
      stroke="white"
      stroke-width="3"
@@ -689,7 +689,7 @@ likeBtn.innerHTML = `
 /* NUMBER */
 const likeCount = document.createElement("span");
 likeCount.style.color = "white";
-likeCount.style.fontSize = "14px";
+likeCount.style.fontSize = "10px";
 likeCount.textContent = "0";
 
 /* CLICK */
