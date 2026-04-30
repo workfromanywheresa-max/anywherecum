@@ -207,6 +207,20 @@ function bindLikeState(videoId, likeBtn) {
   const icon = likeBtn.querySelector("#likeIcon");
   const likeRef = ref(db, `likes/${videoId}/${visitId}`);
 
+  // 🔥 STEP 1: apply cached state instantly
+  const cached = localStorage.getItem(`liked_${videoId}`);
+
+  if (cached === "1") {
+    icon.setAttribute("fill", "white");
+    icon.setAttribute("stroke", "white");
+    likeBtn.dataset.liked = "true";
+  } else if (cached === "0") {
+    icon.setAttribute("fill", "none");
+    icon.setAttribute("stroke", "white");
+    likeBtn.dataset.liked = "false";
+  }
+
+  // 🔥 STEP 2: sync with Firebase
   onValue(likeRef, (snap) => {
     const isLiked = snap.exists();
 
@@ -214,10 +228,12 @@ function bindLikeState(videoId, likeBtn) {
       icon.setAttribute("fill", "white");
       icon.setAttribute("stroke", "white");
       likeBtn.dataset.liked = "true";
+      localStorage.setItem(`liked_${videoId}`, "1");
     } else {
       icon.setAttribute("fill", "none");
       icon.setAttribute("stroke", "white");
       likeBtn.dataset.liked = "false";
+      localStorage.setItem(`liked_${videoId}`, "0");
     }
   });
 }
@@ -680,6 +696,9 @@ likeCount.textContent = "0";
 likeBtn.onclick = () => {
   const likeRef = ref(db, `likes/${video.id}/${visitId}`);
   const isLiked = likeBtn.dataset.liked === "true";
+
+  // 🔥 CACHE FIRST (instant UI)
+  localStorage.setItem(`liked_${video.id}`, !isLiked ? "1" : "0");
 
   runTransaction(likeRef, () => {
     return isLiked ? null : true;
