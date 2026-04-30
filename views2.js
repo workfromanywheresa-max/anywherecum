@@ -649,8 +649,8 @@ likeBtn.onclick = () => {
 /* LIVE LOAD */
 updateLikeCount(video.id, likeCount);
 
-likeWrapper.appendChild(likeBtn);
-likeWrapper.appendChild(likeCount); 
+likeWrapper.appendChild(likeCount);
+likeWrapper.appendChild(likeBtn); 
   
 /* ---------------- TOGGLE EMBED BOX ---------------- */
 const donateBtn = document.createElement("button");
