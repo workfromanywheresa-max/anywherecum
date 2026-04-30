@@ -1,11 +1,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { getDatabase, ref, onValue, set, runTransaction } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-/* ---------------- FIREBASE ---------------- */ 
 const app = initializeApp({
   apiKey: "AIzaSyCEX...",
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
 });
+
 const db = getDatabase(app); 
 
 const embedModal = document.createElement("div");
