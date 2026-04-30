@@ -165,6 +165,14 @@ function getCache(key) {
   return cache[key] || localStorage.getItem(key);
 }
 
+function getLikeCache(videoId) {
+  return Number(localStorage.getItem("likes_" + videoId)) || 0;
+}
+
+function setLikeCache(videoId, value) {
+  localStorage.setItem("likes_" + videoId, value);
+}
+
 /* ---------------- STATE ---------------- */
 const videoDataMap = {};
 const videoElements = {};
@@ -181,12 +189,17 @@ function toggleLike(videoId, likeCountEl, likeBtn) {
 }
 
 function updateLikeCount(videoId, el) {
+  // show instantly (no 0 flash)
+  el.textContent = getLikeCache(videoId);
+
   const countRef = ref(db, `likes/${videoId}`);
 
   onValue(countRef, (snap) => {
     const data = snap.val() || {};
     const count = Object.keys(data).length;
+
     el.textContent = count;
+    setLikeCache(videoId, count);
   });
 }
 
