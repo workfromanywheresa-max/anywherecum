@@ -92,7 +92,7 @@ downloadModal.innerHTML = `
     color:white;
     position:relative;
   ">
-    <button id="closeDownloadModal" style="
+    <button id="closeDlModal" style="
       position:absolute;
       top:10px;
       right:10px;
@@ -104,7 +104,7 @@ downloadModal.innerHTML = `
     ">✕</button>
 
     <h3 style="margin-bottom:10px;">Download Options</h3>
-    <div id="downloadContent"></div>
+    <div id="dlContent"></div>
   </div>
 `;
 
@@ -112,13 +112,13 @@ document.body.appendChild(downloadModal);
 
 /* close handlers */
 document.addEventListener("click", (e) => {
-  if (e.target.id === "closeDownloadModal") {
+  if (e.target.id === "closeDlModal") {
     downloadModal.style.display = "none";
   }
 });
 
 downloadModal.onclick = (e) => {
-  if (e.target === downloadModal) {
+  if (e.target === dlModal) {
     downloadModal.style.display = "none";
   }
 };
@@ -661,7 +661,7 @@ shareBtn.onclick = async () => {
 
   embedModal.style.display = "none";
 
-  const container = document.getElementById("downloadContent");
+  const container = document.getElementById("dlContent");
   container.innerHTML = "";
 
   video.qualities.forEach(q => {
