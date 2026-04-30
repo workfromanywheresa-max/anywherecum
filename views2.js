@@ -833,10 +833,11 @@ actionBox.style.gap = "5px";
 /* buttons row */
 const btnRow = document.createElement("div");
 btnRow.style.display = "flex";
-btnRow.style.gap = "10px";
 btnRow.style.width = "100%";
 btnRow.style.alignItems = "center";
-  
+btnRow.style.justifyContent = "space-between"; // 🔥 key change
+
+/* LEFT SIDE (all buttons) */
 const leftGroup = document.createElement("div");
 leftGroup.style.display = "flex";
 leftGroup.style.gap = "10px";
@@ -846,19 +847,21 @@ leftGroup.appendChild(embedBtn);
 leftGroup.appendChild(downloadBtn);
 leftGroup.appendChild(donateBtn);
 
-btnRow.appendChild(leftGroup);
+/* RIGHT SIDE (LIKE ONLY) */
+const rightGroup = document.createElement("div");
+rightGroup.style.display = "flex";
+rightGroup.style.alignItems = "center";
 
-/* THIS is the key */
+/* IMPORTANT: remove marginLeft:auto (delete this line)
 likeWrapper.style.marginLeft = "auto";
-btnRow.appendChild(likeWrapper);
-  
-actionBox.appendChild(btnRow);
-actionBox.appendChild(shareBox);
+*/
 
-box.appendChild(actionBox);
+rightGroup.appendChild(likeWrapper);
+
+/* assemble */
+btnRow.appendChild(leftGroup);
+btnRow.appendChild(rightGroup);
   
-  return box;
-}
 
 /* ---------------- UI UPDATE (TRENDING LOGIC HERE) ---------------- */
 function updateUI(id) {
