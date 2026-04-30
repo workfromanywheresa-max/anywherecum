@@ -623,7 +623,7 @@ likeBtn.innerHTML = `
      width="26"
      height="26"
      fill="none"
-     stroke="black"
+     stroke="white"
      stroke-width="3"
      id="likeIcon">
   <g>
