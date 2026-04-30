@@ -189,28 +189,23 @@ function toggleLike(videoId, likeCountEl, likeBtn) {
 }
 
 function updateLikeCount(videoId, el) {
-  el.textContent = getLikeCountCache(videoId);
+  // show instantly (no 0 flash)
+  el.textContent = getLikeCache(videoId);
 
   const countRef = ref(db, `likes/${videoId}`);
 
   onValue(countRef, (snap) => {
-    const count = Object.keys(snap.val() || {}).length;
+    const data = snap.val() || {};
+    const count = Object.keys(data).length;
 
     el.textContent = count;
-    setLikeCountCache(videoId, count);
+    setLikeCache(videoId, count);
   });
 }
 
 function bindLikeState(videoId, likeBtn) {
   const icon = likeBtn.querySelector("#likeIcon");
   const likeRef = ref(db, `likes/${videoId}/${visitId}`);
-
-  // 🔥 instant UI from cache
-  if (getLikedState(videoId)) {
-    icon.setAttribute("fill", "white");
-    icon.setAttribute("stroke", "white");
-    likeBtn.dataset.liked = "true";
-  }
 
   onValue(likeRef, (snap) => {
     const isLiked = snap.exists();
@@ -219,12 +214,10 @@ function bindLikeState(videoId, likeBtn) {
       icon.setAttribute("fill", "white");
       icon.setAttribute("stroke", "white");
       likeBtn.dataset.liked = "true";
-      setLikedState(videoId, true);
     } else {
       icon.setAttribute("fill", "none");
       icon.setAttribute("stroke", "white");
       likeBtn.dataset.liked = "false";
-      setLikedState(videoId, false);
     }
   });
 }
