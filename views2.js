@@ -778,17 +778,22 @@ actionBox.style.gap = "5px";
 const btnRow = document.createElement("div");
 btnRow.style.display = "flex";
 btnRow.style.gap = "10px";
-btnRow.style.display = "flex";
 btnRow.style.width = "100%";
-
-likeWrapper.style.flex = "1";
-likeWrapper.style.display = "flex";
-likeWrapper.style.justifyContent = "flex-end";
+btnRow.style.alignItems = "center";
   
-btnRow.appendChild(shareBtn);
-btnRow.appendChild(embedBtn);
-btnRow.appendChild(downloadBtn);
-btnRow.appendChild(donateBtn); // ✅ ADD THIS LINE
+const leftGroup = document.createElement("div");
+leftGroup.style.display = "flex";
+leftGroup.style.gap = "10px";
+
+leftGroup.appendChild(shareBtn);
+leftGroup.appendChild(embedBtn);
+leftGroup.appendChild(downloadBtn);
+leftGroup.appendChild(donateBtn);
+
+btnRow.appendChild(leftGroup);
+
+/* THIS is the key */
+likeWrapper.style.marginLeft = "auto";
 btnRow.appendChild(likeWrapper);
   
 actionBox.appendChild(btnRow);
