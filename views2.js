@@ -190,6 +190,25 @@ function updateLikeCount(videoId, el) {
   });
 }
 
+function bindLikeState(videoId, likeBtn) {
+  const icon = likeBtn.querySelector("#likeIcon");
+  const likeRef = ref(db, `likes/${videoId}/${visitId}`);
+
+  onValue(likeRef, (snap) => {
+    const isLiked = snap.exists();
+
+    if (isLiked) {
+      icon.setAttribute("fill", "white");
+      icon.setAttribute("stroke", "white");
+      likeBtn.dataset.liked = "true";
+    } else {
+      icon.setAttribute("fill", "none");
+      icon.setAttribute("stroke", "white");
+      likeBtn.dataset.liked = "false";
+    }
+  });
+}
+
 /* ---------------- STOP VIDEO ---------------- */
 function stopVideo(video) {
   if (!video) return;
@@ -646,31 +665,20 @@ likeCount.textContent = "0";
 
 /* CLICK */
 likeBtn.onclick = () => {
-  const icon = likeBtn.querySelector("#likeIcon");
-
+  const likeRef = ref(db, `likes/${video.id}/${visitId}`);
   const isLiked = likeBtn.dataset.liked === "true";
 
-  if (isLiked) {
-    // UNLIKE → back to white outline
-    icon.setAttribute("fill", "none");
-    icon.setAttribute("stroke", "white");
-    likeBtn.dataset.liked = "false";
-  } else {
-    // LIKE → white filled
-    icon.setAttribute("fill", "white");
-    icon.setAttribute("stroke", "white");
-    likeBtn.dataset.liked = "true";
-
-    toggleLike(video.id, likeCount, likeBtn);
-  }
+  runTransaction(likeRef, () => {
+    return isLiked ? null : true;
+  });
 };
   
-/* LIVE LOAD */
-updateLikeCount(video.id, likeCount);
+  likeWrapper.appendChild(likeCount);
+likeWrapper.appendChild(likeBtn);
 
-likeWrapper.appendChild(likeCount);
-likeWrapper.appendChild(likeBtn); 
-  
+bindLikeState(video.id, likeBtn);
+updateLikeCount(video.id, likeCount);
+    
 /* ---------------- TOGGLE EMBED BOX ---------------- */
 const donateBtn = document.createElement("button");
 donateBtn.className = "donateBtn";
