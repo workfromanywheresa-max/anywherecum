@@ -878,7 +878,7 @@ rightGroup.style.display = "flex";
 rightGroup.style.alignItems = "center";
 
 rightGroup.style.alignSelf = "flex-start";
-rightGroup.style.marginTop = "-11px";
+rightGroup.style.marginTop = "-12px";
 
 /* 🔥 PUSH TO FAR RIGHT EDGE */
 rightGroup.style.marginLeft = "auto";
