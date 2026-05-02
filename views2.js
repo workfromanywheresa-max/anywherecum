@@ -282,6 +282,25 @@ function formatViews(num) {
   return num;
 }
 
+function timeAgo(timestamp) {
+  const now = Date.now();
+  const diff = now - Number(timestamp);
+
+  const sec = Math.floor(diff / 1000);
+  const min = Math.floor(sec / 60);
+  const hr = Math.floor(min / 60);
+  const day = Math.floor(hr / 24);
+  const month = Math.floor(day / 30);
+  const year = Math.floor(day / 365);
+
+  if (year > 0) return `${year}y ago`;
+  if (month > 0) return `${month}mo ago`;
+  if (day > 0) return `${day}d ago`;
+  if (hr > 0) return `${hr}h ago`;
+  if (min > 0) return `${min}m ago`;
+  return `just now`;
+  }
+
 /* ---------------- WORKER ---------------- */
 async function sendToWorker(videoId) {
   try {
@@ -853,13 +872,25 @@ leftGroup.appendChild(donateBtn);
 /* RIGHT SIDE (LIKE ONLY) */
 const rightGroup = document.createElement("div");
 rightGroup.style.display = "flex";
-rightGroup.style.alignItems = "center";
-
-/* 🔥 PUSH TO FAR RIGHT EDGE */
+rightGroup.style.flexDirection = "column";
+rightGroup.style.alignItems = "flex-end";
 rightGroup.style.marginLeft = "auto";
 
-rightGroup.appendChild(likeWrapper);
+/* TIME AGO LABEL */
+const timeLabel = document.createElement("div");
+timeLabel.style.fontSize = "10px";
+timeLabel.style.color = "#aaa";
+timeLabel.style.marginBottom = "4px";
 
+/* choose timestamp field */
+const timestamp =
+  video.lastUpdated || video.createdAt || Date.now();
+
+timeLabel.textContent = timeAgo(timestamp);
+
+rightGroup.appendChild(timeLabel);
+rightGroup.appendChild(likeWrapper);
+  
 /* assemble */
 btnRow.appendChild(leftGroup);
 btnRow.appendChild(rightGroup);
