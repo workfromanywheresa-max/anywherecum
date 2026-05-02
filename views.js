@@ -7,7 +7,7 @@ const firebaseConfig = {
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
 };
 
-const app = initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig); 
 const db = getDatabase(app);
 
 /* ================= WORKERS ================= */
