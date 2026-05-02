@@ -267,8 +267,6 @@ const db = getDatabase(app);
 function saveCache(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
 function loadCache(k){ return JSON.parse(localStorage.getItem(k) || "null"); }
 
-const DIFF_CACHE = "monthly_diff_cache";
-  
 const CACHE = {
   pages: "pages_cache",
   monthly: "monthly_cache",
@@ -367,37 +365,19 @@ function getKey(d){
 }
 
 function calculateMonthly(data){
-  const prev = loadCache("prev_page_counts") || {};
-  const monthly = loadCache(DIFF_CACHE) || {};
-
-  Object.entries(data || {}).forEach(([page, val])=>{
-    const current = val?.count || 0;
-    const old = prev[page] || 0;
-
-    const diff = current - old;
-
-    if(diff > 0){
-      // 🔥 use the page's timestamp, NOT current time
-      const d = parseDate(val.lastUpdated);
-
+  const m = {};
+  Object.values(data||{}).forEach(i=>{
+    if(i?.lastUpdated){
+      const d = parseDate(i.lastUpdated);
       if(d){
-        const key = getKey(d);
-
-        if(!monthly[key]) monthly[key] = 0;
-
-        monthly[key] += diff;
+        const k = getKey(d);
+        m[k] = (m[k]||0)+(i.count||0);
       }
     }
-
-    prev[page] = current;
   });
-
-  saveCache("prev_page_counts", prev);
-  saveCache(DIFF_CACHE, monthly);
-
-  return monthly;
+  return m;
 }
-  
+
 function renderMonthly(data){
   const sortedEntries = Object.entries(data || {}).sort(([aKey],[bKey]) => bKey.localeCompare(aKey));
 
@@ -688,4 +668,4 @@ startTaskStream();
   </script>
   
 </body>
-</html>
+  </html>
