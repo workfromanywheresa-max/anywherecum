@@ -356,8 +356,12 @@ const monthNames = ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AU
 
 function parseDate(str){
   if(!str) return null;
+
   const d = new Date(str);
-  return isNaN(d) ? null : d;
+
+  if (isNaN(d)) return null;
+
+  return d;
 }
 
 function getKey(d){
