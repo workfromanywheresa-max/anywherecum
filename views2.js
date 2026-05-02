@@ -897,7 +897,7 @@ timeText.style.top = "0";
 timeText.style.fontSize = "10px";
 timeText.style.color = "#aaa";
 timeText.style.whiteSpace = "nowrap";
-timeText.style.transform = "translateY(-4px)";
+timeText.style.transform = "translateY(-8px)";
 
 timeText.textContent = timeAgo(video.date);
 
