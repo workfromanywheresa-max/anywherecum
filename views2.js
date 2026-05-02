@@ -880,25 +880,28 @@ rightGroup.style.alignItems = "center";
 /* 🔥 PUSH TO FAR RIGHT EDGE */
 rightGroup.style.marginLeft = "auto";
 
-// TIME AGO TEXT
-const timeText = document.createElement("div");
-timeText.style.fontSize = "10px";
-timeText.style.color = "#aaa";
-timeText.style.marginBottom = "2px"; // smaller gap
-timeText.style.textAlign = "center";
-timeText.style.width = "auto"; // ❌ remove 100% stretch
-timeText.style.whiteSpace = "nowrap"; // keep it compact
-
-timeText.textContent = timeAgo(video.date);
-
-// WRAPPER FOR STACKING TIME + LIKE
+// WRAPPER FOR LIKE ONLY (keep it aligned with other buttons)
 const likeStack = document.createElement("div");
 likeStack.style.display = "flex";
 likeStack.style.flexDirection = "column";
 likeStack.style.alignItems = "center";
 likeStack.style.justifyContent = "center";
-likeStack.style.lineHeight = "1"; // prevents extra vertical space
+likeStack.style.position = "relative";
+likeStack.style.paddingTop = "12px"; // space for time text
+likeStack.style.lineHeight = "1";
 
+// TIME AGO (floating above, NOT affecting layout)
+const timeText = document.createElement("div");
+timeText.style.position = "absolute";
+timeText.style.top = "0";
+timeText.style.fontSize = "10px";
+timeText.style.color = "#aaa";
+timeText.style.whiteSpace = "nowrap";
+timeText.style.transform = "translateY(-2px)";
+
+timeText.textContent = timeAgo(video.date);
+
+// LIKE BUTTON (stays centered like other buttons)
 likeStack.appendChild(timeText);
 likeStack.appendChild(likeWrapper);
 
