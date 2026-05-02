@@ -887,7 +887,7 @@ likeStack.style.flexDirection = "column";
 likeStack.style.alignItems = "center";
 likeStack.style.justifyContent = "center";
 likeStack.style.position = "relative";
-likeStack.style.paddingTop = "6px"; // space for time text
+likeStack.style.paddingTop = "4px"; // space for time text
 likeStack.style.lineHeight = "1";
 
 // TIME AGO (floating above, NOT affecting layout)
