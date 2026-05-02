@@ -300,9 +300,14 @@ function timeAgo(dateString) {
   if (hr < 24) return `${hr} hr${hr === 1 ? "" : "s"} ago`;
   if (day < 7) return `${day} day${day === 1 ? "" : "s"} ago`;
   if (week < 4) return `${week} week${week === 1 ? "" : "s"} ago`;
-  if (month < 12) return `${month} month${month === 1 ? "" : "s"} ago`;
+
+  // 🔥 FIX HERE
+  if (month >= 1 && month < 12) {
+    return `${month} month${month === 1 ? "" : "s"} ago`;
+  }
+
   return `${year} year${year === 1 ? "" : "s"} ago`;
-                         }
+}
 
 /* ---------------- WORKER ---------------- */
 async function sendToWorker(videoId) {
