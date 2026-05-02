@@ -298,14 +298,13 @@ function timeAgo(dateString) {
   if (sec < 60) return "just now";
   if (min < 60) return `${min} min${min === 1 ? "" : "s"} ago`;
   if (hr < 24) return `${hr} hr${hr === 1 ? "" : "s"} ago`;
+
   if (day < 7) return `${day} day${day === 1 ? "" : "s"} ago`;
-  if (week < 4) return `${week} week${week === 1 ? "" : "s"} ago`;
 
-  // 🔥 FIX HERE
-  if (month >= 1 && month < 12) {
-    return `${month} month${month === 1 ? "" : "s"} ago`;
-  }
+  // ✅ FIX: 4 weeks becomes 1 month automatically
+  if (day < 30) return `${week} week${week === 1 ? "" : "s"} ago`;
 
+  if (month < 12) return `${month} month${month === 1 ? "" : "s"} ago`;
   return `${year} year${year === 1 ? "" : "s"} ago`;
 }
 
