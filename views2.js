@@ -283,9 +283,14 @@ function formatViews(num) {
 }
 
 function timeAgo(dateString) {
-  const now = Date.now();
+  const now = new Date().getTime(); // ✅ FIXED (force proper Date object)
   const past = new Date(dateString).getTime();
+
+  if (isNaN(past)) return "invalid date"; // safety
+
   const diff = now - past;
+
+  if (diff < 0) return "just now"; // future protection
 
   const sec = Math.floor(diff / 1000);
   const min = Math.floor(sec / 60);
@@ -297,12 +302,15 @@ function timeAgo(dateString) {
   if (hr < 24) return `${hr} hr${hr === 1 ? "" : "s"} ago`;
   if (day < 7) return `${day} day${day === 1 ? "" : "s"} ago`;
 
-  if (day < 30) return `${Math.floor(day / 7)} week${Math.floor(day / 7) === 1 ? "" : "s"} ago`;
+  const weeks = Math.floor(day / 7);
+  if (day < 30) return `${weeks} week${weeks === 1 ? "" : "s"} ago`;
 
-  if (day < 365) return `${Math.floor(day / 30)} month${Math.floor(day / 30) === 1 ? "" : "s"} ago`;
+  const months = Math.floor(day / 30);
+  if (day < 365) return `${months} month${months === 1 ? "" : "s"} ago`;
 
-  return `${Math.floor(day / 365)} year${Math.floor(day / 365) === 1 ? "" : "s"} ago`;
-}
+  const years = Math.floor(day / 365);
+  return `${years} year${years === 1 ? "" : "s"} ago`;
+  }
 
 function updateAllTimes() {
   document.querySelectorAll(".timeText").forEach(el => {
