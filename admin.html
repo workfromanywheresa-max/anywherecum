@@ -357,20 +357,17 @@ const monthNames = ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AU
 function parseDate(str){
   if(!str) return null;
 
-  // expects: "2026/05/02 07:59"
   const [datePart, timePart] = str.split(" ");
-  if(!datePart) return null;
-
   const [y, m, d] = datePart.split("/").map(Number);
   const [hh, mm] = (timePart || "00:00").split(":").map(Number);
 
-  // IMPORTANT: month is 0-based
-  return new Date(y, m - 1, d, hh || 0, mm || 0);
-         }
+  // FORCE UTC (prevents month shifting bugs)
+  return new Date(Date.UTC(y, m - 1, d, hh || 0, mm || 0));
+                    }
 
 function getKey(d){
-  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
-}
+  return d.getUTCFullYear() + "-" + String(d.getUTCMonth() + 1).padStart(2, "0");
+  }
   
 function calculateMonthly(data){
   const m = {};
