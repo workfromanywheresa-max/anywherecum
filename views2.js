@@ -296,13 +296,13 @@ function timeAgo(dateString) {
   const year = Math.floor(day / 365);
 
   if (sec < 60) return "just now";
-  if (min < 60) return `${min} min ago`;
-  if (hr < 24) return `${hr} hrs ago`;
-  if (day < 7) return `${day} days ago`;
-  if (week < 4) return `${week} weeks ago`;
-  if (month < 12) return `${month} months ago`;
-  return `${year} years ago`;
-}
+  if (min < 60) return `${min} min${min === 1 ? "" : "s"} ago`;
+  if (hr < 24) return `${hr} hr${hr === 1 ? "" : "s"} ago`;
+  if (day < 7) return `${day} day${day === 1 ? "" : "s"} ago`;
+  if (week < 4) return `${week} week${week === 1 ? "" : "s"} ago`;
+  if (month < 12) return `${month} month${month === 1 ? "" : "s"} ago`;
+  return `${year} year${year === 1 ? "" : "s"} ago`;
+                         }
 
 /* ---------------- WORKER ---------------- */
 async function sendToWorker(videoId) {
