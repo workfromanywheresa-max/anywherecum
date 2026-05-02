@@ -291,21 +291,17 @@ function timeAgo(dateString) {
   const min = Math.floor(sec / 60);
   const hr = Math.floor(min / 60);
   const day = Math.floor(hr / 24);
-  const week = Math.floor(day / 7);
-  const month = Math.floor(day / 30);
-  const year = Math.floor(day / 365);
 
   if (sec < 60) return "just now";
   if (min < 60) return `${min} min${min === 1 ? "" : "s"} ago`;
   if (hr < 24) return `${hr} hr${hr === 1 ? "" : "s"} ago`;
-
   if (day < 7) return `${day} day${day === 1 ? "" : "s"} ago`;
 
-  // ✅ FIX: 4 weeks becomes 1 month automatically
-  if (day < 30) return `${week} week${week === 1 ? "" : "s"} ago`;
+  if (day < 30) return `${Math.floor(day / 7)} week${Math.floor(day / 7) === 1 ? "" : "s"} ago`;
 
-  if (month < 12) return `${month} month${month === 1 ? "" : "s"} ago`;
-  return `${year} year${year === 1 ? "" : "s"} ago`;
+  if (day < 365) return `${Math.floor(day / 30)} month${Math.floor(day / 30) === 1 ? "" : "s"} ago`;
+
+  return `${Math.floor(day / 365)} year${Math.floor(day / 365) === 1 ? "" : "s"} ago`;
 }
 
 /* ---------------- WORKER ---------------- */
