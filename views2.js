@@ -282,6 +282,28 @@ function formatViews(num) {
   return num;
 }
 
+function timeAgo(dateString) {
+  const now = Date.now();
+  const past = new Date(dateString).getTime();
+  const diff = now - past;
+
+  const sec = Math.floor(diff / 1000);
+  const min = Math.floor(sec / 60);
+  const hr = Math.floor(min / 60);
+  const day = Math.floor(hr / 24);
+  const week = Math.floor(day / 7);
+  const month = Math.floor(day / 30);
+  const year = Math.floor(day / 365);
+
+  if (sec < 60) return "just now";
+  if (min < 60) return `${min} min ago`;
+  if (hr < 24) return `${hr} hrs ago`;
+  if (day < 7) return `${day} days ago`;
+  if (week < 4) return `${week} weeks ago`;
+  if (month < 12) return `${month} months ago`;
+  return `${year} years ago`;
+}
+
 /* ---------------- WORKER ---------------- */
 async function sendToWorker(videoId) {
   try {
@@ -858,8 +880,29 @@ rightGroup.style.alignItems = "center";
 /* 🔥 PUSH TO FAR RIGHT EDGE */
 rightGroup.style.marginLeft = "auto";
 
-rightGroup.appendChild(likeWrapper);
+// TIME AGO TEXT
+const timeText = document.createElement("div");
+timeText.style.fontSize = "10px";
+timeText.style.color = "#aaa";
+timeText.style.marginBottom = "4px";
+timeText.style.textAlign = "center";
+timeText.style.width = "100%";
 
+// IMPORTANT: your JSON field is "date"
+timeText.textContent = timeAgo(video.date);
+
+// WRAPPER FOR STACKING TIME + LIKE
+const likeStack = document.createElement("div");
+likeStack.style.display = "flex";
+likeStack.style.flexDirection = "column";
+likeStack.style.alignItems = "center";
+
+// add time above like
+likeStack.appendChild(timeText);
+likeStack.appendChild(likeWrapper);
+
+rightGroup.appendChild(likeStack);
+  
 /* assemble */
 btnRow.appendChild(leftGroup);
 btnRow.appendChild(rightGroup);
