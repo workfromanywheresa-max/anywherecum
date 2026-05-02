@@ -367,14 +367,8 @@ function getKey(d){
 }
 
 function calculateMonthly(data){
-  const now = new Date();
-  const currentKey = getKey(now);
-
-  // load previous snapshot
   const prev = loadCache("prev_page_counts") || {};
   const monthly = loadCache(DIFF_CACHE) || {};
-
-  if(!monthly[currentKey]) monthly[currentKey] = 0;
 
   Object.entries(data || {}).forEach(([page, val])=>{
     const current = val?.count || 0;
@@ -382,22 +376,28 @@ function calculateMonthly(data){
 
     const diff = current - old;
 
-    // ✅ only add positive increments
     if(diff > 0){
-      monthly[currentKey] += diff;
+      // 🔥 use the page's timestamp, NOT current time
+      const d = parseDate(val.lastUpdated);
+
+      if(d){
+        const key = getKey(d);
+
+        if(!monthly[key]) monthly[key] = 0;
+
+        monthly[key] += diff;
+      }
     }
 
-    // update previous snapshot
     prev[page] = current;
   });
 
-  // save back
   saveCache("prev_page_counts", prev);
   saveCache(DIFF_CACHE, monthly);
 
   return monthly;
 }
-
+  
 function renderMonthly(data){
   const sortedEntries = Object.entries(data || {}).sort(([aKey],[bKey]) => bKey.localeCompare(aKey));
 
