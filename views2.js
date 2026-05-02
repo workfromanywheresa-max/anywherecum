@@ -877,6 +877,9 @@ const rightGroup = document.createElement("div");
 rightGroup.style.display = "flex";
 rightGroup.style.alignItems = "center";
 
+rightGroup.style.alignSelf = "flex-start";
+rightGroup.style.marginTop = "-6px";
+
 /* 🔥 PUSH TO FAR RIGHT EDGE */
 rightGroup.style.marginLeft = "auto";
 
