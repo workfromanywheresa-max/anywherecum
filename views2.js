@@ -304,6 +304,15 @@ function timeAgo(dateString) {
   return `${Math.floor(day / 365)} year${Math.floor(day / 365) === 1 ? "" : "s"} ago`;
 }
 
+function updateAllTimes() {
+  document.querySelectorAll(".timeText").forEach(el => {
+    const date = el.getAttribute("data-date");
+    if (date) {
+      el.textContent = timeAgo(date);
+    }
+  });
+}
+
 /* ---------------- WORKER ---------------- */
 async function sendToWorker(videoId) {
   try {
@@ -898,6 +907,8 @@ timeText.style.whiteSpace = "nowrap";
 timeText.style.marginBottom = "2px";
 timeText.style.lineHeight = "1.2";
 
+timeText.className = "timeText";
+timeText.setAttribute("data-date", video.date);
 timeText.textContent = timeAgo(video.date);
 
 // LIKE BUTTON (stays centered like other buttons)
@@ -1051,6 +1062,10 @@ fetch(dataSource)
     reorderVideos(true);
 
 scrollToVideoFromHash(); 
+
+  updateAllTimes(); // run once immediately
+
+setInterval(updateAllTimes, 60000); // update every 1 minute
 
     /* ---------------- AUTO OPEN SHARED VIDEO ---------------- */
     if (videoIdFromURL) {
