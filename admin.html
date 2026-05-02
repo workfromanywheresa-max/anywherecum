@@ -366,15 +366,33 @@ function getKey(d){
 
 function calculateMonthly(data){
   const m = {};
-  Object.values(data||{}).forEach(i=>{
-    if(i?.lastUpdated){
-      const d = parseDate(i.lastUpdated);
-      if(d){
-        const k = getKey(d);
-        m[k] = (m[k]||0)+(i.count||0);
-      }
+  const prevCounts = loadCache("prev_counts") || {};
+
+  Object.entries(data || {}).forEach(([page, i])=>{
+    if(!i?.lastUpdated) return;
+
+    const d = parseDate(i.lastUpdated);
+    if(!d) return;
+
+    const k = getKey(d);
+
+    const current = i.count || 0;
+    const previous = prevCounts[page] || 0;
+
+    // 🔑 ONLY count NEW views
+    const diff = current - previous;
+
+    if (diff > 0) {
+      m[k] = (m[k] || 0) + diff;
     }
+
+    // update stored count
+    prevCounts[page] = current;
   });
+
+  // 💾 save for next calculation
+  saveCache("prev_counts", prevCounts);
+
   return m;
 }
 
