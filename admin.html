@@ -267,6 +267,8 @@ const db = getDatabase(app);
 function saveCache(k,v){ localStorage.setItem(k, JSON.stringify(v)); }
 function loadCache(k){ return JSON.parse(localStorage.getItem(k) || "null"); }
 
+const DIFF_CACHE = "monthly_diff_cache";
+  
 const CACHE = {
   pages: "pages_cache",
   monthly: "monthly_cache",
@@ -365,25 +367,36 @@ function getKey(d){
 }
 
 function calculateMonthly(data){
-  const m = {};
+  const now = new Date();
+  const currentKey = getKey(now);
 
-  Object.values(data || {}).forEach(i => {
+  // load previous snapshot
+  const prev = loadCache("prev_page_counts") || {};
+  const monthly = loadCache(DIFF_CACHE) || {};
 
-    // ✅ PRIORITY: use createdAt (or fallback safely)
-    const dateStr = i?.createdAt || i?.firstSeen || i?.timestamp;
+  if(!monthly[currentKey]) monthly[currentKey] = 0;
 
-    if (!dateStr) return;
+  Object.entries(data || {}).forEach(([page, val])=>{
+    const current = val?.count || 0;
+    const old = prev[page] || 0;
 
-    const d = parseDate(dateStr);
-    if (!d) return;
+    const diff = current - old;
 
-    const k = getKey(d);
+    // ✅ only add positive increments
+    if(diff > 0){
+      monthly[currentKey] += diff;
+    }
 
-    m[k] = (m[k] || 0) + (i.count || 0);
+    // update previous snapshot
+    prev[page] = current;
   });
 
-  return m;
-  }
+  // save back
+  saveCache("prev_page_counts", prev);
+  saveCache(DIFF_CACHE, monthly);
+
+  return monthly;
+}
 
 function renderMonthly(data){
   const sortedEntries = Object.entries(data || {}).sort(([aKey],[bKey]) => bKey.localeCompare(aKey));
