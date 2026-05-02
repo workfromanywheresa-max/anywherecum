@@ -366,17 +366,24 @@ function getKey(d){
 
 function calculateMonthly(data){
   const m = {};
-  Object.values(data||{}).forEach(i=>{
-    if(i?.lastUpdated){
-      const d = parseDate(i.lastUpdated);
-      if(d){
-        const k = getKey(d);
-        m[k] = (m[k]||0)+(i.count||0);
-      }
-    }
+
+  Object.values(data || {}).forEach(i => {
+
+    // ✅ PRIORITY: use createdAt (or fallback safely)
+    const dateStr = i?.createdAt || i?.firstSeen || i?.timestamp;
+
+    if (!dateStr) return;
+
+    const d = parseDate(dateStr);
+    if (!d) return;
+
+    const k = getKey(d);
+
+    m[k] = (m[k] || 0) + (i.count || 0);
   });
+
   return m;
-}
+  }
 
 function renderMonthly(data){
   const sortedEntries = Object.entries(data || {}).sort(([aKey],[bKey]) => bKey.localeCompare(aKey));
