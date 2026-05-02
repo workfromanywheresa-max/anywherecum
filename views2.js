@@ -892,12 +892,11 @@ likeStack.style.lineHeight = "1";
 
 // TIME AGO (floating above, NOT affecting layout)
 const timeText = document.createElement("div");
-timeText.style.position = "absolute";
-timeText.style.top = "0";
 timeText.style.fontSize = "10px";
 timeText.style.color = "#aaa";
 timeText.style.whiteSpace = "nowrap";
-timeText.style.transform = "translateY(-11px)";
+timeText.style.marginBottom = "2px";
+timeText.style.lineHeight = "1.2";
 
 timeText.textContent = timeAgo(video.date);
 
