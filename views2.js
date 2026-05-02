@@ -884,11 +884,11 @@ rightGroup.style.marginLeft = "auto";
 const timeText = document.createElement("div");
 timeText.style.fontSize = "10px";
 timeText.style.color = "#aaa";
-timeText.style.marginBottom = "4px";
+timeText.style.marginBottom = "2px"; // smaller gap
 timeText.style.textAlign = "center";
-timeText.style.width = "100%";
+timeText.style.width = "auto"; // ❌ remove 100% stretch
+timeText.style.whiteSpace = "nowrap"; // keep it compact
 
-// IMPORTANT: your JSON field is "date"
 timeText.textContent = timeAgo(video.date);
 
 // WRAPPER FOR STACKING TIME + LIKE
@@ -896,8 +896,9 @@ const likeStack = document.createElement("div");
 likeStack.style.display = "flex";
 likeStack.style.flexDirection = "column";
 likeStack.style.alignItems = "center";
+likeStack.style.justifyContent = "center";
+likeStack.style.lineHeight = "1"; // prevents extra vertical space
 
-// add time above like
 likeStack.appendChild(timeText);
 likeStack.appendChild(likeWrapper);
 
