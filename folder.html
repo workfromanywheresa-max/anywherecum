@@ -937,10 +937,13 @@ window.VIDEO_CONFIG = {
       [class*="embed"]
     `).forEach(el => el.remove());
   
-document.querySelectorAll(".videoBox div").forEach(el => {
+
+// ✅ ONLY remove Share / Embed TEXT safely
+  document.querySelectorAll(".videoBox div").forEach(el => {
     const txt = el.textContent?.trim();
+
     if (txt === "Share" || txt === "Embed") {
-      el.parentElement?.remove();
+      el.textContent = ""; // 👈 safe + simple
     }
   });
 }
