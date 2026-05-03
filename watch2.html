@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Watch Video</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: white;
+}
+
+.topBar {
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  background: #1a1a1a;
+}
+
+button {
+  background: #ff4444;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.container {
+  padding: 10px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.videoBox {
+  width: 100%;
+  background: black;
+  aspect-ratio: 16 / 9;
+  margin-bottom: 10px;
+}
+
+iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+h1 {
+  font-size: 18px;
+  margin: 10px 0;
+}
+
+.meta {
+  color: #aaa;
+  font-size: 13px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="topBar">
+  <button onclick="history.back()">← Back</button>
+  <div id="views">Views: 0</div>
+</div>
+
+<div class="container">
+
+  <h1 id="title">Loading...</h1>
+
+  <div class="videoBox">
+    <iframe id="player" allowfullscreen></iframe>
+  </div>
+
+  <div class="meta" id="desc"></div>
+
+</div>
+
+<script>
+const params = new URLSearchParams(window.location.search);
+const videoId = params.get("video");
+
+const titleEl = document.getElementById("title");
+const descEl = document.getElementById("desc");
+const player = document.getElementById("player");
+const viewsEl = document.getElementById("views");
+
+fetch("videos.json")
+  .then(res => res.json())
+  .then(videos => {
+
+    const video = videos.find(v => v.id === videoId);
+
+    if (!video) {
+      titleEl.textContent = "Video not found";
+      return;
+    }
+
+    // Title
+    titleEl.textContent = video.title;
+
+    // Description (optional)
+    descEl.textContent = video.description || "Watch this video online";
+
+    // Load iframe (first quality)
+    const first = video.qualities?.[0];
+    player.src = first?.embed || "";
+
+    // Views (simple fallback)
+    viewsEl.textContent = "Views: " + (video.views || 0);
+
+    // SEO update
+    document.title = video.title;
+
+    // Optional: update meta
+    const meta = document.createElement("meta");
+    meta.name = "description";
+    meta.content = video.description || video.title;
+    document.head.appendChild(meta);
+  })
+  .catch(err => {
+    titleEl.textContent = "Error loading video";
+    console.error(err);
+  });
+</script>
+
+</body>
+</html>
