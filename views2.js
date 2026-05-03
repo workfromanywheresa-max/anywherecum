@@ -477,34 +477,31 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
   preview.currentTime = 0.1;
 }, { once: true });
 
-  preview.onclick = async () => {
-  await countWatchOnce(video.id);
+  preview.onclick = () => {
+  countWatchOnce(video.id);
 
+  // optional: keep your worker tracking
+  setTimeout(async () => {
+    try {
+      await fetch("https://task.workfromanywhere-sa.workers.dev/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          videoId: video.id,
+          type: "preview_click",
+          visitId: visitId,
+          timestamp: Date.now()
+        })
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }, 5 * 60 * 1000);
+
+  // 👉 redirect to watch2 page
   window.location.href = `watch2.html?video=${video.id}`;
 };
   
-  /* 🔥 SEND TO NEW WORKER ON CLICK */
-try {
-  setTimeout(async () => {
-    const res = await fetch("https://task.workfromanywhere-sa.workers.dev/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        videoId: video.id,
-        type: "preview_click",
-        visitId: visitId,
-        timestamp: Date.now()
-      })
-    });
-  }, 5 * 60 * 1000); // 5 minutes delay
-
-} catch (err) {
-  console.error("Task worker failed:", err);
-}
-  
-  loadPlayer();
-};
-
   let startX = 0;
 
   preview.addEventListener("touchstart", e => {
