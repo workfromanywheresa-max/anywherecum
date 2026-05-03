@@ -19,7 +19,7 @@ const staticPages = htmlFiles
   .map(f => `/${f}`);
 
 // ===============================
-// AUTO-DETECT FOLDERS FROM videos.json
+// AUTO-DETECT FOLDERS FROM videos.json (EXCLUDING VIP)
 // ===============================
 let folderSet = new Set();
 
@@ -28,6 +28,10 @@ try {
 
   videos.forEach(video => {
     if (video.folder) {
+
+      // ❌ EXCLUDE VIP FOLDER
+      if (video.folder === "🔒VIP Exclusive") return;
+
       folderSet.add(video.folder);
     }
   });
@@ -46,9 +50,6 @@ const urls = [...new Set([...staticPages, ...folders])];
 
 const today = new Date().toISOString().split("T")[0];
 
-// ===============================
-// BUILD SITEMAP
-// ===============================
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls
@@ -66,4 +67,4 @@ ${urls
 
 fs.writeFileSync("sitemap.xml", sitemap);
 
-console.log("Fully auto sitemap generated from videos.json (NO HTML SCANNING)");
+console.log("Fully auto sitemap generated from videos.json (VIP excluded)!");
