@@ -1315,29 +1315,7 @@ async function init() {
 init();
   </script>
 
-  <div id="videoList" aria-hidden="false" style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"></div>
-
-<script>
-const TOTAL_VIDEOS = 20;
-
-function generateList() {
-  const container = document.getElementById("videoList");
-
-  for (let i = TOTAL_VIDEOS; i >= 1; i--) {
-    const videoName = "live" + i + ".mp4";
-
-    const a = document.createElement("a");
-    a.href = "/watch.html?video=" + videoName;
-    a.textContent = "Watch Video " + i;
-
-    container.appendChild(a);
-  }
-}
-
-generateList();
-</script>
-
-    <script>  
+  <script>  
 const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";  
 const CACHE_NAME = "live-video-cache-v1";  
 
@@ -1356,7 +1334,11 @@ let sliderInterval = null;
 function generateVideos() {  
   const arr = [];  
   for (let i = TOTAL_VIDEOS; i >= 1; i--) {  
-    arr.push({ video: BASE + "live" + i + ".mp4" });  
+    const file = "live" + i + ".mp4";
+    arr.push({ 
+      file,
+      video: BASE + file 
+    });  
   }  
   return arr;  
 }  
@@ -1387,6 +1369,12 @@ function initLivesOnce() {
     video.loop = true;  
     video.playsInline = true;  
     video.preload = "metadata";  
+    video.style.cursor = "pointer";
+
+    // 👉 WATCH PAGE ROUTE
+    video.addEventListener("click", () => {
+      window.location.href = "/watch.html?video=" + item.file;
+    });
 
     if (index === 0) {  
       video.addEventListener("loadeddata", () => {  
@@ -1419,13 +1407,6 @@ function initLivesOnce() {
   updateTrackPosition(false);  
   controlVideoPlayback();  
 }  
-
-// =====================  
-// CLICK  
-// =====================  
-document.querySelector(".banner").addEventListener("click", () => {  
-  window.open("https://www.juicyads.rocks", "_blank");  
-});  
 
 // =====================  
 // MOVE RIGHT  
@@ -1511,7 +1492,7 @@ function loadLives() {
 loadLives();  
 
 // =====================  
-// PAUSE WHEN OUT OF VIEW (SAFE FIX)  
+// PAUSE WHEN OUT OF VIEW  
 // =====================  
 function setupVisibilityPause() {
   const liveContainer = document.getElementById("liveContainer");
@@ -1539,7 +1520,29 @@ function setupVisibilityPause() {
 
 setupVisibilityPause();
 
-    </script>
+  </script>
+
+  <div id="videoList" aria-hidden="false" style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"></div>
+
+<script>
+const TOTAL_VIDEOS = 20;
+
+function generateList() {
+  const container = document.getElementById("videoList");
+
+  for (let i = TOTAL_VIDEOS; i >= 1; i--) {
+    const videoName = "live" + i + ".mp4";
+
+    const a = document.createElement("a");
+    a.href = "/watch.html?video=" + videoName;
+    a.textContent = "Watch Video " + i;
+
+    container.appendChild(a);
+  }
+}
+
+generateList();
+</script>
   
   <script type="module" src="views.js"></script>
 
