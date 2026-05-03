@@ -1315,6 +1315,28 @@ async function init() {
 init();
   </script>
 
+  <div id="videoList" aria-hidden="false" style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"></div>
+
+<script>
+const TOTAL_VIDEOS = 20;
+
+function generateList() {
+  const container = document.getElementById("videoList");
+
+  for (let i = TOTAL_VIDEOS; i >= 1; i--) {
+    const videoName = "live" + i + ".mp4";
+
+    const a = document.createElement("a");
+    a.href = "/watch.html?video=" + videoName;
+    a.textContent = "Watch Video " + i;
+
+    container.appendChild(a);
+  }
+}
+
+generateList();
+</script>
+
   <script>  
 const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";  
 const CACHE_NAME = "live-video-cache-v1";  
@@ -1407,16 +1429,6 @@ function initLivesOnce() {
   updateTrackPosition(false);  
   controlVideoPlayback();  
 }  
-
-// =====================  
-// CLICK BANNER (ADS)  
-// =====================  
-document.addEventListener("click", (e) => {  
-  const banner = e.target.closest(".banner");  
-  if (banner) {  
-    window.open("https://www.juicyads.rocks", "_blank");  
-  }  
-});  
 
 // =====================  
 // MOVE RIGHT  
@@ -1530,29 +1542,7 @@ function setupVisibilityPause() {
 
 setupVisibilityPause();
 
-  </script>
-
-  <div id="videoList" aria-hidden="false" style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"></div>
-
-<script>
-const TOTAL_VIDEOS = 20;
-
-function generateList() {
-  const container = document.getElementById("videoList");
-
-  for (let i = TOTAL_VIDEOS; i >= 1; i--) {
-    const videoName = "live" + i + ".mp4";
-
-    const a = document.createElement("a");
-    a.href = "/watch.html?video=" + videoName;
-    a.textContent = "Watch Video " + i;
-
-    container.appendChild(a);
-  }
-}
-
-generateList();
-</script>
+                   </script>
   
   <script type="module" src="views.js"></script>
 
