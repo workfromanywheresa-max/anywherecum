@@ -1,4 +1,4 @@
-import { createVideoBox } from "./views.js";
+import { createVideoBox } from "./views2.js";
 
 const params = new URLSearchParams(window.location.search);
 const videoId = params.get("video");
