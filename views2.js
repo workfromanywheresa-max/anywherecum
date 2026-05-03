@@ -477,8 +477,10 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
   preview.currentTime = 0.1;
 }, { once: true });
 
-  preview.onclick = async () => {
+  preview.onclick = () => {
   countWatchOnce(video.id);
+  window.location.href = `watch2.html?video=${video.id}`;
+};
 
   /* 🔥 SEND TO NEW WORKER ON CLICK */
 try {
@@ -559,9 +561,19 @@ try {
     loadPlayer();
   };
 
-  const title = document.createElement("h3");
-  title.className = "videoTitle";
-  title.textContent = video.title;
+  const link = document.createElement("a");
+link.href = `watch2.html?video=${video.id}`;
+link.style.textDecoration = "none";
+link.style.color = "inherit";
+
+const title = document.createElement("h3");
+title.className = "videoTitle";
+title.textContent = video.title;
+
+link.appendChild(title);
+
+box.appendChild(wrapper);
+box.appendChild(link);
 
   const downloadBtn = document.createElement("button");
 downloadBtn.className = "downloadBtn";
