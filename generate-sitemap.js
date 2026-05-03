@@ -8,7 +8,9 @@ const htmlFiles = fs.readdirSync(".").filter(f =>
   f !== "video2.html" &&
   f !== "video.html" &&
   f !== "folder.html" &&
-  f !== "admin.html"
+  f !== "admin.html" &&
+  f !== "thank-you-vip.html" &&
+  f !== "thank-you.html"
 );
 
 // collect static pages
