@@ -81,17 +81,20 @@ h1 {
 
 <script>
 const params = new URLSearchParams(window.location.search);
+
 const videoId = params.get("video");
+const qualityIndex = Number(params.get("q")) || 0;
 
 const titleEl = document.getElementById("title");
 const descEl = document.getElementById("desc");
 const player = document.getElementById("player");
 
-// ✅ Your function
+/* ---------------- DESCRIPTION ---------------- */
 function generateDescription(title) {
   return `Watch "${title}" in high quality. Stream this video online with smooth playback anytime.`;
 }
 
+/* ---------------- LOAD DATA ---------------- */
 fetch("videos.json")
   .then(res => res.json())
   .then(videos => {
@@ -105,20 +108,24 @@ fetch("videos.json")
 
     titleEl.textContent = video.title;
 
-    // ✅ use generated description
     const description = video.description || generateDescription(video.title);
     descEl.textContent = description;
 
-    const first = video.qualities?.[0];
-    player.src = first?.embed || "";
+    /* ---------------- QUALITY SELECT ---------------- */
+    const selectedQuality =
+      video.qualities?.[qualityIndex] ||
+      video.qualities?.[0];
+
+    player.src = selectedQuality?.embed || "";
 
     document.title = video.title;
 
-    // ✅ SEO meta description uses same logic
+    /* ---------------- SEO META ---------------- */
     const meta = document.createElement("meta");
     meta.name = "description";
     meta.content = description;
     document.head.appendChild(meta);
+
   })
   .catch(err => {
     titleEl.textContent = "Error loading video";
