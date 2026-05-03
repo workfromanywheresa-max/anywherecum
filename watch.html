@@ -9,10 +9,10 @@
 <body style="margin:0;background:black;color:white;font-family:Arial;">
 
   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px;">
-    <h1 id="title">Loading video...</h1>
+    <h1 id="title">🔴 LIVE Video</h1>
 
     <p>
-      Redirecting to 🔴LIVE video in <span id="timer">5</span> seconds...
+      Redirecting in <span id="timer">5</span> seconds...
     </p>
 
     <video id="player" controls autoplay playsinline
@@ -32,8 +32,11 @@
       throw new Error("No video");
     }
 
+    // video plays normally
     document.getElementById("player").src = BASE + video;
-    document.getElementById("title").textContent = video.replace(".mp4","");
+
+    // clean UI title (no filenames shown)
+    document.title = "🔴 LIVE Video";
 
     let timeLeft = 5;
     const timer = document.getElementById("timer");
@@ -45,10 +48,8 @@
       if (timeLeft <= 0) {
         clearInterval(countdown);
 
-        // 🔥 KEY FIX: remove watch from history completely
         history.replaceState(null, "", "/");
 
-        // go to bridge (not ad directly)
         window.location.replace(adBridge + "?video=" + encodeURIComponent(video));
       }
     }, 1000);
