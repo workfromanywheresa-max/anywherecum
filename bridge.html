@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Loading...</title>
+</head>
+
+<body style="margin:0;background:black;">
+
+<script>
+  const adUrl = "https://www.juicyads.rocks";
+
+  const params = new URLSearchParams(location.search);
+  const video = params.get("video");
+
+  // break history again (double safety)
+  history.replaceState(null, "", "/");
+
+  // small delay ensures clean stack
+  setTimeout(() => {
+    window.location.replace(adUrl);
+  }, 100);
+</script>
+
+</body>
+</html>
