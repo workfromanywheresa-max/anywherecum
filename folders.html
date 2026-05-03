@@ -668,6 +668,74 @@ position:relative;
 
   <script>
 /* ================= GLOBAL VIDEO CONTROL ================= */
+
+    const CHECK_URL = "https://vipkeys.workfromanywhere-sa.workers.dev/check-session";
+const VIP_FOLDER = "🔒VIP Exclusive";
+
+let vipGlobal = null;
+let expiryTime = null;
+let lastCountdown = "";
+
+/* ================= VIP STATUS ================= */
+async function getVipStatus() {
+  try {
+    const res = await fetch(CHECK_URL, {
+      method: "POST",
+      credentials: "include"
+    });
+
+    const data = await res.json();
+
+    if (!data.active) return { active: false };
+
+    return {
+      active: true,
+      expiresAt: data.expiresAtSAST
+    };
+
+  } catch (err) {
+    console.error("VIP check error:", err);
+    return { active: false };
+  }
+}
+
+/* ================= COUNTDOWN ================= */
+function formatCountdown(diff) {
+  if (diff <= 0) return "Expired";
+
+  const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const m = Math.floor((diff / (1000 * 60)) % 60);
+  const s = Math.floor((diff / 1000) % 60);
+
+  return `${d}d ${h}h ${m}m ${s}s`;
+}
+
+function updateCountdownText(text) {
+  if (text === lastCountdown) return;
+  lastCountdown = text;
+
+  document.querySelectorAll(".vipCountdown").forEach(el => {
+    el.textContent = text;
+  });
+}
+
+function startVipCountdown() {
+  if (!expiryTime) return;
+
+  function tick() {
+    const now = Date.now();
+    const diff = expiryTime - now;
+
+    updateCountdownText(formatCountdown(diff));
+
+    const delay = 1000 - (now % 1000);
+    setTimeout(tick, delay);
+  }
+
+  tick();
+}
+    
 let currentPlayingVideo = null;
 
 /* ================= INTERSECTION OBSERVER ================= */
@@ -773,9 +841,12 @@ function addSwipe(card, video) {
 /* ================= MAIN ================= */
 async function loadFolders() {
 
-  const res = await fetch('./videos.json');
-  const data = await res.json();
+  vipGlobal = await getVipStatus();
 
+  if (vipGlobal?.active && vipGlobal?.expiresAt) {
+    expiryTime = new Date(vipGlobal.expiresAt).getTime();
+  }
+  
   const folders = {};
 
   data.forEach(v => {
@@ -801,8 +872,25 @@ async function loadFolders() {
     const video = createVideo(latest.preview);
 
     const link = document.createElement('a');
-    link.href = "https://fc-lc.xyz/IIivW75";
-    link.textContent = vipName;
+
+if (vipGlobal.active) {
+  link.innerHTML = `💎 VIP Unlocked (<span class="vipCountdown"></span>)`;
+} else {
+  link.textContent = "🔒 VIP Exclusive";
+}
+
+/* CLICK */
+card.addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (vipGlobal.active) {
+    window.location.href =
+      "folder.html?folder=" + encodeURIComponent(vipName);
+  } else {
+    window.location.href = "vip.html";
+  }
+});
 
     /* CLICK → NEW TAB */
     card.addEventListener("click", (e) => {
@@ -854,7 +942,9 @@ async function loadFolders() {
 
 /* ================= INIT ================= */
 window.addEventListener('load', () => {
-  loadFolders();
+  loadFolders().then(() => {
+    startVipCountdown();
+  });
 });
       </script>
   
