@@ -14,6 +14,7 @@ body {
   color: white;
 }
 
+/* TOP BAR */
 .topBar {
   padding: 10px;
   display: flex;
@@ -30,48 +31,76 @@ button {
   cursor: pointer;
 }
 
+/* CONTAINER */
 .container {
   padding: 10px;
   max-width: 900px;
   margin: auto;
 }
 
+/* VIDEO BOX */
 .videoBox {
   width: 100%;
-  background: black;
-  aspect-ratio: 16 / 9;
-  margin-bottom: 10px;
+  background: #222;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-iframe {
+/* VIDEO */
+.videoBox iframe {
   width: 100%;
-  height: 100%;
+  aspect-ratio: 16 / 9;
   border: 0;
 }
 
+/* TITLE */
 h1 {
   font-size: 18px;
   margin: 10px 0 5px;
 }
 
+/* META */
 .meta {
   color: #aaa;
   font-size: 13px;
 }
 
-/* ✅ DROPDOWN STYLE */
+/* DROPDOWN */
 select {
   display: block;
-  width: fit-content;     /* ✅ prevents full width */
+  width: fit-content;
   max-width: 90%;
-  margin: 6px auto;       /* ✅ center horizontally */
-
+  margin: 6px auto;
   padding: 5px 10px;
   border-radius: 5px;
   border: none;
   background: #333;
   color: #fff;
   font-size: 12px;
+}
+
+/* =========================
+   ACTION BUTTONS (NEW)
+========================= */
+.actionBar {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  background: #1a1a1a;
+  flex-wrap: wrap;
+}
+
+.actionBar button {
+  font-size: 12px;
+  padding: 6px 10px;
+}
+
+/* optional hover effect */
+.actionBar button:hover {
+  opacity: 0.85;
 }
 </style>
 </head>
@@ -86,11 +115,17 @@ select {
 
   <h1 id="title">Loading...</h1>
 
-  <!-- ✅ DROPDOWN ADDED HERE -->
   <select id="qualitySelect"></select>
 
   <div class="videoBox">
     <iframe id="player" allowfullscreen></iframe>
+
+    <!-- ✅ ACTION BUTTONS ADDED HERE -->
+    <div class="actionBar">
+      <button onclick="downloadVideo()">⬇ Download</button>
+      <button onclick="shareVideo()">🔗 Share</button>
+      <button onclick="embedVideo()"></> Embed</button>
+    </div>
   </div>
 
   <div class="meta" id="desc"></div>
@@ -108,29 +143,32 @@ const descEl = document.getElementById("desc");
 const player = document.getElementById("player");
 const select = document.getElementById("qualitySelect");
 
-/* ---------------- DESCRIPTION ---------------- */
+let currentVideo = null;
+let currentEmbed = "";
+
+/* DESCRIPTION */
 function generateDescription(title) {
   return `Watch "${title}" in high quality. Stream this video online with smooth playback anytime.`;
 }
 
-/* ---------------- LOAD DATA ---------------- */
+/* LOAD VIDEOS */
 fetch("videos.json")
   .then(res => res.json())
   .then(videos => {
 
     const video = videos.find(v => v.id === videoId);
-
     if (!video) {
       titleEl.textContent = "Video not found";
       return;
     }
+
+    currentVideo = video;
 
     titleEl.textContent = video.title;
 
     const description = video.description || generateDescription(video.title);
     descEl.textContent = description;
 
-    /* ---------------- QUALITY DROPDOWN ---------------- */
     select.innerHTML = "";
 
     video.qualities.forEach((q, index) => {
@@ -144,33 +182,42 @@ fetch("videos.json")
     function loadQuality(index) {
       const q = video.qualities[index];
       if (!q) return;
+      currentEmbed = q.embed;
       player.src = q.embed;
     }
 
-    // initial load
     loadQuality(qualityIndex);
 
-    // on change
     select.onchange = () => {
       loadQuality(select.value);
     };
 
-    document.title = video.title;
-
-    /* ---------------- META ---------------- */
-    const meta = document.createElement("meta");
-    meta.name = "description";
-    meta.content = description;
-    document.head.appendChild(meta);
-
-  })
-  .catch(err => {
-    titleEl.textContent = "Error loading video";
-    console.error(err);
   });
-</script>
 
-<script type="module" src="views2.js"></script>
+/* =========================
+   BUTTON ACTIONS
+========================= */
+function downloadVideo() {
+  if (!currentVideo) return;
+  window.open(currentEmbed, "_blank");
+}
+
+function shareVideo() {
+  if (navigator.share && currentVideo) {
+    navigator.share({
+      title: currentVideo.title,
+      url: window.location.href
+    });
+  } else {
+    alert("Share not supported on this device");
+  }
+}
+
+function embedVideo() {
+  if (!currentEmbed) return;
+  prompt("Copy embed link:", currentEmbed);
+}
+</script>
 
 </body>
 </html>
