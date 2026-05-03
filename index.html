@@ -1431,6 +1431,16 @@ function initLivesOnce() {
 }  
 
 // =====================  
+// CLICK BANNER (ADS)  
+// =====================  
+document.addEventListener("click", (e) => {  
+  const banner = e.target.closest(".banner");  
+  if (banner) {  
+    window.open("https://www.juicyads.rocks", "_blank");  
+  }  
+});  
+
+// =====================  
 // MOVE RIGHT  
 // =====================  
 function moveRight() {  
@@ -1542,7 +1552,7 @@ function setupVisibilityPause() {
 
 setupVisibilityPause();
 
-                   </script>
+        </script>
   
   <script type="module" src="views.js"></script>
 
