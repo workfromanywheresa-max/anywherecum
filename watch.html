@@ -23,7 +23,7 @@
       Loading video...
     </h1>
 
-    <!-- TIMER -->
+    <!-- ⏱️ TIMER -->
     <p style="opacity:0.8; font-size:14px; margin-bottom:10px;">
       Redirecting to 🔴LIVE video in <span id="timer">5</span> seconds...
     </p>
@@ -67,14 +67,7 @@
     document.getElementById("canonicalLink").href =
       window.location.origin + "/watch.html?video=" + video;
 
-    // 🔥 BACK BUTTON FIX
-    history.pushState(null, "", location.href);
-
-    window.addEventListener("popstate", function () {
-      window.location.replace("/index.html");
-    });
-
-    // ⏱️ TIMER
+    // ⏱️ Countdown timer
     let timeLeft = 5;
     const timerEl = document.getElementById("timer");
 
@@ -85,11 +78,16 @@
       if (timeLeft <= 0) {
         clearInterval(countdown);
 
-        // IMPORTANT: replace prevents back return to this page
+        // ✅ FIX: replace instead of href (prevents back-loop issue)
         window.location.replace(adUrl);
       }
     }, 1000);
 
+    // Optional safety: prevent back button returning here
+    history.pushState(null, "", location.href);
+    window.onpopstate = () => {
+      window.location.replace("/");
+    };
   </script>
 
 </body>
