@@ -67,7 +67,7 @@
     document.getElementById("canonicalLink").href =
       window.location.origin + "/watch.html?video=" + video;
 
-    // ⏱️ Countdown timer
+    // ⏱️ Countdown
     let timeLeft = 5;
     const timerEl = document.getElementById("timer");
 
@@ -78,16 +78,13 @@
       if (timeLeft <= 0) {
         clearInterval(countdown);
 
-        // ✅ FIX: replace instead of href (prevents back-loop issue)
-        window.location.replace(adUrl);
+        // ✅ FIX: remove watch.html from history BEFORE redirect
+        history.replaceState(null, "", "/");
+
+        // go to ad
+        window.location.href = adUrl;
       }
     }, 1000);
-
-    // Optional safety: prevent back button returning here
-    history.pushState(null, "", location.href);
-    window.onpopstate = () => {
-      window.location.replace("/");
-    };
   </script>
 
 </body>
