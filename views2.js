@@ -344,32 +344,46 @@ function createStack(labelText, button) {
 export function createVideoBox(video, index = 0) {
   const box = document.createElement("div");
   box.className = "videoBox";
+  box.id = `video-${video.id}`;
 
-  box.innerHTML = `
-    <div class="videoFrameWrapper">
-      <iframe src="${video.qualities[index].embed}" allowfullscreen></iframe>
-    </div>
+  const wrapper = document.createElement("div");
+  wrapper.className = "videoFrameWrapper";
+  wrapper.style.position = "relative";
 
-    <h3 class="videoTitle">${video.title}</h3>
+  const iframe = document.createElement("iframe");
+  iframe.src = video.qualities[index]?.embed || video.qualities[0].embed;
+  iframe.allowFullscreen = true;
 
-    <p class="views">${video.views || "0 views"}</p>
+  wrapper.appendChild(iframe);
 
-    <select>
-      ${video.qualities.map((q, i) =>
-        `<option value="${i}" ${i === index ? "selected" : ""}>
-          ${q.label}
-        </option>`
-      ).join("")}
-    </select>
-  `;
+  const title = document.createElement("h3");
+  title.className = "videoTitle";
+  title.textContent = video.title;
 
-  // dropdown logic
-  const select = box.querySelector("select");
-  const iframe = box.querySelector("iframe");
+  const views = document.createElement("p");
+  views.className = "views";
+  views.textContent = video.views || "0 views";
+
+  // dropdown (REUSABLE PART)
+  const select = document.createElement("select");
+
+  video.qualities.forEach((q, i) => {
+    const option = document.createElement("option");
+    option.value = i;
+    option.textContent = q.label;
+    if (i === index) option.selected = true;
+    select.appendChild(option);
+  });
 
   select.onchange = () => {
     iframe.src = video.qualities[select.value].embed;
   };
+
+  // assemble
+  box.appendChild(wrapper);
+  box.appendChild(title);
+  box.appendChild(views);
+  box.appendChild(select);
 
   return box;
 }
