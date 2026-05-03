@@ -44,7 +44,7 @@ try {
 // 🔥 ONLY CHANGE: CLEAN URL FORMAT
 // ===============================
 const folders = [...folderSet].map(name =>
-  `/${encodeURIComponent(name)}`
+  `/${encodeURIComponent(name.toLowerCase())}`
 );
 
 // final urls
