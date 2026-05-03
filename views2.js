@@ -572,6 +572,7 @@ title.textContent = video.title;
 
 link.appendChild(title);
 
+// ✅ append ONLY once
 box.appendChild(wrapper);
 box.appendChild(link);
 
