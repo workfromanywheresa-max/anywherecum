@@ -948,16 +948,6 @@ document.querySelectorAll(".videoBox div").forEach(el => {
       [class*="share"],
       [class*="embed"]
     `).forEach(el => el.remove());
-  
-
-// ✅ ONLY remove Share / Embed TEXT safely
-  document.querySelectorAll(".videoBox div").forEach(el => {
-  const txt = el.textContent?.trim();
-
-  if (txt === "Share" || txt === "Embed") {
-    el.classList.add("vip-hide");
-  }
-});
 }
 
   removeVIPNoise();
