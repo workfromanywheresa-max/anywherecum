@@ -19,7 +19,7 @@ const staticPages = htmlFiles
   .map(f => `/${f}`);
 
 // ===============================
-// AUTO-DETECT FOLDER NAMES
+// AUTO-DETECT FOLDER NAMES (FIXED)
 // ===============================
 let folderSet = new Set();
 
@@ -27,13 +27,17 @@ htmlFiles.forEach(file => {
   const content = fs.readFileSync(file, "utf8");
 
   // find folder.html?folder=ANYTHING
-  const matches = content.match(/folder\.html\?folder=([^"'&\s]+)/g);
+  const regex = /folder\.html\?folder=([^"'&\s<>]+)/g;
 
-  if (matches) {
-    matches.forEach(m => {
-      const value = m.split("folder=")[1];
-      if (value) folderSet.add(value);
-    });
+  let match;
+  while ((match = regex.exec(content)) !== null) {
+    const value = match[1];
+
+    try {
+      folderSet.add(decodeURIComponent(value));
+    } catch (e) {
+      folderSet.add(value);
+    }
   }
 });
 
