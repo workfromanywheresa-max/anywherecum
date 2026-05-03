@@ -860,7 +860,11 @@ window.VIDEO_CONFIG = {
       opacity: 0 !important;
       pointer-events: none !important;
     }
-  `;
+
+.vip-hide {
+  display: none !important;
+}
+`;
   document.head.appendChild(style);
 
   /* =========================
@@ -943,7 +947,7 @@ window.VIDEO_CONFIG = {
   const txt = el.textContent?.trim();
 
   if (txt === "Share" || txt === "Embed") {
-    el.style.display = "none"; // ✅ FIX: hide instead of deleting text
+    el.classList.add("vip-hide");
   }
 });
 }
