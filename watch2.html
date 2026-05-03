@@ -26,6 +26,10 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
+
+  /* ✅ allows wrapping when label becomes long */
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .backBtn {
@@ -42,9 +46,14 @@ body {
   color: #aaa;
   max-width: 70%;
   text-align: center;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+
+  /* ✅ FIX: allow multiline instead of "..." */
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  word-break: break-word;
+
+  flex: 1;
 }
 
 .container {
@@ -140,11 +149,11 @@ function init() {
       // ✅ On-page title
       titleEl.textContent = videoData.title;
 
-      // ✅ Top bar UI sentence (NOT SEO, just UI)
+      // ✅ Top bar UI text (now wraps properly)
       watchLabel.textContent =
         `Watch ${videoData.title} — streaming now in high quality`;
 
-      // ✅ Google SEO description (IMPORTANT)
+      // ✅ Google SEO meta description
       document.getElementById("metaDesc").setAttribute(
         "content",
         `Watch ${videoData.title} — streaming now in high quality`
