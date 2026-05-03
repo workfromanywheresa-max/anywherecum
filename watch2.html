@@ -51,11 +51,23 @@ iframe {
 
 h1 {
   font-size: 18px;
-  margin: 10px 0;
+  margin: 10px 0 5px;
 }
 
 .meta {
   color: #aaa;
+  font-size: 13px;
+}
+
+/* ✅ DROPDOWN STYLE */
+select {
+  display: block;
+  margin: 8px 0 10px;
+  padding: 6px;
+  background: #222;
+  color: white;
+  border: none;
+  border-radius: 5px;
   font-size: 13px;
 }
 </style>
@@ -70,6 +82,9 @@ h1 {
 <div class="container">
 
   <h1 id="title">Loading...</h1>
+
+  <!-- ✅ DROPDOWN ADDED HERE -->
+  <select id="qualitySelect"></select>
 
   <div class="videoBox">
     <iframe id="player" allowfullscreen></iframe>
@@ -88,6 +103,7 @@ const qualityIndex = Number(params.get("q")) || 0;
 const titleEl = document.getElementById("title");
 const descEl = document.getElementById("desc");
 const player = document.getElementById("player");
+const select = document.getElementById("qualitySelect");
 
 /* ---------------- DESCRIPTION ---------------- */
 function generateDescription(title) {
@@ -111,16 +127,34 @@ fetch("videos.json")
     const description = video.description || generateDescription(video.title);
     descEl.textContent = description;
 
-    /* ---------------- QUALITY SELECT ---------------- */
-    const selectedQuality =
-      video.qualities?.[qualityIndex] ||
-      video.qualities?.[0];
+    /* ---------------- QUALITY DROPDOWN ---------------- */
+    select.innerHTML = "";
 
-    player.src = selectedQuality?.embed || "";
+    video.qualities.forEach((q, index) => {
+      const option = document.createElement("option");
+      option.value = index;
+      option.textContent = q.label || `Quality ${index + 1}`;
+      if (index === qualityIndex) option.selected = true;
+      select.appendChild(option);
+    });
+
+    function loadQuality(index) {
+      const q = video.qualities[index];
+      if (!q) return;
+      player.src = q.embed;
+    }
+
+    // initial load
+    loadQuality(qualityIndex);
+
+    // on change
+    select.onchange = () => {
+      loadQuality(select.value);
+    };
 
     document.title = video.title;
 
-    /* ---------------- SEO META ---------------- */
+    /* ---------------- META ---------------- */
     const meta = document.createElement("meta");
     meta.name = "description";
     meta.content = description;
@@ -133,7 +167,7 @@ fetch("videos.json")
   });
 </script>
 
-  <script type="module" src="views2.js"></script>
+<script type="module" src="views2.js"></script>
 
 </body>
 </html>
