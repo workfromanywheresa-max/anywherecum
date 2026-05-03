@@ -550,14 +550,12 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
   });
 
   select.onchange = () => {
-    const selected = video.qualities[select.value];
-    currentEmbed = selected.embed;
+  const selectedIndex = select.value;
 
-    countWatchOnce(video.id);
+  countWatchOnce(video.id);
 
-    wrapper.dataset.loaded = "false";
-    loadPlayer();
-  };
+  window.location.href = `watch2.html?video=${video.id}&q=${selectedIndex}`;
+};
 
   const title = document.createElement("h3");
   title.className = "videoTitle";
