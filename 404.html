@@ -1,0 +1,9 @@
+<script>
+  const path = decodeURIComponent(window.location.pathname.slice(1));
+
+  if (path) {
+    window.location.replace("/folder.html?folder=" + encodeURIComponent(path));
+  } else {
+    window.location.replace("/");
+  }
+</script>
