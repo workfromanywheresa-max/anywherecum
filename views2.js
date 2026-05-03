@@ -477,10 +477,8 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
   preview.currentTime = 0.1;
 }, { once: true });
 
-  preview.onclick = () => {
+  preview.onclick = async () => {
   countWatchOnce(video.id);
-  window.location.href = `watch2.html?video=${video.id}`;
-};
 
   /* 🔥 SEND TO NEW WORKER ON CLICK */
 try {
