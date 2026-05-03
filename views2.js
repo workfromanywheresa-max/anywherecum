@@ -561,20 +561,9 @@ try {
     loadPlayer();
   };
 
-  const link = document.createElement("a");
-link.href = `watch2.html?video=${video.id}`;
-link.style.textDecoration = "none";
-link.style.color = "inherit";
-
-const title = document.createElement("h3");
-title.className = "videoTitle";
-title.textContent = video.title;
-
-link.appendChild(title);
-
-// ✅ append ONLY once
-box.appendChild(wrapper);
-box.appendChild(link);
+  const title = document.createElement("h3");
+  title.className = "videoTitle";
+  title.textContent = video.title;
 
   const downloadBtn = document.createElement("button");
 downloadBtn.className = "downloadBtn";
