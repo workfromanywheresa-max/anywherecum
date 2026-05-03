@@ -19,27 +19,22 @@ const staticPages = htmlFiles
   .map(f => `/${f}`);
 
 // ===============================
-// AUTO-DETECT FOLDER NAMES (FIXED)
+// AUTO-DETECT FOLDERS FROM videos.json
 // ===============================
 let folderSet = new Set();
 
-htmlFiles.forEach(file => {
-  const content = fs.readFileSync(file, "utf8");
+try {
+  const videos = JSON.parse(fs.readFileSync("videos.json", "utf8"));
 
-  // find folder.html?folder=ANYTHING
-  const regex = /folder\.html\?folder=([^"'&\s<>]+)/g;
-
-  let match;
-  while ((match = regex.exec(content)) !== null) {
-    const value = match[1];
-
-    try {
-      folderSet.add(decodeURIComponent(value));
-    } catch (e) {
-      folderSet.add(value);
+  videos.forEach(video => {
+    if (video.folder) {
+      folderSet.add(video.folder);
     }
-  }
-});
+  });
+
+} catch (err) {
+  console.error("Error reading videos.json:", err);
+}
 
 // convert detected folders into URLs
 const folders = [...folderSet].map(name =>
@@ -51,6 +46,9 @@ const urls = [...new Set([...staticPages, ...folders])];
 
 const today = new Date().toISOString().split("T")[0];
 
+// ===============================
+// BUILD SITEMAP
+// ===============================
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls
@@ -68,4 +66,4 @@ ${urls
 
 fs.writeFileSync("sitemap.xml", sitemap);
 
-console.log("Fully auto sitemap generated (no hardcoding)!");
+console.log("Fully auto sitemap generated from videos.json (NO HTML SCANNING)");
