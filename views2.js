@@ -321,6 +321,26 @@ function updateAllTimes() {
   });
 }
 
+function createStack(labelText, button) {
+  const stack = document.createElement("div");
+  stack.style.display = "flex";
+  stack.style.flexDirection = "column";
+  stack.style.alignItems = "center";
+  stack.style.justifyContent = "center";
+  stack.style.gap = "2px";
+
+  const label = document.createElement("div");
+  label.textContent = labelText;
+  label.style.fontSize = "10px";
+  label.style.color = "#aaa";
+  label.style.whiteSpace = "nowrap";
+
+  stack.appendChild(label);
+  stack.appendChild(button);
+
+  return stack;
+}
+
 /* ---------------- WORKER ---------------- */
 async function sendToWorker(videoId) {
   try {
@@ -884,11 +904,11 @@ leftGroup.style.display = "flex";
 leftGroup.style.gap = "10px";
 leftGroup.style.alignItems = "center";
 
-leftGroup.appendChild(shareBtn);
-leftGroup.appendChild(embedBtn);
-leftGroup.appendChild(downloadBtn);
-leftGroup.appendChild(donateBtn);
-
+leftGroup.appendChild(createStack("Share", shareBtn));
+leftGroup.appendChild(createStack("Embed", embedBtn));
+leftGroup.appendChild(createStack("Download", downloadBtn));
+leftGroup.appendChild(createStack("Donate", donateBtn));
+  
 /* RIGHT SIDE (LIKE ONLY) */
 const rightGroup = document.createElement("div");
 rightGroup.style.display = "flex";
