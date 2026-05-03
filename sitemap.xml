@@ -2,12 +2,6 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
   <url>
-    <loc>https://anywherecum.pages.dev/admin.html</loc>
-    <lastmod>2026-05-03</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://anywherecum.pages.dev/certificate.html</loc>
     <lastmod>2026-05-03</lastmod>
     <changefreq>daily</changefreq>
@@ -50,12 +44,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://anywherecum.pages.dev/folder.html</loc>
-    <lastmod>2026-05-03</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://anywherecum.pages.dev/folders.html</loc>
     <lastmod>2026-05-03</lastmod>
     <changefreq>daily</changefreq>
@@ -93,18 +81,6 @@
   </url>
   <url>
     <loc>https://anywherecum.pages.dev/thank-you.html</loc>
-    <lastmod>2026-05-03</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://anywherecum.pages.dev/video.html</loc>
-    <lastmod>2026-05-03</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://anywherecum.pages.dev/video2.html</loc>
     <lastmod>2026-05-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
