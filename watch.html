@@ -23,6 +23,11 @@
       Loading video...
     </h1>
 
+    <!-- ⏱️ TIMER -->
+    <p style="opacity:0.8; font-size:14px; margin-bottom:10px;">
+      Redirecting in <span id="timer">5</span> seconds...
+    </p>
+
     <video id="player"
       controls
       autoplay
@@ -31,16 +36,10 @@
       style="width:100%; max-width:900px; border-radius:10px; background:black;">
     </video>
 
-    <p style="opacity:0.7; font-size:13px; margin-top:10px;">
-      Redirecting to Live...
-    </p>
-
   </div>
 
   <script>
-    // 🔁 CHANGE THIS TO YOUR OWN APPROVED LANDING PAGE
     const adUrl = "https://www.juicyads.rocks";
-
     const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";
 
     const params = new URLSearchParams(window.location.search);
@@ -68,10 +67,19 @@
     document.getElementById("canonicalLink").href =
       window.location.origin + "/watch.html?video=" + video;
 
-    // ⏱️ 1 second delay then redirect
-    setTimeout(() => {
-      window.location.href = adUrl;
-    }, 5000);
+    // ⏱️ Countdown timer
+    let timeLeft = 5;
+    const timerEl = document.getElementById("timer");
+
+    const countdown = setInterval(() => {
+      timeLeft--;
+      timerEl.textContent = timeLeft;
+
+      if (timeLeft <= 0) {
+        clearInterval(countdown);
+        window.location.href = adUrl;
+      }
+    }, 1000);
   </script>
 
 </body>
