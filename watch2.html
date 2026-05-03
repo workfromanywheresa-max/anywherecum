@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<title>Watch Video</title>
-
-<style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Watch Video</title><style>
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -15,92 +11,131 @@ body {
 }
 
 .topBar {
-  padding: 10px;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  background: #1a1a1a;
+  padding: 10px;
+  background: #000;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
-button {
-  background: #ff4444;
+.backBtn {
+  background: transparent;
+  border: 1px solid #444;
   color: white;
-  border: none;
   padding: 6px 10px;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
 .container {
   padding: 10px;
-  max-width: 900px;
-  margin: auto;
 }
 
-/* ===== SAME VIDEO BOX STYLE (MATCH HOME PAGE) ===== */
-.videoBox {
-  background: #222;
-  border-radius: 8px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 10px;
-}
-
-.videoFrameWrapper {
+iframe {
   width: 100%;
-  aspect-ratio: 16 / 9;
-  background: #000;
-}
-
-.videoFrameWrapper iframe {
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
-.videoTitle {
-  margin: 6px 0;
-  font-size: 13px;
-  text-align: center;
-}
-
-.views {
-  color: #aaa;
-  font-size: 12px;
-  margin-bottom: 5px;
-}
-
-/* dropdown */
-select {
-  display: block;
-  width: fit-content;
-  max-width: 90%;
-  margin: 6px auto;
-  padding: 5px 10px;
-  border-radius: 5px;
+  height: 220px;
   border: none;
-  background: #333;
-  color: #fff;
-  font-size: 12px;
+  border-radius: 10px;
+  background: black;
 }
-</style>
-</head>
 
-<body>
+.title {
+  margin-top: 10px;
+  font-size: 16px;
+}
 
-<div class="topBar">
-  <button onclick="history.back()">← Back</button>
-</div>
+.select {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px;
+  background: #222;
+  color: white;
+  border: 1px solid #333;
+  border-radius: 6px;
+}
 
-<div class="container">
+.meta {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #aaa;
+}
+</style></head>
+<body><div class="topBar">
+  <button class="backBtn" onclick="history.back()">← Back</button>
+  <div>Watch</div>
+  <div></div>
+</div><div class="container">
+  <div id="player"></div>
+  <div id="title" class="title"></div>
+  <select id="quality" class="select"></select>
+  <div id="meta" class="meta"></div>
+</div><script>
+const params = new URLSearchParams(window.location.search);
+const videoId = params.get("video");
+const qIndex = Number(params.get("q") || 0);
 
-  <!-- 🔥 THIS IS WHERE views2.js WILL INJECT SAME VIDEO BOX -->
-  <div id="videoContainer"></div>
+const player = document.getElementById("player");
+const titleEl = document.getElementById("title");
+const qualityEl = document.getElementById("quality");
+const metaEl = document.getElementById("meta");
 
-</div>
+let videoData = null;
+let currentIndex = qIndex;
 
-<script type="module" src="watch.js"></script>
+function loadPlayer() {
+  const q = videoData.qualities[currentIndex];
+  player.innerHTML = `<iframe src="${q.embed}" allowfullscreen></iframe>`;
+  metaEl.textContent = `${q.label} • ${(q.size || "")}`;
+}
 
-</body>
+function init() {
+  if (!videoId) {
+    titleEl.textContent = "No video selected";
+    return;
+  }
+
+  fetch("videos.json")
+    .then(r => r.json())
+    .then(videos => {
+
+      videoData = videos.find(v => v.id === videoId);
+
+      if (!videoData) {
+        titleEl.textContent = "Video not found";
+        return;
+      }
+
+      document.title = videoData.title;
+      titleEl.textContent = videoData.title;
+
+      videoData.qualities.forEach((q, i) => {
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = q.label;
+        if (i === currentIndex) opt.selected = true;
+        qualityEl.appendChild(opt);
+      });
+
+      qualityEl.onchange = () => {
+        currentIndex = Number(qualityEl.value);
+        loadPlayer();
+        history.replaceState(null, "", `?video=${videoId}&q=${currentIndex}`);
+      };
+
+      loadPlayer();
+
+      // removed worker tracking as requested
+
+    })
+    .catch(err => {
+      titleEl.textContent = "Error loading video";
+      console.error(err);
+    });
+}
+
+init();
+</script></body>
 </html>
