@@ -2,8 +2,14 @@ const fs = require("fs");
 
 const baseUrl = "https://anywherecum.pages.dev";
 
-// scan all html files
-const htmlFiles = fs.readdirSync(".").filter(f => f.endsWith(".html"));
+// scan all html files (excluding unwanted system pages)
+const htmlFiles = fs.readdirSync(".").filter(f =>
+  f.endsWith(".html") &&
+  f !== "video2.html" &&
+  f !== "video.html" &&
+  f !== "folder.html" &&
+  f !== "admin.html"
+);
 
 // collect static pages
 const staticPages = htmlFiles
