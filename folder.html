@@ -936,7 +936,14 @@ window.VIDEO_CONFIG = {
       [class*="share"],
       [class*="embed"]
     `).forEach(el => el.remove());
-  }
+  
+document.querySelectorAll(".videoBox div").forEach(el => {
+    const txt = el.textContent?.trim();
+    if (txt === "Share" || txt === "Embed") {
+      el.parentElement?.remove();
+    }
+  });
+}
 
   removeVIPNoise();
   window.addEventListener("DOMContentLoaded", removeVIPNoise);
