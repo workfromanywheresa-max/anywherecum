@@ -940,12 +940,12 @@ window.VIDEO_CONFIG = {
 
 // ✅ ONLY remove Share / Embed TEXT safely
   document.querySelectorAll(".videoBox div").forEach(el => {
-    const txt = el.textContent?.trim();
+  const txt = el.textContent?.trim();
 
-    if (txt === "Share" || txt === "Embed") {
-      el.textContent = ""; // 👈 safe + simple
-    }
-  });
+  if (txt === "Share" || txt === "Embed") {
+    el.style.display = "none"; // ✅ FIX: hide instead of deleting text
+  }
+});
 }
 
   removeVIPNoise();
