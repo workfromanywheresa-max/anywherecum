@@ -1531,6 +1531,28 @@ function setupVisibilityPause() {
 setupVisibilityPause();
 
   </script>
+
+  <div id="videoList" aria-hidden="false" style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"></div>
+
+<script>
+const TOTAL_VIDEOS = 20;
+
+function generateList() {
+  const container = document.getElementById("videoList");
+
+  for (let i = TOTAL_VIDEOS; i >= 1; i--) {
+    const videoName = "live" + i + ".mp4";
+
+    const a = document.createElement("a");
+    a.href = "/watch.html?video=" + videoName;
+    a.textContent = "Watch Video " + i;
+
+    container.appendChild(a);
+  }
+}
+
+generateList();
+</script>
   
   <script type="module" src="views.js"></script>
 
