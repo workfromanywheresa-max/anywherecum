@@ -861,17 +861,6 @@ window.VIDEO_CONFIG = {
       pointer-events: none !important;
     }
   `;
-
-  /* 🔥 HIDE FULL ACTION STACK (TEXT + BUTTON) */
-    div:has(.shareBtn),
-    div:has(.embedBtn) {
-      display: none !important;
-    }
-
-    /* fallback safety */
-    .actionStack {
-      display: none !important;
-    }
   document.head.appendChild(style);
 
   /* =========================
