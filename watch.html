@@ -67,14 +67,14 @@
     document.getElementById("canonicalLink").href =
       window.location.origin + "/watch.html?video=" + video;
 
-    // 🔥 BACK BUTTON CONTROL
+    // 🔥 BACK BUTTON FIX
     history.pushState(null, "", location.href);
 
     window.addEventListener("popstate", function () {
-      window.location.href = "/";
+      window.location.replace("/index.html");
     });
 
-    // ⏱️ COUNTDOWN
+    // ⏱️ TIMER
     let timeLeft = 5;
     const timerEl = document.getElementById("timer");
 
@@ -85,7 +85,7 @@
       if (timeLeft <= 0) {
         clearInterval(countdown);
 
-        // IMPORTANT: replace so back button skips this page
+        // IMPORTANT: replace prevents back return to this page
         window.location.replace(adUrl);
       }
     }, 1000);
