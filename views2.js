@@ -341,6 +341,39 @@ function createStack(labelText, button) {
   return stack;
 }
 
+export function createVideoBox(video, index = 0) {
+  const box = document.createElement("div");
+  box.className = "videoBox";
+
+  box.innerHTML = `
+    <div class="videoFrameWrapper">
+      <iframe src="${video.qualities[index].embed}" allowfullscreen></iframe>
+    </div>
+
+    <h3 class="videoTitle">${video.title}</h3>
+
+    <p class="views">${video.views || "0 views"}</p>
+
+    <select>
+      ${video.qualities.map((q, i) =>
+        `<option value="${i}" ${i === index ? "selected" : ""}>
+          ${q.label}
+        </option>`
+      ).join("")}
+    </select>
+  `;
+
+  // dropdown logic
+  const select = box.querySelector("select");
+  const iframe = box.querySelector("iframe");
+
+  select.onchange = () => {
+    iframe.src = video.qualities[select.value].embed;
+  };
+
+  return box;
+}
+
 /* ---------------- WORKER ---------------- */
 async function sendToWorker(videoId) {
   try {
