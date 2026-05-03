@@ -3,28 +3,105 @@
 
   <url>
     <loc>https://anywherecum.pages.dev/</loc>
-    <lastmod>2026-03-21</lastmod>
+    <lastmod>2026-05-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
-    <loc>https://anywherecum.pages.dev/contact.html</loc>
-    <lastmod>2026-03-21</lastmod>
+    <loc>https://anywherecum.pages.dev/vip.html</loc>
+    <lastmod>2026-05-03</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://anywherecum.pages.dev/thank-you-vip.html</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://anywherecum.pages.dev/thank-you.html</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://anywherecum.pages.dev/support.html</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://anywherecum.pages.dev/terms-privacy.html</loc>
-    <lastmod>2026-03-21</lastmod>
+    <lastmod>2026-05-03</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
+    <loc>https://anywherecum.pages.dev/certificate.html</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://anywherecum.pages.dev/competition.html</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://anywherecum.pages.dev/contact.html</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://anywherecum.pages.dev/crypto-vip.html</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://anywherecum.pages.dev/crypto.html</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://anywherecum.pages.dev/donate.html</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://anywherecum.pages.dev/donation-guidlines.html</loc>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
     <loc>https://anywherecum.pages.dev/folder.html</loc>
-    <lastmod>2026-03-21</lastmod>
+    <lastmod>2026-05-03</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://anywherecum.pages.dev/folders.html</loc>
+    <lastmod>2026-05-03</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
