@@ -804,52 +804,7 @@ window.VIDEO_CONFIG = {
 };
 </script>
 
-  <script>
-document.addEventListener("DOMContentLoaded", function () {
-
-  const adId = "c04c459f06eefec9d4eeedb2a131c1d2";
-  const adBox = document.getElementById("bottom-ad-wrapper");
-
-  if (!adBox) return;
-
-  // ✅ shared session
-  let visitId = localStorage.getItem("visit_id");
-
-  if (!visitId) {
-    visitId = Date.now().toString() + "_" + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem("visit_id", visitId);
-  }
-
-  adBox.addEventListener("click", function () {
-
-    console.log("🟡 Ad clicked...");
-
-    setTimeout(async () => {
-      try {
-        await fetch("https://task.workfromanywhere-sa.workers.dev/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            type: "ad_click",
-            adId: adId,
-            visitId: visitId,
-            timestamp: Date.now()
-          })
-        });
-
-        console.log("✅ Ad click sent");
-
-      } catch (err) {
-        console.error("❌ Ad click failed:", err);
-      }
-    }, 60000);
-
-  });
-
-});
-  </script>
-
-  <script>
+<script>
 (function () {
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -906,6 +861,17 @@ document.addEventListener("DOMContentLoaded", function () {
       pointer-events: none !important;
     }
   `;
+
+  /* 🔥 HIDE FULL ACTION STACK (TEXT + BUTTON) */
+    div:has(.shareBtn),
+    div:has(.embedBtn) {
+      display: none !important;
+    }
+
+    /* fallback safety */
+    .actionStack {
+      display: none !important;
+    }
   document.head.appendChild(style);
 
   /* =========================
@@ -990,7 +956,7 @@ document.addEventListener("DOMContentLoaded", function () {
   setInterval(removeVIPNoise, 2000);
 
 })();
-  </script>
+</script>
   
 <script type="module" src="views2.js"></script>
 
