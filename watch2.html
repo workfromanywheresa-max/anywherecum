@@ -65,7 +65,6 @@ h1 {
 
 <div class="topBar">
   <button onclick="history.back()">← Back</button>
-  <div id="views">Views: 0</div>
 </div>
 
 <div class="container">
@@ -87,7 +86,11 @@ const videoId = params.get("video");
 const titleEl = document.getElementById("title");
 const descEl = document.getElementById("desc");
 const player = document.getElementById("player");
-const viewsEl = document.getElementById("views");
+
+// ✅ Your function
+function generateDescription(title) {
+  return `Watch "${title}" in high quality. Stream this video online with smooth playback anytime.`;
+}
 
 fetch("videos.json")
   .then(res => res.json())
@@ -100,26 +103,21 @@ fetch("videos.json")
       return;
     }
 
-    // Title
     titleEl.textContent = video.title;
 
-    // Description (optional)
-    descEl.textContent = video.description || "Watch this video online";
+    // ✅ use generated description
+    const description = video.description || generateDescription(video.title);
+    descEl.textContent = description;
 
-    // Load iframe (first quality)
     const first = video.qualities?.[0];
     player.src = first?.embed || "";
 
-    // Views (simple fallback)
-    viewsEl.textContent = "Views: " + (video.views || 0);
-
-    // SEO update
     document.title = video.title;
 
-    // Optional: update meta
+    // ✅ SEO meta description uses same logic
     const meta = document.createElement("meta");
     meta.name = "description";
-    meta.content = video.description || video.title;
+    meta.content = description;
     document.head.appendChild(meta);
   })
   .catch(err => {
