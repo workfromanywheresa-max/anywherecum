@@ -2,30 +2,40 @@ const fs = require("fs");
 
 const baseUrl = "https://anywherecum.pages.dev";
 
-// static pages
-const staticPages = [
-  "/",
-  "/vip.html",
-  "/thank-you-vip.html",
-  "/thank-you.html",
-  "/support.html",
-  "/terms-privacy.html",
-  "/certificate.html",
-  "/competition.html",
-  "/contact.html",
-  "/crypto-vip.html",
-  "/crypto.html",
-  "/donate.html",
-  "/donation-guidlines.html",
-  "/folders.html",
-];
+// scan all html files
+const htmlFiles = fs.readdirSync(".").filter(f => f.endsWith(".html"));
 
-// dynamic folders 1–8
-const folders = Array.from({ length: 8 }, (_, i) =>
-  `/folder.html?folder=${i + 1}`
+// collect static pages
+const staticPages = htmlFiles
+  .filter(f => f !== "sitemap.xml")
+  .map(f => `/${f}`);
+
+// ===============================
+// AUTO-DETECT FOLDER NAMES
+// ===============================
+let folderSet = new Set();
+
+htmlFiles.forEach(file => {
+  const content = fs.readFileSync(file, "utf8");
+
+  // find folder.html?folder=ANYTHING
+  const matches = content.match(/folder\.html\?folder=([^"'&\s]+)/g);
+
+  if (matches) {
+    matches.forEach(m => {
+      const value = m.split("folder=")[1];
+      if (value) folderSet.add(value);
+    });
+  }
+});
+
+// convert detected folders into URLs
+const folders = [...folderSet].map(name =>
+  `/folder.html?folder=${encodeURIComponent(name)}`
 );
 
-const urls = [...staticPages, ...folders];
+// final urls
+const urls = [...new Set([...staticPages, ...folders])];
 
 const today = new Date().toISOString().split("T")[0];
 
@@ -46,4 +56,4 @@ ${urls
 
 fs.writeFileSync("sitemap.xml", sitemap);
 
-console.log("Sitemap generated successfully!");
+console.log("Fully auto sitemap generated (no hardcoding)!");
