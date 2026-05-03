@@ -1,0 +1,34 @@
+name: Auto Sitemap Generator
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Get repo code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Setup Node.js
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # 3. Run sitemap generator
+      - name: Generate sitemap
+        run: node generate-sitemap.js
+
+      # 4. Commit sitemap back to repo
+      - name: Commit sitemap
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add sitemap.xml
+          git commit -m "Auto update sitemap" || echo "No changes"
+          git push
