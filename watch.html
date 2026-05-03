@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <title id="pageTitle">Watch Video</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- SEO -->
+  <meta name="description" id="metaDesc" content="Watch video online in HD">
+
+  <link rel="canonical" id="canonicalLink" href="">
+
+  <!-- Helps Google understand video content -->
+  <meta name="robots" content="index, follow">
+</head>
+
+<body style="margin:0; background:black; color:white; font-family:Arial;">
+
+  <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:20px;">
+
+    <!-- Title (important for SEO) -->
+    <h1 id="title" style="font-size:18px; margin-bottom:10px;">
+      Loading video...
+    </h1>
+
+    <!-- Video Player -->
+    <video id="player"
+      controls
+      autoplay
+      playsinline
+      preload="metadata"
+      style="width:100%; max-width:900px; border-radius:10px; background:black;">
+    </video>
+
+    <!-- Supporting text (helps indexing) -->
+    <p style="opacity:0.7; font-size:13px; margin-top:10px;">
+      Watch this video in HD quality. Fast streaming available.
+    </p>
+
+    <!-- Back link (important for crawling structure) -->
+    <a href="/" style="margin-top:15px; color:#fff; text-decoration:underline;">
+      ← Back to Home
+    </a>
+
+  </div>
+
+  <script>
+    const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";
+
+    const params = new URLSearchParams(window.location.search);
+    const video = params.get("video");
+
+    // Safety check
+    if (!video) {
+      document.body.innerHTML = `
+        <h1 style="color:white;text-align:center;margin-top:50px;">
+          No video selected
+        </h1>`;
+      throw new Error("No video provided");
+    }
+
+    const url = BASE + video;
+
+    // Load video
+    const player = document.getElementById("player");
+    player.src = url;
+
+    // Clean name for SEO
+    const cleanName = video.replace(".mp4", "").replace(/[-_]/g, " ");
+
+    const titleText = "Watch " + cleanName;
+
+    // SEO updates
+    document.getElementById("title").textContent = titleText;
+    document.getElementById("pageTitle").textContent = titleText;
+    document.getElementById("metaDesc").content = titleText + " full HD video online";
+
+    document.getElementById("canonicalLink").href =
+      window.location.origin + "/watch.html?video=" + video;
+  </script>
+
+</body>
+</html>
