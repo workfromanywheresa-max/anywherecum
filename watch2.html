@@ -1,8 +1,11 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Watch Video</title><style>
+<title>Watch Video</title>
+
+<style>
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -56,23 +59,29 @@ iframe {
   border: 1px solid #333;
   border-radius: 6px;
 }
+</style>
 
-.meta {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #aaa;
-}
-</style></head>
-<body><div class="topBar">
+</head>
+<body>
+
+<div class="topBar">
   <button class="backBtn" onclick="history.back()">← Back</button>
   <div>Watch</div>
   <div></div>
-</div><div class="container">
-  <div id="player"></div>
+</div>
+
+<div class="container">
+
   <div id="title" class="title"></div>
+
+  <!-- DROPDOWN MOVED HERE (ABOVE VIDEO) -->
   <select id="quality" class="select"></select>
-  <div id="meta" class="meta"></div>
-</div><script>
+
+  <div id="player"></div>
+
+</div>
+
+<script>
 const params = new URLSearchParams(window.location.search);
 const videoId = params.get("video");
 const qIndex = Number(params.get("q") || 0);
@@ -80,7 +89,6 @@ const qIndex = Number(params.get("q") || 0);
 const player = document.getElementById("player");
 const titleEl = document.getElementById("title");
 const qualityEl = document.getElementById("quality");
-const metaEl = document.getElementById("meta");
 
 let videoData = null;
 let currentIndex = qIndex;
@@ -88,7 +96,6 @@ let currentIndex = qIndex;
 function loadPlayer() {
   const q = videoData.qualities[currentIndex];
   player.innerHTML = `<iframe src="${q.embed}" allowfullscreen></iframe>`;
-  metaEl.textContent = `${q.label} • ${(q.size || "")}`;
 }
 
 function init() {
@@ -127,8 +134,6 @@ function init() {
 
       loadPlayer();
 
-      // removed worker tracking as requested
-
     })
     .catch(err => {
       titleEl.textContent = "Error loading video";
@@ -137,5 +142,7 @@ function init() {
 }
 
 init();
-</script></body>
+</script>
+
+</body>
 </html>
