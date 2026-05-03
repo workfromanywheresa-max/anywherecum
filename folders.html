@@ -846,6 +846,9 @@ async function loadFolders() {
   if (vipGlobal?.active && vipGlobal?.expiresAt) {
     expiryTime = new Date(vipGlobal.expiresAt).getTime();
   }
+
+  const res = await fetch('./videos.json');
+  const data = await res.json();
   
   const folders = {};
 
@@ -891,13 +894,6 @@ card.addEventListener("click", (e) => {
     window.location.href = "vip.html";
   }
 });
-
-    /* CLICK → NEW TAB */
-    card.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      window.open(link.href, "_blank", "noopener,noreferrer");
-    });
 
     card.appendChild(video);
     card.appendChild(link);
