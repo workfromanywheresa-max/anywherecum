@@ -17,30 +17,35 @@ const htmlFiles = fs.readdirSync(".").filter(f =>
 );
 
 // ===============================
-// HANDLE STATIC PAGES
+// STATIC PAGES
 // ===============================
 const staticPages = htmlFiles.map(f => {
   if (f.toLowerCase() === "index.html") {
-    return "/"; // homepage
+    return "/";
   }
   return `/${f}`;
 });
 
 // ===============================
-// EXTRACT FOLDERS FROM videos.json
+// FOLDERS FROM videos.json
 // ===============================
 let folderSet = new Set();
+let videoSet = new Set();
 
 try {
   const videos = JSON.parse(fs.readFileSync("videos.json", "utf8"));
 
   videos.forEach(video => {
     if (video.folder) {
-
-      // ❌ EXCLUDE VIP
       if (video.folder === "🔒VIP Exclusive") return;
-
       folderSet.add(video.folder.trim());
+    }
+
+    // ===============================
+    // ✅ ADD WATCH PAGES HERE
+    // ===============================
+    if (video.file) {
+      videoSet.add(`/watch.html?video=${encodeURIComponent(video.file)}`);
     }
   });
 
@@ -49,18 +54,24 @@ try {
 }
 
 // ===============================
-// ✅ REAL URL FORMAT (NO MISMATCH)
+// FOLDER URLS
 // ===============================
 const folderPages = [...folderSet].map(name =>
   `/folder.html?folder=${encodeURIComponent(name)}`
 );
 
 // ===============================
-// COMBINE + REMOVE DUPLICATES
+// WATCH URLS
+// ===============================
+const watchPages = [...videoSet];
+
+// ===============================
+// COMBINE ALL URLS
 // ===============================
 const urls = [...new Set([
   ...staticPages,
-  ...folderPages
+  ...folderPages,
+  ...watchPages
 ])];
 
 // ===============================
@@ -78,7 +89,7 @@ ${urls.map(url => `
     <loc>${baseUrl}${url}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
-    <priority>${url === "/" ? "1.0" : "0.8"}</priority>
+    <priority>${url === "/" ? "1.0" : url.includes("watch") ? "0.9" : "0.8"}</priority>
   </url>`).join("")}
 </urlset>`;
 
@@ -87,4 +98,4 @@ ${urls.map(url => `
 // ===============================
 fs.writeFileSync("sitemap.xml", sitemap);
 
-console.log("✅ Sitemap generated with REAL URLs (no indexing mismatch)");
+console.log("✅ Sitemap generated INCLUDING /watch.html?video= pages");
