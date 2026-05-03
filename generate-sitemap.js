@@ -40,9 +40,11 @@ try {
   console.error("Error reading videos.json:", err);
 }
 
-// convert detected folders into URLs
+// ===============================
+// 🔥 ONLY CHANGE: CLEAN URL FORMAT
+// ===============================
 const folders = [...folderSet].map(name =>
-  `/folder.html?folder=${encodeURIComponent(name)}`
+  `/${encodeURIComponent(name)}`
 );
 
 // final urls
