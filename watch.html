@@ -19,38 +19,28 @@
 
   <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:20px;">
 
-    <!-- Title -->
     <h1 id="title" style="font-size:18px; margin-bottom:10px;">
       Loading video...
     </h1>
 
-    <!-- ================= AD BLOCK ================= -->
-    <div id="adBox" style="margin-bottom:15px;">
-      <script src="https://www.juicyads.rocks/ad.js"></script>
-    </div>
-
-    <!-- Video Player -->
     <video id="player"
       controls
       autoplay
       playsinline
       preload="metadata"
-      style="width:100%; max-width:900px; border-radius:10px; background:black; display:none;">
+      style="width:100%; max-width:900px; border-radius:10px; background:black;">
     </video>
 
-    <!-- Supporting text -->
     <p style="opacity:0.7; font-size:13px; margin-top:10px;">
-      Watch this video in HD quality. Fast streaming available.
+      Preparing your video...
     </p>
-
-    <!-- Back link -->
-    <a href="/" style="margin-top:15px; color:#fff; text-decoration:underline;">
-      ← Back to Home
-    </a>
 
   </div>
 
   <script>
+    // 🔁 CHANGE THIS TO YOUR OWN APPROVED LANDING PAGE
+    const adUrl = "https://www.juicyads.rocks";
+
     const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";
 
     const params = new URLSearchParams(window.location.search);
@@ -65,13 +55,9 @@
     }
 
     const url = BASE + video;
-
     const player = document.getElementById("player");
-
-    // Load video but keep hidden until ad loads
     player.src = url;
 
-    // Clean SEO title
     const cleanName = video.replace(".mp4", "").replace(/[-_]/g, " ");
     const titleText = "Watch " + cleanName;
 
@@ -82,16 +68,9 @@
     document.getElementById("canonicalLink").href =
       window.location.origin + "/watch.html?video=" + video;
 
-    // ================= AD + VIDEO FLOW =================
+    // ⏱️ 1 second delay then redirect
     setTimeout(() => {
-      // hide ad after short exposure
-      document.getElementById("adBox").style.display = "none";
-
-      // show video
-      player.style.display = "block";
-
-      // play
-      player.play().catch(() => {});
+      window.location.href = adUrl;
     }, 1000);
   </script>
 
