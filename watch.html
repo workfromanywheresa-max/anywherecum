@@ -2,87 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-
-  <title id="pageTitle">Watch Video</title>
-
+  <title>Watch Video</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- SEO -->
-  <meta name="description" id="metaDesc" content="Watch video online in HD">
-
-  <link rel="canonical" id="canonicalLink" href="">
-
-  <meta name="robots" content="index, follow">
 </head>
 
-<body style="margin:0; background:black; color:white; font-family:Arial;">
+<body style="margin:0;background:black;color:white;font-family:Arial;">
 
-  <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:20px;">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:20px;">
+    <h1 id="title">Loading video...</h1>
 
-    <h1 id="title" style="font-size:18px; margin-bottom:10px;">
-      Loading video...
-    </h1>
-
-    <!-- ⏱️ TIMER -->
-    <p style="opacity:0.8; font-size:14px; margin-bottom:10px;">
-      Redirecting to 🔴LIVE video in <span id="timer">5</span> seconds...
+    <p>
+      Redirecting in <span id="timer">5</span> seconds...
     </p>
 
-    <video id="player"
-      controls
-      autoplay
-      playsinline
-      preload="metadata"
-      style="width:100%; max-width:900px; border-radius:10px; background:black;">
+    <video id="player" controls autoplay playsinline
+      style="width:100%;max-width:900px;border-radius:10px;">
     </video>
-
   </div>
 
   <script>
-    const adUrl = "https://www.juicyads.rocks";
     const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";
+    const adBridge = "/bridge.html";
 
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(location.search);
     const video = params.get("video");
 
     if (!video) {
-      document.body.innerHTML = `
-        <h1 style="color:white;text-align:center;margin-top:50px;">
-          No video selected
-        </h1>`;
-      throw new Error("No video provided");
+      document.body.innerHTML = "<h1>No video selected</h1>";
+      throw new Error("No video");
     }
 
-    const url = BASE + video;
-    const player = document.getElementById("player");
-    player.src = url;
+    document.getElementById("player").src = BASE + video;
+    document.getElementById("title").textContent = video.replace(".mp4","");
 
-    const cleanName = video.replace(".mp4", "").replace(/[-_]/g, " ");
-    const titleText = "Watch " + cleanName;
-
-    document.getElementById("title").textContent = titleText;
-    document.getElementById("pageTitle").textContent = titleText;
-    document.getElementById("metaDesc").content = titleText + " full HD video online";
-
-    document.getElementById("canonicalLink").href =
-      window.location.origin + "/watch.html?video=" + video;
-
-    // ⏱️ Countdown
     let timeLeft = 5;
-    const timerEl = document.getElementById("timer");
+    const timer = document.getElementById("timer");
 
     const countdown = setInterval(() => {
       timeLeft--;
-      timerEl.textContent = timeLeft;
+      timer.textContent = timeLeft;
 
       if (timeLeft <= 0) {
         clearInterval(countdown);
 
-        // ✅ FIX: remove watch.html from history BEFORE redirect
+        // 🔥 KEY FIX: remove watch from history completely
         history.replaceState(null, "", "/");
 
-        // go to ad
-        window.location.href = adUrl;
+        // go to bridge (not ad directly)
+        window.location.replace(adBridge + "?video=" + encodeURIComponent(video));
       }
     }, 1000);
   </script>
