@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
 <title>Watch Video</title>
+
+<!-- ✅ DEFAULT META DESCRIPTION (fallback for Google) -->
+<meta id="metaDesc" name="description" content="Watch videos in high quality online." />
 
 <style>
 body {
@@ -33,6 +37,16 @@ body {
   cursor: pointer;
 }
 
+#watchLabel {
+  font-size: 12px;
+  color: #aaa;
+  max-width: 70%;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .container {
   padding: 10px;
 }
@@ -47,9 +61,9 @@ iframe {
 
 select {
   display: block;
-  width: fit-content;     /* ✅ prevents full width */
+  width: fit-content;
   max-width: 90%;
-  margin: 6px auto;       /* ✅ center horizontally */
+  margin: 6px auto;
 
   padding: 5px 10px;
   border-radius: 5px;
@@ -59,7 +73,6 @@ select {
   font-size: 12px;
 }
 
-/* TITLE NOW CENTERED UNDER VIDEO */
 .title {
   margin-top: 10px;
   font-size: 16px;
@@ -72,13 +85,13 @@ select {
 
 <div class="topBar">
   <button class="backBtn" onclick="history.back()">← Back</button>
-  <div>Watch</div>
+  <div id="watchLabel">Watch</div>
   <div></div>
 </div>
 
 <div class="container">
 
-  <select id="quality" class="select"></select>
+  <select id="quality"></select>
 
   <div id="player"></div>
 
@@ -94,6 +107,7 @@ const qIndex = Number(params.get("q") || 0);
 const player = document.getElementById("player");
 const titleEl = document.getElementById("title");
 const qualityEl = document.getElementById("quality");
+const watchLabel = document.getElementById("watchLabel");
 
 let videoData = null;
 let currentIndex = qIndex;
@@ -120,9 +134,23 @@ function init() {
         return;
       }
 
+      // ✅ Page title (Google + browser tab)
       document.title = videoData.title;
+
+      // ✅ On-page title
       titleEl.textContent = videoData.title;
 
+      // ✅ Top bar UI sentence (NOT SEO, just UI)
+      watchLabel.textContent =
+        `Watch ${videoData.title} — streaming now in high quality`;
+
+      // ✅ Google SEO description (IMPORTANT)
+      document.getElementById("metaDesc").setAttribute(
+        "content",
+        `Watch ${videoData.title} — streaming now in high quality`
+      );
+
+      // quality dropdown
       videoData.qualities.forEach((q, i) => {
         const opt = document.createElement("option");
         opt.value = i;
