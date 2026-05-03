@@ -36,36 +36,47 @@ button {
   margin: auto;
 }
 
+/* ===== SAME VIDEO BOX STYLE (MATCH HOME PAGE) ===== */
 .videoBox {
-  width: 100%;
-  background: black;
-  aspect-ratio: 16 / 9;
-  margin-bottom: 10px;
+  background: #222;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
 }
 
-iframe {
+.videoFrameWrapper {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+
+.videoFrameWrapper iframe {
   width: 100%;
   height: 100%;
   border: 0;
 }
 
-h1 {
-  font-size: 18px;
-  margin: 10px 0 5px;
-}
-
-.meta {
-  color: #aaa;
+.videoTitle {
+  margin: 6px 0;
   font-size: 13px;
+  text-align: center;
 }
 
-/* ✅ DROPDOWN STYLE */
+.views {
+  color: #aaa;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+/* dropdown */
 select {
   display: block;
-  width: fit-content;     /* ✅ prevents full width */
+  width: fit-content;
   max-width: 90%;
-  margin: 6px auto;       /* ✅ center horizontally */
-
+  margin: 6px auto;
   padding: 5px 10px;
   border-radius: 5px;
   border: none;
@@ -84,93 +95,12 @@ select {
 
 <div class="container">
 
-  <h1 id="title">Loading...</h1>
-
-  <!-- ✅ DROPDOWN ADDED HERE -->
-  <select id="qualitySelect"></select>
-
-  <div class="videoBox">
-    <iframe id="player" allowfullscreen></iframe>
-  </div>
-
-  <div class="meta" id="desc"></div>
+  <!-- 🔥 THIS IS WHERE views2.js WILL INJECT SAME VIDEO BOX -->
+  <div id="videoContainer"></div>
 
 </div>
 
-<script>
-const params = new URLSearchParams(window.location.search);
-
-const videoId = params.get("video");
-const qualityIndex = Number(params.get("q")) || 0;
-
-const titleEl = document.getElementById("title");
-const descEl = document.getElementById("desc");
-const player = document.getElementById("player");
-const select = document.getElementById("qualitySelect");
-
-/* ---------------- DESCRIPTION ---------------- */
-function generateDescription(title) {
-  return `Watch "${title}" in high quality. Stream this video online with smooth playback anytime.`;
-}
-
-/* ---------------- LOAD DATA ---------------- */
-fetch("videos.json")
-  .then(res => res.json())
-  .then(videos => {
-
-    const video = videos.find(v => v.id === videoId);
-
-    if (!video) {
-      titleEl.textContent = "Video not found";
-      return;
-    }
-
-    titleEl.textContent = video.title;
-
-    const description = video.description || generateDescription(video.title);
-    descEl.textContent = description;
-
-    /* ---------------- QUALITY DROPDOWN ---------------- */
-    select.innerHTML = "";
-
-    video.qualities.forEach((q, index) => {
-      const option = document.createElement("option");
-      option.value = index;
-      option.textContent = q.label || `Quality ${index + 1}`;
-      if (index === qualityIndex) option.selected = true;
-      select.appendChild(option);
-    });
-
-    function loadQuality(index) {
-      const q = video.qualities[index];
-      if (!q) return;
-      player.src = q.embed;
-    }
-
-    // initial load
-    loadQuality(qualityIndex);
-
-    // on change
-    select.onchange = () => {
-      loadQuality(select.value);
-    };
-
-    document.title = video.title;
-
-    /* ---------------- META ---------------- */
-    const meta = document.createElement("meta");
-    meta.name = "description";
-    meta.content = description;
-    document.head.appendChild(meta);
-
-  })
-  .catch(err => {
-    titleEl.textContent = "Error loading video";
-    console.error(err);
-  });
-</script>
-
-<script type="module" src="views2.js"></script>
+<script type="module" src="watch.js"></script>
 
 </body>
 </html>
