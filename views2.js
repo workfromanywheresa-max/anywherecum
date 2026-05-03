@@ -540,17 +540,16 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
   wrapper.appendChild(views);
 
   const select = document.createElement("select");
-const select = document.createElement("select");
 
-video.qualities.forEach((q, index) => {
-  const option = document.createElement("option");
-  option.value = index;
-  option.textContent = `Stream - ${q.label}`;
-  if (q === defaultQuality) option.selected = true;
-  select.appendChild(option);
-});
+  video.qualities.forEach((q, index) => {
+    const option = document.createElement("option");
+    option.value = index;
+    option.textContent = `Stream - ${q.label}`;
+    if (q === defaultQuality) option.selected = true;
+    select.appendChild(option);
+  });
 
-select.onchange = () => {
+  select.onchange = () => {
   const selectedIndex = select.value;
 
   countWatchOnce(video.id);
