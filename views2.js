@@ -540,22 +540,27 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
   wrapper.appendChild(views);
 
   const select = document.createElement("select");
+const select = document.createElement("select");
 
-  video.qualities.forEach((q, index) => {
-    const option = document.createElement("option");
-    option.value = index;
-    option.textContent = `Stream - ${q.label}`;
-    if (q === defaultQuality) option.selected = true;
-    select.appendChild(option);
-  });
+video.qualities.forEach((q, index) => {
+  const option = document.createElement("option");
+  option.value = index;
+  option.textContent = `Stream - ${q.label}`;
+  if (q === defaultQuality) option.selected = true;
+  select.appendChild(option);
+});
 
-  select.onchange = () => {
+select.onchange = () => {
   const selectedIndex = select.value;
 
   countWatchOnce(video.id);
 
   window.location.href = `watch2.html?video=${video.id}&q=${selectedIndex}`;
 };
+
+/* 🔥 REQUIRED: inject into page */
+document.querySelector(".container")
+  .insertBefore(select, document.querySelector(".videoBox"));
 
   const title = document.createElement("h3");
   title.className = "videoTitle";
