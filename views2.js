@@ -341,53 +341,6 @@ function createStack(labelText, button) {
   return stack;
 }
 
-export function createVideoBox(video, index = 0) {
-  const box = document.createElement("div");
-  box.className = "videoBox";
-  box.id = `video-${video.id}`;
-
-  const wrapper = document.createElement("div");
-  wrapper.className = "videoFrameWrapper";
-  wrapper.style.position = "relative";
-
-  const iframe = document.createElement("iframe");
-  iframe.src = video.qualities[index]?.embed || video.qualities[0].embed;
-  iframe.allowFullscreen = true;
-
-  wrapper.appendChild(iframe);
-
-  const title = document.createElement("h3");
-  title.className = "videoTitle";
-  title.textContent = video.title;
-
-  const views = document.createElement("p");
-  views.className = "views";
-  views.textContent = video.views || "0 views";
-
-  // dropdown (REUSABLE PART)
-  const select = document.createElement("select");
-
-  video.qualities.forEach((q, i) => {
-    const option = document.createElement("option");
-    option.value = i;
-    option.textContent = q.label;
-    if (i === index) option.selected = true;
-    select.appendChild(option);
-  });
-
-  select.onchange = () => {
-    iframe.src = video.qualities[select.value].embed;
-  };
-
-  // assemble
-  box.appendChild(wrapper);
-  box.appendChild(title);
-  box.appendChild(views);
-  box.appendChild(select);
-
-  return box;
-}
-
 /* ---------------- WORKER ---------------- */
 async function sendToWorker(videoId) {
   try {
