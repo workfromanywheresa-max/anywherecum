@@ -1543,6 +1543,22 @@ function generateList() {
 
 generateList();
 </script>
+
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  document.querySelector(".banner").addEventListener("click", (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    const clickX = e.clientX - rect.left;
+
+    if (clickX > rect.width - 80) {
+      window.open("https://www.juicyads.rocks", "_blank");
+    }
+  });
+
+});
+  </script>
   
   <script type="module" src="views.js"></script>
 
