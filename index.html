@@ -1191,140 +1191,131 @@ document.addEventListener("DOMContentLoaded", () => {
   loadVideos().then(() => startVipCountdown());
 });
   </script>
+    
+  <script>
+(async function () {
+
+  const cta = document.getElementById("vipCTA");
+  if (!cta) return;
+
+  try {
+    const res = await fetch("https://vipkeys.workfromanywhere-sa.workers.dev/check-session", {
+      method: "POST",
+      credentials: "include"
+    });
+
+    const data = await res.json();
+    const isVIP = data.active === true;
+
+    if (isVIP) {
+      cta.style.display = "none";
+      console.log("💎 VIP detected — CTA hidden");
+    } else {
+      cta.style.display = "block";
+      console.log("👤 Non-VIP — CTA visible");
+    }
+
+  } catch (err) {
+    console.error("VIP check failed:", err);
+    cta.style.display = "block"; // fallback
+  }
+
+})();
+  </script>
+
+  <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const API = "https://competition.workfromanywhere-sa.workers.dev";
+
+const firebaseConfig = {
+  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+let endTime = null;
+
+/* ================= CACHE ================= */
+const savedTime = localStorage.getItem("vip_end_time");
+if (savedTime) {
+  endTime = Number(savedTime);
+  startTimer();
+}
+
+/* ================= LOAD STATUS FROM API ================= */
+async function loadStatus() {
+  try {
+    const res = await fetch(API + "/status");
+    const data = await res.json();
+
+    if (data?.end_time) {
+      endTime = Number(data.end_time);
+      localStorage.setItem("vip_end_time", endTime);
+      startTimer();
+    }
+  } catch (e) {
+    console.log("Status load failed", e);
+  }
+}
+
+/* ================= TIMER ================= */
+function startTimer() {
+  updateTimer();
+  setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+  if (!endTime) return;
+
+  const diff = endTime - Date.now();
+  const btn = document.getElementById("miniCountdown");
+
+  if (diff <= 0) {
+    btn.innerText = "(ended)";
+    return;
+  }
+
+  const totalSeconds = Math.floor(diff / 1000);
+
+  const days = Math.floor(totalSeconds / (3600 * 24));
+  const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const time =
+    `${days}d:` +
+    `${String(hours).padStart(2,'0')}h:` +
+    `${String(minutes).padStart(2,'0')}m:` +
+    `${String(seconds).padStart(2,'0')}s`;
+
+  btn.innerText = "(" + time + ")";
+}
+
+/* ================= REALTIME (OPTIONAL ENTRIES COUNT) ================= */
+function startEntryCounter() {
+  const entriesRef = ref(db, "entries");
+
+  onValue(entriesRef, (snapshot) => {
+    const data = snapshot.val();
+    const count = data ? Object.keys(data).length : 0;
+
+    console.log("Entries:", count);
+  });
+}
+
+/* ================= INIT ================= */
+async function init() {
+  await loadStatus();
+  startEntryCounter();
+}
+
+init();
+  </script>
 
   <script>  
-const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";  
-const CACHE_NAME = "live-video-cache-v1";  
-
-let fullData = [];  
-let startIndex = 0;  
-
-const TOTAL_VIDEOS = 20;  
-const SLIDE_INTERVAL = 15000;  
-
-let intervalStarted = false;  
-let sliderInterval = null;  
-
-// =====================  
-// GENERATE LIST  
-// =====================  
-function generateVideos() {  
-  const arr = [];  
-  for (let i = TOTAL_VIDEOS; i >= 1; i--) {  
-    arr.push({ video: BASE + "live" + i + ".mp4" });  
-  }  
-  return arr;  
-}  
-
-// =====================  
-// INIT  
-// =====================  
-function initLivesOnce() {  
-  const container = document.getElementById("liveContainer");  
-  container.innerHTML = "";  
-
-  const track = document.createElement("div");  
-  track.id = "liveTrack";  
-
-  const loopData = [...fullData, ...fullData.slice(0, 5)];  
-
-  loopData.forEach((item, index) => {  
-    const div = document.createElement("div");  
-    div.className = "live-user";  
-
-    const ring = document.createElement("div");  
-    ring.className = "live-ring";  
-
-    const video = document.createElement("video");  
-    video.src = item.video;  
-    video.muted = true;  
-    video.autoplay = false;  
-    video.loop = true;  
-    video.playsInline = true;  
-    video.preload = "metadata";  
-
-    if (index === 0) {  
-      video.addEventListener("loadeddata", () => {  
-        if (!intervalStarted) {  
-          intervalStarted = true;  
-          startSlider();  
-        }  
-      });  
-    }  
-
-    const badge = document.createElement("span");  
-    badge.className = "live-badge";  
-    badge.textContent = "LIVE";  
-
-    ring.appendChild(video);  
-    ring.appendChild(badge);  
-
-    const viewers = document.createElement("div");  
-    viewers.className = "viewers";  
-    viewers.textContent = "👁️ " + randomViews();  
-
-    div.appendChild(ring);  
-    div.appendChild(viewers);  
-
-    track.appendChild(div);  
-  });  
-
-  container.appendChild(track);  
-
-  updateTrackPosition(false);  
-  controlVideoPlayback();  
-}  
-
-// =====================  
-// CLICK  
-// =====================  
-document.querySelector(".banner").addEventListener("click", () => {  
-  window.open("https://www.juicyads.rocks", "_blank");  
-});  
-
-// =====================  
-// MOVE RIGHT  
-// =====================  
-function moveRight() {  
-  startIndex++;  
-
-  updateTrackPosition();  
-  controlVideoPlayback();  
-
-  if (startIndex === fullData.length) {  
-    requestAnimationFrame(() => {  
-      const track = document.getElementById("liveTrack");  
-      track.style.transition = "none";  
-      startIndex = 0;  
-      updateTrackPosition(false);  
-      controlVideoPlayback();  
-    });  
-  }  
-
-  localStorage.setItem("liveIndex", startIndex);  
-}  
-
-// =====================  
-// POSITION  
-// =====================  
-function updateTrackPosition(animate = true) {  
-  const track = document.getElementById("liveTrack");  
-  const item = document.querySelector(".live-user");  
-  if (!track || !item) return;  
-
-  const width = item.offsetWidth;  
-
-  track.style.transition = animate ? "transform 0.4s ease" : "none";  
-  track.style.transform = `translateX(-${startIndex * width}px)`;  
-}  
-
-// =====================  
-// PLAY ONLY 5 VIDEOS  
-// =====================  
-function controlVideoPlayback() {  
-  const items = document.querySelectorAll(".live-user");  
-
-<script>  
 const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";  
 const CACHE_NAME = "live-video-cache-v1";  
 
@@ -1539,129 +1530,6 @@ function setupVisibilityPause() {
 
 setupVisibilityPause();
 
-</script>
-    
-  <script>
-(async function () {
-
-  const cta = document.getElementById("vipCTA");
-  if (!cta) return;
-
-  try {
-    const res = await fetch("https://vipkeys.workfromanywhere-sa.workers.dev/check-session", {
-      method: "POST",
-      credentials: "include"
-    });
-
-    const data = await res.json();
-    const isVIP = data.active === true;
-
-    if (isVIP) {
-      cta.style.display = "none";
-      console.log("💎 VIP detected — CTA hidden");
-    } else {
-      cta.style.display = "block";
-      console.log("👤 Non-VIP — CTA visible");
-    }
-
-  } catch (err) {
-    console.error("VIP check failed:", err);
-    cta.style.display = "block"; // fallback
-  }
-
-})();
-  </script>
-
-  <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
-const API = "https://competition.workfromanywhere-sa.workers.dev";
-
-const firebaseConfig = {
-  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-let endTime = null;
-
-/* ================= CACHE ================= */
-const savedTime = localStorage.getItem("vip_end_time");
-if (savedTime) {
-  endTime = Number(savedTime);
-  startTimer();
-}
-
-/* ================= LOAD STATUS FROM API ================= */
-async function loadStatus() {
-  try {
-    const res = await fetch(API + "/status");
-    const data = await res.json();
-
-    if (data?.end_time) {
-      endTime = Number(data.end_time);
-      localStorage.setItem("vip_end_time", endTime);
-      startTimer();
-    }
-  } catch (e) {
-    console.log("Status load failed", e);
-  }
-}
-
-/* ================= TIMER ================= */
-function startTimer() {
-  updateTimer();
-  setInterval(updateTimer, 1000);
-}
-
-function updateTimer() {
-  if (!endTime) return;
-
-  const diff = endTime - Date.now();
-  const btn = document.getElementById("miniCountdown");
-
-  if (diff <= 0) {
-    btn.innerText = "(ended)";
-    return;
-  }
-
-  const totalSeconds = Math.floor(diff / 1000);
-
-  const days = Math.floor(totalSeconds / (3600 * 24));
-  const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-
-  const time =
-    `${days}d:` +
-    `${String(hours).padStart(2,'0')}h:` +
-    `${String(minutes).padStart(2,'0')}m:` +
-    `${String(seconds).padStart(2,'0')}s`;
-
-  btn.innerText = "(" + time + ")";
-}
-
-/* ================= REALTIME (OPTIONAL ENTRIES COUNT) ================= */
-function startEntryCounter() {
-  const entriesRef = ref(db, "entries");
-
-  onValue(entriesRef, (snapshot) => {
-    const data = snapshot.val();
-    const count = data ? Object.keys(data).length : 0;
-
-    console.log("Entries:", count);
-  });
-}
-
-/* ================= INIT ================= */
-async function init() {
-  await loadStatus();
-  startEntryCounter();
-}
-
-init();
   </script>
   
   <script type="module" src="views.js"></script>
