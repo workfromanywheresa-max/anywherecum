@@ -900,6 +900,14 @@ window.VIDEO_CONFIG = {
       el.remove();
     });
 
+// ✅ ADD THIS HERE
+document.querySelectorAll(".videoBox div").forEach(el => {
+  const txt = el.textContent?.trim();
+
+  if (txt === "Share" || txt === "Embed") {
+    el.classList.add("vip-hide");
+  }
+});
     document.querySelectorAll("script").forEach(script => {
       if (script.src && isBlockedScript(script.src)) {
         console.log("🚫 BLOCKED SCRIPT:", script.src);
