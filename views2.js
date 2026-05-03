@@ -323,6 +323,7 @@ function updateAllTimes() {
 
 function createStack(labelText, button) {
   const stack = document.createElement("div");
+  stack.className = "actionStack"; // ✅ ADD THIS
   stack.style.display = "flex";
   stack.style.flexDirection = "column";
   stack.style.alignItems = "center";
