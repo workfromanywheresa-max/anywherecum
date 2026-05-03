@@ -477,11 +477,11 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
   preview.currentTime = 0.1;
 }, { once: true });
 
-  preview.addEventListener("click", async () => {
-  countWatchOnce(video.id);
+  preview.onclick = async () => {
+  await countWatchOnce(video.id);
 
   window.location.href = `watch2.html?video=${video.id}`;
-});
+};
   
   /* 🔥 SEND TO NEW WORKER ON CLICK */
 try {
