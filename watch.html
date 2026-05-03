@@ -12,7 +12,6 @@
 
   <link rel="canonical" id="canonicalLink" href="">
 
-  <!-- Helps Google understand video content -->
   <meta name="robots" content="index, follow">
 </head>
 
@@ -20,10 +19,15 @@
 
   <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:20px;">
 
-    <!-- Title (important for SEO) -->
+    <!-- Title -->
     <h1 id="title" style="font-size:18px; margin-bottom:10px;">
       Loading video...
     </h1>
+
+    <!-- ================= AD BLOCK ================= -->
+    <div id="adBox" style="margin-bottom:15px;">
+      <script src="https://www.juicyads.rocks/ad.js"></script>
+    </div>
 
     <!-- Video Player -->
     <video id="player"
@@ -31,15 +35,15 @@
       autoplay
       playsinline
       preload="metadata"
-      style="width:100%; max-width:900px; border-radius:10px; background:black;">
+      style="width:100%; max-width:900px; border-radius:10px; background:black; display:none;">
     </video>
 
-    <!-- Supporting text (helps indexing) -->
+    <!-- Supporting text -->
     <p style="opacity:0.7; font-size:13px; margin-top:10px;">
       Watch this video in HD quality. Fast streaming available.
     </p>
 
-    <!-- Back link (important for crawling structure) -->
+    <!-- Back link -->
     <a href="/" style="margin-top:15px; color:#fff; text-decoration:underline;">
       ← Back to Home
     </a>
@@ -52,7 +56,6 @@
     const params = new URLSearchParams(window.location.search);
     const video = params.get("video");
 
-    // Safety check
     if (!video) {
       document.body.innerHTML = `
         <h1 style="color:white;text-align:center;margin-top:50px;">
@@ -63,22 +66,33 @@
 
     const url = BASE + video;
 
-    // Load video
     const player = document.getElementById("player");
+
+    // Load video but keep hidden until ad loads
     player.src = url;
 
-    // Clean name for SEO
+    // Clean SEO title
     const cleanName = video.replace(".mp4", "").replace(/[-_]/g, " ");
-
     const titleText = "Watch " + cleanName;
 
-    // SEO updates
     document.getElementById("title").textContent = titleText;
     document.getElementById("pageTitle").textContent = titleText;
     document.getElementById("metaDesc").content = titleText + " full HD video online";
 
     document.getElementById("canonicalLink").href =
       window.location.origin + "/watch.html?video=" + video;
+
+    // ================= AD + VIDEO FLOW =================
+    setTimeout(() => {
+      // hide ad after short exposure
+      document.getElementById("adBox").style.display = "none";
+
+      // show video
+      player.style.display = "block";
+
+      // play
+      player.play().catch(() => {});
+    }, 1000);
   </script>
 
 </body>
