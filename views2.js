@@ -557,10 +557,6 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
   window.location.href = `watch2.html?video=${video.id}&q=${selectedIndex}`;
 };
 
-/* 🔥 REQUIRED: inject into page */
-document.querySelector(".container")
-  .insertBefore(select, document.querySelector(".videoBox"));
-
   const title = document.createElement("h3");
   title.className = "videoTitle";
   title.textContent = video.title;
