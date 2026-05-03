@@ -3,6 +3,11 @@ const fs = require("fs");
 const baseUrl = "https://anywherecum.pages.dev";
 
 // ===============================
+// CONFIG
+// ===============================
+const TOTAL_VIDEOS = 20;
+
+// ===============================
 // SCAN STATIC HTML FILES
 // ===============================
 const htmlFiles = fs.readdirSync(".").filter(f =>
@@ -27,30 +32,22 @@ const staticPages = htmlFiles.map(f => {
 });
 
 // ===============================
-// FOLDERS FROM videos.json
+// FOLDERS (NO JSON DEPENDENCY)
 // ===============================
 let folderSet = new Set();
-let videoSet = new Set();
 
+// (optional fallback if you still use videos.json for folders)
 try {
   const videos = JSON.parse(fs.readFileSync("videos.json", "utf8"));
 
   videos.forEach(video => {
-    if (video.folder) {
-      if (video.folder === "🔒VIP Exclusive") return;
+    if (video.folder && video.folder !== "🔒VIP Exclusive") {
       folderSet.add(video.folder.trim());
-    }
-
-    // ===============================
-    // ✅ ADD WATCH PAGES HERE
-    // ===============================
-    if (video.file) {
-      videoSet.add(`/watch.html?video=${encodeURIComponent(video.file)}`);
     }
   });
 
 } catch (err) {
-  console.error("Error reading videos.json:", err);
+  console.log("No videos.json found or invalid JSON — skipping folders from JSON");
 }
 
 // ===============================
@@ -61,8 +58,14 @@ const folderPages = [...folderSet].map(name =>
 );
 
 // ===============================
-// WATCH URLS
+// WATCH URLS (R2 STYLE - FIXED)
 // ===============================
+let videoSet = new Set();
+
+for (let i = 1; i <= TOTAL_VIDEOS; i++) {
+  videoSet.add(`/watch.html?video=live${i}.mp4`);
+}
+
 const watchPages = [...videoSet];
 
 // ===============================
@@ -98,4 +101,4 @@ ${urls.map(url => `
 // ===============================
 fs.writeFileSync("sitemap.xml", sitemap);
 
-console.log("✅ Sitemap generated INCLUDING /watch.html?video= pages");
+console.log("✅ Sitemap generated WITH R2 watch pages (live1–live20)");
