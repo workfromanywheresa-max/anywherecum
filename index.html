@@ -1337,7 +1337,7 @@ function generateList() {
 generateList();
 </script>
 
-  <script>  
+    <script>  
 const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";  
 const CACHE_NAME = "live-video-cache-v1";  
 
@@ -1356,11 +1356,7 @@ let sliderInterval = null;
 function generateVideos() {  
   const arr = [];  
   for (let i = TOTAL_VIDEOS; i >= 1; i--) {  
-    const file = "live" + i + ".mp4";
-    arr.push({ 
-      file,
-      video: BASE + file 
-    });  
+    arr.push({ video: BASE + "live" + i + ".mp4" });  
   }  
   return arr;  
 }  
@@ -1391,12 +1387,6 @@ function initLivesOnce() {
     video.loop = true;  
     video.playsInline = true;  
     video.preload = "metadata";  
-    video.style.cursor = "pointer";
-
-    // 👉 WATCH PAGE ROUTE
-    video.addEventListener("click", () => {
-      window.location.href = "/watch.html?video=" + item.file;
-    });
 
     if (index === 0) {  
       video.addEventListener("loadeddata", () => {  
@@ -1431,13 +1421,10 @@ function initLivesOnce() {
 }  
 
 // =====================  
-// CLICK BANNER (ADS)  
+// CLICK  
 // =====================  
-document.addEventListener("click", (e) => {  
-  const banner = e.target.closest(".banner");  
-  if (banner) {  
-    window.open("https://www.juicyads.rocks", "_blank");  
-  }  
+document.querySelector(".banner").addEventListener("click", () => {  
+  window.open("https://www.juicyads.rocks", "_blank");  
 });  
 
 // =====================  
@@ -1524,7 +1511,7 @@ function loadLives() {
 loadLives();  
 
 // =====================  
-// PAUSE WHEN OUT OF VIEW  
+// PAUSE WHEN OUT OF VIEW (SAFE FIX)  
 // =====================  
 function setupVisibilityPause() {
   const liveContainer = document.getElementById("liveContainer");
@@ -1552,7 +1539,7 @@ function setupVisibilityPause() {
 
 setupVisibilityPause();
 
-        </script>
+    </script>
   
   <script type="module" src="views.js"></script>
 
