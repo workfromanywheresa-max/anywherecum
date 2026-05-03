@@ -904,6 +904,8 @@ leftGroup.style.display = "flex";
 leftGroup.style.gap = "10px";
 leftGroup.style.alignItems = "center";
 
+leftGroup.style.marginTop = "-12px";
+
 leftGroup.appendChild(createStack("Share", shareBtn));
 leftGroup.appendChild(createStack("Embed", embedBtn));
 leftGroup.appendChild(createStack("Download", downloadBtn));
