@@ -917,7 +917,7 @@ rightGroup.style.alignItems = "center";
 rightGroup.style.alignSelf = "flex-start";
 
 rightGroup.style.position = "absolute";
-rightGroup.style.top = "8px";
+rightGroup.style.bottom = "8px";
 rightGroup.style.right = "8px";
 rightGroup.style.zIndex = "20";
   
