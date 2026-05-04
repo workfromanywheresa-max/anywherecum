@@ -714,12 +714,33 @@ likeWrapper.appendChild(likeBtn);
   likeStack.style.alignItems = "center";
   likeStack.style.gap = "2px";
 
+  const viewsText = document.createElement("div");
+viewsText.style.fontSize = "10px";
+viewsText.style.color = "#aaa";
+viewsText.style.marginBottom = "2px";
+viewsText.textContent = "👁 0";
+
+  const viewsRef = ref(db, "views/" + video.id);
+
+function formatViews(num) {
+  num = Number(num);
+  if (num >= 1_000_000) return (num / 1_000_000).toFixed(1).replace(".0","") + "M";
+  if (num >= 1_000) return (num / 1_000).toFixed(1).replace(".0","") + "K";
+  return num || 0;
+}
+
+onValue(viewsRef, snap => {
+  const val = snap.val() || 0;
+  viewsText.textContent = `👁 ${formatViews(val)}`;
+});
+
   const timeText = document.createElement("div");
   timeText.style.fontSize = "10px";
   timeText.style.color = "#aaa";
   timeText.style.marginBottom = "2px";
   timeText.textContent = video.date ? timeAgo(video.date) : "";
 
+  likeStack.appendChild(viewsText)
   likeStack.appendChild(timeText);
   likeStack.appendChild(likeWrapper);
 
