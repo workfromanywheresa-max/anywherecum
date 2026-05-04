@@ -913,6 +913,8 @@ leftGroup.style.alignItems = "center";
 
 leftGroup.style.marginTop = "-12px";
 
+leftGroup.innerHTML = "";                        
+
 leftGroup.appendChild(createStack("Share", shareBtn));
 leftGroup.appendChild(createStack("Embed", embedBtn));
 leftGroup.appendChild(createStack("Download", downloadBtn));
