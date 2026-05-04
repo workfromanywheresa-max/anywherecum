@@ -825,7 +825,7 @@ init();
 (function () {
 
   /* =========================
-     OPTIONAL: VIP CHECK
+     VIP CHECK
   ========================= */
   const isVIP = localStorage.getItem("vip_status") === "true";
 
@@ -837,37 +837,58 @@ init();
   console.log("💎 VIP — hiding Share & Embed");
 
   /* =========================
-     REMOVE BY LABEL
+     REMOVE BUTTONS (SAFE)
   ========================= */
-
   function removeButtons() {
-    document.querySelectorAll("#actionRow > div > div").forEach(stack => {
 
-      const label = stack.firstChild?.textContent?.trim().toLowerCase();
+    // get LEFT GROUP only (where buttons exist)
+    const leftGroup = document.querySelector("#actionRow > div > div:first-child");
 
-      if (label === "share" || label === "embed") {
-        stack.remove();
+    if (!leftGroup) return;
+
+    // loop only button stacks
+    leftGroup.querySelectorAll("div").forEach(stack => {
+
+      const labelEl = stack.firstElementChild;
+
+      if (!labelEl) return;
+
+      const label = labelEl.textContent?.trim().toLowerCase();
+
+      // ensure it's a real stack (label + button)
+      if (stack.children.length === 2) {
+
+        if (label === "share" || label === "embed") {
+          stack.remove();
+        }
+
       }
 
     });
   }
 
-  // run immediately
+  /* =========================
+     RUN IMMEDIATELY
+  ========================= */
   removeButtons();
 
   /* =========================
      WATCH FOR RE-RENDER
   ========================= */
-
-  const observer = new MutationObserver(removeButtons);
-
-  observer.observe(document.getElementById("actionRow"), {
-    childList: true,
-    subtree: true
+  const observer = new MutationObserver(() => {
+    removeButtons();
   });
+
+  const actionRow = document.getElementById("actionRow");
+
+  if (actionRow) {
+    observer.observe(actionRow, {
+      childList: true,
+      subtree: true
+    });
+  }
 
 })();
   </script>
-
 </body>
 </html>
