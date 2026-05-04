@@ -157,12 +157,12 @@ document.body.appendChild(downloadModal);
 function openModal(modal) {
   modal.style.display = "flex";
 
-  modalStack.push(modal);
-
-  // ONLY push once per first modal
-  if (modalStack.length === 1) {
+  if (!modal._opened) {
     history.pushState({ modalOpen: true }, "");
+    modal._opened = true;
   }
+
+  modalStack.push(modal);
 }
 
 function closeModal(modal) {
@@ -170,12 +170,10 @@ function closeModal(modal) {
 
   modalStack = modalStack.filter(m => m !== modal);
 
-  // ONLY go back if ALL modals closed
   if (modalStack.length === 0) {
-    history.back();
+    modal._opened = false;
   }
 }
-
 
 /* =========================
    BACK BUTTON CONTROL
@@ -184,6 +182,7 @@ window.addEventListener("popstate", () => {
   if (modalStack.length > 0) {
     const lastModal = modalStack.pop();
     lastModal.style.display = "none";
+
     return;
   }
 });
@@ -193,16 +192,10 @@ window.addEventListener("popstate", () => {
 ========================= */
 document.getElementById("closeEmbed").onclick = () => {
   closeModal(embedModal);
-
-  // IMPORTANT: sync history so back button stays correct
-  history.back();
 };
 
 document.getElementById("closeDl").onclick = () => {
   closeModal(downloadModal);
-
-  // IMPORTANT: sync history so back button stays correct
-  history.back();
 };
 
 /* =========================
