@@ -201,6 +201,29 @@ OneSignalDeferred.push(async function(OneSignal) {
 
 <body>
 
+  <script>
+    (function () {
+
+  const SESSION_KEY = "session_id";
+  const VIP_KEY = "vip_status";
+
+  // create or reuse session id
+  let sessionId = localStorage.getItem(SESSION_KEY);
+
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem(SESSION_KEY, sessionId);
+  }
+
+  // mark VIP true for this session
+  localStorage.setItem(VIP_KEY, "true");
+
+  console.log("SESSION ACTIVE:", sessionId);
+  console.log("VIP STATUS SET: true");
+
+})();
+  </script>
+
   <!-- Google Translate -->
 <div id="google_translate_element"></div>
 
@@ -813,11 +836,18 @@ window.VIDEO_CONFIG = {
   const urlParams = new URLSearchParams(window.location.search);
   const folder = (urlParams.get("folder") || "").toLowerCase();
 
-  const isVIP =
-    folder.includes("vip") ||
-    folder.includes("🔒");
+  const urlParams = new URLSearchParams(window.location.search);
+const folder = (urlParams.get("folder") || "").toLowerCase();
 
-  if (!isVIP) return;
+const sessionVIP = localStorage.getItem("vip_status") === "true";
+
+const urlVIP =
+  folder.includes("vip") ||
+  folder.includes("🔒");
+
+const isVIP = sessionVIP || urlVIP;
+
+if (!isVIP) return;
 
   console.log("💎 VIP MODE ON — Share & Embed Removed");
 
