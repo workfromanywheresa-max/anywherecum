@@ -6,7 +6,6 @@
 
 <title>Watch Video</title>
 
-<!-- ✅ DEFAULT META DESCRIPTION (fallback for Google) -->
 <meta id="metaDesc" name="description" content="Watch videos in high quality online." />
 
 <style>
@@ -26,8 +25,6 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
-
-  /* ✅ allows wrapping when label becomes long */
   flex-wrap: wrap;
   gap: 6px;
 }
@@ -46,13 +43,9 @@ body {
   color: #aaa;
   max-width: 70%;
   text-align: center;
-
-  /* ✅ FIX: allow multiline instead of "..." */
   white-space: normal;
   overflow: visible;
-  text-overflow: unset;
   word-break: break-word;
-
   flex: 1;
 }
 
@@ -73,7 +66,6 @@ select {
   width: fit-content;
   max-width: 90%;
   margin: 6px auto;
-
   padding: 5px 10px;
   border-radius: 5px;
   border: none;
@@ -87,6 +79,25 @@ select {
   font-size: 12px;
   text-align: center;
   text-decoration: underline;
+}
+
+/* 🔥 BUTTONS */
+#actionBar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.actionBtn {
+  background: #222;
+  border: 1px solid #444;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
 }
 </style>
 
@@ -105,6 +116,9 @@ select {
 
   <div id="player"></div>
 
+  <!-- 🔥 BUTTON AREA -->
+  <div id="actionBar"></div>
+
   <div id="title" class="title"></div>
 
 </div>
@@ -118,6 +132,7 @@ const player = document.getElementById("player");
 const titleEl = document.getElementById("title");
 const qualityEl = document.getElementById("quality");
 const watchLabel = document.getElementById("watchLabel");
+const actionBar = document.getElementById("actionBar");
 
 let videoData = null;
 let currentIndex = qIndex;
@@ -127,6 +142,72 @@ function loadPlayer() {
   player.innerHTML = `<iframe src="${q.embed}" allowfullscreen></iframe>`;
 }
 
+/* ---------------- BUTTONS ---------------- */
+function createButtons(video) {
+
+  const wrap = document.createElement("div");
+  wrap.style.display = "flex";
+  wrap.style.flexWrap = "wrap";
+  wrap.style.justifyContent = "center";
+  wrap.style.gap = "8px";
+
+  function btn(text) {
+    const b = document.createElement("button");
+    b.className = "actionBtn";
+    b.textContent = text;
+    return b;
+  }
+
+  // SHARE
+  const share = btn("Share");
+  share.onclick = async () => {
+    const url = location.href;
+    if (navigator.share) {
+      try { await navigator.share({ url }); } catch {}
+    } else {
+      prompt("Copy link:", url);
+    }
+  };
+
+  // EMBED
+  const embed = btn("Embed");
+  embed.onclick = () => {
+    const q = video.qualities[0];
+    prompt("Embed code:",
+      `<iframe src="${q.embed}" width="100%" height="300" frameborder="0" allowfullscreen></iframe>`
+    );
+  };
+
+  // DOWNLOAD
+  const download = btn("Download");
+  download.onclick = () => {
+    alert(video.qualities.map(q => `${q.label}: ${q.download}`).join("\n"));
+  };
+
+  // DONATE
+  const donate = btn("Donate");
+  donate.onclick = () => {
+    window.location.href = "donate.html";
+  };
+
+  // LIKE
+  let liked = false;
+  const like = btn("Like ❤️");
+  like.onclick = () => {
+    liked = !liked;
+    like.textContent = liked ? "Liked ❤️" : "Like ❤️";
+  };
+
+  wrap.appendChild(share);
+  wrap.appendChild(embed);
+  wrap.appendChild(download);
+  wrap.appendChild(donate);
+  wrap.appendChild(like);
+
+  return wrap;
+}
+
+/* ---------------- INIT ---------------- */
 function init() {
   if (!videoId) {
     titleEl.textContent = "No video selected";
@@ -144,23 +225,17 @@ function init() {
         return;
       }
 
-      // ✅ Page title (Google + browser tab)
       document.title = videoData.title;
-
-      // ✅ On-page title
       titleEl.textContent = videoData.title;
 
-      // ✅ Top bar UI text (now wraps properly)
       watchLabel.textContent =
-  `Watch "${videoData.title}" — streaming now in high quality`;
+        `Watch "${videoData.title}" — streaming now in high quality`;
 
-      // ✅ Google SEO meta description
       document.getElementById("metaDesc").setAttribute(
         "content",
         `Watch ${videoData.title} — streaming now in high quality`
       );
 
-      // quality dropdown
       videoData.qualities.forEach((q, i) => {
         const opt = document.createElement("option");
         opt.value = i;
@@ -177,11 +252,11 @@ function init() {
 
       loadPlayer();
 
+      /* 🔥 ADD BUTTONS HERE */
+      actionBar.innerHTML = "";
+      actionBar.appendChild(createButtons(videoData));
     })
-    .catch(err => {
-      titleEl.textContent = "Error loading video";
-      console.error(err);
-    });
+    .catch(console.error);
 }
 
 init();
