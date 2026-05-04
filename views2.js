@@ -499,7 +499,7 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
   }, 5 * 60 * 1000);
 
   // 👉 redirect to watch2 page
-  window.location.href = `watch2.html?video=${video.id}&folder=${encodeURIComponent(rawFolderName)}`;
+  window.location.href = `watch2.html?video=${video.id}${folderParam}`;
   
   let startX = 0;
 
@@ -553,7 +553,7 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
 
   countWatchOnce(video.id);
 
-  window.location.href = `watch2.html?video=${video.id}&q=${selectedIndex}&folder=${encodeURIComponent(rawFolderName)}`;
+  window.location.href = `watch2.html?video=${video.id}&q=${selectedIndex}${folderParam}`;
 
   const title = document.createElement("h3");
   title.className = "videoTitle";
