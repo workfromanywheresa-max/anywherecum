@@ -177,10 +177,16 @@ window.addEventListener("popstate", () => {
 ========================= */
 document.getElementById("closeEmbed").onclick = () => {
   closeModal(embedModal);
+
+  // IMPORTANT: sync history so back button stays correct
+  history.back();
 };
 
 document.getElementById("closeDl").onclick = () => {
   closeModal(downloadModal);
+
+  // IMPORTANT: sync history so back button stays correct
+  history.back();
 };
 
 /* =========================
