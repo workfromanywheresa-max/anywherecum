@@ -177,10 +177,22 @@ function injectButtons(video) {
       t.value = `<iframe src="${q.embed}" width="100%" height="300"></iframe>`;
       t.readOnly = true;
 
-      const copy = document.createElement("button");
-      copy.textContent = "Copy";
-      copy.onclick = () => navigator.clipboard.writeText(t.value);
+      const copy = document.createElement("div");
+copy.style.cursor = "pointer";
+copy.style.display = "flex";
+copy.style.alignItems = "center";
+copy.style.justifyContent = "center";
+copy.style.width = "30px";
+copy.style.height = "30px";
 
+copy.innerHTML = `
+<svg viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" width="14" height="14">
+  <rect x="3" y="5" width="13" height="13" rx="2"></rect>
+  <rect x="9" y="1" width="13" height="13" rx="2"></rect>
+</svg>
+`;
+
+copy.onclick = () => navigator.clipboard.writeText(t.value);
       box.appendChild(t);
       box.appendChild(copy);
       c.appendChild(box);
