@@ -146,14 +146,12 @@ if (!visitId) {
 }
 
 function trackDownload(videoId) {
+  // reuse same logic as main page
   fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      videoId: videoId,
-      type: "download_click",
-      visitId: visitId,
-      timestamp: Date.now()
+      videoId: "clicked_" + videoId
     })
   }).catch(() => {});
 }
