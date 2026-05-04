@@ -911,14 +911,12 @@ leftGroup.appendChild(createStack("Donate", donateBtn));
   
 /* RIGHT SIDE (LIKE ONLY) */
 const rightGroup = document.createElement("div");
+rightGroup.style.position = "absolute";
+rightGroup.style.bottom = "8px";
+rightGroup.style.right = "8px";
+
 rightGroup.style.display = "flex";
 rightGroup.style.alignItems = "center";
-
-rightGroup.style.alignSelf = "flex-start";
-rightGroup.style.marginTop = "-12px";
-
-/* 🔥 PUSH TO FAR RIGHT EDGE */
-rightGroup.style.marginLeft = "auto";
 
 // WRAPPER FOR LIKE ONLY (keep it aligned with other buttons)
 const likeStack = document.createElement("div");
