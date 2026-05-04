@@ -8,6 +8,14 @@ const app = initializeApp({
 
 const db = getDatabase(app); 
 
+const style = document.createElement("style");
+style.innerHTML = `
+.timeText {
+  color: white !important;
+}
+`;
+document.head.appendChild(style);
+
 const embedModal = document.createElement("div");
 embedModal.style.position = "fixed";
 embedModal.style.top = "0";
