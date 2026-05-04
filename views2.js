@@ -8,14 +8,6 @@ const app = initializeApp({
 
 const db = getDatabase(app); 
 
-const style = document.createElement("style");
-style.innerHTML = `
-.timeText {
-  color: white !important;
-}
-`;
-document.head.appendChild(style);
-
 const embedModal = document.createElement("div");
 embedModal.style.position = "fixed";
 embedModal.style.top = "0";
@@ -340,7 +332,7 @@ function createStack(labelText, button) {
   const label = document.createElement("div");
   label.textContent = labelText;
   label.style.fontSize = "10px";
-  label.style.color = "#aaa";
+  label.style.color = "white";
   label.style.whiteSpace = "nowrap";
 
   stack.appendChild(label);
