@@ -198,55 +198,57 @@ function injectButtons(video) {
   donateBtn.onclick = () => window.location.href = "donate.html";
 
   /* LIKE */
-  const likeWrapper = document.createElement("div");
-  likeWrapper.style.display = "flex";
-  likeWrapper.style.alignItems = "center";
+const likeWrapper = document.createElement("div");
+likeWrapper.style.display = "flex";
+likeWrapper.style.alignItems = "center";
 
-  const likeBtn = document.createElement("div");
-
+const likeBtn = document.createElement("div");
 likeBtn.style.width = "46px";
 likeBtn.style.height = "28px";
 likeBtn.style.border = "1px solid white";
 likeBtn.style.borderRadius = "6px";
 likeBtn.style.background = "transparent";
 likeBtn.style.display = "flex";
-likeBtn.style.flexDirection = "row";
 likeBtn.style.alignItems = "center";
 likeBtn.style.justifyContent = "center";
 likeBtn.style.gap = "4px";
 likeBtn.style.cursor = "pointer";
-  
+
 const likeCount = document.createElement("span");
 likeCount.style.color = "white";
 likeCount.style.fontSize = "10px";
 likeCount.textContent = "0";
 
-const icon = document.createElement("div");
-icon.innerHTML = `
+const iconWrapper = document.createElement("div");
+iconWrapper.innerHTML = `
 <svg width="16" height="16" fill="none" stroke="white" stroke-width="3" viewBox="0 0 64 64">
 <path d="M10 30c0-10 10-15 22-5c12-10 22-5 22 5c0 18-22 30-22 30S10 48 10 30z"/>
 </svg>
 `;
-  
-  const likeRef = ref(db, `likes/${video.id}/${visitId}`);
 
-  likeBtn.onclick = () => runTransaction(likeRef, cur => cur ? null : true);
+const likeRef = ref(db, `likes/${video.id}/${visitId}`);
 
-  onValue(likeRef, snap => {
-    const icon = likeBtn.querySelector("svg");
-    icon.setAttribute("fill", snap.exists() ? "white" : "none");
-  });
+likeBtn.onclick = () => runTransaction(likeRef, cur => cur ? null : true);
 
-  const countRef = ref(db, `likes/${video.id}`);
+onValue(likeRef, snap => {
+  const svg = likeBtn.querySelector("svg");
+  if (svg) svg.setAttribute("fill", snap.exists() ? "white" : "none");
+});
 
-        onValue(countRef, snap => {
+const countRef = ref(db, `likes/${video.id}`);
+
+onValue(countRef, snap => {
   const data = snap.val() || {};
   likeCount.textContent = Object.keys(data).length;
 });
 
-  likeBtn.appendChild(likeCount); // LEFT
-likeBtn.appendChild(icon);      // RIGHT
-  
+/* BUILD BUTTON */
+likeBtn.appendChild(likeCount);
+likeBtn.appendChild(iconWrapper);
+
+/* IMPORTANT: attach button to wrapper */
+likeWrapper.appendChild(likeBtn);
+    
   /* ---------------- LAYOUT SYSTEM ---------------- */
 
   const btnRow = document.createElement("div");
