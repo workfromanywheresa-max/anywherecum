@@ -6,6 +6,7 @@
 
 <title>Watch Video</title>
 
+<!-- ✅ DEFAULT META DESCRIPTION (fallback for Google) -->
 <meta id="metaDesc" name="description" content="Watch videos in high quality online." />
 
 <style>
@@ -25,6 +26,8 @@ body {
   position: sticky;
   top: 0;
   z-index: 10;
+
+  /* ✅ allows wrapping when label becomes long */
   flex-wrap: wrap;
   gap: 6px;
 }
@@ -37,20 +40,19 @@ body {
   border-radius: 6px;
   cursor: pointer;
 }
-  .downloadBtn,
-.shareBtn,
-.embedBtn, {
-  transform: translateY(-10px);
-}
 
 #watchLabel {
   font-size: 12px;
   color: #aaa;
   max-width: 70%;
   text-align: center;
+
+  /* ✅ FIX: allow multiline instead of "..." */
   white-space: normal;
   overflow: visible;
+  text-overflow: unset;
   word-break: break-word;
+
   flex: 1;
 }
 
@@ -71,6 +73,7 @@ select {
   width: fit-content;
   max-width: 90%;
   margin: 6px auto;
+
   padding: 5px 10px;
   border-radius: 5px;
   border: none;
@@ -84,15 +87,6 @@ select {
   font-size: 12px;
   text-align: center;
   text-decoration: underline;
-}
-
-/* ✅ BUTTON AREA */
-#actionRow {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 10px;
 }
 </style>
 
@@ -111,11 +105,7 @@ select {
 
   <div id="player"></div>
 
-  <!-- ✅ TITLE -->
   <div id="title" class="title"></div>
-
-  <!-- ✅ YOUR BUTTON CONTAINER (UNDER TITLE) -->
-  <div id="actionRow"></div>
 
 </div>
 
@@ -128,7 +118,6 @@ const player = document.getElementById("player");
 const titleEl = document.getElementById("title");
 const qualityEl = document.getElementById("quality");
 const watchLabel = document.getElementById("watchLabel");
-const actionRow = document.getElementById("actionRow");
 
 let videoData = null;
 let currentIndex = qIndex;
@@ -138,22 +127,6 @@ function loadPlayer() {
   player.innerHTML = `<iframe src="${q.embed}" allowfullscreen></iframe>`;
 }
 
-/* ---------------- YOUR BUTTON INJECTION WILL GO HERE ---------------- */
-function injectButtons(video) {
-  actionRow.innerHTML = "";
-
-  const btn = document.createElement("button");
-  btn.textContent = "TEST BUTTON";
-  btn.style.padding = "8px";
-  btn.style.background = "#222";
-  btn.style.color = "white";
-  btn.style.border = "1px solid #444";
-  btn.style.borderRadius = "6px";
-
-  actionRow.appendChild(btn);
-}
-
-/* ---------------- INIT ---------------- */
 function init() {
   if (!videoId) {
     titleEl.textContent = "No video selected";
@@ -171,17 +144,23 @@ function init() {
         return;
       }
 
+      // ✅ Page title (Google + browser tab)
       document.title = videoData.title;
+
+      // ✅ On-page title
       titleEl.textContent = videoData.title;
 
+      // ✅ Top bar UI text (now wraps properly)
       watchLabel.textContent =
-        `Watch "${videoData.title}" — streaming now in high quality`;
+  `Watch "${videoData.title}" — streaming now in high quality`;
 
+      // ✅ Google SEO meta description
       document.getElementById("metaDesc").setAttribute(
         "content",
         `Watch ${videoData.title} — streaming now in high quality`
       );
 
+      // quality dropdown
       videoData.qualities.forEach((q, i) => {
         const opt = document.createElement("option");
         opt.value = i;
@@ -193,23 +172,20 @@ function init() {
       qualityEl.onchange = () => {
         currentIndex = Number(qualityEl.value);
         loadPlayer();
+        history.replaceState(null, "", `?video=${videoId}&q=${currentIndex}`);
       };
 
       loadPlayer();
 
-      /* ✅ YOUR REAL BUTTONS GO HERE */
-      injectButtons(videoData);
     })
     .catch(err => {
-      console.error(err);
       titleEl.textContent = "Error loading video";
+      console.error(err);
     });
 }
 
 init();
 </script>
-
-  <script type="module" src="watch.js"></script>
 
 </body>
 </html>
