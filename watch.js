@@ -32,6 +32,26 @@ const metaDesc = document.getElementById("metaDesc");
 
 let videoData = null;
 
+/* ---------------- TIME AGO ---------------- */
+function timeAgo(dateString) {
+  const now = Date.now();
+  const past = new Date(dateString).getTime();
+  const diff = now - past;
+
+  if (isNaN(past)) return "";
+
+  const min = Math.floor(diff / 60000);
+  const hr = Math.floor(min / 60);
+  const day = Math.floor(hr / 24);
+
+  if (min < 1) return "just now";
+  if (min < 60) return `${min}m`;
+  if (hr < 24) return `${hr}h`;
+  if (day < 7) return `${day}d`;
+
+  return new Date(dateString).toLocaleDateString();
+}
+
 /* ---------------- PLAYER ---------------- */
 function loadPlayer() {
   const q = videoData.qualities[currentIndex];
@@ -103,6 +123,7 @@ document.addEventListener("click", (e) => {
 /* ---------------- BUTTONS ---------------- */
 function injectButtons(video) {
   actionRow.innerHTML = "";
+  actionRow.style.width = "100%";
 
   /* SHARE */
   const shareBtn = document.createElement("div");
@@ -180,7 +201,6 @@ function injectButtons(video) {
   const likeWrapper = document.createElement("div");
   likeWrapper.style.display = "flex";
   likeWrapper.style.alignItems = "center";
-  likeWrapper.style.gap = "5px";
 
   const likeBtn = document.createElement("div");
   likeBtn.innerHTML = `
@@ -199,12 +219,48 @@ function injectButtons(video) {
 
   likeWrapper.appendChild(likeBtn);
 
-  /* FINAL ROW */
-  actionRow.appendChild(createStack("Share", shareBtn));
-  actionRow.appendChild(createStack("Embed", embedBtn));
-  actionRow.appendChild(createStack("Download", downloadBtn));
-  actionRow.appendChild(createStack("Donate", donateBtn));
-  actionRow.appendChild(createStack("Like", likeWrapper));
+  /* ---------------- LAYOUT SYSTEM ---------------- */
+
+  const btnRow = document.createElement("div");
+  btnRow.style.display = "flex";
+  btnRow.style.alignItems = "center";
+  btnRow.style.width = "100%";
+
+  /* LEFT */
+  const leftGroup = document.createElement("div");
+  leftGroup.style.display = "flex";
+  leftGroup.style.gap = "10px";
+
+  leftGroup.appendChild(createStack("Share", shareBtn));
+  leftGroup.appendChild(createStack("Embed", embedBtn));
+  leftGroup.appendChild(createStack("Download", downloadBtn));
+  leftGroup.appendChild(createStack("Donate", donateBtn));
+
+  /* RIGHT */
+  const rightGroup = document.createElement("div");
+  rightGroup.style.marginLeft = "auto";
+  rightGroup.style.display = "flex";
+
+  const likeStack = document.createElement("div");
+  likeStack.style.display = "flex";
+  likeStack.style.flexDirection = "column";
+  likeStack.style.alignItems = "center";
+
+  const timeText = document.createElement("div");
+  timeText.style.fontSize = "10px";
+  timeText.style.color = "#aaa";
+  timeText.style.marginBottom = "2px";
+  timeText.textContent = video.date ? timeAgo(video.date) : "";
+
+  likeStack.appendChild(timeText);
+  likeStack.appendChild(likeWrapper);
+
+  rightGroup.appendChild(likeStack);
+
+  btnRow.appendChild(leftGroup);
+  btnRow.appendChild(rightGroup);
+
+  actionRow.appendChild(btnRow);
 }
 
 /* ---------------- INIT ---------------- */
