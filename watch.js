@@ -90,30 +90,39 @@ function createStack(labelText, button) {
 
 /* ---------------- MODALS ---------------- */
 let activeModal = null;
+let modalOpen = false;
 
 function openModal(modal) {
   activeModal = modal;
+  modalOpen = true;
   modal.style.display = "flex";
 
-  history.pushState({ modalOpen: true }, "");
+  // push fake state ONLY if not already open
+  history.pushState({ modal: true }, "");
 }
 
-function closeModal(modal) {
-  modal.style.display = "none";
-  activeModal = null;
-}
-
-/* 🔙 Android / browser back button */
-window.addEventListener("popstate", () => {
+function closeModal() {
   if (activeModal) {
     activeModal.style.display = "none";
-    activeModal = null;
+  }
+  activeModal = null;
+  modalOpen = false;
+}
+
+/* 🔙 BACK BUTTON HANDLER */
+window.addEventListener("popstate", () => {
+  if (modalOpen) {
+    closeModal();
   }
 });
 
 const embedModal = document.createElement("div");
 embedModal.style.cssText = `
-position:fixed;top:0;left:0;width:100%;height:100%;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
 background:rgba(0,0,0,0.85);
 display:none;
 align-items:center;
@@ -133,51 +142,73 @@ document.body.appendChild(embedModal);
 
 
 /* =========================
-   BACK BUTTON SUPPORT (LOCAL ONLY)
+   STATE
 ========================= */
 
 let embedOpen = false;
 
-/* OPEN STATE TRACKER */
+
+/* =========================
+   OPEN MODAL
+========================= */
+
 function openEmbedModal() {
   embedOpen = true;
   embedModal.style.display = "flex";
+
   history.pushState({ embed: true }, "");
 }
 
-/* BACK BUTTON HANDLER */
+
+/* =========================
+   CLOSE MODAL (SAFE)
+========================= */
+
+function closeEmbedModal() {
+  embedModal.style.display = "none";
+  embedOpen = false;
+}
+
+
+/* =========================
+   BACK BUTTON (ANDROID FIX)
+========================= */
+
 window.addEventListener("popstate", () => {
   if (embedOpen) {
-    embedModal.style.display = "none";
-    embedOpen = false;
+    closeEmbedModal();
   }
 });
 
 
-/* CLOSE BUTTON */
+/* =========================
+   CLOSE BUTTON (FIXED)
+========================= */
+
 document.addEventListener("click", (e) => {
   if (e.target.id === "closeEmbed") {
-    history.back();
+    closeEmbedModal(); // ❗ FIX: no history.back()
   }
 });
 
 
-/* CLICK OUTSIDE TO CLOSE */
+/* =========================
+   CLICK OUTSIDE TO CLOSE
+========================= */
+
 embedModal.addEventListener("click", (e) => {
   if (e.target === embedModal) {
-    history.back();
+    closeEmbedModal(); // ❗ FIX: no history.back()
   }
 });
 
 
-/* PREVENT INSIDE CLICK CLOSING */
-document.addEventListener("DOMContentLoaded", () => {
-  const box = document.getElementById("embedBox");
-  if (box) {
-    box.addEventListener("click", (e) => {
-      e.stopPropagation();
-    });
-  }
+/* =========================
+   PREVENT INSIDE CLICK CLOSE
+========================= */
+
+document.getElementById("embedBox").addEventListener("click", (e) => {
+  e.stopPropagation();
 });
 
 const downloadModal = document.createElement("div");
@@ -206,52 +237,73 @@ document.body.appendChild(downloadModal);
 
 
 /* =========================
-   BACK BUTTON SUPPORT (LOCAL)
+   STATE
 ========================= */
 
 let downloadOpen = false;
 
-/* OPEN FUNCTION (use this instead of style.display) */
+
+/* =========================
+   OPEN MODAL
+========================= */
+
 function openDownloadModal() {
   downloadOpen = true;
   downloadModal.style.display = "flex";
+
   history.pushState({ download: true }, "");
 }
 
-/* BACK BUTTON HANDLER */
+
+/* =========================
+   CLOSE MODAL (SAFE)
+========================= */
+
+function closeDownloadModal() {
+  downloadModal.style.display = "none";
+  downloadOpen = false;
+}
+
+
+/* =========================
+   BACK BUTTON (ANDROID FIX)
+========================= */
+
 window.addEventListener("popstate", () => {
   if (downloadOpen) {
-    downloadModal.style.display = "none";
-    downloadOpen = false;
+    closeDownloadModal();
   }
 });
 
 
-/* CLOSE BUTTON */
+/* =========================
+   CLOSE BUTTON (FIXED)
+========================= */
+
 document.addEventListener("click", (e) => {
   if (e.target.id === "closeDl") {
-    history.back();
+    closeDownloadModal(); // ❗ FIX: no history.back()
   }
 });
 
 
-/* CLICK OUTSIDE TO CLOSE */
+/* =========================
+   CLICK OUTSIDE TO CLOSE
+========================= */
+
 downloadModal.addEventListener("click", (e) => {
   if (e.target === downloadModal) {
-    history.back();
+    closeDownloadModal(); // ❗ FIX: no history.back()
   }
 });
 
 
-/* PREVENT INSIDE CLICK CLOSING */
-document.addEventListener("DOMContentLoaded", () => {
-  const box = document.getElementById("dlBox");
+/* =========================
+   PREVENT INNER CLICK CLOSE
+========================= */
 
-  if (box) {
-    box.addEventListener("click", (e) => {
-      e.stopPropagation();
-    });
-  }
+document.getElementById("dlBox").addEventListener("click", (e) => {
+  e.stopPropagation();
 });
 
 /* ---------------- BUTTONS ---------------- */
