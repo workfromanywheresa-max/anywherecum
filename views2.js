@@ -942,6 +942,11 @@ likeStack.style.justifyContent = "center";
 
 // TIME AGO (floating above, NOT affecting layout)
 const timeText = document.createElement("div");
+timeText.style.background = "rgba(0,0,0,0.6)";
+timeText.style.padding = "2px 6px";
+timeText.style.borderRadius = "4px";
+timeText.style.display = "inline-block";
+  
 timeText.style.fontSize = "10px";
 timeText.style.color = "white";
 timeText.style.whiteSpace = "nowrap";
