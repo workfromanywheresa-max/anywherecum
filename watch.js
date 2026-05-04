@@ -203,28 +203,31 @@ function injectButtons(video) {
   likeWrapper.style.alignItems = "center";
 
   const likeBtn = document.createElement("div");
-likeBtn.innerHTML = `
-<svg width="20" height="20" fill="none" stroke="white" stroke-width="3" viewBox="0 0 64 64">
-<path d="M10 30c0-10 10-15 22-5c12-10 22-5 22 5c0 18-22 30-22 30S10 48 10 30z"/>
-</svg>`;
 
-/* ✅ ADD THIS */
 likeBtn.style.width = "46px";
 likeBtn.style.height = "28px";
 likeBtn.style.border = "1px solid white";
 likeBtn.style.borderRadius = "6px";
 likeBtn.style.background = "transparent";
 likeBtn.style.display = "flex";
+likeBtn.style.flexDirection = "row";
 likeBtn.style.alignItems = "center";
 likeBtn.style.justifyContent = "center";
+likeBtn.style.gap = "4px";
 likeBtn.style.cursor = "pointer";
-
+  
 const likeCount = document.createElement("span");
 likeCount.style.color = "white";
 likeCount.style.fontSize = "10px";
-likeCount.style.marginLeft = "4px";
 likeCount.textContent = "0";
 
+const icon = document.createElement("div");
+icon.innerHTML = `
+<svg width="16" height="16" fill="none" stroke="white" stroke-width="3" viewBox="0 0 64 64">
+<path d="M10 30c0-10 10-15 22-5c12-10 22-5 22 5c0 18-22 30-22 30S10 48 10 30z"/>
+</svg>
+`;
+  
   const likeRef = ref(db, `likes/${video.id}/${visitId}`);
 
   likeBtn.onclick = () => runTransaction(likeRef, cur => cur ? null : true);
@@ -241,9 +244,9 @@ likeCount.textContent = "0";
   likeCount.textContent = Object.keys(data).length;
 });
 
-  likeWrapper.appendChild(likeBtn);
-likeWrapper.appendChild(likeCount);
-
+  likeBtn.appendChild(likeCount); // LEFT
+likeBtn.appendChild(icon);      // RIGHT
+  
   /* ---------------- LAYOUT SYSTEM ---------------- */
 
   const btnRow = document.createElement("div");
