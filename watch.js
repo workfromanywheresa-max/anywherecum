@@ -163,11 +163,13 @@ window.addEventListener("popstate", () => {
   if (modalStack.length > 0) {
     const lastModal = modalStack.pop();
     lastModal.style.display = "none";
+
+    // IMPORTANT: lock history so it stays in watch2.html
+    history.pushState({}, "");
     return;
   }
 
-  // no modals left → allow real navigation back to folder.html?folder=Solo
-  history.back();
+  // DO NOTHING HERE
 });
 
 /* =========================
@@ -319,7 +321,7 @@ function injectButtons(video) {
     c.appendChild(box);
   });
 
-  embedModal.style.display = "flex";
+  openModal(embedModal);
 };
   
   /* DOWNLOAD */
@@ -375,7 +377,7 @@ function injectButtons(video) {
     c.appendChild(a);
   });
 
-  downloadModal.style.display = "flex";
+  openModal(downloadModal);
 };
 
   /* DONATE */
