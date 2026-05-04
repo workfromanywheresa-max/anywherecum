@@ -219,6 +219,12 @@ likeBtn.style.alignItems = "center";
 likeBtn.style.justifyContent = "center";
 likeBtn.style.cursor = "pointer";
 
+const likeCount = document.createElement("span");
+likeCount.style.color = "white";
+likeCount.style.fontSize = "10px";
+likeCount.style.marginLeft = "4px";
+likeCount.textContent = "0";
+
   const likeRef = ref(db, `likes/${video.id}/${visitId}`);
 
   likeBtn.onclick = () => runTransaction(likeRef, cur => cur ? null : true);
@@ -228,7 +234,15 @@ likeBtn.style.cursor = "pointer";
     icon.setAttribute("fill", snap.exists() ? "white" : "none");
   });
 
+  const countRef = ref(db, `likes/${video.id}`);
+
+        onValue(countRef, snap => {
+  const data = snap.val() || {};
+  likeCount.textContent = Object.keys(data).length;
+});
+
   likeWrapper.appendChild(likeBtn);
+likeWrapper.appendChild(likeCount);
 
   /* ---------------- LAYOUT SYSTEM ---------------- */
 
