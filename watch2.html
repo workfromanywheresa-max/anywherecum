@@ -156,6 +156,52 @@ select.skeleton option {
     left: 100%;
   }
 }
+
+  /* =========================
+   BUTTON SKELETON MODE
+========================= */
+#actionRow.skeleton-mode {
+  pointer-events: none;
+}
+
+/* stack container skeleton look */
+#actionRow.skeleton-mode .skeleton-btn {
+  width: 46px;
+  height: 28px;
+  border-radius: 6px;
+  background: #1e1e1e;
+  position: relative;
+  overflow: hidden;
+}
+
+/* label skeleton */
+#actionRow.skeleton-mode .skeleton-label {
+  width: 40px;
+  height: 10px;
+  margin-bottom: 4px;
+  background: #1e1e1e;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* shimmer effect reused */
+#actionRow.skeleton-mode .skeleton-btn::after,
+#actionRow.skeleton-mode .skeleton-label::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.08),
+    transparent
+  );
+  animation: shimmer 1.2s infinite;
+}
 </style>
 
 </head>
@@ -450,8 +496,46 @@ document.getElementById("dlBox").addEventListener("click", (e) => {
   e.stopPropagation();
 });
 
+  function showButtonSkeleton() {
+  actionRow.classList.add("skeleton-mode");
+
+  actionRow.innerHTML = `
+    <div style="display:flex; width:100%;">
+
+      <div style="display:flex; gap:10px;">
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <div class="skeleton-label skeleton"></div>
+          <div class="skeleton-btn"></div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <div class="skeleton-label skeleton"></div>
+          <div class="skeleton-btn"></div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <div class="skeleton-label skeleton"></div>
+          <div class="skeleton-btn"></div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; align-items:center;">
+          <div class="skeleton-label skeleton"></div>
+          <div class="skeleton-btn"></div>
+        </div>
+      </div>
+
+      <div style="margin-left:auto;">
+        <div class="skeleton-btn" style="width:70px;height:40px;"></div>
+      </div>
+
+    </div>
+  `;
+  }
+
 /* ---------------- BUTTONS ---------------- */
 function injectButtons(video) {
+  actionRow.classList.remove("skeleton-mode");
+actionRow.innerHTML = "";
   actionRow.innerHTML = "";
   actionRow.style.width = "100%";
 
@@ -846,6 +930,7 @@ onValue(viewsRef, snap => {
 
 /* ---------------- INIT ---------------- */
 function init() {
+  showButtonSkeleton();
   if (!videoId) {
     titleEl.textContent = "No video selected";
     return;
