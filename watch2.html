@@ -99,6 +99,23 @@ select {
   margin-top: 10px;
 }
 
+  /* make skeleton text invisible but still sized */
+.title.skeleton {
+  min-height: 14px;
+  color: transparent;
+}
+
+/* select skeleton styling */
+select.skeleton {
+  color: transparent;
+  pointer-events: none;
+}
+
+/* fake loading bar feel for select */
+select.skeleton option {
+  display: none;
+}
+
 /* =========================
    SKELETON LOADER
 ========================= */
@@ -151,13 +168,13 @@ select {
 <div class="container">
 
   <!-- QUALITY SELECT -->
-  <select id="quality"></select>
+  <select id="quality" class="skeleton"></select>
 
   <!-- VIDEO PLAYER -->
   <div id="player"></div>
 
   <!-- TITLE -->
-  <div id="title" class="title"></div>
+  <div id="title" class="title skeleton"></div>
 
   <!-- BUTTONS (INJECTED BY watch.js) -->
   <div id="actionRow"></div>
@@ -846,6 +863,7 @@ function init() {
 
       document.title = videoData.title;
       titleEl.textContent = videoData.title;
+titleEl.classList.remove("skeleton");
 
       watchLabel.textContent =
         `Watch "${videoData.title}" — streaming now in high quality`;
@@ -862,6 +880,8 @@ function init() {
         if (i === currentIndex) opt.selected = true;
         qualityEl.appendChild(opt);
       });
+
+  qualityEl.classList.remove("skeleton");
 
       qualityEl.onchange = () => {
         currentIndex = Number(qualityEl.value);
