@@ -904,21 +904,6 @@ btnRow.style.display = "flex";
 btnRow.style.width = "100%";
 btnRow.style.alignItems = "center";
 btnRow.style.justifyContent = "flex-start"; // change from space-between
-
-/* LEFT SIDE (all buttons) */
-const leftGroup = document.createElement("div");
-leftGroup.style.display = "flex";
-leftGroup.style.gap = "10px";
-leftGroup.style.alignItems = "center";
-
-leftGroup.style.marginTop = "-12px";
-
-leftGroup.innerHTML = "";                        
-
-leftGroup.appendChild(createStack("Share", shareBtn));
-leftGroup.appendChild(createStack("Embed", embedBtn));
-leftGroup.appendChild(createStack("Download", downloadBtn));
-leftGroup.appendChild(createStack("Donate", donateBtn));
   
 /* RIGHT SIDE (LIKE ONLY) */
 const rightGroup = document.createElement("div");
@@ -964,9 +949,6 @@ likeStack.appendChild(timeText);
 likeStack.appendChild(likeWrapper);
 
 rightGroup.appendChild(likeStack);
-  
-/* assemble */
-btnRow.appendChild(leftGroup);
 
 /* IMPORTANT: ensure parent stretches full width */
 actionBox.style.width = "100%";
