@@ -203,10 +203,21 @@ function injectButtons(video) {
   likeWrapper.style.alignItems = "center";
 
   const likeBtn = document.createElement("div");
-  likeBtn.innerHTML = `
+likeBtn.innerHTML = `
 <svg width="20" height="20" fill="none" stroke="white" stroke-width="3" viewBox="0 0 64 64">
 <path d="M10 30c0-10 10-15 22-5c12-10 22-5 22 5c0 18-22 30-22 30S10 48 10 30z"/>
 </svg>`;
+
+/* ✅ ADD THIS */
+likeBtn.style.width = "46px";
+likeBtn.style.height = "28px";
+likeBtn.style.border = "1px solid white";
+likeBtn.style.borderRadius = "6px";
+likeBtn.style.background = "transparent";
+likeBtn.style.display = "flex";
+likeBtn.style.alignItems = "center";
+likeBtn.style.justifyContent = "center";
+likeBtn.style.cursor = "pointer";
 
   const likeRef = ref(db, `likes/${video.id}/${visitId}`);
 
@@ -245,6 +256,7 @@ function injectButtons(video) {
   likeStack.style.display = "flex";
   likeStack.style.flexDirection = "column";
   likeStack.style.alignItems = "center";
+  likeStack.style.gap = "2px";
 
   const timeText = document.createElement("div");
   timeText.style.fontSize = "10px";
