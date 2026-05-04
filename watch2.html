@@ -100,42 +100,6 @@ select {
 }
 </style>
 
-  <script>
-(async function () {
-
-  const CHECK_URL = "https://vipkeys.workfromanywhere-sa.workers.dev/check-session";
-
-  try {
-    const res = await fetch(CHECK_URL, {
-      method: "POST",
-      credentials: "include"
-    });
-
-    const data = await res.json();
-
-    const isVIP = data.active === true;
-
-    if (!isVIP) {
-      // ❌ NOT VIP → redirect immediately
-      window.location.replace("vip.html");
-      return;
-    }
-
-    console.log("💎 VIP ACCESS GRANTED");
-
-    // expose global flag for other scripts
-    window.isVIP = true;
-
-  } catch (err) {
-    console.error("VIP check failed:", err);
-
-    // safety fallback → block access
-    window.location.replace("vip.html");
-  }
-
-})();
-  </script>
-
 </head>
 <body>
 
@@ -856,55 +820,6 @@ function init() {
 
 init();
 </script>
-
-  <script>
-(function () {
-
-  function runBlocker() {
-
-    if (!window.isVIP) return;
-
-    console.log("💎 VIP MODE ON — Share/Embed Block Enabled");
-
-    const style = document.createElement("style");
-    style.innerHTML = `
-      .shareBtn,
-      .embedBtn,
-      [class*="share"],
-      [class*="embed"] {
-        display: none !important;
-        pointer-events: none !important;
-        opacity: 0 !important;
-      }
-    `;
-    document.head.appendChild(style);
-
-    const observer = new MutationObserver(() => {
-      document.querySelectorAll(`
-        .shareBtn,
-        .embedBtn,
-        [class*="share"],
-        [class*="embed"]
-      `).forEach(el => el.remove());
-    });
-
-    observer.observe(document.documentElement, {
-      childList: true,
-      subtree: true
-    });
-
-  }
-
-  // wait for VIP check
-  const interval = setInterval(() => {
-    if (window.isVIP !== undefined) {
-      clearInterval(interval);
-      runBlocker();
-    }
-  }, 100);
-
-})();
-  </script>
 
 </body>
 </html>
