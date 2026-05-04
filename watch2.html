@@ -455,8 +455,8 @@ function setViewCache(videoId, value) {
 function loadPlayer() {
   const q = videoData.qualities[currentIndex];
 
-  // show skeleton
-  document.getElementById("videoSkeleton").style.display = "block";
+  const skeletonEl = document.getElementById("videoSkeleton");
+  skeletonEl.style.display = "block";
 
   player.innerHTML = `
     <iframe id="videoFrame" src="${q.embed}" allowfullscreen></iframe>
@@ -465,13 +465,13 @@ function loadPlayer() {
   const iframe = document.getElementById("videoFrame");
 
   iframe.onload = () => {
-  document.getElementById("videoSkeleton").style.display = "none";
-};
+    skeletonEl.style.display = "none";
+  };
 
   setTimeout(() => {
-    document.getElementById("videoSkeleton").style.display = "none";
-  }, 8000);
-}
+    skeletonEl.style.display = "none";
+  }, 3000);
+  }
   
 /* ---------------- STACK UI ---------------- */
 function createStack(labelText, button) {
