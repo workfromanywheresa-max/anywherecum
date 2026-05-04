@@ -92,46 +92,11 @@ function createStack(labelText, button) {
 /* =========================
    GLOBAL STATE
 ========================= */
-let activeModal = null;
+let modalStack = [];
 
 /* =========================
-   OPEN MODAL (HISTORY SAFE)
+   CREATE EMBED MODAL
 ========================= */
-function openModal(modal) {
-  activeModal = modal;
-  modal.style.display = "flex";
-
-  // Add history entry so BACK closes modal first
-  history.pushState({ modalOpen: true }, "");
-}
-
-/* =========================
-   CLOSE MODAL (SAFE)
-========================= */
-function closeModal(modal, skipHistory = false) {
-  modal.style.display = "none";
-  activeModal = null;
-
-  // Sync with browser history
-  if (!skipHistory && history.state?.modalOpen) {
-    history.back();
-  }
-}
-
-/* =========================
-   BACK BUTTON HANDLER
-========================= */
-window.addEventListener("popstate", () => {
-  if (activeModal) {
-    activeModal.style.display = "none";
-    activeModal = null;
-  }
-});
-
-/* =========================================================
-   🔷 EMBED MODAL
-========================================================= */
-
 const embedModal = document.createElement("div");
 embedModal.style.cssText = `
 position:fixed;top:0;left:0;width:100%;height:100%;
@@ -144,44 +109,17 @@ z-index:99999;
 
 embedModal.innerHTML = `
 <div id="embedBox" style="background:#111;width:90%;max-width:500px;padding:15px;border-radius:10px;color:white;position:relative;">
-  <button id="closeEmbed"
-    style="position:absolute;top:10px;right:10px;background:none;border:none;color:white;font-size:20px;">
-    ✕
-  </button>
-
-  <h3>Embed Options</h3>
-  <div id="embedContent"></div>
+<button id="closeEmbed" style="position:absolute;top:10px;right:10px;background:none;border:none;color:white;font-size:20px;">✕</button>
+<h3>Embed Options</h3>
+<div id="embedContent"></div>
 </div>
 `;
 
 document.body.appendChild(embedModal);
 
-/* OPEN EMBED */
-function openEmbed() {
-  openModal(embedModal);
-}
-
-/* CLOSE EMBED */
-document.addEventListener("click", (e) => {
-  if (e.target.id === "closeEmbed") {
-    closeModal(embedModal);
-  }
-});
-
-embedModal.addEventListener("click", (e) => {
-  if (e.target === embedModal) {
-    closeModal(embedModal);
-  }
-});
-
-document.getElementById("embedBox").addEventListener("click", (e) => {
-  e.stopPropagation();
-});
-
-/* =========================================================
-   🔷 DOWNLOAD MODAL
-========================================================= */
-
+/* =========================
+   CREATE DOWNLOAD MODAL
+========================= */
 const downloadModal = document.createElement("div");
 downloadModal.style.cssText = `
 position:fixed;top:0;left:0;width:100%;height:100%;
@@ -194,27 +132,61 @@ z-index:99999;
 
 downloadModal.innerHTML = `
 <div id="dlBox" style="background:#111;width:90%;max-width:500px;padding:15px;border-radius:10px;color:white;position:relative;">
-  <button id="closeDl"
-    style="position:absolute;top:10px;right:10px;background:none;border:none;color:white;font-size:20px;">
-    ✕
-  </button>
-
-  <h3>Download Options</h3>
-  <div id="dlContent"></div>
+<button id="closeDl" style="position:absolute;top:10px;right:10px;background:none;border:none;color:white;font-size:20px;">✕</button>
+<h3>Download Options</h3>
+<div id="dlContent"></div>
 </div>
 `;
 
 document.body.appendChild(downloadModal);
 
-/* OPEN DOWNLOAD */
-function openDownload() {
-  openModal(downloadModal);
+/* =========================
+   MODAL CORE FUNCTIONS
+========================= */
+function openModal(modal) {
+  modal.style.display = "flex";
+  modalStack.push(modal);
+
+  // push history state so back button is captured
+  history.pushState({ modalOpen: true }, "");
 }
 
-/* CLOSE DOWNLOAD */
-document.addEventListener("click", (e) => {
-  if (e.target.id === "closeDl") {
-    closeModal(downloadModal);
+function closeModal(modal) {
+  modal.style.display = "none";
+  modalStack = modalStack.filter(m => m !== modal);
+}
+
+/* =========================
+   BACK BUTTON CONTROL
+========================= */
+window.addEventListener("popstate", () => {
+  if (modalStack.length > 0) {
+    const lastModal = modalStack.pop();
+    lastModal.style.display = "none";
+    return;
+  }
+
+  // no modals left → allow real navigation back to folder.html?folder=Solo
+  history.back();
+});
+
+/* =========================
+   CLOSE BUTTONS
+========================= */
+document.getElementById("closeEmbed").onclick = () => {
+  closeModal(embedModal);
+};
+
+document.getElementById("closeDl").onclick = () => {
+  closeModal(downloadModal);
+};
+
+/* =========================
+   CLICK OUTSIDE TO CLOSE
+========================= */
+embedModal.addEventListener("click", (e) => {
+  if (e.target === embedModal) {
+    closeModal(embedModal);
   }
 });
 
@@ -222,6 +194,13 @@ downloadModal.addEventListener("click", (e) => {
   if (e.target === downloadModal) {
     closeModal(downloadModal);
   }
+});
+
+/* =========================
+   STOP INNER CLICK CLOSING
+========================= */
+document.getElementById("embedBox").addEventListener("click", (e) => {
+  e.stopPropagation();
 });
 
 document.getElementById("dlBox").addEventListener("click", (e) => {
