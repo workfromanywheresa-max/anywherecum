@@ -465,8 +465,8 @@ function loadPlayer() {
   const iframe = document.getElementById("videoFrame");
 
   iframe.onload = () => {
-    skeleton.style.display = "none";
-  };
+  document.getElementById("videoSkeleton").style.display = "none";
+};
 
   setTimeout(() => {
     document.getElementById("videoSkeleton").style.display = "none";
