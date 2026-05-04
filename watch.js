@@ -257,22 +257,39 @@ function injectButtons(video) {
 </svg>
 `;
 
-  downloadBtn.onclick = () => {
-    const c = document.getElementById("dlContent");
-    c.innerHTML = "";
+ downloadBtn.onclick = () => {
+  const c = document.getElementById("dlContent");
+  c.innerHTML = "";
 
-    video.qualities.forEach(q => {
-      const a = document.createElement("a");
-      a.href = q.download;
-      a.target = "_blank";
-      a.textContent = q.label;
-      a.style.display = "block";
-      a.style.padding = "10px";
-      a.style.background = "#222";
-      a.style.marginBottom = "8px";
-      a.style.color = "#ff4444";
-      c.appendChild(a);
+  video.qualities.forEach(q => {
+
+    const a = document.createElement("a");
+    a.href = q.download;
+
+    // prevent weird bubbling issues
+    a.addEventListener("click", (e) => {
+      e.stopPropagation();
     });
+
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+
+    // ✅ COMBINED SINGLE LINE (what you asked for)
+    a.textContent = `${q.label} - ${q.size}`;
+
+    a.style.display = "block";
+    a.style.padding = "12px";
+    a.style.background = "#222";
+    a.style.marginBottom = "8px";
+    a.style.color = "#ff4444";
+    a.style.textDecoration = "none";
+    a.style.borderRadius = "6px";
+
+    c.appendChild(a);
+  });
+
+  downloadModal.style.display = "flex";
+};
 
     downloadModal.style.display = "flex";
   };
