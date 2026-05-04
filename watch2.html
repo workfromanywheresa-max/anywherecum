@@ -202,6 +202,14 @@ function timeAgo(dateString) {
   return `${years} year${years === 1 ? "" : "s"} ago`;
 }
 
+  function getViewCache(videoId) {
+  return Number(localStorage.getItem("views_" + videoId)) || 0;
+}
+
+function setViewCache(videoId, value) {
+  localStorage.setItem("views_" + videoId, value);
+  }
+
 /* ---------------- PLAYER ---------------- */
 function loadPlayer() {
   const q = videoData.qualities[currentIndex];
@@ -718,7 +726,7 @@ likeWrapper.appendChild(likeBtn);
 viewsText.style.fontSize = "10px";
 viewsText.style.color = "#aaa";
 viewsText.style.marginBottom = "2px";
-viewsText.textContent = "👁 0";
+viewsText.textContent = `👁 ${formatViews(getViewCache(video.id))}`;
 
   const viewsRef = ref(db, "views/" + video.id);
 
@@ -731,7 +739,12 @@ function formatViews(num) {
 
 onValue(viewsRef, snap => {
   const val = snap.val() || 0;
+
+  // update UI
   viewsText.textContent = `👁 ${formatViews(val)}`;
+
+  // cache it
+  setViewCache(video.id, val);
 });
 
   const timeText = document.createElement("div");
