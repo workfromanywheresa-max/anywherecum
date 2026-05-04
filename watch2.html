@@ -202,6 +202,13 @@ select.skeleton option {
   );
   animation: shimmer 1.2s infinite;
 }
+
+  .label-skeleton {
+  height: 12px;
+  width: 70%;
+  margin: 0 auto;
+  border-radius: 4px;
+  }
 </style>
 
 </head>
@@ -209,7 +216,7 @@ select.skeleton option {
 
 <div class="topBar">
   <button class="backBtn" onclick="history.back()">← Back</button>
-  <div id="watchLabel">Watch</div>
+  <div id="watchLabel" class="skeleton label-skeleton"></div>
   <div></div>
 </div>
 
@@ -930,6 +937,8 @@ onValue(viewsRef, snap => {
 
 /* ---------------- INIT ---------------- */
 function init() {
+  watchLabel.classList.add("skeleton", "label-skeleton");
+watchLabel.textContent = "";
   showButtonSkeleton();
   if (!videoId) {
     titleEl.textContent = "No video selected";
@@ -950,8 +959,9 @@ function init() {
       titleEl.textContent = videoData.title;
 titleEl.classList.remove("skeleton");
 
-      watchLabel.textContent =
-        `Watch "${videoData.title}" — streaming now in high quality`;
+      watchLabel.classList.remove("skeleton", "label-skeleton");
+watchLabel.textContent =
+  `Watch "${videoData.title}" — streaming now in high quality`;
 
       metaDesc.setAttribute(
         "content",
