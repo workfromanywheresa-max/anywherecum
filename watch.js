@@ -17,19 +17,6 @@ if (!visitId) {
   localStorage.setItem("visit_id", visitId);
 }
 
-function handleDownloadClick(videoId) {
-  fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      videoId: videoId,
-      type: "download_click",
-      visitId: visitId,
-      timestamp: Date.now()
-    })
-  }).catch(err => console.error("Download worker failed:", err));
-}
-
 /* ---------------- URL ---------------- */
 const params = new URLSearchParams(window.location.search);
 const videoId = params.get("video");
@@ -395,18 +382,12 @@ function injectButtons(video) {
   const c = document.getElementById("dlContent");
   c.innerHTML = "";
 
-  /* 🔥 FIREBASE DOWNLOAD COUNTER (increment once per click) */
-  const downloadCountRef = ref(db, `downloads/${video.id}/count`);
-
-  runTransaction(downloadCountRef, (current) => {
-    return (current || 0) + 1;
-  });
-
   video.qualities.forEach(q => {
 
     const a = document.createElement("a");
     a.href = q.download;
 
+    // prevent weird bubbling issues
     a.addEventListener("click", (e) => {
       e.stopPropagation();
     });
@@ -414,6 +395,7 @@ function injectButtons(video) {
     a.target = "_blank";
     a.rel = "noopener noreferrer";
 
+    // ✅ COMBINED SINGLE LINE (what you asked for)
     a.textContent = `${q.label} - ${q.size}`;
 
     a.style.display = "block";
