@@ -89,41 +89,9 @@ function createStack(labelText, button) {
 }
 
 /* ---------------- MODALS ---------------- */
-let activeModal = null;
-let modalOpen = false;
-
-let embedOpen = false;
-let downloadOpen = false;
-
-/* =========================
-   GENERIC MODAL
-========================= */
-
-function openModal(modal) {
-  activeModal = modal;
-  modalOpen = true;
-  modal.style.display = "flex";
-
-  history.pushState({ modal: true }, "");
-}
-
-function closeModal() {
-  if (activeModal) activeModal.style.display = "none";
-  activeModal = null;
-  modalOpen = false;
-}
-
-/* =========================
-   EMBED MODAL
-========================= */
-
 const embedModal = document.createElement("div");
 embedModal.style.cssText = `
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
+position:fixed;top:0;left:0;width:100%;height:100%;
 background:rgba(0,0,0,0.85);
 display:none;
 align-items:center;
@@ -141,28 +109,33 @@ embedModal.innerHTML = `
 
 document.body.appendChild(embedModal);
 
-function openEmbedModal() {
-  embedOpen = true;
-  embedModal.style.display = "flex";
-  history.pushState({ embed: true }, "");
-}
+/* CLOSE BUTTON */
+document.addEventListener("click", (e) => {
+  if (e.target.id === "closeEmbed") {
+    embedModal.style.display = "none";
+  }
+});
 
-function closeEmbedModal() {
-  embedModal.style.display = "none";
-  embedOpen = false;
-}
+/* CLICK OUTSIDE TO CLOSE */
+embedModal.addEventListener("click", (e) => {
+  if (e.target === embedModal) {
+    embedModal.style.display = "none";
+  }
+});
 
-/* =========================
-   DOWNLOAD MODAL
-========================= */
+/* PREVENT INSIDE CLICK CLOSING */
+document.addEventListener("DOMContentLoaded", () => {
+  const box = document.getElementById("embedBox");
+  if (box) {
+    box.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
+  }
+});
 
 const downloadModal = document.createElement("div");
 downloadModal.style.cssText = `
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
+position:fixed;top:0;left:0;width:100%;height:100%;
 background:rgba(0,0,0,0.85);
 display:none;
 align-items:center;
@@ -180,78 +153,29 @@ downloadModal.innerHTML = `
 
 document.body.appendChild(downloadModal);
 
-function openDownloadModal() {
-  downloadOpen = true;
-  downloadModal.style.display = "flex";
-  history.pushState({ download: true }, "");
-}
-
-function closeDownloadModal() {
-  downloadModal.style.display = "none";
-  downloadOpen = false;
-}
-
-/* =========================
-   SINGLE BACK HANDLER (IMPORTANT)
-========================= */
-
-window.addEventListener("popstate", () => {
-
-  // CLOSE EMBED FIRST
-  if (embedOpen) {
-    closeEmbedModal();
-    return;
-  }
-
-  // CLOSE DOWNLOAD SECOND
-  if (downloadOpen) {
-    closeDownloadModal();
-    return;
-  }
-
-  // CLOSE GENERIC MODAL THIRD
-  if (modalOpen) {
-    closeModal();
-    return;
-  }
-
-  // IMPORTANT:
-  // DO NOTHING HERE → allows normal back navigation
-});
-
-/* =========================
-   BUTTON HANDLERS
-========================= */
-
+/* CLOSE BUTTON */
 document.addEventListener("click", (e) => {
-
-  if (e.target.id === "closeEmbed") {
-    closeEmbedModal();
-  }
-
   if (e.target.id === "closeDl") {
-    closeDownloadModal();
+    downloadModal.style.display = "none";
   }
 });
 
-/* =========================
-   CLICK OUTSIDE CLOSE
-========================= */
-
-embedModal.addEventListener("click", (e) => {
-  if (e.target === embedModal) closeEmbedModal();
-});
-
+/* CLICK OUTSIDE TO CLOSE */
 downloadModal.addEventListener("click", (e) => {
-  if (e.target === downloadModal) closeDownloadModal();
+  if (e.target === downloadModal) {
+    downloadModal.style.display = "none";
+  }
 });
 
-/* =========================
-   PREVENT INNER CLICK CLOSE
-========================= */
-
-document.getElementById("embedBox").addEventListener("click", e => e.stopPropagation());
-document.getElementById("dlBox").addEventListener("click", e => e.stopPropagation());
+/* PREVENT INSIDE CLICK CLOSING */
+document.addEventListener("DOMContentLoaded", () => {
+  const box = document.getElementById("dlBox");
+  if (box) {
+    box.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
+  }
+});
 
 /* ---------------- BUTTONS ---------------- */
 function injectButtons(video) {
