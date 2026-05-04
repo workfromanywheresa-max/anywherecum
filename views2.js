@@ -902,7 +902,7 @@ leftGroup.style.display = "flex";
 leftGroup.style.gap = "10px";
 leftGroup.style.alignItems = "center";
 
-leftGroup.style.marginTop = "-100px";
+leftGroup.style.marginTop = "-12px";
 
 leftGroup.appendChild(createStack("Share", shareBtn));
 leftGroup.appendChild(createStack("Embed", embedBtn));
@@ -915,7 +915,7 @@ rightGroup.style.display = "flex";
 rightGroup.style.alignItems = "center";
 
 rightGroup.style.alignSelf = "flex-start";
-rightGroup.style.marginTop = "-12px";
+rightGroup.style.marginTop = "-150px";
 
 /* 🔥 PUSH TO FAR RIGHT EDGE */
 rightGroup.style.marginLeft = "auto";
