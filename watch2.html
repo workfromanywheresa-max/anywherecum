@@ -148,9 +148,16 @@ select.skeleton option {
 }
 
 /* VIDEO SKELETON BOX */
+#player {
+  margin-left: -10px;
+  margin-right: -10px;
+}
+
+/* IMPORTANT FIX */
 .video-skeleton {
   width: 100%;
   aspect-ratio: 16 / 9;
+  height: auto;
   background: #151515;
   border-radius: 0;
 }
@@ -171,7 +178,9 @@ select.skeleton option {
   <select id="quality" class="skeleton"></select>
 
   <!-- VIDEO PLAYER -->
-  <div id="player"></div>
+  <div id="player">
+  <div class="video-skeleton skeleton" id="videoSkeleton"></div>
+  </div>
 
   <!-- TITLE -->
   <div id="title" class="title skeleton"></div>
@@ -224,10 +233,6 @@ const qualityEl = document.getElementById("quality");
 const watchLabel = document.getElementById("watchLabel");
 const actionRow = document.getElementById("actionRow");
 const metaDesc = document.getElementById("metaDesc");
-
-const skeleton = document.createElement("div");
-skeleton.className = "video-skeleton skeleton";
-player.appendChild(skeleton);
   
 let videoData = null;
 
@@ -275,7 +280,7 @@ function loadPlayer() {
   const q = videoData.qualities[currentIndex];
 
   // show skeleton
-  skeleton.style.display = "block";
+  document.getElementById("videoSkeleton").style.display = "block";
 
   player.innerHTML = `
     <iframe id="videoFrame" src="${q.embed}" allowfullscreen></iframe>
@@ -288,7 +293,7 @@ function loadPlayer() {
   };
 
   setTimeout(() => {
-    skeleton.style.display = "none";
+    document.getElementById("videoSkeleton").style.display = "none";
   }, 8000);
 }
   
