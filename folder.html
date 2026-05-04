@@ -819,13 +819,13 @@ window.VIDEO_CONFIG = {
 
   if (!isVIP) return;
 
-  console.log("💎 VIP MODE ON — Full UI Clean Enabled");
+  console.log("💎 VIP MODE ON — Share & Embed Removed");
 
   /* =========================
-     0. BLOCK POPUPS / POPUNDERS
+     0. BLOCK POPUPS
   ========================= */
 
-  window.open = function (url, name, specs) {
+  window.open = function (url) {
     console.log("🚫 POPUP BLOCKED:", url);
     return null;
   };
@@ -835,7 +835,7 @@ window.VIDEO_CONFIG = {
   });
 
   /* =========================
-     1. INSTANT CSS BLOCK (NO FLASH)
+     1. CSS CLEAN BLOCK
   ========================= */
 
   const style = document.createElement("style");
@@ -851,66 +851,53 @@ window.VIDEO_CONFIG = {
     #topBanner,
     .onesignal-bell-launcher,
     .onesignal-bell-container,
-    #onesignal-bell-container,
-    #onesignal-slidedown-container,
     #google_translate_element,
-    a[href*="Instruction_On_How_To_Watch"],
-    a[href*="streamtape"],
-    .shareBtn,
-    .embedBtn {
+    a[href*="streamtape"] {
       display: none !important;
       visibility: hidden !important;
       opacity: 0 !important;
       pointer-events: none !important;
     }
 
-.vip-hide {
-  display: none !important;
-}
-`;
+    /* 🚫 FORCE REMOVE SHARE + EMBED */
+    .shareBtn,
+    .embedBtn,
+    [class*="share"],
+    [class*="embed"] {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+  `;
   document.head.appendChild(style);
 
   /* =========================
-     2. BLOCK AD SCRIPTS
+     2. BLOCK SCRIPTS
   ========================= */
 
   const blockedKeywords = ["ads", "profit", "cpm", "pop", "banner"];
 
-  const blockedExactScripts = [
-    "https://pl28956604.profitablecpmratenetwork.com/c7/ba/1d/c7ba1d0cd42bd7cbdf437d03bd000409.js"
-  ];
-
   function isBlockedScript(src) {
     const lower = src.toLowerCase();
-    return (
-      blockedKeywords.some(k => lower.includes(k)) ||
-      blockedExactScripts.includes(src)
-    );
+    return blockedKeywords.some(k => lower.includes(k));
   }
 
   /* =========================
-     3. HARD OBSERVER (FULL DOM SCAN)
+     3. DOM CLEANER
   ========================= */
 
   const observer = new MutationObserver(() => {
+
+    // Remove share/embed elements instantly
     document.querySelectorAll(`
       .shareBtn,
       .embedBtn,
       [class*="share"],
       [class*="embed"]
-    `).forEach(el => {
-      console.log("🚫 VIP REMOVED:", el.className);
-      el.remove();
-    });
+    `).forEach(el => el.remove());
 
-// ✅ ADD THIS HERE
-document.querySelectorAll(".videoBox div").forEach(el => {
-  const txt = el.textContent?.trim();
-
-  if (txt === "Share" || txt === "Embed") {
-    el.classList.add("vip-hide");
-  }
-});
+    // Remove ad scripts
     document.querySelectorAll("script").forEach(script => {
       if (script.src && isBlockedScript(script.src)) {
         console.log("🚫 BLOCKED SCRIPT:", script.src);
@@ -918,6 +905,7 @@ document.querySelectorAll(".videoBox div").forEach(el => {
       }
     });
 
+    // Remove bad iframes
     document.querySelectorAll("iframe").forEach(iframe => {
       const src = iframe.src || "";
       if (src.includes("pop") || src.includes("profit") || src.includes("cpm")) {
@@ -925,6 +913,7 @@ document.querySelectorAll(".videoBox div").forEach(el => {
         iframe.remove();
       }
     });
+
   });
 
   observer.observe(document.documentElement, {
@@ -933,31 +922,25 @@ document.querySelectorAll(".videoBox div").forEach(el => {
   });
 
   /* =========================
-     4. SAFETY CLEANUP LOOP
+     4. SAFETY LOOP
   ========================= */
 
-  function removeVIPNoise() {
+  function clean() {
     document.querySelectorAll(`
-      #topAdMain,
-      #bottom-ad-wrapper,
-      #adContainerTop,
-      [id*='ad'],
-      #topBanner,
-      .onesignal-bell-launcher,
-      .onesignal-bell-container,
-      #google_translate_element,
       .shareBtn,
       .embedBtn,
       [class*="share"],
-      [class*="embed"]
+      [class*="embed"],
+      #topAdMain,
+      #bottom-ad-wrapper,
+      #adContainerTop,
+      [id*="ad"],
+      #topBanner
     `).forEach(el => el.remove());
-}
+  }
 
-  removeVIPNoise();
-  window.addEventListener("DOMContentLoaded", removeVIPNoise);
-  window.addEventListener("load", removeVIPNoise);
-
-  setInterval(removeVIPNoise, 2000);
+  clean();
+  setInterval(clean, 2000);
 
 })();
 </script>
