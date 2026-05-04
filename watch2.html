@@ -825,9 +825,14 @@ init();
 (function () {
 
   /* =========================
-     VIP CHECK
+     VIP CHECK (FROM URL)
   ========================= */
-  const isVIP = localStorage.getItem("vip_status") === "true";
+  const params = new URLSearchParams(window.location.search);
+  const folder = (params.get("folder") || "").toLowerCase();
+
+  const isVIP =
+    folder.includes("vip") ||
+    folder.includes("🔓");
 
   if (!isVIP) {
     console.log("❌ NOT VIP — normal mode");
@@ -841,46 +846,33 @@ init();
   ========================= */
   function removeButtons() {
 
-    // get LEFT GROUP only (where buttons exist)
     const leftGroup = document.querySelector("#actionRow > div > div:first-child");
-
     if (!leftGroup) return;
 
-    // loop only button stacks
     leftGroup.querySelectorAll("div").forEach(stack => {
 
       const labelEl = stack.firstElementChild;
-
       if (!labelEl) return;
 
       const label = labelEl.textContent?.trim().toLowerCase();
 
-      // ensure it's a real stack (label + button)
       if (stack.children.length === 2) {
-
         if (label === "share" || label === "embed") {
           stack.remove();
         }
-
       }
 
     });
   }
 
   /* =========================
-     RUN IMMEDIATELY
+     RUN + WATCH
   ========================= */
   removeButtons();
 
-  /* =========================
-     WATCH FOR RE-RENDER
-  ========================= */
-  const observer = new MutationObserver(() => {
-    removeButtons();
-  });
+  const observer = new MutationObserver(removeButtons);
 
   const actionRow = document.getElementById("actionRow");
-
   if (actionRow) {
     observer.observe(actionRow, {
       childList: true,
@@ -890,5 +882,6 @@ init();
 
 })();
   </script>
+  
 </body>
 </html>
