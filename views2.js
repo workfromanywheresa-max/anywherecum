@@ -332,7 +332,7 @@ function createStack(labelText, button) {
   const label = document.createElement("div");
   label.textContent = labelText;
   label.style.fontSize = "10px";
-  label.style.color = "white";
+  label.style.color = "#aaa";
   label.style.whiteSpace = "nowrap";
 
   stack.appendChild(label);
@@ -943,7 +943,7 @@ likeStack.style.justifyContent = "center";
 // TIME AGO (floating above, NOT affecting layout)
 const timeText = document.createElement("div");
 timeText.style.fontSize = "10px";
-timeText.style.color = "#aaa";
+timeText.style.color = "white";
 timeText.style.whiteSpace = "nowrap";
 timeText.style.marginBottom = "2px";
 timeText.style.lineHeight = "1.2";
