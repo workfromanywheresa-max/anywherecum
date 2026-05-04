@@ -9,27 +9,11 @@
 <meta id="metaDesc" name="description" content="Watch videos in high quality online." />
 
 <style>
-  <style>
-html, body {
-  height: 100%;
-}
-
-body {
+  body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #111;
   color: white;
-
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-/* OPTIONAL PAGE WRAPPER (only works if you add <div class="page">) */
-.page {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
 }
 
 /* TOP BAR */
@@ -129,14 +113,42 @@ select.skeleton option {
   color: transparent;
 }
 
-/* BUTTON ROW */
+/* =========================
+   BUTTON ROW LAYOUT (NEW)
+========================= */
 #actionRow {
   display: flex;
   width: 100%;
   align-items: center;
 }
 
-/* SKELETONS */
+/* left side buttons */
+.btn-skeleton-wrap {
+  display: flex;
+  gap: 10px;
+}
+
+/* each button stack */
+.skeleton-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 55px;
+}
+
+/* right side */
+.skeleton-right {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+/* =========================
+   SKELETON BASE ANIMATION
+========================= */
 .skeleton {
   background: #1e1e1e;
   position: relative;
@@ -165,6 +177,7 @@ select.skeleton option {
   }
 }
 
+/* BUTTON SKELETON MODE */
 #actionRow.skeleton-mode {
   pointer-events: none;
 }
@@ -174,6 +187,8 @@ select.skeleton option {
   height: 28px;
   border-radius: 6px;
   background: #1e1e1e;
+  position: relative;
+  overflow: hidden;
 }
 
 #actionRow.skeleton-mode .skeleton-label {
@@ -182,36 +197,43 @@ select.skeleton option {
   margin-bottom: 4px;
   background: #1e1e1e;
   border-radius: 4px;
+  position: relative;
+  overflow: hidden;
 }
 
-#actionRow.skeleton-mode .skeleton-right {
+/* shimmer for buttons */
+#actionRow.skeleton-mode .skeleton-btn::after,
+#actionRow.skeleton-mode .skeleton-label::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.08),
+    transparent
+  );
+  animation: shimmer 1.2s infinite;
+}
+
+  #actionRow.skeleton-mode .skeleton-right {
   margin-top: -16px;
-}
+  }
 
-/* LABEL */
+/* label skeleton */
 .label-skeleton {
   height: 26px;
   width: 70%;
   margin: 0 auto;
   border-radius: 4px;
 }
-
-/* FOOTER FIX (THIS IS THE IMPORTANT PART) */
-footer {
-  margin-top: auto;
-  text-align: center;
-  padding: 20px;
-  font-size: 12px;
-  color: #aaa;
-  background: #111;
-}
-</style>
 </style>
 
 </head>
 <body>
-
-  <div class="page">
 
 <div class="topBar">
   <button class="backBtn" onclick="history.back()">← Back</button>
@@ -271,7 +293,6 @@ footer {
 
   </div>
 
-  </div>
   </div>
 
   <footer style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
