@@ -152,11 +152,12 @@ downloadModal.innerHTML = `
 document.body.appendChild(downloadModal);
 
 /* =========================
-   MODAL CORE FUNCTIONS
+   OPEN MODAL
 ========================= */
 function openModal(modal) {
   modal.style.display = "flex";
 
+  // push history only once per open
   if (!modal._opened) {
     history.pushState({ modalOpen: true }, "");
     modal._opened = true;
@@ -165,13 +166,20 @@ function openModal(modal) {
   modalStack.push(modal);
 }
 
-function closeModal(modal) {
+/* =========================
+   CLOSE TOP MODAL (CORE)
+========================= */
+function closeTopModal() {
+  const modal = modalStack.pop();
+
+  if (!modal) return;
+
   modal.style.display = "none";
 
-  modalStack = modalStack.filter(m => m !== modal);
-
+  // if no more modals, reset state
   if (modalStack.length === 0) {
-    modal._opened = false;
+    embedModal._opened = false;
+    downloadModal._opened = false;
   }
 }
 
@@ -179,37 +187,32 @@ function closeModal(modal) {
    BACK BUTTON CONTROL
 ========================= */
 window.addEventListener("popstate", () => {
-  if (modalStack.length > 0) {
-    const lastModal = modalStack.pop();
-    lastModal.style.display = "none";
-
-    return;
-  }
+  closeTopModal();
 });
 
 /* =========================
-   CLOSE BUTTONS
+   X BUTTONS (SAME BEHAVIOR)
 ========================= */
 document.getElementById("closeEmbed").onclick = () => {
-  closeModal(embedModal);
+  history.back();
 };
 
 document.getElementById("closeDl").onclick = () => {
-  closeModal(downloadModal);
+  history.back();
 };
 
 /* =========================
-   CLICK OUTSIDE TO CLOSE
+   CLICK OUTSIDE CLOSE
 ========================= */
 embedModal.addEventListener("click", (e) => {
   if (e.target === embedModal) {
-    closeModal(embedModal);
+    history.back();
   }
 });
 
 downloadModal.addEventListener("click", (e) => {
   if (e.target === downloadModal) {
-    closeModal(downloadModal);
+    history.back();
   }
 });
 
