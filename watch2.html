@@ -833,60 +833,40 @@ init();
 
   if (!isVIP) return;
 
-  console.log("💎 VIP MODE ON — Share + Download Block Enabled");
+  console.log("💎 VIP MODE ON — Share & Embed Block Only");
 
   /* =========================
-     1. SHARE + DOWNLOAD BLOCK (CSS)
+     1. CSS: HIDE SHARE + EMBED ONLY
   ========================= */
 
   const style = document.createElement("style");
   style.innerHTML = `
     .shareBtn,
-    .downloadBtn,
+    .embedBtn,
     [class*="share"],
-    [class*="download"],
-    button[title*="Share"],
-    button[title*="Download"],
-    a[title*="Share"],
-    a[title*="Download"] {
+    [class*="embed"] {
       display: none !important;
       visibility: hidden !important;
       opacity: 0 !important;
       pointer-events: none !important;
     }
-
-    .vip-hide {
-      display: none !important;
-    }
   `;
   document.head.appendChild(style);
 
   /* =========================
-     2. SHARE + DOWNLOAD BLOCK (LIVE DOM CLEAN)
+     2. REMOVE DYNAMIC BUTTONS
   ========================= */
 
   const observer = new MutationObserver(() => {
 
     document.querySelectorAll(`
       .shareBtn,
-      .downloadBtn,
+      .embedBtn,
       [class*="share"],
-      [class*="download"],
-      button[title*="Share"],
-      button[title*="Download"],
-      a[title*="Share"],
-      a[title*="Download"]
+      [class*="embed"]
     `).forEach(el => {
-      console.log("🚫 VIP REMOVED:", el.className || el);
+      console.log("🚫 Removed:", el.className);
       el.remove();
-    });
-
-    document.querySelectorAll(".videoBox div").forEach(el => {
-      const txt = el.textContent?.trim().toLowerCase();
-
-      if (txt === "share" || txt === "download") {
-        el.classList.add("vip-hide");
-      }
     });
 
   });
@@ -895,6 +875,23 @@ init();
     childList: true,
     subtree: true
   });
+
+  /* =========================
+     3. INITIAL CLEAN
+  ========================= */
+
+  function clean() {
+    document.querySelectorAll(`
+      .shareBtn,
+      .embedBtn,
+      [class*="share"],
+      [class*="embed"]
+    `).forEach(el => el.remove());
+  }
+
+  clean();
+  window.addEventListener("DOMContentLoaded", clean);
+  window.addEventListener("load", clean);
 
 })();
   </script>
