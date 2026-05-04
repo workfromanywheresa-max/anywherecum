@@ -821,5 +821,83 @@ function init() {
 init();
 </script>
 
+  <script>
+(function () {
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const folder = (urlParams.get("folder") || "").toLowerCase();
+
+  const isVIP =
+    folder.includes("vip") ||
+    folder.includes("🔒");
+
+  if (!isVIP) return;
+
+  console.log("💎 VIP MODE ON — Share + Download Block Enabled");
+
+  /* =========================
+     1. SHARE + DOWNLOAD BLOCK (CSS)
+  ========================= */
+
+  const style = document.createElement("style");
+  style.innerHTML = `
+    .shareBtn,
+    .downloadBtn,
+    [class*="share"],
+    [class*="download"],
+    button[title*="Share"],
+    button[title*="Download"],
+    a[title*="Share"],
+    a[title*="Download"] {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    .vip-hide {
+      display: none !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  /* =========================
+     2. SHARE + DOWNLOAD BLOCK (LIVE DOM CLEAN)
+  ========================= */
+
+  const observer = new MutationObserver(() => {
+
+    document.querySelectorAll(`
+      .shareBtn,
+      .downloadBtn,
+      [class*="share"],
+      [class*="download"],
+      button[title*="Share"],
+      button[title*="Download"],
+      a[title*="Share"],
+      a[title*="Download"]
+    `).forEach(el => {
+      console.log("🚫 VIP REMOVED:", el.className || el);
+      el.remove();
+    });
+
+    document.querySelectorAll(".videoBox div").forEach(el => {
+      const txt = el.textContent?.trim().toLowerCase();
+
+      if (txt === "share" || txt === "download") {
+        el.classList.add("vip-hide");
+      }
+    });
+
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+
+})();
+  </script>
+
 </body>
 </html>
