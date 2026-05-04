@@ -9,7 +9,7 @@
 <meta id="metaDesc" name="description" content="Watch videos in high quality online." />
 
 <style>
-body {
+  body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #111;
@@ -90,16 +90,12 @@ select {
 }
 
 select.skeleton {
-  width: 90%;
-  margin: 6px auto;
   height: 28px;
   background: #1e1e1e;
   color: transparent;
   pointer-events: none;
-  box-sizing: border-box;
 }
-  
-/* hide dropdown options during skeleton */
+
 select.skeleton option {
   display: none;
 }
@@ -117,17 +113,41 @@ select.skeleton option {
   color: transparent;
 }
 
-/* BUTTON AREA */
+/* =========================
+   BUTTON ROW LAYOUT (NEW)
+========================= */
 #actionRow {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  width: 100%;
+  align-items: center;
+}
+
+/* left side buttons */
+.btn-skeleton-wrap {
+  display: flex;
   gap: 10px;
-  margin-top: 10px;
+}
+
+/* each button stack */
+.skeleton-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 55px;
+}
+
+/* right side */
+.skeleton-right {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
 
 /* =========================
-   SKELETON LOADER BASE
+   SKELETON BASE ANIMATION
 ========================= */
 .skeleton {
   background: #1e1e1e;
@@ -157,14 +177,11 @@ select.skeleton option {
   }
 }
 
-  /* =========================
-   BUTTON SKELETON MODE
-========================= */
+/* BUTTON SKELETON MODE */
 #actionRow.skeleton-mode {
   pointer-events: none;
 }
 
-/* stack container skeleton look */
 #actionRow.skeleton-mode .skeleton-btn {
   width: 46px;
   height: 28px;
@@ -174,7 +191,6 @@ select.skeleton option {
   overflow: hidden;
 }
 
-/* label skeleton */
 #actionRow.skeleton-mode .skeleton-label {
   width: 40px;
   height: 10px;
@@ -185,7 +201,7 @@ select.skeleton option {
   overflow: hidden;
 }
 
-/* shimmer effect reused */
+/* shimmer for buttons */
 #actionRow.skeleton-mode .skeleton-btn::after,
 #actionRow.skeleton-mode .skeleton-label::after {
   content: "";
@@ -203,13 +219,13 @@ select.skeleton option {
   animation: shimmer 1.2s infinite;
 }
 
-  .label-skeleton {
+/* label skeleton */
+.label-skeleton {
   height: 22px;
   width: 70%;
   margin: 0 auto;
   border-radius: 4px;
-  }
-  
+}
 </style>
 
 </head>
