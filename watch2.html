@@ -81,23 +81,13 @@ select {
   text-decoration: underline;
 }
 
-/* 🔥 BUTTONS */
-#actionBar {
+/* ✅ BUTTON AREA */
+#actionRow {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   margin-top: 10px;
-}
-
-.actionBtn {
-  background: #222;
-  border: 1px solid #444;
-  color: white;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  cursor: pointer;
 }
 </style>
 
@@ -116,10 +106,11 @@ select {
 
   <div id="player"></div>
 
-  <!-- 🔥 BUTTON AREA -->
-  <div id="actionBar"></div>
-
+  <!-- ✅ TITLE -->
   <div id="title" class="title"></div>
+
+  <!-- ✅ YOUR BUTTON CONTAINER (UNDER TITLE) -->
+  <div id="actionRow"></div>
 
 </div>
 
@@ -132,7 +123,7 @@ const player = document.getElementById("player");
 const titleEl = document.getElementById("title");
 const qualityEl = document.getElementById("quality");
 const watchLabel = document.getElementById("watchLabel");
-const actionBar = document.getElementById("actionBar");
+const actionRow = document.getElementById("actionRow");
 
 let videoData = null;
 let currentIndex = qIndex;
@@ -142,69 +133,19 @@ function loadPlayer() {
   player.innerHTML = `<iframe src="${q.embed}" allowfullscreen></iframe>`;
 }
 
-/* ---------------- BUTTONS ---------------- */
-function createButtons(video) {
+/* ---------------- YOUR BUTTON INJECTION WILL GO HERE ---------------- */
+function injectButtons(video) {
+  actionRow.innerHTML = "";
 
-  const wrap = document.createElement("div");
-  wrap.style.display = "flex";
-  wrap.style.flexWrap = "wrap";
-  wrap.style.justifyContent = "center";
-  wrap.style.gap = "8px";
+  const btn = document.createElement("button");
+  btn.textContent = "TEST BUTTON";
+  btn.style.padding = "8px";
+  btn.style.background = "#222";
+  btn.style.color = "white";
+  btn.style.border = "1px solid #444";
+  btn.style.borderRadius = "6px";
 
-  function btn(text) {
-    const b = document.createElement("button");
-    b.className = "actionBtn";
-    b.textContent = text;
-    return b;
-  }
-
-  // SHARE
-  const share = btn("Share");
-  share.onclick = async () => {
-    const url = location.href;
-    if (navigator.share) {
-      try { await navigator.share({ url }); } catch {}
-    } else {
-      prompt("Copy link:", url);
-    }
-  };
-
-  // EMBED
-  const embed = btn("Embed");
-  embed.onclick = () => {
-    const q = video.qualities[0];
-    prompt("Embed code:",
-      `<iframe src="${q.embed}" width="100%" height="300" frameborder="0" allowfullscreen></iframe>`
-    );
-  };
-
-  // DOWNLOAD
-  const download = btn("Download");
-  download.onclick = () => {
-    alert(video.qualities.map(q => `${q.label}: ${q.download}`).join("\n"));
-  };
-
-  // DONATE
-  const donate = btn("Donate");
-  donate.onclick = () => {
-    window.location.href = "donate.html";
-  };
-
-  // LIKE
-  let liked = false;
-  const like = btn("Like ❤️");
-  like.onclick = () => {
-    liked = !liked;
-    like.textContent = liked ? "Liked ❤️" : "Like ❤️";
-  };
-
-  wrap.appendChild(share);
-  wrap.appendChild(embed);
-  wrap.appendChild(download);
-  wrap.appendChild(donate);
-  wrap.appendChild(like);
-
-  return wrap;
+  actionRow.appendChild(btn);
 }
 
 /* ---------------- INIT ---------------- */
@@ -247,20 +188,23 @@ function init() {
       qualityEl.onchange = () => {
         currentIndex = Number(qualityEl.value);
         loadPlayer();
-        history.replaceState(null, "", `?video=${videoId}&q=${currentIndex}`);
       };
 
       loadPlayer();
 
-      /* 🔥 ADD BUTTONS HERE */
-      actionBar.innerHTML = "";
-      actionBar.appendChild(createButtons(videoData));
+      /* ✅ YOUR REAL BUTTONS GO HERE */
+      injectButtons(videoData);
     })
-    .catch(console.error);
+    .catch(err => {
+      console.error(err);
+      titleEl.textContent = "Error loading video";
+    });
 }
 
 init();
 </script>
+
+  <script type="module" src="watch.js"></script>
 
 </body>
 </html>
