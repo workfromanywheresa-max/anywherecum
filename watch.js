@@ -156,15 +156,25 @@ document.body.appendChild(downloadModal);
 ========================= */
 function openModal(modal) {
   modal.style.display = "flex";
-  modalStack.push(modal);
 
-  // push history state so back button is captured
-  history.pushState({ modalOpen: true }, "");
+  // prevent duplicate history spam
+  if (!modal._historyPushed) {
+    history.pushState({ modalOpen: true }, "");
+    modal._historyPushed = true;
+  }
+
+  modalStack.push(modal);
 }
 
 function closeModal(modal) {
   modal.style.display = "none";
+
   modalStack = modalStack.filter(m => m !== modal);
+
+  // reset flag when fully closed
+  if (modalStack.length === 0) {
+    modal._historyPushed = false;
+  }
 }
 
 /* =========================
@@ -175,12 +185,13 @@ window.addEventListener("popstate", () => {
     const lastModal = modalStack.pop();
     lastModal.style.display = "none";
 
-    // IMPORTANT: lock history so it stays in watch2.html
-    history.pushState({}, "");
+    // reset history only if all closed
+    if (modalStack.length === 0) {
+      history.replaceState({}, "");
+    }
+
     return;
   }
-
-  // DO NOTHING HERE
 });
 
 /* =========================
