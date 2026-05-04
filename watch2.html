@@ -99,9 +99,43 @@ select {
   margin-top: 10px;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+/* =========================
+   SKELETON LOADER
+========================= */
+.skeleton {
+  background: #1e1e1e;
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.08),
+    transparent
+  );
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    left: 100%;
+  }
+}
+
+/* VIDEO SKELETON BOX */
+.video-skeleton {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #151515;
+  border-radius: 0;
 }
 </style>
 
@@ -174,30 +208,9 @@ const watchLabel = document.getElementById("watchLabel");
 const actionRow = document.getElementById("actionRow");
 const metaDesc = document.getElementById("metaDesc");
 
-const loader = document.createElement("div");
-loader.style.position = "absolute";
-loader.style.top = "0";
-loader.style.left = "0";
-loader.style.width = "100%";
-loader.style.height = "100%";
-loader.style.display = "none";
-loader.style.alignItems = "center";
-loader.style.justifyContent = "center";
-loader.style.background = "rgba(0,0,0,0.4)";
-loader.style.zIndex = "5";
-
-/* spinner */
-const spinner = document.createElement("div");
-spinner.style.border = "3px solid rgba(255,255,255,0.3)";
-spinner.style.borderTop = "3px solid #ffcc00";
-spinner.style.borderRadius = "50%";
-spinner.style.width = "35px";
-spinner.style.height = "35px";
-spinner.style.animation = "spin 1s linear infinite";
-
-loader.appendChild(spinner);
-player.style.position = "relative";
-player.appendChild(loader);
+const skeleton = document.createElement("div");
+skeleton.className = "video-skeleton skeleton";
+player.appendChild(skeleton);
   
 let videoData = null;
 
@@ -244,7 +257,8 @@ function setViewCache(videoId, value) {
 function loadPlayer() {
   const q = videoData.qualities[currentIndex];
 
-  loader.style.display = "flex";
+  // show skeleton
+  skeleton.style.display = "block";
 
   player.innerHTML = `
     <iframe id="videoFrame" src="${q.embed}" allowfullscreen></iframe>
@@ -253,15 +267,14 @@ function loadPlayer() {
   const iframe = document.getElementById("videoFrame");
 
   iframe.onload = () => {
-    loader.style.display = "none";
+    skeleton.style.display = "none";
   };
 
-  // safety fallback
   setTimeout(() => {
-    loader.style.display = "none";
+    skeleton.style.display = "none";
   }, 8000);
 }
-
+  
 /* ---------------- STACK UI ---------------- */
 function createStack(labelText, button) {
   const stack = document.createElement("div");
