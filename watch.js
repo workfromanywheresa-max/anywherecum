@@ -113,6 +113,7 @@ document.body.appendChild(embedModal);
 document.addEventListener("click", (e) => {
   if (e.target.id === "closeEmbed") {
     embedModal.style.display = "none";
+    history.back(); // 🔥 BACK BUTTON SYNC
   }
 });
 
@@ -120,6 +121,7 @@ document.addEventListener("click", (e) => {
 embedModal.addEventListener("click", (e) => {
   if (e.target === embedModal) {
     embedModal.style.display = "none";
+    history.back(); // 🔥 BACK BUTTON SYNC
   }
 });
 
@@ -130,6 +132,13 @@ document.addEventListener("DOMContentLoaded", () => {
     box.addEventListener("click", (e) => {
       e.stopPropagation();
     });
+  }
+});
+
+/* 🔙 BACK BUTTON SUPPORT */
+window.addEventListener("popstate", () => {
+  if (embedModal.style.display === "flex") {
+    embedModal.style.display = "none";
   }
 });
 
@@ -157,6 +166,7 @@ document.body.appendChild(downloadModal);
 document.addEventListener("click", (e) => {
   if (e.target.id === "closeDl") {
     downloadModal.style.display = "none";
+    history.back(); // 🔥 BACK BUTTON SYNC
   }
 });
 
@@ -164,6 +174,7 @@ document.addEventListener("click", (e) => {
 downloadModal.addEventListener("click", (e) => {
   if (e.target === downloadModal) {
     downloadModal.style.display = "none";
+    history.back(); // 🔥 BACK BUTTON SYNC
   }
 });
 
@@ -174,6 +185,13 @@ document.addEventListener("DOMContentLoaded", () => {
     box.addEventListener("click", (e) => {
       e.stopPropagation();
     });
+  }
+});
+
+/* 🔙 BACK BUTTON SUPPORT */
+window.addEventListener("popstate", () => {
+  if (downloadModal.style.display === "flex") {
+    downloadModal.style.display = "none";
   }
 });
 
