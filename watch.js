@@ -89,6 +89,31 @@ function createStack(labelText, button) {
 }
 
 /* ---------------- MODALS ---------------- */
+let activeModal = null;
+
+/* ---------- OPEN MODAL HELPER ---------- */
+function openModal(modal) {
+  activeModal = modal;
+  modal.style.display = "flex";
+
+  // Add fake history state so BACK can close modal first
+  history.pushState({ modalOpen: true }, "");
+}
+
+/* ---------- CLOSE MODAL HELPER ---------- */
+function closeModal(modal) {
+  modal.style.display = "none";
+  activeModal = null;
+}
+
+/* ---------- GLOBAL BACK BUTTON HANDLER ---------- */
+window.addEventListener("popstate", () => {
+  if (activeModal) {
+    closeModal(activeModal);
+    activeModal = null;
+  }
+});
+
 const embedModal = document.createElement("div");
 embedModal.style.cssText = `
 position:fixed;top:0;left:0;width:100%;height:100%;
@@ -109,37 +134,26 @@ embedModal.innerHTML = `
 
 document.body.appendChild(embedModal);
 
-/* CLOSE BUTTON */
+/* OPEN */
+function openEmbed() {
+  openModal(embedModal);
+}
+
+/* CLOSE */
 document.addEventListener("click", (e) => {
   if (e.target.id === "closeEmbed") {
-    embedModal.style.display = "none";
-    history.back(); // 🔥 BACK BUTTON SYNC
+    closeModal(embedModal);
   }
 });
 
-/* CLICK OUTSIDE TO CLOSE */
 embedModal.addEventListener("click", (e) => {
   if (e.target === embedModal) {
-    embedModal.style.display = "none";
-    history.back(); // 🔥 BACK BUTTON SYNC
+    closeModal(embedModal);
   }
 });
 
-/* PREVENT INSIDE CLICK CLOSING */
-document.addEventListener("DOMContentLoaded", () => {
-  const box = document.getElementById("embedBox");
-  if (box) {
-    box.addEventListener("click", (e) => {
-      e.stopPropagation();
-    });
-  }
-});
-
-/* 🔙 BACK BUTTON SUPPORT */
-window.addEventListener("popstate", () => {
-  if (embedModal.style.display === "flex") {
-    embedModal.style.display = "none";
-  }
+document.getElementById("embedBox").addEventListener("click", (e) => {
+  e.stopPropagation();
 });
 
 const downloadModal = document.createElement("div");
@@ -162,37 +176,26 @@ downloadModal.innerHTML = `
 
 document.body.appendChild(downloadModal);
 
-/* CLOSE BUTTON */
+/* OPEN */
+function openDownload() {
+  openModal(downloadModal);
+}
+
+/* CLOSE */
 document.addEventListener("click", (e) => {
   if (e.target.id === "closeDl") {
-    downloadModal.style.display = "none";
-    history.back(); // 🔥 BACK BUTTON SYNC
+    closeModal(downloadModal);
   }
 });
 
-/* CLICK OUTSIDE TO CLOSE */
 downloadModal.addEventListener("click", (e) => {
   if (e.target === downloadModal) {
-    downloadModal.style.display = "none";
-    history.back(); // 🔥 BACK BUTTON SYNC
+    closeModal(downloadModal);
   }
 });
 
-/* PREVENT INSIDE CLICK CLOSING */
-document.addEventListener("DOMContentLoaded", () => {
-  const box = document.getElementById("dlBox");
-  if (box) {
-    box.addEventListener("click", (e) => {
-      e.stopPropagation();
-    });
-  }
-});
-
-/* 🔙 BACK BUTTON SUPPORT */
-window.addEventListener("popstate", () => {
-  if (downloadModal.style.display === "flex") {
-    downloadModal.style.display = "none";
-  }
+document.getElementById("dlBox").addEventListener("click", (e) => {
+  e.stopPropagation();
 });
 
 /* ---------------- BUTTONS ---------------- */
