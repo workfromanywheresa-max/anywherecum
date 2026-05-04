@@ -541,6 +541,8 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
 
   wrapper.appendChild(views);
 
+  wrapper.appendChild(rightGroup);
+
   const select = document.createElement("select");
 
   video.qualities.forEach((q, index) => {
@@ -947,7 +949,6 @@ rightGroup.appendChild(likeStack);
   
 /* assemble */
 btnRow.appendChild(leftGroup);
-wrapper.appendChild(rightGroup);
 
 /* IMPORTANT: ensure parent stretches full width */
 actionBox.style.width = "100%";
