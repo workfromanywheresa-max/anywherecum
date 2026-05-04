@@ -900,52 +900,39 @@ btnRow.style.width = "100%";
 btnRow.style.alignItems = "center";
 btnRow.style.justifyContent = "flex-start"; // change from space-between
 
-/* LEFT SIDE (all buttons) */
-const leftGroup = document.createElement("div");
-rightGroup.style.position = "absolute";
-rightGroup.style.bottom = "8px";
-rightGroup.style.right = "8px";
-rightGroup.style.marginTop = "0";
-rightGroup.style.alignSelf = "unset";
-
-leftGroup.appendChild(createStack("Share", shareBtn));
-leftGroup.appendChild(createStack("Embed", embedBtn));
-leftGroup.appendChild(createStack("Download", downloadBtn));
-leftGroup.appendChild(createStack("Donate", donateBtn));
-  
 /* RIGHT SIDE (LIKE ONLY) */
 const rightGroup = document.createElement("div");
 rightGroup.style.position = "absolute";
 rightGroup.style.bottom = "8px";
 rightGroup.style.right = "8px";
-
 rightGroup.style.display = "flex";
 rightGroup.style.alignItems = "center";
 
-// WRAPPER FOR LIKE ONLY (keep it aligned with other buttons)
+/* WRAPPER FOR LIKE */
 const likeStack = document.createElement("div");
 likeStack.style.display = "flex";
 likeStack.style.flexDirection = "column";
 likeStack.style.alignItems = "center";
-likeStack.style.justifyContent = "center";
 
-// TIME AGO (floating above, NOT affecting layout)
+/* time */
 const timeText = document.createElement("div");
-timeText.style.fontSize = "10px";
-timeText.style.color = "#aaa";
-timeText.style.whiteSpace = "nowrap";
-timeText.style.marginBottom = "2px";
-timeText.style.lineHeight = "1.2";
-
 timeText.className = "timeText";
 timeText.setAttribute("data-date", video.date);
 timeText.textContent = timeAgo(video.date);
 
-// LIKE BUTTON (stays centered like other buttons)
 likeStack.appendChild(timeText);
 likeStack.appendChild(likeWrapper);
 
 rightGroup.appendChild(likeStack);
+
+
+/* LEFT SIDE */
+const leftGroup = document.createElement("div");
+
+leftGroup.appendChild(createStack("Share", shareBtn));
+leftGroup.appendChild(createStack("Embed", embedBtn));
+leftGroup.appendChild(createStack("Download", downloadBtn));
+leftGroup.appendChild(createStack("Donate", donateBtn));
   
 /* assemble */
 btnRow.appendChild(leftGroup);
