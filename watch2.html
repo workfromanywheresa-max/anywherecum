@@ -37,9 +37,11 @@ body {
   border-radius: 6px;
   cursor: pointer;
 }
-  .downloadBtn,
+
+/* ✅ FIXED (removed broken comma) */
+.downloadBtn,
 .shareBtn,
-.embedBtn, {
+.embedBtn {
   transform: translateY(-10px);
 }
 
@@ -107,109 +109,22 @@ select {
 
 <div class="container">
 
+  <!-- QUALITY SELECT -->
   <select id="quality"></select>
 
+  <!-- VIDEO PLAYER -->
   <div id="player"></div>
 
-  <!-- ✅ TITLE -->
+  <!-- TITLE -->
   <div id="title" class="title"></div>
 
-  <!-- ✅ YOUR BUTTON CONTAINER (UNDER TITLE) -->
+  <!-- BUTTONS (INJECTED BY watch.js) -->
   <div id="actionRow"></div>
 
 </div>
 
-<script>
-const params = new URLSearchParams(window.location.search);
-const videoId = params.get("video");
-const qIndex = Number(params.get("q") || 0);
-
-const player = document.getElementById("player");
-const titleEl = document.getElementById("title");
-const qualityEl = document.getElementById("quality");
-const watchLabel = document.getElementById("watchLabel");
-const actionRow = document.getElementById("actionRow");
-
-let videoData = null;
-let currentIndex = qIndex;
-
-function loadPlayer() {
-  const q = videoData.qualities[currentIndex];
-  player.innerHTML = `<iframe src="${q.embed}" allowfullscreen></iframe>`;
-}
-
-/* ---------------- YOUR BUTTON INJECTION WILL GO HERE ---------------- */
-function injectButtons(video) {
-  actionRow.innerHTML = "";
-
-  const btn = document.createElement("button");
-  btn.textContent = "TEST BUTTON";
-  btn.style.padding = "8px";
-  btn.style.background = "#222";
-  btn.style.color = "white";
-  btn.style.border = "1px solid #444";
-  btn.style.borderRadius = "6px";
-
-  actionRow.appendChild(btn);
-}
-
-/* ---------------- INIT ---------------- */
-function init() {
-  if (!videoId) {
-    titleEl.textContent = "No video selected";
-    return;
-  }
-
-  fetch("videos.json")
-    .then(r => r.json())
-    .then(videos => {
-
-      videoData = videos.find(v => v.id === videoId);
-
-      if (!videoData) {
-        titleEl.textContent = "Video not found";
-        return;
-      }
-
-      document.title = videoData.title;
-      titleEl.textContent = videoData.title;
-
-      watchLabel.textContent =
-        `Watch "${videoData.title}" — streaming now in high quality`;
-
-      document.getElementById("metaDesc").setAttribute(
-        "content",
-        `Watch ${videoData.title} — streaming now in high quality`
-      );
-
-      videoData.qualities.forEach((q, i) => {
-        const opt = document.createElement("option");
-        opt.value = i;
-        opt.textContent = q.label;
-        if (i === currentIndex) opt.selected = true;
-        qualityEl.appendChild(opt);
-      });
-
-      qualityEl.onchange = () => {
-        currentIndex = Number(qualityEl.value);
-        loadPlayer();
-      };
-
-      loadPlayer();
-
-      /* ✅ YOUR REAL BUTTONS GO HERE */
-      injectButtons(videoData);
-    })
-    .catch(err => {
-      console.error(err);
-      titleEl.textContent = "Error loading video";
-    });
-}
-
-init();
-</script>
-
-  <script type="module" src="watch.js"></script>
+<!-- ✅ ONLY SCRIPT YOU NEED -->
+<script type="module" src="watch.js"></script>
 
 </body>
 </html>
