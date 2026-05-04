@@ -164,54 +164,77 @@ function injectButtons(video) {
 `;
 
   embedBtn.onclick = () => {
-    const c = document.getElementById("embedContent");
-    c.innerHTML = "";
+  const c = document.getElementById("embedContent");
+  c.innerHTML = "";
 
-    video.qualities.forEach(q => {
-  const box = document.createElement("div");
-  box.style.marginBottom = "10px";
-  box.style.position = "relative"; // 👈 IMPORTANT
+  video.qualities.forEach(q => {
 
-  const t = document.createElement("textarea");
-  t.style.width = "100%";
-  t.style.height = "80px";
-  t.style.paddingRight = "35px"; // space for icon
-  t.value = `<iframe src="${q.embed}" width="100%" height="300"></iframe>`;
-  t.readOnly = true;
+    const box = document.createElement("div");
+    box.style.marginBottom = "12px";
+    box.style.position = "relative";
 
-  /* COPY BUTTON (SVG) */
-  const copy = document.createElement("div");
-  copy.style.position = "absolute";   // 👈 FLOAT INSIDE BOX
-  copy.style.top = "6px";
-  copy.style.right = "6px";
-  copy.style.cursor = "pointer";
-  copy.style.width = "26px";
-  copy.style.height = "26px";
-  copy.style.display = "flex";
-  copy.style.alignItems = "center";
-  copy.style.justifyContent = "center";
-  copy.style.background = "rgba(0,0,0,0.4)";
-  copy.style.borderRadius = "6px";
+    /* 🔥 QUALITY HEADER */
+    const label = document.createElement("div");
+    label.textContent = q.label;
+    label.style.fontSize = "12px";
+    label.style.color = "#fff";
+    label.style.marginBottom = "6px";
+    label.style.fontWeight = "bold";
 
-  copy.innerHTML = `
+    /* 🔥 EMBED CODE */
+    const code = `<iframe src="${q.embed}" width="100%" height="300" allowfullscreen></iframe>`;
+
+    const textarea = document.createElement("textarea");
+    textarea.value = code;
+    textarea.readOnly = true;
+    textarea.style.width = "100%";
+    textarea.style.height = "80px";
+    textarea.style.background = "#000";
+    textarea.style.color = "#0f0";
+    textarea.style.border = "1px solid #333";
+    textarea.style.fontSize = "12px";
+    textarea.style.padding = "8px";
+
+    /* 🔥 COPY BUTTON */
+    const copyBtn = document.createElement("div");
+    copyBtn.style.position = "absolute";
+    copyBtn.style.top = "28px";
+    copyBtn.style.right = "8px";
+    copyBtn.style.cursor = "pointer";
+    copyBtn.style.width = "28px";
+    copyBtn.style.height = "28px";
+    copyBtn.style.display = "flex";
+    copyBtn.style.alignItems = "center";
+    copyBtn.style.justifyContent = "center";
+    copyBtn.style.background = "rgba(0,0,0,0.5)";
+    copyBtn.style.borderRadius = "6px";
+
+    copyBtn.innerHTML = `
 <svg viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" width="14" height="14">
   <rect x="3" y="5" width="13" height="13" rx="2"></rect>
   <rect x="9" y="1" width="13" height="13" rx="2"></rect>
 </svg>
 `;
 
-  copy.onclick = () => navigator.clipboard.writeText(t.value);
+    copyBtn.onclick = () => {
+      navigator.clipboard.writeText(code);
 
-  /* BUILD */
-  box.appendChild(t);
-  box.appendChild(copy); // now floats on top-right
+      copyBtn.style.background = "#00c853";
+      setTimeout(() => {
+        copyBtn.style.background = "rgba(0,0,0,0.5)";
+      }, 700);
+    };
 
-  c.appendChild(box);
-});
+    box.appendChild(label);
+    box.appendChild(textarea);
+    box.appendChild(copyBtn);
 
-    embedModal.style.display = "flex";
-  };
+    c.appendChild(box);
+  });
 
+  embedModal.style.display = "flex";
+};
+  
   /* DOWNLOAD */
   const downloadBtn = document.createElement("div");
   downloadBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg"
