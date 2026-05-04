@@ -98,6 +98,11 @@ select {
   gap: 10px;
   margin-top: 10px;
 }
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 </style>
 
 </head>
@@ -128,14 +133,6 @@ select {
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
-
-  const style = document.createElement("style");
-style.innerHTML = `
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}`;
-document.head.appendChild(style);
   
 /* ---------------- FIREBASE ---------------- */
 const app = initializeApp({
