@@ -32,23 +32,26 @@ const staticPages = htmlFiles.map(f => {
 });
 
 // ===============================
+// LOAD VIDEOS.JSON
+// ===============================
+let videos = [];
+
+try {
+  videos = JSON.parse(fs.readFileSync("videos.json", "utf8"));
+} catch (err) {
+  console.log("No videos.json found or invalid JSON");
+}
+
+// ===============================
 // FOLDERS (NO JSON DEPENDENCY)
 // ===============================
 let folderSet = new Set();
 
-// (optional fallback if you still use videos.json for folders)
-try {
-  const videos = JSON.parse(fs.readFileSync("videos.json", "utf8"));
-
-  videos.forEach(video => {
-    if (video.folder && video.folder !== "🔒VIP Exclusive") {
-      folderSet.add(video.folder.trim());
-    }
-  });
-
-} catch (err) {
-  console.log("No videos.json found or invalid JSON — skipping folders from JSON");
-}
+videos.forEach(video => {
+  if (video.folder && video.folder !== "🔒VIP Exclusive") {
+    folderSet.add(video.folder.trim());
+  }
+});
 
 // ===============================
 // FOLDER URLS
@@ -58,7 +61,7 @@ const folderPages = [...folderSet].map(name =>
 );
 
 // ===============================
-// WATCH URLS (R2 STYLE - FIXED)
+// WATCH URLS (R2 STYLE)
 // ===============================
 let videoSet = new Set();
 
@@ -69,12 +72,29 @@ for (let i = 1; i <= TOTAL_VIDEOS; i++) {
 const watchPages = [...videoSet];
 
 // ===============================
+// WATCH2 URLS (FROM videos.json + VIP FILTER)
+// ===============================
+let watch2Set = new Set();
+
+videos.forEach(video => {
+  if (!video.id) return;
+
+  // ❌ SKIP VIP IDS
+  if (video.id.toLowerCase().includes("vip")) return;
+
+  watch2Set.add(`/watch2.html?video=${video.id}`);
+});
+
+const watch2Pages = [...watch2Set];
+
+// ===============================
 // COMBINE ALL URLS
 // ===============================
 const urls = [...new Set([
   ...staticPages,
   ...folderPages,
-  ...watchPages
+  ...watchPages,
+  ...watch2Pages
 ])];
 
 // ===============================
@@ -92,7 +112,10 @@ ${urls.map(url => `
     <loc>${baseUrl}${url}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
-    <priority>${url === "/" ? "1.0" : url.includes("watch") ? "0.9" : "0.8"}</priority>
+    <priority>${
+      url === "/" ? "1.0" :
+      url.includes("watch") ? "0.9" : "0.8"
+    }</priority>
   </url>`).join("")}
 </urlset>`;
 
@@ -101,4 +124,4 @@ ${urls.map(url => `
 // ===============================
 fs.writeFileSync("sitemap.xml", sitemap);
 
-console.log("✅ Sitemap generated WITH R2 watch pages (live1–live20)");
+console.log("✅ Sitemap generated (WATCH + WATCH2 with VIP excluded)");
