@@ -78,7 +78,7 @@ body {
 /* SELECT DROPDOWN */
 select {
   display: block;
-  max-width: 90%;
+  width: 90%;
   margin: 6px auto;
   padding: 5px 10px;
   border-radius: 5px;
@@ -86,19 +86,19 @@ select {
   background: #333;
   color: #fff;
   font-size: 12px;
+  box-sizing: border-box;
 }
 
-/* 🔥 YOUR REQUESTED SKELETON FIX */
 select.skeleton {
-  width: 100%;
-  max-width: 90%;
+  width: 90%;
   margin: 6px auto;
   height: 28px;
   background: #1e1e1e;
   color: transparent;
   pointer-events: none;
+  box-sizing: border-box;
 }
-
+  
 /* hide dropdown options during skeleton */
 select.skeleton option {
   display: none;
