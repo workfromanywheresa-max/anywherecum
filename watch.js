@@ -520,11 +520,21 @@ onValue(likeRef, snap => {
 });
 
 /* ---------------- LIKE COUNT (WITH CACHE) ---------------- */
+function formatLikes(num) {
+  if (num < 1000) return num;
+
+  if (num < 1000000) {
+    return (num / 1000).toFixed(num >= 10000 ? 0 : 1) + "K";
+  }
+
+  return (num / 1000000).toFixed(num >= 10000000 ? 0 : 1) + "M";
+                     }
+  
 onValue(countRef, snap => {
   const data = snap.val() || {};
   const count = Object.keys(data).length;
 
-  likeCount.textContent = count;
+  likeCount.textContent = formatLikes(count);
   setLikeCache(video.id, count);
 });
 
