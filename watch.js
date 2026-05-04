@@ -291,9 +291,6 @@ function injectButtons(video) {
   downloadModal.style.display = "flex";
 };
 
-    downloadModal.style.display = "flex";
-  };
-
   /* DONATE */
   const donateBtn = document.createElement("div");
   donateBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="26" height="12" fill="white" viewBox="0 0 640 640">
