@@ -34,22 +34,33 @@ let videoData = null;
 
 /* ---------------- TIME AGO ---------------- */
 function timeAgo(dateString) {
-  const now = Date.now();
+  const now = new Date().getTime(); // FIXED (force proper Date object)
   const past = new Date(dateString).getTime();
+
+  if (isNaN(past)) return "invalid date";
+
   const diff = now - past;
 
-  if (isNaN(past)) return "";
+  if (diff < 0) return "just now";
 
-  const min = Math.floor(diff / 60000);
+  const sec = Math.floor(diff / 1000);
+  const min = Math.floor(sec / 60);
   const hr = Math.floor(min / 60);
   const day = Math.floor(hr / 24);
 
-  if (min < 1) return "just now";
-  if (min < 60) return `${min}m`;
-  if (hr < 24) return `${hr}h`;
-  if (day < 7) return `${day}d`;
+  if (sec < 60) return "just now";
+  if (min < 60) return `${min} min${min === 1 ? "" : "s"} ago`;
+  if (hr < 24) return `${hr} hr${hr === 1 ? "" : "s"} ago`;
+  if (day < 7) return `${day} day${day === 1 ? "" : "s"} ago`;
 
-  return new Date(dateString).toLocaleDateString();
+  const weeks = Math.floor(day / 7);
+  if (day < 30) return `${weeks} week${weeks === 1 ? "" : "s"} ago`;
+
+  const months = Math.floor(day / 30);
+  if (day < 365) return `${months} month${months === 1 ? "" : "s"} ago`;
+
+  const years = Math.floor(day / 365);
+  return `${years} year${years === 1 ? "" : "s"} ago`;
 }
 
 /* ---------------- PLAYER ---------------- */
