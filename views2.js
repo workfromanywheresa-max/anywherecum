@@ -714,14 +714,19 @@ likeWrapper.style.cursor = "pointer";
 
 /* SVG BUTTON */
 const likeBtn = document.createElement("div");
-likeWrapper.style.width = "46px";
-likeWrapper.style.height = "28px";
-likeWrapper.style.border = "1px solid white";
-likeWrapper.style.borderRadius = "6px"; // 👈 rounded corners
-likeWrapper.style.display = "flex";
-likeWrapper.style.alignItems = "center";
-likeWrapper.style.justifyContent = "center";
-likeWrapper.style.gap = "4px";
+likeBtn.style.background = "rgba(0,0,0,0.6)";
+likeBtn.style.border = "1px solid rgba(255,255,255,0.2)";
+likeBtn.style.borderRadius = "6px";
+
+likeBtn.style.display = "flex";
+likeBtn.style.alignItems = "center";
+likeBtn.style.justifyContent = "center";
+
+likeBtn.style.width = "46px";
+likeBtn.style.height = "28px";
+
+likeBtn.style.backdropFilter = "blur(4px)";
+likeBtn.style.webkitBackdropFilter = "blur(4px)";
 
 /* YOUR SVG */
 likeBtn.innerHTML = `
