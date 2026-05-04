@@ -458,11 +458,23 @@ function loadPlayer() {
   const skeletonEl = document.getElementById("videoSkeleton");
   skeletonEl.style.display = "block";
 
-  player.innerHTML = `
-    <iframe id="videoFrame" src="${q.embed}" allowfullscreen></iframe>
-  `;
+  let iframe = document.getElementById("videoFrame");
 
-  const iframe = document.getElementById("videoFrame");
+  // create once
+  if (!iframe) {
+    iframe = document.createElement("iframe");
+    iframe.id = "videoFrame";
+    iframe.allowFullscreen = true;
+    player.innerHTML = "";
+    player.appendChild(iframe);
+  }
+
+  // force reload (important for embeds)
+  iframe.src = "";
+
+  setTimeout(() => {
+    iframe.src = q.embed + "?t=" + Date.now(); // cache-bust
+  }, 50);
 
   iframe.onload = () => {
     skeletonEl.style.display = "none";
