@@ -37,13 +37,12 @@ function loadPlayer() {
   player.innerHTML = `<iframe src="${q.embed}" allowfullscreen></iframe>`;
 }
 
-/* ---------------- STACK UI (MATCH ORIGINAL STYLE) ---------------- */
+/* ---------------- STACK ---------------- */
 function createStack(labelText, button) {
   const stack = document.createElement("div");
   stack.style.display = "flex";
   stack.style.flexDirection = "column";
   stack.style.alignItems = "center";
-  stack.style.justifyContent = "center";
   stack.style.gap = "2px";
   stack.style.minWidth = "55px";
 
@@ -51,17 +50,15 @@ function createStack(labelText, button) {
   label.textContent = labelText;
   label.style.fontSize = "10px";
   label.style.color = "#aaa";
-  label.style.whiteSpace = "nowrap";
 
-  /* FORCE SAME BUTTON STYLE AS FIRST PAGE */
   button.style.width = "46px";
   button.style.height = "28px";
   button.style.border = "1px solid white";
   button.style.borderRadius = "6px";
-  button.style.background = "transparent";
   button.style.display = "flex";
   button.style.alignItems = "center";
   button.style.justifyContent = "center";
+  button.style.background = "transparent";
 
   stack.appendChild(label);
   stack.appendChild(button);
@@ -71,11 +68,7 @@ function createStack(labelText, button) {
 
 /* ---------------- MODALS ---------------- */
 const embedModal = document.createElement("div");
-embedModal.style.cssText = `
-position:fixed;top:0;left:0;width:100%;height:100%;
-background:rgba(0,0,0,0.85);display:none;
-align-items:center;justify-content:center;z-index:99999;
-`;
+embedModal.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:none;align-items:center;justify-content:center;z-index:99999;`;
 
 embedModal.innerHTML = `
 <div style="background:#111;width:90%;max-width:500px;padding:15px;border-radius:10px;color:white;position:relative;">
@@ -107,7 +100,11 @@ function injectButtons(video) {
 
   /* SHARE */
   const shareBtn = document.createElement("div");
-  shareBtn.innerHTML = `<svg width="20" height="20" fill="white" viewBox="0 0 32 32"><path d="M14 1L2 13l12 12V17c8 0 13 4 16 12-1-10-6-20-16-20V1z"/></svg>`;
+  shareBtn.innerHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" width="26" height="12" viewBox="0 0 32 32" fill="white">
+<g transform="translate(16 16) scale(-1,1) translate(-16 -16)">
+<path d="M14.0068 1.0898C14.0062 0.1649 12.9319 -0.2991 12.3015 0.3533L0.9798 12.0682C0.5876 12.474 0.5868 13.134 0.978 13.5408L12.2917 25.3071C12.9217 25.9623 13.9988 25.4982 13.9988 24.5717V17.1611L2.3922 12.0701Z"/>
+</g></svg>`;
   shareBtn.onclick = async () => {
     const url = `https://share.workfromanywhere-sa.workers.dev/?video=${video.id}`;
     if (navigator.share) await navigator.share({ url });
@@ -116,29 +113,24 @@ function injectButtons(video) {
 
   /* EMBED */
   const embedBtn = document.createElement("div");
-  embedBtn.innerHTML = `<svg width="20" height="20" fill="white" viewBox="0 0 500 500"><path d="M133 116L0 250l133 133h67L67 250l66-134z"/></svg>`;
+  embedBtn.innerHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" width="26" height="12" viewBox="0 0 500 500" fill="white">
+<path d="M133.333,116.667L0,250l133.333,133.333H200L66.667,250L200,116.667H133.333z
+M366.667,116.667H300L433.333,250L300,383.333h66.667L500,250L366.667,116.667z"/>
+</svg>`;
 
   embedBtn.onclick = () => {
     const c = document.getElementById("embedContent");
     c.innerHTML = "";
 
     video.qualities.forEach(q => {
-      const box = document.createElement("div");
-      box.style.marginBottom = "10px";
-
       const t = document.createElement("textarea");
       t.style.width = "100%";
       t.style.height = "80px";
       t.value = `<iframe src="${q.embed}" width="100%" height="300"></iframe>`;
       t.readOnly = true;
 
-      const copy = document.createElement("button");
-      copy.textContent = "Copy";
-      copy.onclick = () => navigator.clipboard.writeText(t.value);
-
-      box.appendChild(t);
-      box.appendChild(copy);
-      c.appendChild(box);
+      c.appendChild(t);
     });
 
     embedModal.style.display = "flex";
@@ -146,7 +138,10 @@ function injectButtons(video) {
 
   /* DOWNLOAD */
   const downloadBtn = document.createElement("div");
-  downloadBtn.innerHTML = `<svg width="20" height="20" fill="white" viewBox="0 0 475 475"><path d="M224 323l127-128H73l127 128z"/></svg>`;
+  downloadBtn.innerHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" width="26" height="12" viewBox="0 0 475.078 475.077" fill="white">
+<path d="M224.692 323.479l127.907-127.908H73l151.692 127.908z"/>
+</svg>`;
 
   downloadBtn.onclick = () => {
     const c = document.getElementById("dlContent");
@@ -170,26 +165,16 @@ function injectButtons(video) {
 
   /* DONATE */
   const donateBtn = document.createElement("div");
-  donateBtn.innerHTML = `<svg width="20" height="20" fill="white" viewBox="0 0 640 640"><path d="M320 48c-13 0-24 10-24 24v12c-37 0-67 30-67 66c0 33 25 62 58 66l61 8c5 0 9 4 9 9c0 6-5 10-11 10h-74c-15 0-27 12-27 27s12 27 27 27h24v12c0 13 10 24 24 24s24-11 24-24v-12c37 0 67-30 67-67c0-33-25-61-58-65l-61-9c-5 0-9-4-9-9c0-6 5-10 11-10h66c15 0 27-12 27-27s-12-27-27-27h-16V72c0-14-10-24-24-24z"/></svg>`;
+  donateBtn.innerHTML = `
+<svg xmlns="http://www.w3.org/2000/svg" width="26" height="12" viewBox="0 0 640 640" fill="white">
+<path d="M320 48c-13 0-24 10-24 24v12c-37 0-67 30-67 66c0 33 25 62 58 66l61 8c5 0 9 4 9 9c0 6-5 10-11 10h-74c-15 0-27 12-27 27s12 27 27 27h24v12c0 13 10 24 24 24s24-11 24-24v-12c37 0 67-30 67-67c0-33-25-61-58-65l-61-9c-5 0-9-4-9-9c0-6 5-10 11-10h66c15 0 27-12 27-27s-12-27-27-27h-16V72c0-14-10-24-24-24z"/>
+</svg>`;
   donateBtn.onclick = () => window.location.href = "donate.html";
 
   /* LIKE */
-  const likeWrapper = document.createElement("div");
-  likeWrapper.style.display = "flex";
-  likeWrapper.style.alignItems = "center";
-  likeWrapper.style.gap = "5px";
-
   const likeBtn = document.createElement("div");
-  likeBtn.style.width = "46px";
-  likeBtn.style.height = "28px";
-  likeBtn.style.border = "1px solid white";
-  likeBtn.style.borderRadius = "6px";
-  likeBtn.style.display = "flex";
-  likeBtn.style.alignItems = "center";
-  likeBtn.style.justifyContent = "center";
-
   likeBtn.innerHTML = `
-<svg width="20" height="20" fill="none" stroke="white" stroke-width="3" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="20" height="20" fill="none" stroke="white" stroke-width="3">
 <path d="M10 30c0-10 10-15 22-5c12-10 22-5 22 5c0 18-22 30-22 30S10 48 10 30z"/>
 </svg>`;
 
@@ -198,18 +183,16 @@ function injectButtons(video) {
   likeBtn.onclick = () => runTransaction(likeRef, cur => cur ? null : true);
 
   onValue(likeRef, snap => {
-    const icon = likeBtn.querySelector("svg");
-    icon.setAttribute("fill", snap.exists() ? "white" : "none");
+    likeBtn.querySelector("svg")
+      .setAttribute("fill", snap.exists() ? "white" : "none");
   });
 
-  likeWrapper.appendChild(likeBtn);
-
-  /* FINAL ROW */
+  /* ADD */
   actionRow.appendChild(createStack("Share", shareBtn));
   actionRow.appendChild(createStack("Embed", embedBtn));
   actionRow.appendChild(createStack("Download", downloadBtn));
   actionRow.appendChild(createStack("Donate", donateBtn));
-  actionRow.appendChild(createStack("Like", likeWrapper));
+  actionRow.appendChild(createStack("Like", likeBtn));
 }
 
 /* ---------------- INIT ---------------- */
@@ -219,7 +202,7 @@ function init() {
     .then(videos => {
       videoData = videos.find(v => v.id === videoId);
 
-      if (!videoData) return (titleEl.textContent = "Video not found");
+      if (!videoData) return;
 
       document.title = videoData.title;
       titleEl.textContent = videoData.title;
