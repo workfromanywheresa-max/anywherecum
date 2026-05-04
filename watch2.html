@@ -100,6 +100,42 @@ select {
 }
 </style>
 
+  <script>
+(async function () {
+
+  const CHECK_URL = "https://vipkeys.workfromanywhere-sa.workers.dev/check-session";
+
+  try {
+    const res = await fetch(CHECK_URL, {
+      method: "POST",
+      credentials: "include"
+    });
+
+    const data = await res.json();
+
+    const isVIP = data.active === true;
+
+    if (!isVIP) {
+      // ❌ NOT VIP → redirect immediately
+      window.location.replace("vip.html");
+      return;
+    }
+
+    console.log("💎 VIP ACCESS GRANTED");
+
+    // expose global flag for other scripts
+    window.isVIP = true;
+
+  } catch (err) {
+    console.error("VIP check failed:", err);
+
+    // safety fallback → block access
+    window.location.replace("vip.html");
+  }
+
+})();
+  </script>
+
 </head>
 <body>
 
@@ -824,74 +860,48 @@ init();
   <script>
 (function () {
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const folder = (urlParams.get("folder") || "").toLowerCase();
+  function runBlocker() {
 
-  const isVIP =
-    folder.includes("vip") ||
-    folder.includes("🔒");
+    if (!window.isVIP) return;
 
-  if (!isVIP) return;
+    console.log("💎 VIP MODE ON — Share/Embed Block Enabled");
 
-  console.log("💎 VIP MODE ON — Share & Embed Block Only");
-
-  /* =========================
-     1. CSS: HIDE SHARE + EMBED ONLY
-  ========================= */
-
-  const style = document.createElement("style");
-  style.innerHTML = `
-    .shareBtn,
-    .embedBtn,
-    [class*="share"],
-    [class*="embed"] {
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-    }
-  `;
-  document.head.appendChild(style);
-
-  /* =========================
-     2. REMOVE DYNAMIC BUTTONS
-  ========================= */
-
-  const observer = new MutationObserver(() => {
-
-    document.querySelectorAll(`
+    const style = document.createElement("style");
+    style.innerHTML = `
       .shareBtn,
       .embedBtn,
       [class*="share"],
-      [class*="embed"]
-    `).forEach(el => {
-      console.log("🚫 Removed:", el.className);
-      el.remove();
+      [class*="embed"] {
+        display: none !important;
+        pointer-events: none !important;
+        opacity: 0 !important;
+      }
+    `;
+    document.head.appendChild(style);
+
+    const observer = new MutationObserver(() => {
+      document.querySelectorAll(`
+        .shareBtn,
+        .embedBtn,
+        [class*="share"],
+        [class*="embed"]
+      `).forEach(el => el.remove());
     });
 
-  });
+    observer.observe(document.documentElement, {
+      childList: true,
+      subtree: true
+    });
 
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true
-  });
-
-  /* =========================
-     3. INITIAL CLEAN
-  ========================= */
-
-  function clean() {
-    document.querySelectorAll(`
-      .shareBtn,
-      .embedBtn,
-      [class*="share"],
-      [class*="embed"]
-    `).forEach(el => el.remove());
   }
 
-  clean();
-  window.addEventListener("DOMContentLoaded", clean);
-  window.addEventListener("load", clean);
+  // wait for VIP check
+  const interval = setInterval(() => {
+    if (window.isVIP !== undefined) {
+      clearInterval(interval);
+      runBlocker();
+    }
+  }, 100);
 
 })();
   </script>
