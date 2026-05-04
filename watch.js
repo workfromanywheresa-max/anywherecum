@@ -89,30 +89,48 @@ function createStack(labelText, button) {
 }
 
 /* ---------------- MODALS ---------------- */
+/* =========================
+   GLOBAL STATE
+========================= */
 let activeModal = null;
 
-/* ---------- OPEN MODAL HELPER ---------- */
+/* =========================
+   OPEN MODAL (HISTORY SAFE)
+========================= */
 function openModal(modal) {
   activeModal = modal;
   modal.style.display = "flex";
 
-  // Add fake history state so BACK can close modal first
+  // Add history entry so BACK closes modal first
   history.pushState({ modalOpen: true }, "");
 }
 
-/* ---------- CLOSE MODAL HELPER ---------- */
-function closeModal(modal) {
+/* =========================
+   CLOSE MODAL (SAFE)
+========================= */
+function closeModal(modal, skipHistory = false) {
   modal.style.display = "none";
   activeModal = null;
+
+  // Sync with browser history
+  if (!skipHistory && history.state?.modalOpen) {
+    history.back();
+  }
 }
 
-/* ---------- GLOBAL BACK BUTTON HANDLER ---------- */
+/* =========================
+   BACK BUTTON HANDLER
+========================= */
 window.addEventListener("popstate", () => {
   if (activeModal) {
-    closeModal(activeModal);
+    activeModal.style.display = "none";
     activeModal = null;
   }
 });
+
+/* =========================================================
+   🔷 EMBED MODAL
+========================================================= */
 
 const embedModal = document.createElement("div");
 embedModal.style.cssText = `
@@ -126,20 +144,24 @@ z-index:99999;
 
 embedModal.innerHTML = `
 <div id="embedBox" style="background:#111;width:90%;max-width:500px;padding:15px;border-radius:10px;color:white;position:relative;">
-<button id="closeEmbed" style="position:absolute;top:10px;right:10px;background:none;border:none;color:white;font-size:20px;">✕</button>
-<h3>Embed Options</h3>
-<div id="embedContent"></div>
+  <button id="closeEmbed"
+    style="position:absolute;top:10px;right:10px;background:none;border:none;color:white;font-size:20px;">
+    ✕
+  </button>
+
+  <h3>Embed Options</h3>
+  <div id="embedContent"></div>
 </div>
 `;
 
 document.body.appendChild(embedModal);
 
-/* OPEN */
+/* OPEN EMBED */
 function openEmbed() {
   openModal(embedModal);
 }
 
-/* CLOSE */
+/* CLOSE EMBED */
 document.addEventListener("click", (e) => {
   if (e.target.id === "closeEmbed") {
     closeModal(embedModal);
@@ -156,6 +178,10 @@ document.getElementById("embedBox").addEventListener("click", (e) => {
   e.stopPropagation();
 });
 
+/* =========================================================
+   🔷 DOWNLOAD MODAL
+========================================================= */
+
 const downloadModal = document.createElement("div");
 downloadModal.style.cssText = `
 position:fixed;top:0;left:0;width:100%;height:100%;
@@ -168,20 +194,24 @@ z-index:99999;
 
 downloadModal.innerHTML = `
 <div id="dlBox" style="background:#111;width:90%;max-width:500px;padding:15px;border-radius:10px;color:white;position:relative;">
-<button id="closeDl" style="position:absolute;top:10px;right:10px;background:none;border:none;color:white;font-size:20px;">✕</button>
-<h3>Download Options</h3>
-<div id="dlContent"></div>
+  <button id="closeDl"
+    style="position:absolute;top:10px;right:10px;background:none;border:none;color:white;font-size:20px;">
+    ✕
+  </button>
+
+  <h3>Download Options</h3>
+  <div id="dlContent"></div>
 </div>
 `;
 
 document.body.appendChild(downloadModal);
 
-/* OPEN */
+/* OPEN DOWNLOAD */
 function openDownload() {
   openModal(downloadModal);
 }
 
-/* CLOSE */
+/* CLOSE DOWNLOAD */
 document.addEventListener("click", (e) => {
   if (e.target.id === "closeDl") {
     closeModal(downloadModal);
