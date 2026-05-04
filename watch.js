@@ -248,14 +248,28 @@ function injectButtons(video) {
 </svg>
 `;
   shareBtn.onclick = async () => {
-    const url = `${location.origin}/watch.html?video=${video.id}`;
-    if (navigator.share) {
-      await navigator.share({ url });
-    } else {
-      await navigator.clipboard.writeText(url);
-      alert("Link copied!");
+  const shareUrl = `https://share.workfromanywhere-sa.workers.dev/?video=${video.id}`;
+
+  // close any open UI (safe guard)
+  if (typeof embedModal !== "undefined") embedModal.style.display = "none";
+  if (typeof downloadModal !== "undefined") downloadModal.style.display = "none";
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        url: shareUrl
+      });
+    } catch (err) {
+      console.log("Share cancelled");
     }
-  };
+  } else {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+    } catch (err) {
+      console.error("Copy failed:", err);
+    }
+  }
+};
 
   /* EMBED */
   const embedBtn = document.createElement("div");
