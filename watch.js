@@ -92,32 +92,89 @@ function createStack(labelText, button) {
 const embedModal = document.createElement("div");
 embedModal.style.cssText = `
 position:fixed;top:0;left:0;width:100%;height:100%;
-background:rgba(0,0,0,0.85);display:none;
-align-items:center;justify-content:center;z-index:99999;
+background:rgba(0,0,0,0.85);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:99999;
 `;
 
 embedModal.innerHTML = `
-<div style="background:#111;width:90%;max-width:500px;padding:15px;border-radius:10px;color:white;position:relative;">
+<div id="embedBox" style="background:#111;width:90%;max-width:500px;padding:15px;border-radius:10px;color:white;position:relative;">
 <button id="closeEmbed" style="position:absolute;top:10px;right:10px;background:none;border:none;color:white;font-size:20px;">✕</button>
 <h3>Embed Options</h3>
 <div id="embedContent"></div>
-</div>`;
+</div>
+`;
+
 document.body.appendChild(embedModal);
 
+/* CLOSE BUTTON */
+document.addEventListener("click", (e) => {
+  if (e.target.id === "closeEmbed") {
+    embedModal.style.display = "none";
+  }
+});
+
+/* CLICK OUTSIDE TO CLOSE */
+embedModal.addEventListener("click", (e) => {
+  if (e.target === embedModal) {
+    embedModal.style.display = "none";
+  }
+});
+
+/* PREVENT INSIDE CLICK CLOSING */
+document.addEventListener("DOMContentLoaded", () => {
+  const box = document.getElementById("embedBox");
+  if (box) {
+    box.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
+  }
+});
+
 const downloadModal = document.createElement("div");
-downloadModal.style.cssText = embedModal.style.cssText;
+downloadModal.style.cssText = `
+position:fixed;top:0;left:0;width:100%;height:100%;
+background:rgba(0,0,0,0.85);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:99999;
+`;
 
 downloadModal.innerHTML = `
-<div style="background:#111;width:90%;max-width:500px;padding:15px;border-radius:10px;color:white;position:relative;">
+<div id="dlBox" style="background:#111;width:90%;max-width:500px;padding:15px;border-radius:10px;color:white;position:relative;">
 <button id="closeDl" style="position:absolute;top:10px;right:10px;background:none;border:none;color:white;font-size:20px;">✕</button>
 <h3>Download Options</h3>
 <div id="dlContent"></div>
-</div>`;
+</div>
+`;
+
 document.body.appendChild(downloadModal);
 
+/* CLOSE BUTTON */
 document.addEventListener("click", (e) => {
-  if (e.target.id === "closeEmbed") embedModal.style.display = "none";
-  if (e.target.id === "closeDl") downloadModal.style.display = "none";
+  if (e.target.id === "closeDl") {
+    downloadModal.style.display = "none";
+  }
+});
+
+/* CLICK OUTSIDE TO CLOSE */
+downloadModal.addEventListener("click", (e) => {
+  if (e.target === downloadModal) {
+    downloadModal.style.display = "none";
+  }
+});
+
+/* PREVENT INSIDE CLICK CLOSING */
+document.addEventListener("DOMContentLoaded", () => {
+  const box = document.getElementById("dlBox");
+  if (box) {
+    box.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
+  }
 });
 
 /* ---------------- BUTTONS ---------------- */
