@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { getDatabase, ref, runTransaction } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 /* ---------------- FIREBASE ---------------- */
 const app = initializeApp({
@@ -37,37 +37,6 @@ function loadPlayer() {
   player.innerHTML = `<iframe src="${q.embed}" allowfullscreen></iframe>`;
 }
 
-/* ---------------- STACK UI ---------------- */
-function createStack(labelText, button) {
-  const stack = document.createElement("div");
-  stack.style.display = "flex";
-  stack.style.flexDirection = "column";
-  stack.style.alignItems = "center";
-  stack.style.justifyContent = "center";
-  stack.style.gap = "2px";
-  stack.style.minWidth = "55px";
-
-  const label = document.createElement("div");
-  label.textContent = labelText;
-  label.style.fontSize = "10px";
-  label.style.color = "#aaa";
-  label.style.whiteSpace = "nowrap";
-
-  button.style.width = "46px";
-  button.style.height = "28px";
-  button.style.border = "1px solid white";
-  button.style.borderRadius = "6px";
-  button.style.background = "transparent";
-  button.style.display = "flex";
-  button.style.alignItems = "center";
-  button.style.justifyContent = "center";
-
-  stack.appendChild(label);
-  stack.appendChild(button);
-
-  return stack;
-}
-
 /* ---------------- MODALS ---------------- */
 const embedModal = document.createElement("div");
 embedModal.style.cssText = `
@@ -100,11 +69,45 @@ document.addEventListener("click", (e) => {
   if (e.target.id === "closeDl") downloadModal.style.display = "none";
 });
 
-/* ---------------- BUTTONS ---------------- */
+/* ---------------- BUTTON SYSTEM ---------------- */
 function injectButtons(video) {
   actionRow.innerHTML = "";
 
-  /* ---------------- SHARE (YOUR ORIGINAL SVG) ---------------- */
+  const leftGroup = document.createElement("div");
+  leftGroup.style.display = "flex";
+  leftGroup.style.gap = "10px";
+
+  const rightGroup = document.createElement("div");
+  rightGroup.style.marginLeft = "auto";
+
+  function createStack(labelText, button) {
+    const stack = document.createElement("div");
+    stack.style.display = "flex";
+    stack.style.flexDirection = "column";
+    stack.style.alignItems = "center";
+    stack.style.gap = "2px";
+    stack.style.minWidth = "55px";
+
+    const label = document.createElement("div");
+    label.textContent = labelText;
+    label.style.fontSize = "10px";
+    label.style.color = "#aaa";
+
+    button.style.width = "46px";
+    button.style.height = "28px";
+    button.style.border = "1px solid white";
+    button.style.borderRadius = "6px";
+    button.style.background = "transparent";
+    button.style.display = "flex";
+    button.style.alignItems = "center";
+    button.style.justifyContent = "center";
+
+    stack.appendChild(label);
+    stack.appendChild(button);
+    return stack;
+  }
+
+  /* ---------------- YOUR SHARE SVG ---------------- */
   const shareBtn = document.createElement("div");
   shareBtn.innerHTML = `
 <svg xmlns="http://www.w3.org/2000/svg" width="26" height="12" viewBox="0 0 32 32" fill="white">
@@ -114,15 +117,15 @@ function injectButtons(video) {
 </g>
 </svg>`;
 
-  /* ---------------- EMBED (YOUR ORIGINAL SVG) ---------------- */
+  /* ---------------- YOUR EMBED SVG ---------------- */
   const embedBtn = document.createElement("div");
   embedBtn.innerHTML = `
 <svg xmlns="http://www.w3.org/2000/svg" width="26" height="12" viewBox="0 0 500 500" fill="white">
 <path d="M133.333,116.667L0,250l133.333,133.333H200L66.667,250L200,116.667H133.333z
-         M366.667,116.667H300L433.333,250L300,383.333h66.667L500,250L366.667,116.667z"/>
+M366.667,116.667H300L433.333,250L300,383.333h66.667L500,250L366.667,116.667z"/>
 </svg>`;
 
-  /* ---------------- DOWNLOAD (YOUR ORIGINAL SVG) ---------------- */
+  /* ---------------- YOUR DOWNLOAD SVG ---------------- */
   const downloadBtn = document.createElement("div");
   downloadBtn.innerHTML = `
 <svg xmlns="http://www.w3.org/2000/svg" width="26" height="12" viewBox="0 0 475.078 475.077" fill="white">
@@ -132,24 +135,18 @@ c-11.04,10.657-23.982,15.988-38.828,15.988c-14.843,0-27.789-5.324-38.828-15.988l
 c-7.612,0-14.083,2.669-19.414,7.994C2.664,323.955,0,330.427,0,338.044v91.358c0,7.614,2.664,14.085,7.994,19.414
 c5.33,5.328,11.801,7.99,19.414,7.99h420.266c7.61,0,14.086-2.662,19.41-7.99c5.332-5.329,7.994-11.8,7.994-19.414v-91.358
 C475.078,330.427,472.416,323.955,467.083,318.627z"/>
-<path d="M224.692,323.479c3.428,3.613,7.71,5.421,12.847,5.421c5.141,0,9.418-1.808,12.847-5.421l127.907-127.908
-c5.899-5.519,7.234-12.182,3.997-19.986c-3.23-7.421-8.847-11.132-16.844-11.136h-73.091V36.543
-c0-4.948-1.811-9.231-5.421-12.847c-3.62-3.617-7.901-5.426-12.847-5.426h-73.096c-4.946,0-9.229,1.809-12.847,5.426
-c-3.615,3.616-5.424,7.898-5.424,12.847V164.45h-73.089c-7.998,0-13.61,3.715-16.846,11.136
-c-3.234,7.801-1.903,14.467,3.999,19.986L224.692,323.479z"/>
 </g>
 </svg>`;
 
-  /* ---------------- DONATE (YOUR ORIGINAL SVG) ---------------- */
+  /* ---------------- YOUR DONATE SVG ---------------- */
   const donateBtn = document.createElement("div");
   donateBtn.innerHTML = `
 <svg xmlns="http://www.w3.org/2000/svg" width="26" height="12" fill="white" viewBox="0 0 640 640">
 <path d="M320 48C306.7 48 296 58.7 296 72L296 84L294.2 84C257.6 84 228 113.7 228 150.2C228 183.6 252.9 211.8 286 215.9L347 223.5C352.1 224.1 356 228.5 356 233.7C356 239.4 351.4 243.9 345.8 243.9L272 244C256.5 244 244 256.5 244 272C244 287.5 256.5 300 272 300L296 300L296 312C296 325.3 306.7 336 320 336C333.3 336 344 325.3 344 312L344 300L345.8 300C382.4 300 412 270.3 412 233.8C412 200.4 387.1 172.2 354 168.1L293 160.5C287.9 159.9 284 155.5 284 150.3C284 144.6 288.6 140.1 294.2 140.1L360 140C375.5 140 388 127.5 388 112C388 96.5 375.5 84 360 84L344 84L344 72C344 58.7 333.3 48 320 48z"/>
 </svg>`;
 
-  /* ---------------- LIKE (YOUR ORIGINAL SVG) ---------------- */
+  /* ---------------- YOUR LIKE SVG ---------------- */
   const likeWrapper = document.createElement("div");
-  likeWrapper.style.display = "flex";
 
   const likeBtn = document.createElement("div");
   likeBtn.style.width = "46px";
@@ -179,16 +176,34 @@ c1.1-0.8,2.3-2.1,2.3-3.7c0-0.8-0.4-1.8-1-2.5C-22.9-492.8-22-494.2-22-495.6z"/>
 </g>
 </svg>`;
 
-  likeBtn.onclick = () => runTransaction(ref(db, `likes/${video.id}/${visitId}`), c => c ? null : true);
-
+  likeBtn.onclick = () => runTransaction(ref(db, `likes/${video.id}/${visitId}`), v => v ? null : true);
   likeWrapper.appendChild(likeBtn);
 
-  /* FINAL */
-  actionRow.appendChild(createStack("Share", shareBtn));
-  actionRow.appendChild(createStack("Embed", embedBtn));
-  actionRow.appendChild(createStack("Download", downloadBtn));
-  actionRow.appendChild(createStack("Donate", donateBtn));
-  actionRow.appendChild(createStack("Like", likeWrapper));
+  /* ---------------- BUILD ---------------- */
+  leftGroup.appendChild(createStack("Share", shareBtn));
+  leftGroup.appendChild(createStack("Embed", embedBtn));
+  leftGroup.appendChild(createStack("Download", downloadBtn));
+  leftGroup.appendChild(createStack("Donate", donateBtn));
+
+  const likeStack = document.createElement("div");
+  likeStack.style.display = "flex";
+  likeStack.style.flexDirection = "column";
+  likeStack.style.alignItems = "center";
+
+  const time = document.createElement("div");
+  time.textContent = video.date;
+  time.style.fontSize = "10px";
+  time.style.color = "#aaa";
+
+  likeStack.appendChild(time);
+  likeStack.appendChild(likeWrapper);
+
+  rightGroup.appendChild(likeStack);
+
+  actionRow.style.display = "flex";
+  actionRow.style.width = "100%";
+  actionRow.appendChild(leftGroup);
+  actionRow.appendChild(rightGroup);
 }
 
 /* ---------------- INIT ---------------- */
@@ -197,25 +212,10 @@ function init() {
     .then(r => r.json())
     .then(videos => {
       videoData = videos.find(v => v.id === videoId);
-
       if (!videoData) return (titleEl.textContent = "Video not found");
 
-      document.title = videoData.title;
       titleEl.textContent = videoData.title;
       watchLabel.textContent = videoData.title;
-
-      videoData.qualities.forEach((q, i) => {
-        const opt = document.createElement("option");
-        opt.value = i;
-        opt.textContent = q.label;
-        if (i === currentIndex) opt.selected = true;
-        qualityEl.appendChild(opt);
-      });
-
-      qualityEl.onchange = () => {
-        currentIndex = Number(qualityEl.value);
-        loadPlayer();
-      };
 
       loadPlayer();
       injectButtons(videoData);
