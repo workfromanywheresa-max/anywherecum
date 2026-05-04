@@ -915,7 +915,6 @@ rightGroup.style.display = "flex";
 rightGroup.style.alignItems = "center";
 
 rightGroup.style.alignSelf = "flex-start";
-rightGroup.style.marginTop = "-12px";
 
 rightGroup.style.position = "absolute";
 rightGroup.style.top = "8px";
