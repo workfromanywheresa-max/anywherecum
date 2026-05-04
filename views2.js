@@ -900,11 +900,11 @@ btnRow.style.justifyContent = "flex-start"; // change from space-between
 
 /* LEFT SIDE (all buttons) */
 const leftGroup = document.createElement("div");
-leftGroup.style.display = "flex";
-leftGroup.style.gap = "10px";
-leftGroup.style.alignItems = "center";
-
-leftGroup.style.marginTop = "-12px";
+rightGroup.style.position = "absolute";
+rightGroup.style.bottom = "8px";
+rightGroup.style.right = "8px";
+rightGroup.style.marginTop = "0";
+rightGroup.style.alignSelf = "unset";
 
 leftGroup.appendChild(createStack("Share", shareBtn));
 leftGroup.appendChild(createStack("Embed", embedBtn));
@@ -947,7 +947,7 @@ rightGroup.appendChild(likeStack);
   
 /* assemble */
 btnRow.appendChild(leftGroup);
-btnRow.appendChild(rightGroup);
+wrapper.appendChild(rightGroup);
 
 /* IMPORTANT: ensure parent stretches full width */
 actionBox.style.width = "100%";
