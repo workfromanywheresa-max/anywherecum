@@ -917,6 +917,11 @@ rightGroup.style.alignItems = "center";
 rightGroup.style.alignSelf = "flex-start";
 rightGroup.style.marginTop = "-12px";
 
+rightGroup.style.position = "absolute";
+rightGroup.style.top = "8px";
+rightGroup.style.right = "8px";
+rightGroup.style.zIndex = "20";
+  
 /* 🔥 PUSH TO FAR RIGHT EDGE */
 rightGroup.style.marginLeft = "auto";
 
@@ -947,7 +952,6 @@ rightGroup.appendChild(likeStack);
   
 /* assemble */
 btnRow.appendChild(leftGroup);
-btnRow.appendChild(rightGroup);
 
 /* IMPORTANT: ensure parent stretches full width */
 actionBox.style.width = "100%";
@@ -958,6 +962,7 @@ actionBox.appendChild(btnRow);
 actionBox.appendChild(shareBox);
 
 box.appendChild(actionBox);
+wrapper.appendChild(rightGroup);
 
 return box;
   }
