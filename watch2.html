@@ -209,6 +209,7 @@ select.skeleton option {
   margin: 0 auto;
   border-radius: 4px;
   }
+  
 </style>
 
 </head>
@@ -237,6 +238,44 @@ select.skeleton option {
   <div id="actionRow"></div>
 
 </div>
+
+  <div id="actionRow" class="skeleton-mode">
+
+  <div class="btn-skeleton-wrap">
+
+    <div class="skeleton-stack">
+      <div class="skeleton-label skeleton"></div>
+      <div class="skeleton-btn"></div>
+    </div>
+
+    <div class="skeleton-stack">
+      <div class="skeleton-label skeleton"></div>
+      <div class="skeleton-btn"></div>
+    </div>
+
+    <div class="skeleton-stack">
+      <div class="skeleton-label skeleton"></div>
+      <div class="skeleton-btn"></div>
+    </div>
+
+    <div class="skeleton-stack">
+      <div class="skeleton-label skeleton"></div>
+      <div class="skeleton-btn"></div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT SIDE -->
+  <div class="skeleton-right">
+
+    <div class="skeleton-label skeleton" style="width:30px;"></div>
+    <div class="skeleton-label skeleton" style="width:40px;"></div>
+
+    <div class="skeleton-btn" style="width:46px;height:28px;"></div>
+
+  </div>
+
+  </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
@@ -502,42 +541,6 @@ document.getElementById("embedBox").addEventListener("click", (e) => {
 document.getElementById("dlBox").addEventListener("click", (e) => {
   e.stopPropagation();
 });
-
-  function showButtonSkeleton() {
-  actionRow.classList.add("skeleton-mode");
-
-  actionRow.innerHTML = `
-    <div style="display:flex; width:100%;">
-
-      <div style="display:flex; gap:10px;">
-        <div style="display:flex; flex-direction:column; align-items:center;">
-          <div class="skeleton-label skeleton"></div>
-          <div class="skeleton-btn"></div>
-        </div>
-
-        <div style="display:flex; flex-direction:column; align-items:center;">
-          <div class="skeleton-label skeleton"></div>
-          <div class="skeleton-btn"></div>
-        </div>
-
-        <div style="display:flex; flex-direction:column; align-items:center;">
-          <div class="skeleton-label skeleton"></div>
-          <div class="skeleton-btn"></div>
-        </div>
-
-        <div style="display:flex; flex-direction:column; align-items:center;">
-          <div class="skeleton-label skeleton"></div>
-          <div class="skeleton-btn"></div>
-        </div>
-      </div>
-
-      <div style="margin-left:auto;">
-        <div class="skeleton-btn" style="width:70px;height:40px;"></div>
-      </div>
-
-    </div>
-  `;
-  }
 
 /* ---------------- BUTTONS ---------------- */
 function injectButtons(video) {
@@ -939,7 +942,6 @@ onValue(viewsRef, snap => {
 function init() {
   watchLabel.classList.add("skeleton", "label-skeleton");
 watchLabel.textContent = "";
-  showButtonSkeleton();
   if (!videoId) {
     titleEl.textContent = "No video selected";
     return;
