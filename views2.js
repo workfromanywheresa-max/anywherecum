@@ -712,6 +712,15 @@ likeWrapper.style.alignItems = "center";
 likeWrapper.style.gap = "5px";
 likeWrapper.style.cursor = "pointer";
 
+/* 👇 BACKGROUND LIKE VIEWS */
+likeWrapper.style.background = "rgba(0,0,0,0.6)";
+likeWrapper.style.border = "1px solid rgba(255,255,255,0.2)";
+likeWrapper.style.borderRadius = "6px";
+likeWrapper.style.padding = "4px 8px";
+
+likeWrapper.style.backdropFilter = "blur(4px)";
+likeWrapper.style.webkitBackdropFilter = "blur(4px)";
+
 /* SVG BUTTON */
 const likeBtn = document.createElement("div");
 likeWrapper.style.width = "46px";
