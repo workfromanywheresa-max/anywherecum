@@ -168,35 +168,46 @@ function injectButtons(video) {
     c.innerHTML = "";
 
     video.qualities.forEach(q => {
-      const box = document.createElement("div");
-      box.style.marginBottom = "10px";
+  const box = document.createElement("div");
+  box.style.marginBottom = "10px";
+  box.style.position = "relative"; // 👈 IMPORTANT
 
-      const t = document.createElement("textarea");
-      t.style.width = "100%";
-      t.style.height = "80px";
-      t.value = `<iframe src="${q.embed}" width="100%" height="300"></iframe>`;
-      t.readOnly = true;
+  const t = document.createElement("textarea");
+  t.style.width = "100%";
+  t.style.height = "80px";
+  t.style.paddingRight = "35px"; // space for icon
+  t.value = `<iframe src="${q.embed}" width="100%" height="300"></iframe>`;
+  t.readOnly = true;
 
-      const copy = document.createElement("div");
-copy.style.cursor = "pointer";
-copy.style.display = "flex";
-copy.style.alignItems = "center";
-copy.style.justifyContent = "center";
-copy.style.width = "30px";
-copy.style.height = "30px";
+  /* COPY BUTTON (SVG) */
+  const copy = document.createElement("div");
+  copy.style.position = "absolute";   // 👈 FLOAT INSIDE BOX
+  copy.style.top = "6px";
+  copy.style.right = "6px";
+  copy.style.cursor = "pointer";
+  copy.style.width = "26px";
+  copy.style.height = "26px";
+  copy.style.display = "flex";
+  copy.style.alignItems = "center";
+  copy.style.justifyContent = "center";
+  copy.style.background = "rgba(0,0,0,0.4)";
+  copy.style.borderRadius = "6px";
 
-copy.innerHTML = `
+  copy.innerHTML = `
 <svg viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="2" width="14" height="14">
   <rect x="3" y="5" width="13" height="13" rx="2"></rect>
   <rect x="9" y="1" width="13" height="13" rx="2"></rect>
 </svg>
 `;
 
-copy.onclick = () => navigator.clipboard.writeText(t.value);
-      box.appendChild(t);
-      box.appendChild(copy);
-      c.appendChild(box);
-    });
+  copy.onclick = () => navigator.clipboard.writeText(t.value);
+
+  /* BUILD */
+  box.appendChild(t);
+  box.appendChild(copy); // now floats on top-right
+
+  c.appendChild(box);
+});
 
     embedModal.style.display = "flex";
   };
