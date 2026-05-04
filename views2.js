@@ -152,6 +152,16 @@ const videoIdFromURL = urlParams.get("video");
 const config = window.VIDEO_CONFIG || {};
 const dataSource = config.dataSource || "videos.json";
 
+function buildWatchUrl(videoId, selectedIndex = "") {
+  const folderParam = rawFolderName
+    ? `&folder=${encodeURIComponent(rawFolderName)}`
+    : "";
+
+  const qParam = selectedIndex !== "" ? `&q=${selectedIndex}` : "";
+
+  return `watch2.html?video=${videoId}${qParam}${folderParam}`;
+}
+
 /* ---------------- CACHE ---------------- */
 const cache = {};
 const ORDER_KEY = "video_order";
@@ -477,10 +487,9 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
   preview.currentTime = 0.1;
 }, { once: true });
 
-  preview.onclick = () => {
+  preview.addEventListener("click", () => {
   countWatchOnce(video.id);
 
-  // optional: keep your worker tracking
   setTimeout(async () => {
     try {
       await fetch("https://task.workfromanywhere-sa.workers.dev/", {
@@ -498,9 +507,8 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
     }
   }, 5 * 60 * 1000);
 
-  // 👉 redirect to watch2 page
-  window.location.href = `watch2.html?video=${video.id}`;
-};
+  window.location.href = buildWatchUrl(video.id);
+});
   
   let startX = 0;
 
@@ -549,13 +557,13 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
     select.appendChild(option);
   });
 
-  select.onchange = () => {
+  select.addEventListener("change", () => {
   const selectedIndex = select.value;
 
   countWatchOnce(video.id);
 
-  window.location.href = `watch2.html?video=${video.id}&q=${selectedIndex}`;
-};
+  window.location.href = buildWatchUrl(video.id, selectedIndex);
+});
 
   const title = document.createElement("h3");
   title.className = "videoTitle";
