@@ -821,5 +821,91 @@ function init() {
 init();
 </script>
 
+  <script>
+(function () {
+
+  /* =========================
+     1. VIP DETECTION
+  ========================= */
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const folder = (urlParams.get("folder") || "").toLowerCase();
+
+  const sessionVIP = localStorage.getItem("vip_status") === "true";
+
+  const urlVIP =
+    folder.includes("vip") ||
+    folder.includes("🔒");
+
+  const isVIP = sessionVIP || urlVIP;
+
+  if (!isVIP) {
+    console.log("❌ NOT VIP — normal mode");
+    return;
+  }
+
+  console.log("💎 VIP MODE ACTIVE — Share & Embed Blocked");
+
+  /* =========================
+     2. INSTANT CSS BLOCK
+  ========================= */
+
+  const style = document.createElement("style");
+  style.textContent = `
+    .shareBtn,
+    .embedBtn,
+    [class*="share"],
+    [class*="embed"],
+    button[onclick*="share"],
+    button[onclick*="embed"],
+    div[onclick*="share"],
+    div[onclick*="embed"] {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  /* =========================
+     3. LIVE REMOVER (SAFETY LOOP)
+  ========================= */
+
+  function removeButtons() {
+    document.querySelectorAll(`
+      .shareBtn,
+      .embedBtn,
+      [class*="share"],
+      [class*="embed"],
+      button[onclick*="share"],
+      button[onclick*="embed"],
+      div[onclick*="share"],
+      div[onclick*="embed"]
+    `).forEach(el => el.remove());
+  }
+
+  // run immediately
+  removeButtons();
+
+  // keep removing (in case UI re-renders)
+  setInterval(removeButtons, 500);
+
+  /* =========================
+     4. DOM OBSERVER (ANTI-RELOAD UI)
+  ========================= */
+
+  const observer = new MutationObserver(() => {
+    removeButtons();
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+
+})();
+  </script>
+
 </body>
 </html>
