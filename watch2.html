@@ -145,6 +145,19 @@ if (!visitId) {
   localStorage.setItem("visit_id", visitId);
 }
 
+function trackDownload(videoId) {
+  fetch("https://anywherecum.workfromanywhere-sa.workers.dev/increment", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      videoId: videoId,
+      type: "download_click",
+      visitId: visitId,
+      timestamp: Date.now()
+    })
+  }).catch(() => {});
+}
+  
 /* ---------------- URL ---------------- */
 const params = new URLSearchParams(window.location.search);
 const videoId = params.get("video");
@@ -525,6 +538,10 @@ function injectButtons(video) {
 
     // ✅ COMBINED SINGLE LINE (what you asked for)
     a.textContent = `${q.label} - ${q.size}`;
+
+    a.onclick = () => {
+  trackDownload(video.id);
+};
 
     a.style.display = "block";
     a.style.padding = "12px";
