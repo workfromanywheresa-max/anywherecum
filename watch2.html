@@ -16,6 +16,7 @@ body {
   color: white;
 }
 
+/* TOP BAR */
 .topBar {
   display: flex;
   align-items: center;
@@ -43,24 +44,31 @@ body {
   color: #aaa;
   max-width: 70%;
   text-align: center;
-  white-space: normal;
-  overflow: visible;
   word-break: break-word;
   flex: 1;
 }
 
+/* MAIN CONTAINER */
 .container {
   padding: 10px;
 }
 
-iframe {
+/* 🔥 EDGE-TO-EDGE VIDEO FIX */
+#player {
+  margin-left: -10px;
+  margin-right: -10px;
+}
+
+#player iframe {
   width: 100%;
-  height: 220px;
+  aspect-ratio: 16 / 9;
+  height: auto;
   border: none;
-  border-radius: 10px;
+  border-radius: 0; /* full edge look */
   background: black;
 }
 
+/* DROPDOWN */
 select {
   display: block;
   width: fit-content;
@@ -74,6 +82,7 @@ select {
   font-size: 12px;
 }
 
+/* TITLE */
 .title {
   margin-top: 10px;
   font-size: 12px;
@@ -81,7 +90,7 @@ select {
   text-decoration: underline;
 }
 
-/* ✅ BUTTON AREA */
+/* BUTTON AREA */
 #actionRow {
   display: flex;
   flex-wrap: wrap;
@@ -116,7 +125,7 @@ select {
 
 </div>
 
-<!-- ✅ ONLY SCRIPT YOU NEED -->
+<!-- SCRIPT -->
 <script type="module" src="watch.js"></script>
 
 </body>
