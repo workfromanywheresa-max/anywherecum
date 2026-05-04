@@ -4,8 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>Watch Video</title>
-
+<title>Watch Videos Online | AnywhereCum</title>
+  
 <meta id="metaDesc" name="description" content="Watch videos in high quality online." />
 
 <style>
@@ -245,6 +245,25 @@ select.skeleton option {
   }
 </style>
 
+  <script type="application/ld+json" id="videoSchema">{}</script>
+
+<script>
+function updateVideoSchema(videoData) {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    "name": videoData.title,
+    "description": "Watch " + videoData.title + " in high quality",
+    "thumbnailUrl": videoData.thumbnail,
+    "uploadDate": videoData.date,
+    "embedUrl": videoData.qualities[0].embed
+  };
+
+  document.getElementById("videoSchema").textContent =
+    JSON.stringify(schema);
+}
+</script>
+
 </head>
 <body>
 
@@ -265,6 +284,11 @@ select.skeleton option {
   </div>
 
   <!-- TITLE -->
+  <h1 id="title" class="title"></h1>
+  <p style="font-size:11px; color:#aaa; text-align:center;">
+Watch high quality video streaming online. Updated daily with new content.
+  </p>
+  
   <div id="title" class="title skeleton"></div>
 
   <!-- BUTTONS (INJECTED BY watch.js) -->
@@ -1013,6 +1037,9 @@ watchLabel.textContent = "";
         titleEl.textContent = "Video not found";
         return;
       }
+
+// ✅ ADD THIS LINE
+updateVideoSchema(videoData);
 
       document.title = videoData.title;
       titleEl.textContent = videoData.title;
