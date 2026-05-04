@@ -142,6 +142,14 @@ function loadPlayer() {
 function injectButtons(video) {
   actionRow.innerHTML = "";
 
+  const btn = document.createElement("button");
+  btn.textContent = "TEST BUTTON";
+  btn.style.padding = "8px";
+  btn.style.background = "#222";
+  btn.style.color = "white";
+  btn.style.border = "1px solid #444";
+  btn.style.borderRadius = "6px";
+
   actionRow.appendChild(btn);
 }
 
