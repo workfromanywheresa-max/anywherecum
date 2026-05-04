@@ -89,6 +89,28 @@ function createStack(labelText, button) {
 }
 
 /* ---------------- MODALS ---------------- */
+let activeModal = null;
+
+function openModal(modal) {
+  activeModal = modal;
+  modal.style.display = "flex";
+
+  history.pushState({ modalOpen: true }, "");
+}
+
+function closeModal(modal) {
+  modal.style.display = "none";
+  activeModal = null;
+}
+
+/* 🔙 Android / browser back button */
+window.addEventListener("popstate", () => {
+  if (activeModal) {
+    activeModal.style.display = "none";
+    activeModal = null;
+  }
+});
+
 const embedModal = document.createElement("div");
 embedModal.style.cssText = `
 position:fixed;top:0;left:0;width:100%;height:100%;
@@ -109,19 +131,44 @@ embedModal.innerHTML = `
 
 document.body.appendChild(embedModal);
 
+
+/* =========================
+   BACK BUTTON SUPPORT (LOCAL ONLY)
+========================= */
+
+let embedOpen = false;
+
+/* OPEN STATE TRACKER */
+function openEmbedModal() {
+  embedOpen = true;
+  embedModal.style.display = "flex";
+  history.pushState({ embed: true }, "");
+}
+
+/* BACK BUTTON HANDLER */
+window.addEventListener("popstate", () => {
+  if (embedOpen) {
+    embedModal.style.display = "none";
+    embedOpen = false;
+  }
+});
+
+
 /* CLOSE BUTTON */
 document.addEventListener("click", (e) => {
   if (e.target.id === "closeEmbed") {
-    embedModal.style.display = "none";
+    history.back();
   }
 });
+
 
 /* CLICK OUTSIDE TO CLOSE */
 embedModal.addEventListener("click", (e) => {
   if (e.target === embedModal) {
-    embedModal.style.display = "none";
+    history.back();
   }
 });
+
 
 /* PREVENT INSIDE CLICK CLOSING */
 document.addEventListener("DOMContentLoaded", () => {
@@ -135,7 +182,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const downloadModal = document.createElement("div");
 downloadModal.style.cssText = `
-position:fixed;top:0;left:0;width:100%;height:100%;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
 background:rgba(0,0,0,0.85);
 display:none;
 align-items:center;
@@ -153,23 +204,49 @@ downloadModal.innerHTML = `
 
 document.body.appendChild(downloadModal);
 
+
+/* =========================
+   BACK BUTTON SUPPORT (LOCAL)
+========================= */
+
+let downloadOpen = false;
+
+/* OPEN FUNCTION (use this instead of style.display) */
+function openDownloadModal() {
+  downloadOpen = true;
+  downloadModal.style.display = "flex";
+  history.pushState({ download: true }, "");
+}
+
+/* BACK BUTTON HANDLER */
+window.addEventListener("popstate", () => {
+  if (downloadOpen) {
+    downloadModal.style.display = "none";
+    downloadOpen = false;
+  }
+});
+
+
 /* CLOSE BUTTON */
 document.addEventListener("click", (e) => {
   if (e.target.id === "closeDl") {
-    downloadModal.style.display = "none";
+    history.back();
   }
 });
+
 
 /* CLICK OUTSIDE TO CLOSE */
 downloadModal.addEventListener("click", (e) => {
   if (e.target === downloadModal) {
-    downloadModal.style.display = "none";
+    history.back();
   }
 });
+
 
 /* PREVENT INSIDE CLICK CLOSING */
 document.addEventListener("DOMContentLoaded", () => {
   const box = document.getElementById("dlBox");
+
   if (box) {
     box.addEventListener("click", (e) => {
       e.stopPropagation();
