@@ -92,29 +92,30 @@ function createStack(labelText, button) {
 let activeModal = null;
 let modalOpen = false;
 
+let embedOpen = false;
+let downloadOpen = false;
+
+/* =========================
+   GENERIC MODAL
+========================= */
+
 function openModal(modal) {
   activeModal = modal;
   modalOpen = true;
   modal.style.display = "flex";
 
-  // push fake state ONLY if not already open
   history.pushState({ modal: true }, "");
 }
 
 function closeModal() {
-  if (activeModal) {
-    activeModal.style.display = "none";
-  }
+  if (activeModal) activeModal.style.display = "none";
   activeModal = null;
   modalOpen = false;
 }
 
-/* 🔙 BACK BUTTON HANDLER */
-window.addEventListener("popstate", () => {
-  if (modalOpen) {
-    closeModal();
-  }
-});
+/* =========================
+   EMBED MODAL
+========================= */
 
 const embedModal = document.createElement("div");
 embedModal.style.cssText = `
@@ -140,76 +141,20 @@ embedModal.innerHTML = `
 
 document.body.appendChild(embedModal);
 
-
-/* =========================
-   STATE
-========================= */
-
-let embedOpen = false;
-
-
-/* =========================
-   OPEN MODAL
-========================= */
-
 function openEmbedModal() {
   embedOpen = true;
   embedModal.style.display = "flex";
-
   history.pushState({ embed: true }, "");
 }
-
-
-/* =========================
-   CLOSE MODAL (SAFE)
-========================= */
 
 function closeEmbedModal() {
   embedModal.style.display = "none";
   embedOpen = false;
 }
 
-
 /* =========================
-   BACK BUTTON (ANDROID FIX)
+   DOWNLOAD MODAL
 ========================= */
-
-window.addEventListener("popstate", () => {
-  if (embedOpen) {
-    closeEmbedModal();
-  }
-});
-
-
-/* =========================
-   CLOSE BUTTON (FIXED)
-========================= */
-
-document.addEventListener("click", (e) => {
-  if (e.target.id === "closeEmbed") {
-    closeEmbedModal(); // ❗ FIX: no history.back()
-  }
-});
-
-
-/* =========================
-   CLICK OUTSIDE TO CLOSE
-========================= */
-
-embedModal.addEventListener("click", (e) => {
-  if (e.target === embedModal) {
-    closeEmbedModal(); // ❗ FIX: no history.back()
-  }
-});
-
-
-/* =========================
-   PREVENT INSIDE CLICK CLOSE
-========================= */
-
-document.getElementById("embedBox").addEventListener("click", (e) => {
-  e.stopPropagation();
-});
 
 const downloadModal = document.createElement("div");
 downloadModal.style.cssText = `
@@ -235,76 +180,78 @@ downloadModal.innerHTML = `
 
 document.body.appendChild(downloadModal);
 
-
-/* =========================
-   STATE
-========================= */
-
-let downloadOpen = false;
-
-
-/* =========================
-   OPEN MODAL
-========================= */
-
 function openDownloadModal() {
   downloadOpen = true;
   downloadModal.style.display = "flex";
-
   history.pushState({ download: true }, "");
 }
-
-
-/* =========================
-   CLOSE MODAL (SAFE)
-========================= */
 
 function closeDownloadModal() {
   downloadModal.style.display = "none";
   downloadOpen = false;
 }
 
-
 /* =========================
-   BACK BUTTON (ANDROID FIX)
+   SINGLE BACK HANDLER (IMPORTANT)
 ========================= */
 
 window.addEventListener("popstate", () => {
+
+  // CLOSE EMBED FIRST
+  if (embedOpen) {
+    closeEmbedModal();
+    return;
+  }
+
+  // CLOSE DOWNLOAD SECOND
   if (downloadOpen) {
+    closeDownloadModal();
+    return;
+  }
+
+  // CLOSE GENERIC MODAL THIRD
+  if (modalOpen) {
+    closeModal();
+    return;
+  }
+
+  // IMPORTANT:
+  // DO NOTHING HERE → allows normal back navigation
+});
+
+/* =========================
+   BUTTON HANDLERS
+========================= */
+
+document.addEventListener("click", (e) => {
+
+  if (e.target.id === "closeEmbed") {
+    closeEmbedModal();
+  }
+
+  if (e.target.id === "closeDl") {
     closeDownloadModal();
   }
 });
 
-
 /* =========================
-   CLOSE BUTTON (FIXED)
+   CLICK OUTSIDE CLOSE
 ========================= */
 
-document.addEventListener("click", (e) => {
-  if (e.target.id === "closeDl") {
-    closeDownloadModal(); // ❗ FIX: no history.back()
-  }
+embedModal.addEventListener("click", (e) => {
+  if (e.target === embedModal) closeEmbedModal();
 });
-
-
-/* =========================
-   CLICK OUTSIDE TO CLOSE
-========================= */
 
 downloadModal.addEventListener("click", (e) => {
-  if (e.target === downloadModal) {
-    closeDownloadModal(); // ❗ FIX: no history.back()
-  }
+  if (e.target === downloadModal) closeDownloadModal();
 });
-
 
 /* =========================
    PREVENT INNER CLICK CLOSE
 ========================= */
 
-document.getElementById("dlBox").addEventListener("click", (e) => {
-  e.stopPropagation();
-});
+document.getElementById("embedBox").addEventListener("click", e => e.stopPropagation());
+document.getElementById("dlBox").addEventListener("click", e => e.stopPropagation());
 
 /* ---------------- BUTTONS ---------------- */
 function injectButtons(video) {
