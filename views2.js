@@ -539,6 +539,31 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
   views.style.borderRadius = "6px";
   views.style.fontSize = "12px";
 
+/* RIGHT SIDE (LIKE ONLY) */
+const rightGroup = document.createElement("div");
+rightGroup.style.position = "absolute";
+rightGroup.style.bottom = "8px";
+rightGroup.style.right = "8px";
+rightGroup.style.display = "flex";
+rightGroup.style.alignItems = "center";
+
+/* WRAPPER FOR LIKE */
+const likeStack = document.createElement("div");
+likeStack.style.display = "flex";
+likeStack.style.flexDirection = "column";
+likeStack.style.alignItems = "center";
+
+/* time */
+const timeText = document.createElement("div");
+timeText.className = "timeText";
+timeText.setAttribute("data-date", video.date);
+timeText.textContent = timeAgo(video.date);
+
+likeStack.appendChild(timeText);
+likeStack.appendChild(likeWrapper);
+
+rightGroup.appendChild(likeStack);
+
   wrapper.appendChild(views);
 
   wrapper.appendChild(rightGroup);
@@ -899,32 +924,6 @@ btnRow.style.display = "flex";
 btnRow.style.width = "100%";
 btnRow.style.alignItems = "center";
 btnRow.style.justifyContent = "flex-start"; // change from space-between
-
-/* RIGHT SIDE (LIKE ONLY) */
-const rightGroup = document.createElement("div");
-rightGroup.style.position = "absolute";
-rightGroup.style.bottom = "8px";
-rightGroup.style.right = "8px";
-rightGroup.style.display = "flex";
-rightGroup.style.alignItems = "center";
-
-/* WRAPPER FOR LIKE */
-const likeStack = document.createElement("div");
-likeStack.style.display = "flex";
-likeStack.style.flexDirection = "column";
-likeStack.style.alignItems = "center";
-
-/* time */
-const timeText = document.createElement("div");
-timeText.className = "timeText";
-timeText.setAttribute("data-date", video.date);
-timeText.textContent = timeAgo(video.date);
-
-likeStack.appendChild(timeText);
-likeStack.appendChild(likeWrapper);
-
-rightGroup.appendChild(likeStack);
-
 
 /* LEFT SIDE */
 const leftGroup = document.createElement("div");
