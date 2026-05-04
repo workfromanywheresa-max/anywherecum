@@ -197,7 +197,24 @@ function injectButtons(video) {
   donateBtn.innerHTML = `<svg width="20" height="20" fill="white" viewBox="0 0 640 640"><path d="M320 48c-13 0-24 10-24 24v12c-37 0-67 30-67 66c0 33 25 62 58 66l61 8c5 0 9 4 9 9c0 6-5 10-11 10h-74c-15 0-27 12-27 27s12 27 27 27h24v12c0 13 10 24 24 24s24-11 24-24v-12c37 0 67-30 67-67c0-33-25-61-58-65l-61-9c-5 0-9-4-9-9c0-6 5-10 11-10h66c15 0 27-12 27-27s-12-27-27-27h-16V72c0-14-10-24-24-24z"/></svg>`;
   donateBtn.onclick = () => window.location.href = "donate.html";
 
-  /* LIKE */
+  /* ---------------- LIKE CACHE HELPERS ---------------- */
+function getLikeCache(videoId) {
+  return Number(localStorage.getItem("likes_" + videoId)) || 0;
+}
+
+function setLikeCache(videoId, value) {
+  localStorage.setItem("likes_" + videoId, value);
+}
+
+function getLikedState(videoId) {
+  return localStorage.getItem("liked_" + videoId) === "1";
+}
+
+function setLikedState(videoId, state) {
+  localStorage.setItem("liked_" + videoId, state ? "1" : "0");
+}
+
+/* ---------------- LIKE ---------------- */
 const likeWrapper = document.createElement("div");
 likeWrapper.style.display = "flex";
 likeWrapper.style.alignItems = "center";
@@ -214,39 +231,67 @@ likeBtn.style.justifyContent = "center";
 likeBtn.style.gap = "4px";
 likeBtn.style.cursor = "pointer";
 
-const likeCount = document.createElement("span");
-likeCount.style.color = "white";
-likeCount.style.fontSize = "10px";
-likeCount.textContent = "0";
-
+/* SVG ICON */
 const iconWrapper = document.createElement("div");
 iconWrapper.innerHTML = `
-<svg width="16" height="16" fill="none" stroke="white" stroke-width="3" viewBox="0 0 64 64">
+<svg width="16" height="16" viewBox="0 0 64 64" stroke="white" stroke-width="3" fill="none">
 <path d="M10 30c0-10 10-15 22-5c12-10 22-5 22 5c0 18-22 30-22 30S10 48 10 30z"/>
 </svg>
 `;
 
+/* COUNT */
+const likeCount = document.createElement("span");
+likeCount.style.color = "white";
+likeCount.style.fontSize = "10px";
+
+/* FIREBASE REF */
 const likeRef = ref(db, `likes/${video.id}/${visitId}`);
-
-likeBtn.onclick = () => runTransaction(likeRef, cur => cur ? null : true);
-
-onValue(likeRef, snap => {
-  const svg = likeBtn.querySelector("svg");
-  if (svg) svg.setAttribute("fill", snap.exists() ? "white" : "none");
-});
-
 const countRef = ref(db, `likes/${video.id}`);
 
-onValue(countRef, snap => {
-  const data = snap.val() || {};
-  likeCount.textContent = Object.keys(data).length;
+/* ---------------- INITIAL CACHE LOAD ---------------- */
+likeCount.textContent = getLikeCache(video.id);
+
+/* ---------------- SVG STATE APPLY (CACHE FIRST) ---------------- */
+const svg = iconWrapper.querySelector("svg");
+
+if (getLikedState(video.id)) {
+  svg.setAttribute("fill", "white");
+} else {
+  svg.setAttribute("fill", "none");
+}
+
+/* ---------------- CLICK TOGGLE ---------------- */
+likeBtn.onclick = () => {
+  const isLiked = getLikedState(video.id);
+
+  setLikedState(video.id, !isLiked);
+
+  // instant UI update
+  svg.setAttribute("fill", !isLiked ? "white" : "none");
+
+  runTransaction(likeRef, cur => cur ? null : true);
+};
+
+/* ---------------- LIVE LIKE STATE ---------------- */
+onValue(likeRef, snap => {
+  const isLiked = snap.exists();
+
+  svg.setAttribute("fill", isLiked ? "white" : "none");
+  setLikedState(video.id, isLiked);
 });
 
-/* BUILD BUTTON */
-likeBtn.appendChild(likeCount);
-likeBtn.appendChild(iconWrapper);
+/* ---------------- LIKE COUNT (WITH CACHE) ---------------- */
+onValue(countRef, snap => {
+  const data = snap.val() || {};
+  const count = Object.keys(data).length;
 
-/* IMPORTANT: attach button to wrapper */
+  likeCount.textContent = count;
+  setLikeCache(video.id, count);
+});
+
+/* BUILD */
+likeBtn.appendChild(iconWrapper);
+likeBtn.appendChild(likeCount);
 likeWrapper.appendChild(likeBtn);
     
   /* ---------------- LAYOUT SYSTEM ---------------- */
