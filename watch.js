@@ -348,8 +348,8 @@ onValue(countRef, snap => {
 });
 
 /* BUILD */
-likeBtn.appendChild(iconWrapper);
 likeBtn.appendChild(likeCount);
+likeBtn.appendChild(iconWrapper);
 likeWrapper.appendChild(likeBtn);
     
   /* ---------------- LAYOUT SYSTEM ---------------- */
