@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
-import { getDatabase, ref, onValue, set, runTransaction } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 /* ---------------- FIREBASE ---------------- */
 const app = initializeApp({
@@ -10,16 +10,14 @@ const app = initializeApp({
 const db = getDatabase(app);
 
 /* ---------------- VISIT ID ---------------- */
-const VISIT_ID_KEY = "visit_id";
-
-let visitId = localStorage.getItem(VISIT_ID_KEY);
+let visitId = localStorage.getItem("visit_id");
 
 if (!visitId) {
   visitId = Date.now().toString() + "_" + Math.random().toString(36).substr(2, 9);
-  localStorage.setItem(VISIT_ID_KEY, visitId);
+  localStorage.setItem("visit_id", visitId);
 }
 
-/* ---------------- URL PARAMS ---------------- */
+/* ---------------- URL ---------------- */
 const params = new URLSearchParams(window.location.search);
 const videoId = params.get("video");
 let currentIndex = Number(params.get("q") || 0);
@@ -31,7 +29,6 @@ const qualityEl = document.getElementById("quality");
 const watchLabel = document.getElementById("watchLabel");
 const actionRow = document.getElementById("actionRow");
 
-/* ---------------- STATE ---------------- */
 let videoData = null;
 
 /* ---------------- PLAYER ---------------- */
@@ -40,7 +37,7 @@ function loadPlayer() {
   player.innerHTML = `<iframe src="${q.embed}" allowfullscreen></iframe>`;
 }
 
-/* ---------------- STACK HELPER ---------------- */
+/* ---------------- STACK UI (MATCH ORIGINAL STYLE) ---------------- */
 function createStack(labelText, button) {
   const stack = document.createElement("div");
   stack.style.display = "flex";
@@ -48,11 +45,23 @@ function createStack(labelText, button) {
   stack.style.alignItems = "center";
   stack.style.justifyContent = "center";
   stack.style.gap = "2px";
+  stack.style.minWidth = "55px";
 
   const label = document.createElement("div");
   label.textContent = labelText;
   label.style.fontSize = "10px";
   label.style.color = "#aaa";
+  label.style.whiteSpace = "nowrap";
+
+  /* FORCE SAME BUTTON STYLE AS FIRST PAGE */
+  button.style.width = "46px";
+  button.style.height = "28px";
+  button.style.border = "1px solid white";
+  button.style.borderRadius = "6px";
+  button.style.background = "transparent";
+  button.style.display = "flex";
+  button.style.alignItems = "center";
+  button.style.justifyContent = "center";
 
   stack.appendChild(label);
   stack.appendChild(button);
@@ -60,53 +69,33 @@ function createStack(labelText, button) {
   return stack;
 }
 
-/* ---------------- EMBED MODAL ---------------- */
+/* ---------------- MODALS ---------------- */
 const embedModal = document.createElement("div");
-embedModal.style.position = "fixed";
-embedModal.style.top = "0";
-embedModal.style.left = "0";
-embedModal.style.width = "100%";
-embedModal.style.height = "100%";
-embedModal.style.background = "rgba(0,0,0,0.85)";
-embedModal.style.display = "none";
-embedModal.style.alignItems = "center";
-embedModal.style.justifyContent = "center";
-embedModal.style.zIndex = "99999";
+embedModal.style.cssText = `
+position:fixed;top:0;left:0;width:100%;height:100%;
+background:rgba(0,0,0,0.85);display:none;
+align-items:center;justify-content:center;z-index:99999;
+`;
 
 embedModal.innerHTML = `
 <div style="background:#111;width:90%;max-width:500px;padding:15px;border-radius:10px;color:white;position:relative;">
-  <button id="closeEmbed" style="position:absolute;top:10px;right:10px;background:none;border:none;color:white;font-size:20px;">✕</button>
-  <h3>Embed Options</h3>
-  <div id="embedContent"></div>
-</div>
-`;
-
+<button id="closeEmbed" style="position:absolute;top:10px;right:10px;background:none;border:none;color:white;font-size:20px;">✕</button>
+<h3>Embed Options</h3>
+<div id="embedContent"></div>
+</div>`;
 document.body.appendChild(embedModal);
 
-/* ---------------- DOWNLOAD MODAL ---------------- */
 const downloadModal = document.createElement("div");
-downloadModal.style.position = "fixed";
-downloadModal.style.top = "0";
-downloadModal.style.left = "0";
-downloadModal.style.width = "100%";
-downloadModal.style.height = "100%";
-downloadModal.style.background = "rgba(0,0,0,0.85)";
-downloadModal.style.display = "none";
-downloadModal.style.alignItems = "center";
-downloadModal.style.justifyContent = "center";
-downloadModal.style.zIndex = "99999";
+downloadModal.style.cssText = embedModal.style.cssText;
 
 downloadModal.innerHTML = `
 <div style="background:#111;width:90%;max-width:500px;padding:15px;border-radius:10px;color:white;position:relative;">
-  <button id="closeDl" style="position:absolute;top:10px;right:10px;background:none;border:none;color:white;font-size:20px;">✕</button>
-  <h3>Download Options</h3>
-  <div id="dlContent"></div>
-</div>
-`;
-
+<button id="closeDl" style="position:absolute;top:10px;right:10px;background:none;border:none;color:white;font-size:20px;">✕</button>
+<h3>Download Options</h3>
+<div id="dlContent"></div>
+</div>`;
 document.body.appendChild(downloadModal);
 
-/* close modals */
 document.addEventListener("click", (e) => {
   if (e.target.id === "closeEmbed") embedModal.style.display = "none";
   if (e.target.id === "closeDl") downloadModal.style.display = "none";
@@ -117,7 +106,7 @@ function injectButtons(video) {
   actionRow.innerHTML = "";
 
   /* SHARE */
-  const shareBtn = document.createElement("button");
+  const shareBtn = document.createElement("div");
   shareBtn.innerHTML = `<svg width="20" height="20" fill="white" viewBox="0 0 32 32"><path d="M14 1L2 13l12 12V17c8 0 13 4 16 12-1-10-6-20-16-20V1z"/></svg>`;
   shareBtn.onclick = async () => {
     const url = `https://share.workfromanywhere-sa.workers.dev/?video=${video.id}`;
@@ -126,42 +115,42 @@ function injectButtons(video) {
   };
 
   /* EMBED */
-  const embedBtn = document.createElement("button");
+  const embedBtn = document.createElement("div");
   embedBtn.innerHTML = `<svg width="20" height="20" fill="white" viewBox="0 0 500 500"><path d="M133 116L0 250l133 133h67L67 250l66-134z"/></svg>`;
 
   embedBtn.onclick = () => {
-    const container = document.getElementById("embedContent");
-    container.innerHTML = "";
+    const c = document.getElementById("embedContent");
+    c.innerHTML = "";
 
     video.qualities.forEach(q => {
       const box = document.createElement("div");
       box.style.marginBottom = "10px";
 
-      const textarea = document.createElement("textarea");
-      textarea.style.width = "100%";
-      textarea.style.height = "80px";
-      textarea.value = `<iframe src="${q.embed}" width="100%" height="300"></iframe>`;
-      textarea.readOnly = true;
+      const t = document.createElement("textarea");
+      t.style.width = "100%";
+      t.style.height = "80px";
+      t.value = `<iframe src="${q.embed}" width="100%" height="300"></iframe>`;
+      t.readOnly = true;
 
       const copy = document.createElement("button");
       copy.textContent = "Copy";
-      copy.onclick = () => navigator.clipboard.writeText(textarea.value);
+      copy.onclick = () => navigator.clipboard.writeText(t.value);
 
-      box.appendChild(textarea);
+      box.appendChild(t);
       box.appendChild(copy);
-      container.appendChild(box);
+      c.appendChild(box);
     });
 
     embedModal.style.display = "flex";
   };
 
   /* DOWNLOAD */
-  const downloadBtn = document.createElement("button");
+  const downloadBtn = document.createElement("div");
   downloadBtn.innerHTML = `<svg width="20" height="20" fill="white" viewBox="0 0 475 475"><path d="M224 323l127-128H73l127 128z"/></svg>`;
 
   downloadBtn.onclick = () => {
-    const container = document.getElementById("dlContent");
-    container.innerHTML = "";
+    const c = document.getElementById("dlContent");
+    c.innerHTML = "";
 
     video.qualities.forEach(q => {
       const a = document.createElement("a");
@@ -173,14 +162,14 @@ function injectButtons(video) {
       a.style.background = "#222";
       a.style.marginBottom = "8px";
       a.style.color = "#ff4444";
-      container.appendChild(a);
+      c.appendChild(a);
     });
 
     downloadModal.style.display = "flex";
   };
 
   /* DONATE */
-  const donateBtn = document.createElement("button");
+  const donateBtn = document.createElement("div");
   donateBtn.innerHTML = `<svg width="20" height="20" fill="white" viewBox="0 0 640 640"><path d="M320 48c-13 0-24 10-24 24v12c-37 0-67 30-67 66c0 33 25 62 58 66l61 8c5 0 9 4 9 9c0 6-5 10-11 10h-74c-15 0-27 12-27 27s12 27 27 27h24v12c0 13 10 24 24 24s24-11 24-24v-12c37 0 67-30 67-67c0-33-25-61-58-65l-61-9c-5 0-9-4-9-9c0-6 5-10 11-10h66c15 0 27-12 27-27s-12-27-27-27h-16V72c0-14-10-24-24-24z"/></svg>`;
   donateBtn.onclick = () => window.location.href = "donate.html";
 
@@ -191,28 +180,31 @@ function injectButtons(video) {
   likeWrapper.style.gap = "5px";
 
   const likeBtn = document.createElement("div");
+  likeBtn.style.width = "46px";
+  likeBtn.style.height = "28px";
+  likeBtn.style.border = "1px solid white";
+  likeBtn.style.borderRadius = "6px";
+  likeBtn.style.display = "flex";
+  likeBtn.style.alignItems = "center";
+  likeBtn.style.justifyContent = "center";
+
   likeBtn.innerHTML = `
-<svg width="20" height="20" fill="none" stroke="white" stroke-width="3" id="likeIcon" viewBox="0 0 64 64">
+<svg width="20" height="20" fill="none" stroke="white" stroke-width="3" viewBox="0 0 64 64">
 <path d="M10 30c0-10 10-15 22-5c12-10 22-5 22 5c0 18-22 30-22 30S10 48 10 30z"/>
 </svg>`;
-
-  const likeCount = document.createElement("span");
-  likeCount.textContent = "0";
-  likeCount.style.fontSize = "10px";
 
   const likeRef = ref(db, `likes/${video.id}/${visitId}`);
 
   likeBtn.onclick = () => runTransaction(likeRef, cur => cur ? null : true);
 
   onValue(likeRef, snap => {
-    const icon = likeBtn.querySelector("#likeIcon");
+    const icon = likeBtn.querySelector("svg");
     icon.setAttribute("fill", snap.exists() ? "white" : "none");
   });
 
-  likeWrapper.appendChild(likeCount);
   likeWrapper.appendChild(likeBtn);
 
-  /* FINAL LAYOUT */
+  /* FINAL ROW */
   actionRow.appendChild(createStack("Share", shareBtn));
   actionRow.appendChild(createStack("Embed", embedBtn));
   actionRow.appendChild(createStack("Download", downloadBtn));
@@ -231,8 +223,7 @@ function init() {
 
       document.title = videoData.title;
       titleEl.textContent = videoData.title;
-
-      watchLabel.textContent = `Watch "${videoData.title}"`;
+      watchLabel.textContent = videoData.title;
 
       videoData.qualities.forEach((q, i) => {
         const opt = document.createElement("option");
