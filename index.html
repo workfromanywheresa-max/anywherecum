@@ -1544,6 +1544,31 @@ function generateList() {
 generateList();
 </script>
 
+  <div id="videoList" style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;"></div>
+
+<script>
+fetch("videos.json")
+  .then(res => res.json())
+  .then(videos => {
+    const container = document.getElementById("videoList");
+
+    videos.forEach(video => {
+      if (!video.id) return;
+
+      // ❌ skip VIP
+      if (video.id.toLowerCase().includes("vip")) return;
+
+      const a = document.createElement("a");
+      a.href = `/watch2.html?video=${encodeURIComponent(video.id)}`;
+
+      // ✔ SEO-friendly text
+      a.textContent = `Watch ${video.title || "Video"}`;
+
+      container.appendChild(a);
+    });
+  });
+</script>
+
   <script>
 document.addEventListener("DOMContentLoaded", () => {
 
