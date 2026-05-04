@@ -157,13 +157,12 @@ document.body.appendChild(downloadModal);
 function openModal(modal) {
   modal.style.display = "flex";
 
-  // prevent duplicate history spam
-  if (!modal._historyPushed) {
-    history.pushState({ modalOpen: true }, "");
-    modal._historyPushed = true;
-  }
-
   modalStack.push(modal);
+
+  // ONLY push once per first modal
+  if (modalStack.length === 1) {
+    history.pushState({ modalOpen: true }, "");
+  }
 }
 
 function closeModal(modal) {
@@ -171,11 +170,12 @@ function closeModal(modal) {
 
   modalStack = modalStack.filter(m => m !== modal);
 
-  // reset flag when fully closed
+  // ONLY go back if ALL modals closed
   if (modalStack.length === 0) {
-    modal._historyPushed = false;
+    history.back();
   }
 }
+
 
 /* =========================
    BACK BUTTON CONTROL
@@ -184,12 +184,6 @@ window.addEventListener("popstate", () => {
   if (modalStack.length > 0) {
     const lastModal = modalStack.pop();
     lastModal.style.display = "none";
-
-    // reset history only if all closed
-    if (modalStack.length === 0) {
-      history.replaceState({}, "");
-    }
-
     return;
   }
 });
