@@ -458,32 +458,26 @@ function loadPlayer() {
   const skeletonEl = document.getElementById("videoSkeleton");
   skeletonEl.style.display = "block";
 
-  let iframe = document.getElementById("videoFrame");
+  // always rebuild iframe cleanly (no reuse bugs)
+  player.innerHTML = `
+    <iframe
+      id="videoFrame"
+      src="${q.embed}"
+      allowfullscreen
+    ></iframe>
+  `;
 
-  // create once
-  if (!iframe) {
-    iframe = document.createElement("iframe");
-    iframe.id = "videoFrame";
-    iframe.allowFullscreen = true;
-    player.innerHTML = "";
-    player.appendChild(iframe);
-  }
-
-  // force reload (important for embeds)
-  iframe.src = "";
-
-  setTimeout(() => {
-    iframe.src = q.embed + "?t=" + Date.now(); // cache-bust
-  }, 50);
+  const iframe = document.getElementById("videoFrame");
 
   iframe.onload = () => {
     skeletonEl.style.display = "none";
   };
 
+  // safety fallback
   setTimeout(() => {
     skeletonEl.style.display = "none";
-  }, 3000);
-  }
+  }, 2000);
+}
   
 /* ---------------- STACK UI ---------------- */
 function createStack(labelText, button) {
@@ -1086,10 +1080,15 @@ watchLabel.textContent =
 
   qualityEl.classList.remove("skeleton");
 
-      qualityEl.onchange = () => {
-        currentIndex = Number(qualityEl.value);
-        loadPlayer();
-      };
+      qualityEl.addEventListener("change", () => {
+  currentIndex = Number(qualityEl.value);
+
+  // optional UX improvement
+  const skeletonEl = document.getElementById("videoSkeleton");
+  skeletonEl.style.display = "block";
+
+  loadPlayer();
+});
 
       loadPlayer();
       injectButtons(videoData);
