@@ -28,6 +28,7 @@ const titleEl = document.getElementById("title");
 const qualityEl = document.getElementById("quality");
 const watchLabel = document.getElementById("watchLabel");
 const actionRow = document.getElementById("actionRow");
+const metaDesc = document.getElementById("metaDesc");
 
 let videoData = null;
 
@@ -37,7 +38,7 @@ function loadPlayer() {
   player.innerHTML = `<iframe src="${q.embed}" allowfullscreen></iframe>`;
 }
 
-/* ---------------- STACK UI (MATCH ORIGINAL STYLE) ---------------- */
+/* ---------------- STACK UI ---------------- */
 function createStack(labelText, button) {
   const stack = document.createElement("div");
   stack.style.display = "flex";
@@ -51,9 +52,7 @@ function createStack(labelText, button) {
   label.textContent = labelText;
   label.style.fontSize = "10px";
   label.style.color = "#aaa";
-  label.style.whiteSpace = "nowrap";
 
-  /* FORCE SAME BUTTON STYLE AS FIRST PAGE */
   button.style.width = "46px";
   button.style.height = "28px";
   button.style.border = "1px solid white";
@@ -109,9 +108,13 @@ function injectButtons(video) {
   const shareBtn = document.createElement("div");
   shareBtn.innerHTML = `<svg width="20" height="20" fill="white" viewBox="0 0 32 32"><path d="M14 1L2 13l12 12V17c8 0 13 4 16 12-1-10-6-20-16-20V1z"/></svg>`;
   shareBtn.onclick = async () => {
-    const url = `https://share.workfromanywhere-sa.workers.dev/?video=${video.id}`;
-    if (navigator.share) await navigator.share({ url });
-    else navigator.clipboard.writeText(url);
+    const url = `${location.origin}/watch.html?video=${video.id}`;
+    if (navigator.share) {
+      await navigator.share({ url });
+    } else {
+      await navigator.clipboard.writeText(url);
+      alert("Link copied!");
+    }
   };
 
   /* EMBED */
@@ -180,14 +183,6 @@ function injectButtons(video) {
   likeWrapper.style.gap = "5px";
 
   const likeBtn = document.createElement("div");
-  likeBtn.style.width = "46px";
-  likeBtn.style.height = "28px";
-  likeBtn.style.border = "1px solid white";
-  likeBtn.style.borderRadius = "6px";
-  likeBtn.style.display = "flex";
-  likeBtn.style.alignItems = "center";
-  likeBtn.style.justifyContent = "center";
-
   likeBtn.innerHTML = `
 <svg width="20" height="20" fill="none" stroke="white" stroke-width="3" viewBox="0 0 64 64">
 <path d="M10 30c0-10 10-15 22-5c12-10 22-5 22 5c0 18-22 30-22 30S10 48 10 30z"/>
@@ -214,16 +209,31 @@ function injectButtons(video) {
 
 /* ---------------- INIT ---------------- */
 function init() {
+  if (!videoId) {
+    titleEl.textContent = "No video selected";
+    return;
+  }
+
   fetch("videos.json")
     .then(r => r.json())
     .then(videos => {
       videoData = videos.find(v => v.id === videoId);
 
-      if (!videoData) return (titleEl.textContent = "Video not found");
+      if (!videoData) {
+        titleEl.textContent = "Video not found";
+        return;
+      }
 
       document.title = videoData.title;
       titleEl.textContent = videoData.title;
-      watchLabel.textContent = videoData.title;
+
+      watchLabel.textContent =
+        `Watch "${videoData.title}" — streaming now in high quality`;
+
+      metaDesc.setAttribute(
+        "content",
+        `Watch ${videoData.title} — streaming now in high quality`
+      );
 
       videoData.qualities.forEach((q, i) => {
         const opt = document.createElement("option");
@@ -240,6 +250,10 @@ function init() {
 
       loadPlayer();
       injectButtons(videoData);
+    })
+    .catch(err => {
+      console.error(err);
+      titleEl.textContent = "Error loading video";
     });
 }
 
