@@ -53,7 +53,7 @@ body {
   padding: 10px;
 }
 
-/* 🔥 EDGE-TO-EDGE VIDEO FIX */
+/* VIDEO PLAYER EDGE FIX */
 #player {
   margin-left: -10px;
   margin-right: -10px;
@@ -64,11 +64,18 @@ body {
   aspect-ratio: 16 / 9;
   height: auto;
   border: none;
-  border-radius: 0; /* full edge look */
   background: black;
 }
 
-/* DROPDOWN */
+/* VIDEO SKELETON */
+.video-skeleton {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #151515;
+  border-radius: 0;
+}
+
+/* SELECT DROPDOWN */
 select {
   display: block;
   max-width: 90%;
@@ -81,12 +88,33 @@ select {
   font-size: 12px;
 }
 
+/* 🔥 YOUR REQUESTED SKELETON FIX */
+select.skeleton {
+  width: 100%;
+  max-width: 90%;
+  margin: 6px auto;
+  height: 28px;
+  background: #1e1e1e;
+  color: transparent;
+  pointer-events: none;
+}
+
+/* hide dropdown options during skeleton */
+select.skeleton option {
+  display: none;
+}
+
 /* TITLE */
 .title {
   margin-top: 10px;
   font-size: 12px;
   text-align: center;
   text-decoration: underline;
+}
+
+.title.skeleton {
+  min-height: 14px;
+  color: transparent;
 }
 
 /* BUTTON AREA */
@@ -98,25 +126,8 @@ select {
   margin-top: 10px;
 }
 
-  /* make skeleton text invisible but still sized */
-.title.skeleton {
-  min-height: 14px;
-  color: transparent;
-}
-
-/* select skeleton styling */
-select.skeleton {
-  color: transparent;
-  pointer-events: none;
-}
-
-/* fake loading bar feel for select */
-select.skeleton option {
-  display: none;
-}
-
 /* =========================
-   SKELETON LOADER
+   SKELETON LOADER BASE
 ========================= */
 .skeleton {
   background: #1e1e1e;
@@ -144,21 +155,6 @@ select.skeleton option {
   100% {
     left: 100%;
   }
-}
-
-/* VIDEO SKELETON BOX */
-#player {
-  margin-left: -10px;
-  margin-right: -10px;
-}
-
-/* IMPORTANT FIX */
-.video-skeleton {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  height: auto;
-  background: #151515;
-  border-radius: 0;
 }
 </style>
 
