@@ -455,9 +455,19 @@ function setViewCache(videoId, value) {
 function loadPlayer() {
   const q = videoData.qualities[currentIndex];
 
-  // show skeleton
-  document.getElementById("videoSkeleton").style.display = "block";
+  const oldFrame = document.getElementById("videoFrame");
 
+  // 🔥 HARD STOP old video
+  if (oldFrame) {
+    oldFrame.src = "";        // kill stream
+    oldFrame.remove();        // remove from DOM
+  }
+
+  // show skeleton (safe check)
+  const skeleton = document.getElementById("videoSkeleton");
+  if (skeleton) skeleton.style.display = "block";
+
+  // inject new iframe
   player.innerHTML = `
     <iframe id="videoFrame" src="${q.embed}" allowfullscreen></iframe>
   `;
@@ -465,11 +475,14 @@ function loadPlayer() {
   const iframe = document.getElementById("videoFrame");
 
   iframe.onload = () => {
-    skeleton.style.display = "none";
+    const skeleton = document.getElementById("videoSkeleton");
+    if (skeleton) skeleton.style.display = "none";
   };
 
+  // fallback (in case onload doesn't fire)
   setTimeout(() => {
-    document.getElementById("videoSkeleton").style.display = "none";
+    const skeleton = document.getElementById("videoSkeleton");
+    if (skeleton) skeleton.style.display = "none";
   }, 8000);
 }
   
