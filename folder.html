@@ -181,6 +181,10 @@ footer {
   }
 }
 
+/* =========================
+   SKELETON CONTAINER
+========================= */
+
 .skeleton-box {
   background: #222;                 /* matches videoBox */
   border-radius: 8px;
@@ -192,28 +196,78 @@ footer {
   gap: 10px;
 }
 
-/* VIDEO PLACEHOLDER (MATCHES iframe wrapper) */
+/* =========================
+   VIDEO PLACEHOLDER
+========================= */
+
 .skeleton-thumb {
   width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: 8px;
-  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+
+  background: linear-gradient(
+    90deg,
+    #2a2a2a 25%,
+    #3a3a3a 50%,
+    #2a2a2a 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite;
 }
 
-/* TITLE ONLY */
+/* =========================
+   TITLE PLACEHOLDER
+========================= */
+
 .skeleton-title {
   width: 70%;
   height: 14px;
   margin: 0 auto;
   border-radius: 4px;
-  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+
+  background: linear-gradient(
+    90deg,
+    #2a2a2a 25%,
+    #3a3a3a 50%,
+    #2a2a2a 75%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite;
 }
 
-/* SHIMMER */
+/* =========================
+   SELECT PLACEHOLDER
+========================= */
+
+.skeleton-select {
+  display: block;
+  width: fit-content;
+  max-width: 90%;
+  margin: 6px auto;
+
+  padding: 5px 10px;
+  border-radius: 5px;
+
+  min-width: 120px;
+  height: 24px;
+
+  background: linear-gradient(
+    90deg,
+    #2a2a2a 25%,
+    #3a3a3a 50%,
+    #2a2a2a 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+
+  position: relative;
+  overflow: hidden;
+}
+
+/* =========================
+   SHIMMER ANIMATION
+========================= */
+
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
@@ -679,16 +733,9 @@ position:relative;
 
 <div id="normalVideos">
 <div class="skeleton-box">
-
-  <!-- VIDEO -->
+<div class="skeleton-select"></div>
   <div class="skeleton-thumb"></div>
-
-  <!-- SELECT -->
-  <div class="skeleton-select"></div>
-
-  <!-- TITLE -->
   <div class="skeleton-title"></div>
-
 </div>
   </div>
     
