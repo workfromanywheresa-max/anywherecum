@@ -1067,15 +1067,16 @@ function reorderVideos(force = false) {
 }
 
 /* ---------------- LOAD ---------------- */
-showSkeletons(10); // 👈 inject loading UI first
 showFolderTitleSkeleton();
 setFolderTitle();
+showSkeletons(10); // 👈 inject loading UI first
 
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
-
-     setFolderTitle(); 
+    
+    showFolderTitleSkeleton();
+    setFolderTitle(); 
 
     videosContainer.innerHTML = "";
     
