@@ -271,7 +271,16 @@ function toTitleCase(str) {
     .join(" ");
 }
 
+    function showFolderTitleSkeleton() {
+  const el = document.getElementById("folderTitle");
+  if (!el) return;
+
+  el.innerHTML = `<div class="skeleton-folder-title"></div>`;
+    }
+
 const titleEl = document.getElementById("folderTitle");
+
+showFolderTitleSkeleton();
 
 if (titleEl) {
   const normalized = rawFolderName.toLowerCase();
