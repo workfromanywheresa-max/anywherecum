@@ -430,6 +430,50 @@ let currentIndex = Number(params.get("q") || 0);
 
 /* ---------------- ELEMENTS ---------------- */
 const player = document.getElementById("player");
+
+/* ---------------- CREATE SPINNER (JS ONLY) ---------------- */
+const videoSpinner = document.createElement("div");
+videoSpinner.style.position = "absolute";
+videoSpinner.style.top = "0";
+videoSpinner.style.left = "0";
+videoSpinner.style.width = "100%";
+videoSpinner.style.height = "100%";
+videoSpinner.style.display = "none";
+videoSpinner.style.alignItems = "center";
+videoSpinner.style.justifyContent = "center";
+videoSpinner.style.background = "rgba(0,0,0,0.4)";
+videoSpinner.style.zIndex = "5";
+
+const spin = document.createElement("div");
+spin.style.width = "38px";
+spin.style.height = "38px";
+spin.style.border = "4px solid #333";
+spin.style.borderTop = "4px solid #ff4444";
+spin.style.borderRadius = "50%";
+spin.style.animation = "spin 0.9s linear infinite";
+
+const style = document.createElement("style");
+style.textContent = `
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+`;
+document.head.appendChild(style);
+
+videoSpinner.appendChild(spin);
+
+player.style.position = "relative";
+player.appendChild(videoSpinner);
+
+/* controls */
+function showVideoSpinner() {
+  videoSpinner.style.display = "flex";
+}
+
+function hideVideoSpinner() {
+  videoSpinner.style.display = "none";
+}
+  
 const titleEl = document.getElementById("title");
 const qualityEl = document.getElementById("quality");
 const watchLabel = document.getElementById("watchLabel");
@@ -483,17 +527,20 @@ function loadPlayer() {
 
   const oldFrame = document.getElementById("videoFrame");
 
-  // 🔥 HARD STOP old video
+  // 🔥 HARD STOP old video (YOU KEEP THIS)
   if (oldFrame) {
-    oldFrame.src = "";        // kill stream
-    oldFrame.remove();        // remove from DOM
+    oldFrame.src = ""; // kill stream
+    oldFrame.remove(); // remove from DOM
   }
 
   // show skeleton (safe check)
   const skeleton = document.getElementById("videoSkeleton");
   if (skeleton) skeleton.style.display = "block";
 
-  // inject new iframe
+  // 🔥 ADD SPINNER HERE
+  showVideoSpinner();
+
+  // inject new iframe (YOUR LOGIC UNCHANGED)
   player.innerHTML = `
     <iframe id="videoFrame" src="${q.embed}" allowfullscreen></iframe>
   `;
@@ -503,12 +550,18 @@ function loadPlayer() {
   iframe.onload = () => {
     const skeleton = document.getElementById("videoSkeleton");
     if (skeleton) skeleton.style.display = "none";
+
+    // 🔥 HIDE SPINNER ON LOAD
+    hideVideoSpinner();
   };
 
-  // fallback (in case onload doesn't fire)
+  // fallback safety
   setTimeout(() => {
     const skeleton = document.getElementById("videoSkeleton");
     if (skeleton) skeleton.style.display = "none";
+
+    // 🔥 HIDE SPINNER ON FALLBACK
+    hideVideoSpinner();
   }, 8000);
 }
   
