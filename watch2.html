@@ -312,43 +312,7 @@ Watch high quality video streaming online. Updated daily with new content.
   <!-- BUTTONS (INJECTED BY watch.js) -->
 </div>
 
-  <div id="actionRow" class="skeleton-mode">
-
-  <div class="btn-skeleton-wrap">
-
-    <div class="skeleton-stack">
-      <div class="skeleton-label skeleton"></div>
-      <div class="skeleton-btn"></div>
-    </div>
-
-    <div class="skeleton-stack">
-      <div class="skeleton-label skeleton"></div>
-      <div class="skeleton-btn"></div>
-    </div>
-
-    <div class="skeleton-stack">
-      <div class="skeleton-label skeleton"></div>
-      <div class="skeleton-btn"></div>
-    </div>
-
-    <div class="skeleton-stack">
-      <div class="skeleton-label skeleton"></div>
-      <div class="skeleton-btn"></div>
-    </div>
-
-  </div>
-
-  <!-- RIGHT SIDE -->
-  <div class="skeleton-right">
-
-    <div class="skeleton-label skeleton" style="width:30px;"></div>
-    <div class="skeleton-label skeleton" style="width:40px;"></div>
-
-    <div class="skeleton-btn" style="width:46px;height:28px;"></div>
-
-  </div>
-
-  </div>
+  <div id="actionRow" class="skeleton-mode"></div>
 
    <footer class="footer" style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
 © 2026 AnywhereCum – Legal content only. 18+<br>
@@ -497,6 +461,27 @@ function loadPlayer() {
 }
   
 /* ---------------- STACK UI ---------------- */
+function buildSkeletonButtons(isVIP) {
+  const wrap = document.createElement("div");
+  wrap.className = "btn-skeleton-wrap";
+
+  const count = isVIP ? 2 : 4;
+
+  for (let i = 0; i < count; i++) {
+    const stack = document.createElement("div");
+    stack.className = "skeleton-stack";
+
+    stack.innerHTML = `
+      <div class="skeleton-label skeleton"></div>
+      <div class="skeleton-btn"></div>
+    `;
+
+    wrap.appendChild(stack);
+  }
+
+  return wrap;
+}
+  
 function createStack(labelText, button) {
   const stack = document.createElement("div");
   stack.style.display = "flex";
@@ -656,9 +641,19 @@ document.getElementById("dlBox").addEventListener("click", (e) => {
 
 /* ---------------- BUTTONS ---------------- */
 function injectButtons(video) {
+const isVIP =
+  (new URLSearchParams(window.location.search)
+    .get("folder") || "")
+    .toLowerCase()
+    .includes("vip");
+  
   actionRow.classList.remove("skeleton-mode");
-actionRow.innerHTML = "";
   actionRow.innerHTML = "";
+
+// BUILD skeleton based on VIP
+const skeletonUI = buildSkeletonButtons(isVIP);
+actionRow.appendChild(skeletonUI);
+  
   actionRow.style.width = "100%";
 
   /* SHARE */
