@@ -1,11 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, onValue, set, runTransaction } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-document.addEventListener("DOMContentLoaded", () => {
-  const el = document.getElementById("folderTitle");
-  if (el) el.textContent = "";
-});
-
 const app = initializeApp({
   apiKey: "AIzaSyCEX...",
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
