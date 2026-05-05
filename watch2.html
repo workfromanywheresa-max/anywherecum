@@ -456,26 +456,35 @@ function loadPlayer() {
   const q = videoData.qualities[currentIndex];
 
   const skeleton = document.getElementById("videoSkeleton");
-  const iframe = document.getElementById("videoFrame");
+  const container = document.getElementById("videoContainer");
 
-  // show existing skeleton
+  // show skeleton
   skeleton.style.display = "block";
 
-  // remove old onload to avoid stacking
-  iframe.onload = null;
+  // 🔥 remove old iframe (kill it completely)
+  const oldIframe = container.querySelector("iframe");
+  if (oldIframe) {
+    oldIframe.remove();
+  }
 
-  // set new source (same iframe, same position)
+  // ✅ create new iframe (same position)
+  const iframe = document.createElement("iframe");
+  iframe.id = "videoFrame";
   iframe.src = q.embed;
+  iframe.allowFullscreen = true;
+
+  // append into same container (same spot every time)
+  container.appendChild(iframe);
 
   iframe.onload = () => {
     skeleton.style.display = "none";
   };
 
-  // fallback (in case iframe doesn't fire onload)
+  // fallback
   setTimeout(() => {
     skeleton.style.display = "none";
   }, 5000);
-  }
+}
   
 /* ---------------- STACK UI ---------------- */
 function createStack(labelText, button) {
