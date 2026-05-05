@@ -384,6 +384,8 @@ function countDownloadOnce(videoId) {
 }
 
 /* ---------------- CONTAINER ---------------- */
+const videosContainer = document.getElementById("normalVideos");
+
 function showSkeletons(count = 10) {
   videosContainer.innerHTML = "";
 
