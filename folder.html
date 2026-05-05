@@ -953,28 +953,30 @@ window.VIDEO_CONFIG = {
 <script>
 (function () {
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const folder = (urlParams.get("folder") || "").toLowerCase();
+  /* =========================
+     VIP CHECK (MATCHED CLEAN)
+  ========================= */
+  const params = new URLSearchParams(window.location.search);
+  const folder = (params.get("folder") || "").toLowerCase();
 
-  const urlParams = new URLSearchParams(window.location.search);
-const folder = (urlParams.get("folder") || "").toLowerCase();
+  const sessionVIP = localStorage.getItem("vip_status") === "true";
 
-const sessionVIP = localStorage.getItem("vip_status") === "true";
+  const urlVIP =
+    folder.includes("vip") ||
+    folder.includes("🔒");
 
-const urlVIP =
-  folder.includes("vip") ||
-  folder.includes("🔒");
+  const isVIP = sessionVIP || urlVIP;
 
-const isVIP = sessionVIP || urlVIP;
-
-if (!isVIP) return;
+  if (!isVIP) {
+    console.log("❌ NOT VIP — normal mode");
+    return;
+  }
 
   console.log("💎 VIP MODE ON — Share & Embed Removed");
 
   /* =========================
      0. BLOCK POPUPS
   ========================= */
-
   window.open = function (url) {
     console.log("🚫 POPUP BLOCKED:", url);
     return null;
@@ -987,7 +989,6 @@ if (!isVIP) return;
   /* =========================
      1. CSS CLEAN BLOCK
   ========================= */
-
   const style = document.createElement("style");
   style.innerHTML = `
     #topAdMain,
@@ -1009,7 +1010,6 @@ if (!isVIP) return;
       pointer-events: none !important;
     }
 
-    /* 🚫 FORCE REMOVE SHARE + EMBED */
     .shareBtn,
     .embedBtn,
     [class*="share"],
@@ -1025,7 +1025,6 @@ if (!isVIP) return;
   /* =========================
      2. BLOCK SCRIPTS
   ========================= */
-
   const blockedKeywords = ["ads", "profit", "cpm", "pop", "banner"];
 
   function isBlockedScript(src) {
@@ -1036,10 +1035,8 @@ if (!isVIP) return;
   /* =========================
      3. DOM CLEANER
   ========================= */
-
   const observer = new MutationObserver(() => {
 
-    // Remove share/embed elements instantly
     document.querySelectorAll(`
       .shareBtn,
       .embedBtn,
@@ -1047,7 +1044,6 @@ if (!isVIP) return;
       [class*="embed"]
     `).forEach(el => el.remove());
 
-    // Remove ad scripts
     document.querySelectorAll("script").forEach(script => {
       if (script.src && isBlockedScript(script.src)) {
         console.log("🚫 BLOCKED SCRIPT:", script.src);
@@ -1055,7 +1051,6 @@ if (!isVIP) return;
       }
     });
 
-    // Remove bad iframes
     document.querySelectorAll("iframe").forEach(iframe => {
       const src = iframe.src || "";
       if (src.includes("pop") || src.includes("profit") || src.includes("cpm")) {
@@ -1074,7 +1069,6 @@ if (!isVIP) return;
   /* =========================
      4. SAFETY LOOP
   ========================= */
-
   function clean() {
     document.querySelectorAll(`
       .shareBtn,
