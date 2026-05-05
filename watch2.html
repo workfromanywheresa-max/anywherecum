@@ -526,43 +526,34 @@ function loadPlayer() {
   const q = videoData.qualities[currentIndex];
 
   const oldFrame = document.getElementById("videoFrame");
-
-  // 🔥 HARD STOP old video (YOU KEEP THIS)
   if (oldFrame) {
-    oldFrame.src = ""; // kill stream
-    oldFrame.remove(); // remove from DOM
+    oldFrame.src = "";
+    oldFrame.remove();
   }
 
-  // show skeleton (safe check)
   const skeleton = document.getElementById("videoSkeleton");
   if (skeleton) skeleton.style.display = "block";
 
-  // 🔥 ADD SPINNER HERE
   showVideoSpinner();
 
-  // inject new iframe (YOUR LOGIC UNCHANGED)
-  player.innerHTML = `
-    <iframe id="videoFrame" src="${q.embed}" allowfullscreen></iframe>
-  `;
-
-  const iframe = document.getElementById("videoFrame");
+  // ✅ create iframe properly (DO NOT use innerHTML)
+  const iframe = document.createElement("iframe");
+  iframe.id = "videoFrame";
+  iframe.src = q.embed;
+  iframe.allowFullscreen = true;
 
   iframe.onload = () => {
-    const skeleton = document.getElementById("videoSkeleton");
     if (skeleton) skeleton.style.display = "none";
-
-    // 🔥 HIDE SPINNER ON LOAD
     hideVideoSpinner();
   };
 
-  // fallback safety
   setTimeout(() => {
-    const skeleton = document.getElementById("videoSkeleton");
     if (skeleton) skeleton.style.display = "none";
-
-    // 🔥 HIDE SPINNER ON FALLBACK
     hideVideoSpinner();
   }, 8000);
+
+  // ✅ append WITHOUT destroying spinner
+  player.appendChild(iframe);
 }
   
 /* ---------------- STACK UI ---------------- */
