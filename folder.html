@@ -430,11 +430,21 @@ function googleTranslateElementInit() {
     includedLanguages: 'af,ar,az,be,bg,ca,zh-CN,zh-TW,hr,cs,da,nl,en,eo,et,fi,fr,de,el,he,hi,hu,is,id,it,ja,ko,lv,lt,mk,ms,mt,no,pl,pt,ro,ru,sr,sk,sl,es,sw,sv,th,tr,uk,vi'
   }, 'google_translate_element');
 
-  // wait for widget to render then swap
-  setTimeout(() => {
-    document.getElementById("gt-skeleton").style.display = "none";
-    document.getElementById("google_translate_element").style.opacity = "1";
-  }, 1200);
+  const skeleton = document.getElementById("gt-skeleton");
+  const widget = document.getElementById("google_translate_element");
+
+  // wait until Google injects dropdown
+  const observer = new MutationObserver(() => {
+    const combo = widget.querySelector(".goog-te-combo");
+
+    if (combo) {
+      skeleton.style.display = "none";
+      widget.style.opacity = "1";
+      observer.disconnect();
+    }
+  });
+
+  observer.observe(widget, { childList: true, subtree: true });
 }
   </script>
   
