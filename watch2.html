@@ -512,6 +512,32 @@ function loadPlayer() {
 }
   
 /* ---------------- STACK UI ---------------- */
+function createSkeletonStack() {
+  const stack = document.createElement("div");
+  stack.style.display = "flex";
+  stack.style.flexDirection = "column";
+  stack.style.alignItems = "center";
+  stack.style.justifyContent = "center";
+  stack.style.gap = "2px";
+  stack.style.minWidth = "55px";
+
+  const label = document.createElement("div");
+  label.className = "skeleton-label skeleton";
+  label.style.width = "40px";
+  label.style.height = "10px";
+
+  const button = document.createElement("div");
+  button.className = "skeleton-btn skeleton";
+  button.style.width = "46px";
+  button.style.height = "28px";
+  button.style.borderRadius = "6px";
+
+  stack.appendChild(label);
+  stack.appendChild(button);
+
+  return stack;
+}
+  
 function buildSkeletonButtons() {
   const row = document.getElementById("actionRow");
   row.innerHTML = "";
