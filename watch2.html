@@ -464,35 +464,7 @@ function loadPlayer() {
 }
   
 /* ---------------- STACK UI ---------------- */
-function createStack(labelText, button) {
-  const stack = document.createElement("div");
-  stack.style.display = "flex";
-  stack.style.flexDirection = "column";
-  stack.style.alignItems = "center";
-  stack.style.justifyContent = "center";
-  stack.style.gap = "2px";
-  stack.style.minWidth = "55px";
-
-  const label = document.createElement("div");
-  label.textContent = labelText;
-  label.style.fontSize = "10px";
-  label.style.color = "#aaa";
-
-  button.style.width = "46px";
-  button.style.height = "28px";
-  button.style.border = "1px solid white";
-  button.style.borderRadius = "6px";
-  button.style.background = "transparent";
-  button.style.display = "flex";
-  button.style.alignItems = "center";
-  button.style.justifyContent = "center";
-
-  stack.appendChild(label);
-  stack.appendChild(button);
-
-  return stack;
-}
-
+  
   function buildSkeleton() {
   const actionRow = document.getElementById("actionRow");
   const leftWrap = actionRow.querySelector(".btn-skeleton-wrap");
