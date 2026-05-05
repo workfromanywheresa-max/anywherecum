@@ -985,10 +985,10 @@ likeWrapper.appendChild(likeBtn);
 
   leftGroup.style.marginTop = "16px";
 
-  leftGroup.appendChild(createStack("Share", shareBtn));
-  leftGroup.appendChild(createStack("Embed", embedBtn));
-  leftGroup.appendChild(createStack("Download", downloadBtn));
-  leftGroup.appendChild(createStack("Donate", donateBtn));
+  leftGroup.appendChild(shareBtn.parentElement || wrapBtn("Share", shareBtn));
+leftGroup.appendChild(embedBtn.parentElement || wrapBtn("Embed", embedBtn));
+leftGroup.appendChild(downloadBtn.parentElement || wrapBtn("Download", downloadBtn));
+leftGroup.appendChild(donateBtn.parentElement || wrapBtn("Donate", donateBtn));
 
   /* RIGHT */
   const rightGroup = document.createElement("div");
