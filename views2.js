@@ -275,6 +275,9 @@ function showFolderTitleSkeleton() {
   const el = document.getElementById("folderTitle");
   if (!el) return;
 
+  // hide real text while loading
+  el.classList.remove("show");
+
   el.innerHTML = `<div class="skeleton-folder-title"></div>`;
 }
 
@@ -282,7 +285,7 @@ function setFolderTitle() {
   const titleEl = document.getElementById("folderTitle");
   if (!titleEl) return;
 
-  const normalized = rawFolderName.toLowerCase();
+  const normalized = rawFolderName?.toLowerCase();
 
   if (normalized === "🔒vip exclusive") {
     titleEl.textContent = "💎VIP Exclusive";
@@ -291,7 +294,10 @@ function setFolderTitle() {
       ? toTitleCase(rawFolderName)
       : "All Videos";
   }
-}
+
+  // reveal AFTER text is set
+  titleEl.classList.add("show");
+  }
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
@@ -1063,6 +1069,7 @@ function reorderVideos(force = false) {
 /* ---------------- LOAD ---------------- */
 showSkeletons(10); // 👈 inject loading UI first
 showFolderTitleSkeleton();
+setFolderTitle();
 
 fetch(dataSource)
   .then(res => res.json())
