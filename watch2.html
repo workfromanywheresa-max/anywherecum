@@ -455,22 +455,28 @@ function setViewCache(videoId, value) {
 function loadPlayer() {
   const q = videoData.qualities[currentIndex];
 
-  // show skeleton
-  document.getElementById("videoSkeleton").style.display = "block";
+  const skeleton = document.getElementById("videoSkeleton");
 
+  // show skeleton
+  skeleton.style.display = "block";
+
+  // inject iframe AFTER skeleton (not replacing it)
   player.innerHTML = `
+    <div id="videoSkeleton" class="video-skeleton skeleton"></div>
     <iframe id="videoFrame" src="${q.embed}" allowfullscreen></iframe>
   `;
 
   const iframe = document.getElementById("videoFrame");
+  const newSkeleton = document.getElementById("videoSkeleton");
 
   iframe.onload = () => {
-    skeleton.style.display = "none";
+    newSkeleton.style.display = "none";
   };
 
+  // fallback (in case iframe never fires onload)
   setTimeout(() => {
-    document.getElementById("videoSkeleton").style.display = "none";
-  }, 8000);
+    newSkeleton.style.display = "none";
+  }, 5000);
 }
   
 /* ---------------- STACK UI ---------------- */
