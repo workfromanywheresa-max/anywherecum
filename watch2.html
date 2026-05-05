@@ -260,9 +260,20 @@ select.skeleton option {
   z-index: 1000;
   }
 
-  .btn-skeleton-wrap .skeleton-stack:nth-child(1),
-.btn-skeleton-wrap .skeleton-stack:nth-child(2) {
+  /* DEFAULT: everything visible */
+.btn-skeleton-wrap .skeleton-stack {
+  display: flex;
+}
+
+/* VIP MODE: hide first 2 completely (no space) */
+body.vip .btn-skeleton-wrap .skeleton-stack:nth-child(1),
+body.vip .btn-skeleton-wrap .skeleton-stack:nth-child(2) {
   display: none !important;
+}
+
+/* OPTIONAL: ensure 3rd stays visible */
+body.vip .btn-skeleton-wrap .skeleton-stack:nth-child(3) {
+  display: flex !important;
 }
 </style>
 
@@ -1137,50 +1148,13 @@ setTimeout(() => {
     folder.includes("vip") ||
     folder.includes("🔓");
 
-  if (!isVIP) {
+  if (isVIP) {
+    document.body.classList.add("vip");
+    console.log("💎 VIP mode enabled");
+  } else {
+    document.body.classList.remove("vip");
     console.log("❌ NOT VIP — normal mode");
     return;
-  }
-
-  console.log("💎 VIP — hiding Share & Embed");
-
-  /* =========================
-     REMOVE BUTTONS (SAFE)
-  ========================= */
-  function removeButtons() {
-
-    const leftGroup = document.querySelector("#actionRow > div > div:first-child");
-    if (!leftGroup) return;
-
-    leftGroup.querySelectorAll("div").forEach(stack => {
-
-      const labelEl = stack.firstElementChild;
-      if (!labelEl) return;
-
-      const label = labelEl.textContent?.trim().toLowerCase();
-
-      if (stack.children.length === 2) {
-        if (label === "share" || label === "embed") {
-          stack.remove();
-        }
-      }
-
-    });
-  }
-
-  /* =========================
-     RUN + WATCH
-  ========================= */
-  removeButtons();
-
-  const observer = new MutationObserver(removeButtons);
-
-  const actionRow = document.getElementById("actionRow");
-  if (actionRow) {
-    observer.observe(actionRow, {
-      childList: true,
-      subtree: true
-    });
   }
 
 })();
