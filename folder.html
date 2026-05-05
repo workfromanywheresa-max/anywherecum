@@ -186,11 +186,10 @@ footer {
 ========================= */
 
 .skeleton-box {
-  background: #222;                 /* matches videoBox */
+  background: #222;
   border-radius: 8px;
-  height: clamp(220px, 35vh, 400px); /* matches video frame height */
+  height: clamp(220px, 35vh, 400px);
   width: 100%;
-  overflow: hidden;
 
   display: flex;
   flex-direction: column;
@@ -198,6 +197,9 @@ footer {
 
   padding: 20px;
   gap: 10px;
+
+  /* IMPORTANT: match real video box behavior */
+  box-sizing: border-box;
 }
 
 /* =========================
