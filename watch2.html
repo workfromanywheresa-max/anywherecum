@@ -1138,18 +1138,28 @@ init();
   console.log("💎 VIP — hiding Share & Embed");
 
   /* =========================
+     🔥 INSTANT HIDE (NO FLASH)
+  ========================= */
+  const style = document.createElement("style");
+  style.textContent = `
+    #actionRow.skeleton-mode .btn-skeleton-wrap > :nth-child(1),
+    #actionRow.skeleton-mode .btn-skeleton-wrap > :nth-child(2) {
+      display: none !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  /* =========================
      REMOVE SKELETON (VIP ONLY)
   ========================= */
   function removeSkeleton() {
     const actionRow = document.getElementById("actionRow");
     if (!actionRow) return;
 
-    // only act if still in skeleton mode
     if (actionRow.classList.contains("skeleton-mode")) {
       const wrap = actionRow.querySelector(".btn-skeleton-wrap");
       if (!wrap) return;
 
-      // remove first two skeleton stacks (Share + Embed positions)
       if (wrap.children[0]) wrap.children[0].remove();
       if (wrap.children[1]) wrap.children[1].remove();
     }
@@ -1182,11 +1192,11 @@ init();
   /* =========================
      RUN + WATCH
   ========================= */
-  removeSkeleton();   // 👈 remove skeleton first
+  removeSkeleton();
   removeButtons();
 
   const observer = new MutationObserver(() => {
-    removeSkeleton(); // 👈 keep removing if DOM re-renders
+    removeSkeleton();
     removeButtons();
   });
 
