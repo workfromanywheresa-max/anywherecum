@@ -343,29 +343,6 @@ OneSignalDeferred.push(async function(OneSignal) {
 
 <body>
 
-  <script>
-    (function () {
-
-  const SESSION_KEY = "session_id";
-  const VIP_KEY = "vip_status";
-
-  // create or reuse session id
-  let sessionId = localStorage.getItem(SESSION_KEY);
-
-  if (!sessionId) {
-    sessionId = crypto.randomUUID();
-    localStorage.setItem(SESSION_KEY, sessionId);
-  }
-
-  // mark VIP true for this session
-  localStorage.setItem(VIP_KEY, "true");
-
-  console.log("SESSION ACTIVE:", sessionId);
-  console.log("VIP STATUS SET: true");
-
-})();
-  </script>
-
   <!-- Google Translate -->
 <div id="google_translate_element"></div>
 
