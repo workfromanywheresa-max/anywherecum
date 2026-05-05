@@ -259,6 +259,11 @@ select.skeleton option {
   padding: 20px;
   z-index: 1000;
   }
+
+  html.vip-mode #actionRow.skeleton-mode .btn-skeleton-wrap .skeleton-stack:nth-child(1),
+html.vip-mode #actionRow.skeleton-mode .btn-skeleton-wrap .skeleton-stack:nth-child(2) {
+  display: none !important;
+}
 </style>
 
   <script type="application/ld+json" id="videoSchema">{}</script>
@@ -1130,43 +1135,20 @@ init();
     folder.includes("vip") ||
     folder.includes("🔓");
 
-  // 👇 mark early (helps prevent flicker / styling jump)
-  document.documentElement.classList.add("vip-checking");
-
   if (!isVIP) {
     console.log("❌ NOT VIP — normal mode");
     return;
   }
 
-  console.log("💎 VIP — hiding Share & Embed completely");
+  console.log("💎 VIP — enabled");
 
   /* =========================
-     PRE-HIDE SKELETON VIA CSS
+     FLAG VIP FOR CSS
   ========================= */
-  const style = document.createElement("style");
-  style.innerHTML = `
-    .btn-skeleton-wrap .skeleton-stack:nth-child(1),
-    .btn-skeleton-wrap .skeleton-stack:nth-child(2) {
-      display: none !important;
-    }
-  `;
-  document.head.appendChild(style);
+  document.documentElement.classList.add("vip-mode");
 
   /* =========================
-     REMOVE SKELETON (SAFE CLEANUP)
-  ========================= */
-  function removeSkeleton() {
-    const skeletonWrap = document.querySelector(".btn-skeleton-wrap");
-    if (!skeletonWrap) return;
-
-    const stacks = skeletonWrap.querySelectorAll(".skeleton-stack");
-
-    if (stacks[0]) stacks[0].remove();
-    if (stacks[1]) stacks[1].remove();
-  }
-
-  /* =========================
-     REMOVE REAL BUTTONS
+     REMOVE REAL BUTTONS (SAFE)
   ========================= */
   function removeButtons() {
 
@@ -1180,30 +1162,24 @@ init();
 
       const label = labelEl.textContent?.trim().toLowerCase();
 
-      if (label === "share" || label === "embed") {
-        stack.remove();
+      if (stack.children.length === 2) {
+        if (label === "share" || label === "embed") {
+          stack.remove();
+        }
       }
 
     });
   }
 
   /* =========================
-     INITIAL RUN
+     RUN + WATCH DOM
   ========================= */
-  removeSkeleton();
   removeButtons();
-
-  /* =========================
-     WATCH DOM CHANGES
-  ========================= */
-  const observer = new MutationObserver(() => {
-    removeSkeleton();
-    removeButtons();
-  });
 
   const actionRow = document.getElementById("actionRow");
 
   if (actionRow) {
+    const observer = new MutationObserver(removeButtons);
     observer.observe(actionRow, {
       childList: true,
       subtree: true
