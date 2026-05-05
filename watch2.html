@@ -260,9 +260,6 @@ select.skeleton option {
   z-index: 1000;
   }
 
-  html.vip-mode #actionRow.skeleton-mode .btn-skeleton-wrap .skeleton-stack {
-  display: none !important;
-  }
 </style>
 
   <script type="application/ld+json" id="videoSchema">{}</script>
@@ -1139,44 +1136,41 @@ init();
     return;
   }
 
-  console.log("💎 VIP — enabled");
+  console.log("💎 VIP — hiding Share & Embed");
 
   /* =========================
-     FLAG VIP FOR CSS
-  ========================= */
-  document.documentElement.classList.add("vip-mode");
-
-  /* =========================
-     REMOVE REAL BUTTONS (SAFE)
+     REMOVE BUTTONS (SAFE)
   ========================= */
   function removeButtons() {
 
     const leftGroup = document.querySelector("#actionRow > div > div:first-child");
     if (!leftGroup) return;
 
-    leftGroup.querySelectorAll(".skeleton-stack").forEach(stack => {
+    leftGroup.querySelectorAll("div").forEach(stack => {
 
       const labelEl = stack.firstElementChild;
       if (!labelEl) return;
 
       const label = labelEl.textContent?.trim().toLowerCase();
 
-      if (label === "share" || label === "embed") {
-        stack.remove();
+      if (stack.children.length === 2) {
+        if (label === "share" || label === "embed") {
+          stack.remove();
+        }
       }
 
     });
   }
 
   /* =========================
-     RUN + WATCH DOM
+     RUN + WATCH
   ========================= */
   removeButtons();
 
-  const actionRow = document.getElementById("actionRow");
+  const observer = new MutationObserver(removeButtons);
 
+  const actionRow = document.getElementById("actionRow");
   if (actionRow) {
-    const observer = new MutationObserver(removeButtons);
     observer.observe(actionRow, {
       childList: true,
       subtree: true
@@ -1184,7 +1178,7 @@ init();
   }
 
 })();
-      </script>
+  </script>
   
 </body>
 </html>
