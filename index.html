@@ -703,11 +703,19 @@ function googleTranslateElementInit() {
   </div>
   
 <h2>🎥 Latest Video 🎥</h2>
-<div class="latest-video-skeleton">
-  <div class="video-skel"></div>
-  <div class="title-skel"></div>
+
+<div id="latestVideoWrapper">
+
+  <!-- Skeleton (shows first) -->
+  <div id="latestVideoSkeleton" class="latest-video-skeleton">
+    <div class="video-skel"></div>
+    <div class="title-skel"></div>
+  </div>
+
+  <!-- Real content (hidden until loaded) -->
+  <div id="latestVideo" style="display:none;"></div>
+
 </div>
-<div id="latestVideo"></div>
   
   <div style="display:flex; justify-content:center; margin: 30px 0;">
   <a href="competition.html"
@@ -1182,13 +1190,12 @@ async function loadVideos() {
         new Date(b.date) - new Date(a.date)
       )[0];
 
-      const latestDiv = document.getElementById("latestVideo");
+      const skeleton = document.getElementById("latestVideoSkeleton");
+const latestDiv = document.getElementById("latestVideo");
 
 if (latestDiv) {
 
-  // ✅ REMOVE SKELETON FIRST
   latestDiv.innerHTML = "";
-  document.getElementById("latestVideoSkeleton")?.remove();
 
   const li = createPreviewItem(
     latest,
@@ -1200,7 +1207,11 @@ if (latestDiv) {
   );
 
   latestDiv.appendChild(li);
-}
+
+  // ✅ smooth swap (no layout jump)
+  skeleton.style.display = "none";
+  latestDiv.style.display = "block";
+  }
     }
 
   } catch (err) {
