@@ -116,32 +116,18 @@ select.skeleton option {
 
 .title.skeleton {
   margin-top: 10px;
-  height: 12px;              /* matches font-size feel */
-  width: 60%;                /* adjust as needed */
+  height: 12px;
+  width: 60%;
   max-width: 160px;
   margin-left: auto;
   margin-right: auto;
   border-radius: 4px;
-  background: linear-gradient(
-    90deg,
-    #2a2a2a 25%,
-    #3a3a3a 37%,
-    #2a2a2a 63%
-  );
-  background-size: 400% 100%;
-  animation: shimmer 1.2s ease infinite;
-}
 
-/* shimmer animation */
-@keyframes shimmer {
-  0% {
-    background-position: 100% 0;
-  }
-  100% {
-    background-position: -100% 0;
-  }
+  background: #1e1e1e;
+  position: relative;
+  overflow: hidden;
 }
-
+  
 /* =========================
    BUTTON ROW LAYOUT (NEW)
 ========================= */
