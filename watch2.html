@@ -531,34 +531,34 @@ function loadPlayer() {
   const q = videoData.qualities[currentIndex];
 
   const oldFrame = document.getElementById("videoFrame");
-  if (oldFrame) {
-    oldFrame.src = "";
-    oldFrame.remove();
-  }
+  if (oldFrame) oldFrame.remove();
 
-  const skeleton = document.getElementById("videoSkeleton");
-  if (skeleton) skeleton.style.display = "block";
+  // make sure spinner is inside and visible
+  player.style.position = "relative";
+  videoSpinner.style.display = "flex";
 
-  showVideoSpinner();
-
-  // ✅ create iframe properly (DO NOT use innerHTML)
+  // create iframe properly (no innerHTML)
   const iframe = document.createElement("iframe");
   iframe.id = "videoFrame";
   iframe.src = q.embed;
   iframe.allowFullscreen = true;
 
+  // append spinner FIRST so it's on top
+  player.appendChild(videoSpinner);
+  player.appendChild(iframe);
+
   iframe.onload = () => {
+    videoSpinner.style.display = "none";
+    const skeleton = document.getElementById("videoSkeleton");
     if (skeleton) skeleton.style.display = "none";
-    hideVideoSpinner();
   };
 
+  // safety fallback
   setTimeout(() => {
+    videoSpinner.style.display = "none";
+    const skeleton = document.getElementById("videoSkeleton");
     if (skeleton) skeleton.style.display = "none";
-    hideVideoSpinner();
   }, 8000);
-
-  // ✅ append WITHOUT destroying spinner
-  player.appendChild(iframe);
 }
   
 /* ---------------- STACK UI ---------------- */
