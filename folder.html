@@ -182,26 +182,28 @@ footer {
 }
 
 /* =========================
-   SKELETON CONTAINER
+   SKELETON CONTAINER (MATCH VIDEO BOX EXACTLY)
 ========================= */
 
 .skeleton-box {
-  background: #222;                 /* matches videoBox */
+  background: #222;
   border-radius: 8px;
-  height: clamp(220px, 35vh, 400px); /* matches video frame height */
+  height: clamp(220px, 35vh, 400px);
   width: 100%;
   overflow: hidden;
 
   display: flex;
   flex-direction: column;
-  align-items: center;
+
+  /* IMPORTANT: match real layout (no centering) */
+  align-items: stretch;
 
   padding: 20px;
-  gap: 10px;
+  box-sizing: border-box;
 }
 
 /* =========================
-   VIDEO PLACEHOLDER
+   VIDEO PLACEHOLDER (MATCH iframe wrapper)
 ========================= */
 
 .skeleton-thumb {
@@ -219,40 +221,23 @@ footer {
     #3a3a3a 50%,
     #2a2a2a 75%
   );
+
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite;
+
+  margin-bottom: 6px;
 }
 
 /* =========================
-   TITLE PLACEHOLDER
-========================= */
-
-.skeleton-title {
-  width: 70%;
-  min-height: 20px;
-  margin: 0 auto;
-  margin-top: -5px;
-  border-radius: 4px;
-
-  background: linear-gradient(
-    90deg,
-    #2a2a2a 25%,
-    #3a3a3a 50%,
-    #2a2a2a 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-}
-
-/* =========================
-   SELECT PLACEHOLDER
+   SELECT PLACEHOLDER (MATCH REAL SELECT)
 ========================= */
 
 .skeleton-select {
   display: block;
   width: fit-content;
   max-width: 90%;
-  margin: 6px auto;
+
+  margin: 6px auto; /* matches real select spacing */
 
   padding: 5px 10px;
   border-radius: 5px;
@@ -266,6 +251,7 @@ footer {
     #3a3a3a 50%,
     #2a2a2a 75%
   );
+
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite;
 
@@ -274,13 +260,40 @@ footer {
 }
 
 /* =========================
+   TITLE PLACEHOLDER (MATCH videoTitle spacing)
+========================= */
+
+.skeleton-title {
+  width: 70%;
+  min-height: 20px;
+
+  margin: 6px auto; /* matches your .videoTitle spacing */
+
+  border-radius: 4px;
+
+  background: linear-gradient(
+    90deg,
+    #2a2a2a 25%,
+    #3a3a3a 50%,
+    #2a2a2a 75%
+  );
+
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+/* =========================
    SHIMMER ANIMATION
 ========================= */
 
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+  }
 </style>
 
 <!-- OneSignal -->
