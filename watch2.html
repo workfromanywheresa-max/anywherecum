@@ -525,39 +525,37 @@ function setViewCache(videoId, value) {
 function loadPlayer() {
   const q = videoData.qualities[currentIndex];
 
-  // Remove old iframe safely
+  // remove old frame
   const oldFrame = document.getElementById("videoFrame");
   if (oldFrame) {
-    oldFrame.src = ""; // stop stream
-    oldFrame.remove(); // remove from DOM
+    oldFrame.src = "";
+    oldFrame.remove();
   }
 
-  // Show loader states
   const skeleton = document.getElementById("videoSkeleton");
   if (skeleton) skeleton.style.display = "block";
 
+  // IMPORTANT: ensure spinner is above iframe
   showVideoSpinner();
 
-  // Create new iframe
   const iframe = document.createElement("iframe");
   iframe.id = "videoFrame";
   iframe.src = q.embed;
   iframe.allowFullscreen = true;
+
   iframe.style.width = "100%";
   iframe.style.aspectRatio = "16 / 9";
   iframe.style.border = "none";
   iframe.style.background = "black";
+  iframe.style.display = "block";
 
-  // Hide loader when video loads
   iframe.onload = () => {
     if (skeleton) skeleton.style.display = "none";
     hideVideoSpinner();
   };
 
-  // Add iframe to DOM
   player.appendChild(iframe);
 
-  // Safety fallback (in case onload doesn't fire)
   setTimeout(() => {
     if (skeleton) skeleton.style.display = "none";
     hideVideoSpinner();
