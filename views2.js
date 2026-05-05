@@ -421,28 +421,34 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
   wrapper.style.position = "relative";
 
   /* ---------------- LOADER ---------------- */
-  const loader = document.createElement("div");
-  loader.style.position = "absolute";
-  loader.style.top = "0";
-  loader.style.left = "0";
-  loader.style.width = "100%";
-  loader.style.height = "100%";
-  loader.style.display = "flex";
-  loader.style.alignItems = "center";
-  loader.style.justifyContent = "center";
-  loader.style.background = "rgba(0,0,0,0.4)";
-  loader.style.zIndex = "5";
+  const skeletonBox = document.createElement("div");
+skeletonBox.className = "skeleton-box";
 
-  const spinner = document.createElement("div");
-  spinner.style.border = "3px solid rgba(255,255,255,0.3)";
-  spinner.style.borderTop = "3px solid #ffcc00";
-  spinner.style.borderRadius = "50%";
-  spinner.style.width = "35px";
-  spinner.style.height = "35px";
-  spinner.style.animation = "spin 1s linear infinite";
+/* video placeholder */
+const thumb = document.createElement("div");
+thumb.className = "skeleton skeleton-thumb";
 
-  loader.appendChild(spinner);
-  wrapper.appendChild(loader);
+/* text placeholder */
+const meta = document.createElement("div");
+meta.className = "skeleton-meta";
+
+const title = document.createElement("div");
+title.className = "skeleton skeleton-title";
+
+const line1 = document.createElement("div");
+line1.className = "skeleton skeleton-line skeleton-text";
+
+const line2 = document.createElement("div");
+line2.className = "skeleton skeleton-line long";
+
+meta.appendChild(title);
+meta.appendChild(line1);
+meta.appendChild(line2);
+
+skeletonBox.appendChild(thumb);
+skeletonBox.appendChild(meta);
+
+wrapper.appendChild(skeletonBox);
 
   const defaultQuality =
     video.qualities.find(q => q.label.includes("480")) ||
@@ -451,20 +457,18 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
   let currentEmbed = defaultQuality.embed;
 
   function loadPlayer() {
-    if (wrapper.dataset.loaded === "true") return;
-    wrapper.dataset.loaded = "true";
+  if (wrapper.dataset.loaded === "true") return;
+  wrapper.dataset.loaded = "true";
 
-    loader.style.display = "flex";
+  const iframe = document.createElement("iframe");
+  iframe.src = currentEmbed;
+  iframe.allowFullscreen = true;
 
-    const iframe = document.createElement("iframe");
-    iframe.src = currentEmbed;
-    iframe.allowFullscreen = true;
+  iframe.onload = () => {
+    skeletonBox.style.display = "none"; // your new skeleton
+  };
 
-    iframe.onload = () => {
-      loader.style.display = "none";
-    };
-
-    wrapper.replaceChildren(loader, iframe);
+  wrapper.appendChild(iframe);
   }
 
   const preview = document.createElement("video");
@@ -480,8 +484,8 @@ box.id = `video-${video.id}`; // ✅ ADD THIS HERE
   observer.observe(preview);
 
   preview.addEventListener("loadeddata", () => {
-    loader.style.display = "none";
-  });
+  skeletonBox.style.display = "none";
+});
 
   preview.addEventListener("canplay", () => {
   preview.currentTime = 0.1;
