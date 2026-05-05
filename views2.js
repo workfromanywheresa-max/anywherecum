@@ -392,6 +392,13 @@ function countDownloadOnce(videoId) {
   increaseViews(videoId);
 }
 
+function showFolderTitleSkeleton() {
+  const el = document.getElementById("folderTitle");
+  if (!el) return;
+
+  el.innerHTML = `<div class="skeleton-folder-title"></div>`;
+}
+
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
 
@@ -1060,6 +1067,7 @@ function reorderVideos(force = false) {
 }
 
 /* ---------------- LOAD ---------------- */
+showFolderTitleSkeleton();
 showSkeletons(10); // 👈 inject loading UI first
 
 fetch(dataSource)
