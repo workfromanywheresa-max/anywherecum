@@ -460,22 +460,20 @@ function loadPlayer() {
   // show skeleton
   skeleton.style.display = "block";
 
-  // inject iframe AFTER skeleton (not replacing it)
+  // ONLY inject iframe (no skeleton here)
   player.innerHTML = `
-    <div id="videoSkeleton" class="video-skeleton skeleton"></div>
     <iframe id="videoFrame" src="${q.embed}" allowfullscreen></iframe>
   `;
 
   const iframe = document.getElementById("videoFrame");
-  const newSkeleton = document.getElementById("videoSkeleton");
 
   iframe.onload = () => {
-    newSkeleton.style.display = "none";
+    skeleton.style.display = "none";
   };
 
-  // fallback (in case iframe never fires onload)
+  // fallback
   setTimeout(() => {
-    newSkeleton.style.display = "none";
+    skeleton.style.display = "none";
   }, 5000);
 }
   
@@ -1081,14 +1079,9 @@ watchLabel.textContent =
   qualityEl.classList.remove("skeleton");
 
       qualityEl.onchange = () => {
-  currentIndex = Number(qualityEl.value);
-
-  // force reload visually
-  loadPlayer();
-
-  // optional: scroll back to player (nice UX)
-  window.scrollTo({ top: 0, behavior: "smooth" });
-};
+        currentIndex = Number(qualityEl.value);
+        loadPlayer();
+      };
 
       loadPlayer();
       injectButtons(videoData);
