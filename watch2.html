@@ -458,20 +458,23 @@ function loadPlayer() {
   const skeletonEl = document.getElementById("videoSkeleton");
   skeletonEl.style.display = "block";
 
-  // always rebuild iframe cleanly (no reuse bugs)
-  player.innerHTML = `
-    <iframe
-      id="videoFrame"
-      src="${q.embed}"
-      allowfullscreen
-    ></iframe>
-  `;
+  // ⚠️ HARD RESET (this is the real fix)
+  player.innerHTML = "";
 
-  const iframe = document.getElementById("videoFrame");
+  const iframe = document.createElement("iframe");
+  iframe.id = "videoFrame";
+  iframe.allowFullscreen = true;
+  iframe.src = q.embed;
+
+  iframe.style.width = "100%";
+  iframe.style.aspectRatio = "16 / 9";
+  iframe.style.border = "none";
 
   iframe.onload = () => {
     skeletonEl.style.display = "none";
   };
+
+  player.appendChild(iframe);
 
   // safety fallback
   setTimeout(() => {
@@ -1081,12 +1084,7 @@ watchLabel.textContent =
   qualityEl.classList.remove("skeleton");
 
       qualityEl.addEventListener("change", () => {
-  currentIndex = Number(qualityEl.value);
-
-  // optional UX improvement
-  const skeletonEl = document.getElementById("videoSkeleton");
-  skeletonEl.style.display = "block";
-
+  currentIndex = parseInt(qualityEl.value, 10);
   loadPlayer();
 });
 
