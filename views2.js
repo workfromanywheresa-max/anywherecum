@@ -1051,7 +1051,7 @@ function reorderVideos(force = false) {
 }
 
 /* ---------------- LOAD ---------------- */
-showSkeletons(6); // 👈 inject loading UI first
+showSkeletons(10); // 👈 inject loading UI first
 
 fetch(dataSource)
   .then(res => res.json())
