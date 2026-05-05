@@ -1,12 +1,12 @@
 # Website Project
 
-This is a web project that hosts and organizes video content in a structured layout.
+This is a web project that hosts and organizes sex video content in a structured layout.
 
 ## Live Site
 https://anywherecum.pages.dev
 
 ## Overview
-This project provides a web interface for browsing and accessing video folders and content through a simple navigation system.
+This project provides a web interface for browsing and accessing adult video folders and content through a simple navigation system.
 
 ## Features
 - Folder-based video organization
