@@ -315,13 +315,12 @@ footer {
 }
 
   #folderTitle {
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  }
+  visibility: hidden;
+}
 
-  #folderTitle.show {
-  opacity: 1;
-  }
+#folderTitle.show {
+  visibility: visible;
+}
 </style>
 
 <!-- OneSignal -->
@@ -668,11 +667,6 @@ document.addEventListener("DOMContentLoaded", function () {
 </div>
 
 <h2 id="folderTitle">Folder</h2>
-
-    <script>
-  showFolderTitleSkeleton();
-    </script>
-    
 <p id="folderDescription">
   Enjoy our videos, updated regularly for your viewing pleasure.
 </p>
@@ -1126,4 +1120,4 @@ if (!isVIP) return;
 <script type="module" src="views2.js"></script>
 
 </body>
-  </html>
+</html>
