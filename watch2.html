@@ -381,12 +381,6 @@ Watch high quality video streaming online. Updated daily with new content.
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-  /* =========================
-   VIP STATE (GLOBAL EARLY)
-========================= */
-const params = new URLSearchParams(window.location.search);
-const folder = (params.get("folder") || "").toLowerCase();
-
 const isVIP =
   folder.includes("vip") ||
   folder.includes("🔓");
@@ -685,6 +679,24 @@ document.getElementById("dlBox").addEventListener("click", (e) => {
 });
 
 /* ---------------- BUTTONS ---------------- */
+  function createStack(label, btn) {
+  const stack = document.createElement("div");
+  stack.style.display = "flex";
+  stack.style.flexDirection = "column";
+  stack.style.alignItems = "center";
+  stack.style.gap = "2px";
+
+  const text = document.createElement("div");
+  text.textContent = label;
+  text.style.fontSize = "10px";
+  text.style.color = "#aaa";
+
+  stack.appendChild(text);
+  stack.appendChild(btn);
+
+  return stack;
+  }
+  
 function injectButtons(video) {
   actionRow.classList.remove("skeleton-mode");
 actionRow.innerHTML = "";
