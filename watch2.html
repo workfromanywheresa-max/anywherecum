@@ -1081,9 +1081,14 @@ watchLabel.textContent =
   qualityEl.classList.remove("skeleton");
 
       qualityEl.onchange = () => {
-        currentIndex = Number(qualityEl.value);
-        loadPlayer();
-      };
+  currentIndex = Number(qualityEl.value);
+
+  // force reload visually
+  loadPlayer();
+
+  // optional: scroll back to player (nice UX)
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
 
       loadPlayer();
       injectButtons(videoData);
