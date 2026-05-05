@@ -384,19 +384,18 @@ function countDownloadOnce(videoId) {
 }
 
 /* ---------------- CONTAINER ---------------- */
-function showSkeletons(count = 10) {
+function showSkeletons(count = 6) {
   videosContainer.innerHTML = "";
 
   for (let i = 0; i < count; i++) {
     const skel = document.createElement("div");
     skel.className = "skeleton-box";
 
-    /* IMPORTANT: force identical structure spacing */
     const wrapper = document.createElement("div");
     wrapper.style.display = "flex";
     wrapper.style.flexDirection = "column";
     wrapper.style.width = "100%";
-    wrapper.style.height = "100%";
+    wrapper.style.height = "auto"; // ✅ FIX
 
     const select = document.createElement("div");
     select.className = "skeleton-select";
@@ -412,7 +411,6 @@ function showSkeletons(count = 10) {
     wrapper.appendChild(title);
 
     skel.appendChild(wrapper);
-
     videosContainer.appendChild(skel);
   }
 }
