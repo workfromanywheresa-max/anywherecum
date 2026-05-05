@@ -276,19 +276,20 @@ function toTitleCase(str) {
   if (!el) return;
 
   el.innerHTML = `<div class="skeleton-folder-title"></div>`;
-    }
+}
 
-const titleEl = document.getElementById("folderTitle");
+function setFolderTitle() {
+  const titleEl = document.getElementById("folderTitle");
+  if (!titleEl) return;
 
-showFolderTitleSkeleton();
-
-if (titleEl) {
   const normalized = rawFolderName.toLowerCase();
 
   if (normalized === "🔒vip exclusive") {
     titleEl.textContent = "💎VIP Exclusive";
   } else {
-    titleEl.textContent = rawFolderName ? toTitleCase(rawFolderName) : "All Videos";
+    titleEl.textContent = rawFolderName
+      ? toTitleCase(rawFolderName)
+      : "All Videos";
   }
 }
 
@@ -1067,12 +1068,14 @@ function reorderVideos(force = false) {
 }
 
 /* ---------------- LOAD ---------------- */
-showFolderTitleSkeleton();
 showSkeletons(10); // 👈 inject loading UI first
+showFolderTitleSkeleton();
 
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
+
+     setFolderTitle(); 
 
     videosContainer.innerHTML = "";
     
