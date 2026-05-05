@@ -379,19 +379,7 @@ Watch high quality video streaming online. Updated daily with new content.
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
-
-/* =========================
-   VIP STATE (GLOBAL EARLY)
-========================= */
-const params = new URLSearchParams(window.location.search);
-const folder = (params.get("folder") || "").toLowerCase();
-
-const isVIP =
-  folder.includes("vip") ||
-  folder.includes("🔓");
-
-console.log(isVIP ? "💎 VIP MODE" : "❌ NORMAL MODE");
-  
+ 
 /* ---------------- FIREBASE ---------------- */
 const app = initializeApp({
   apiKey: "AIzaSyCEX...",
@@ -421,8 +409,15 @@ function trackDownload(videoId) {
   
 /* ---------------- URL ---------------- */
 const params = new URLSearchParams(window.location.search);
+const folder = (params.get("folder") || "").toLowerCase();
 const videoId = params.get("video");
 let currentIndex = Number(params.get("q") || 0);
+
+const isVIP =
+  folder.includes("vip") ||
+  folder.includes("🔓");
+
+console.log(isVIP ? "💎 VIP MODE" : "❌ NORMAL MODE");
 
 /* ---------------- ELEMENTS ---------------- */
 const player = document.getElementById("player");
