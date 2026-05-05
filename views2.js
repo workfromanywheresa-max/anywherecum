@@ -1,8 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, onValue, set, runTransaction } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
-showFolderTitleSkeleton();
-
 const app = initializeApp({
   apiKey: "AIzaSyCEX...",
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
@@ -277,10 +275,6 @@ function showFolderTitleSkeleton() {
   const el = document.getElementById("folderTitle");
   if (!el) return;
 
-  // clear any existing text immediately to prevent flash
-  el.textContent = "";
-
-  // show skeleton
   el.innerHTML = `<div class="skeleton-folder-title"></div>`;
 }
 
@@ -289,9 +283,6 @@ function setFolderTitle() {
   if (!titleEl) return;
 
   const normalized = rawFolderName.toLowerCase();
-
-  // remove skeleton before setting real text
-  titleEl.innerHTML = "";
 
   if (normalized === "🔒vip exclusive") {
     titleEl.textContent = "💎VIP Exclusive";
