@@ -525,39 +525,42 @@ function setViewCache(videoId, value) {
 function loadPlayer() {
   const q = videoData.qualities[currentIndex];
 
-  // remove old frame
   const oldFrame = document.getElementById("videoFrame");
+
+  // 🔥 HARD STOP old video (YOU KEEP THIS)
   if (oldFrame) {
-    oldFrame.src = "";
-    oldFrame.remove();
+    oldFrame.src = ""; // kill stream
+    oldFrame.remove(); // remove from DOM
   }
 
+  // show skeleton (safe check)
   const skeleton = document.getElementById("videoSkeleton");
   if (skeleton) skeleton.style.display = "block";
 
-  // IMPORTANT: ensure spinner is above iframe
+  // 🔥 ADD SPINNER HERE
   showVideoSpinner();
 
-  const iframe = document.createElement("iframe");
-  iframe.id = "videoFrame";
-  iframe.src = q.embed;
-  iframe.allowFullscreen = true;
+  // inject new iframe (YOUR LOGIC UNCHANGED)
+  player.innerHTML = `
+    <iframe id="videoFrame" src="${q.embed}" allowfullscreen></iframe>
+  `;
 
-  iframe.style.width = "100%";
-  iframe.style.aspectRatio = "16 / 9";
-  iframe.style.border = "none";
-  iframe.style.background = "black";
-  iframe.style.display = "block";
+  const iframe = document.getElementById("videoFrame");
 
   iframe.onload = () => {
+    const skeleton = document.getElementById("videoSkeleton");
     if (skeleton) skeleton.style.display = "none";
+
+    // 🔥 HIDE SPINNER ON LOAD
     hideVideoSpinner();
   };
 
-  player.appendChild(iframe);
-
+  // fallback safety
   setTimeout(() => {
+    const skeleton = document.getElementById("videoSkeleton");
     if (skeleton) skeleton.style.display = "none";
+
+    // 🔥 HIDE SPINNER ON FALLBACK
     hideVideoSpinner();
   }, 8000);
 }
@@ -1248,4 +1251,4 @@ watchLabel.textContent =
   </script>
   
 </body>
-</html>
+  </html>
