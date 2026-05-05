@@ -1059,6 +1059,21 @@ fetch(dataSource)
 
     videosContainer.innerHTML = "";
 
+    // optional: recreate skeleton briefly (smooth transition)
+    showSkeletons(videos.length);
+
+    setTimeout(() => {
+      videosContainer.innerHTML = "";
+
+      videos.forEach(v => {
+        const box = createVideoBox(v);
+        videosContainer.appendChild(box);
+      });
+
+    }, 200);
+
+  });
+
     const filtered = folderName
       ? videos.filter(v =>
           (v.folder || "").trim().toLowerCase() === folderName
