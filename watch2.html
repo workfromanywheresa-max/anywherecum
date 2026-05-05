@@ -42,15 +42,12 @@
 }
 
 #watchLabel {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+  font-size: 12px;
+  color: #aaa;
+  max-width: 70%;
+  text-align: center;
+  word-break: break-word;
+  flex: 1;
 }
 
 /* MAIN CONTAINER */
@@ -241,7 +238,7 @@ select.skeleton option {
   position: fixed;
   bottom: 0;
   left: 0;
-  width: 100%;
+  width: 90%;
   text-align: center;
   font-size: 12px;
   color: #aaa;
@@ -281,6 +278,7 @@ function updateVideoSchema(videoData) {
 <div class="topBar">
   <button class="backBtn" onclick="history.back()">← Back</button>
   <div id="watchLabel" class="skeleton label-skeleton"></div>
+  <div></div>
 </div>
 
 <div class="container">
@@ -400,17 +398,7 @@ function trackDownload(videoId) {
 /* ---------------- URL ---------------- */
 const params = new URLSearchParams(window.location.search);
 const videoId = params.get("video");
-let currentIndex = 0;
-
-function syncQualityFromURL(videoData) {
-  const q = Number(params.get("q"));
-
-  if (!isNaN(q) && videoData?.qualities?.[q]) {
-    currentIndex = q;
-  } else {
-    currentIndex = 0;
-  }
-}
+let currentIndex = Number(params.get("q") || 0);
 
 /* ---------------- ELEMENTS ---------------- */
 const player = document.getElementById("player");
@@ -465,21 +453,22 @@ function setViewCache(videoId, value) {
 function loadPlayer() {
   const q = videoData.qualities[currentIndex];
 
-  const skeletonEl = document.getElementById("videoSkeleton");
-  skeletonEl.style.display = "block";
+  // show skeleton
+  document.getElementById("videoSkeleton").style.display = "block";
 
-  player.innerHTML = "";
+  player.innerHTML = `
+    <iframe id="videoFrame" src="${q.embed}" allowfullscreen></iframe>
+  `;
 
-  const iframe = document.createElement("iframe");
-  iframe.id = "videoFrame";
-  iframe.src = q.embed;
-  iframe.allowFullscreen = true;
+  const iframe = document.getElementById("videoFrame");
 
   iframe.onload = () => {
-    skeletonEl.style.display = "none";
+    skeleton.style.display = "none";
   };
 
-  player.appendChild(iframe);
+  setTimeout(() => {
+    document.getElementById("videoSkeleton").style.display = "none";
+  }, 8000);
 }
   
 /* ---------------- STACK UI ---------------- */
@@ -974,8 +963,6 @@ likeWrapper.appendChild(likeBtn);
   leftGroup.style.display = "flex";
   leftGroup.style.gap = "10px";
 
-  leftGroup.style.marginTop = "16px";
-
   leftGroup.appendChild(createStack("Share", shareBtn));
   leftGroup.appendChild(createStack("Embed", embedBtn));
   leftGroup.appendChild(createStack("Download", downloadBtn));
@@ -987,7 +974,7 @@ likeWrapper.appendChild(likeBtn);
   rightGroup.style.display = "flex";
 
   rightGroup.style.alignSelf = "flex-start";
-  rightGroup.style.marginTop = "0px";
+  rightGroup.style.marginTop = "-16px";
 
   const likeStack = document.createElement("div");
   likeStack.style.display = "flex";
@@ -1052,8 +1039,6 @@ watchLabel.textContent = "";
     .then(videos => {
       videoData = videos.find(v => v.id === videoId);
 
-      syncQualityFromURL(videoData);
-
       if (!videoData) {
         titleEl.textContent = "Video not found";
         return;
@@ -1085,10 +1070,10 @@ watchLabel.textContent =
 
   qualityEl.classList.remove("skeleton");
 
-      qualityEl.addEventListener("change", () => {
-  currentIndex = parseInt(qualityEl.value, 10);
-  loadPlayer();
-});
+      qualityEl.onchange = () => {
+        currentIndex = Number(qualityEl.value);
+        loadPlayer();
+      };
 
       loadPlayer();
       injectButtons(videoData);
