@@ -313,41 +313,8 @@ Watch high quality video streaming online. Updated daily with new content.
 </div>
 
   <div id="actionRow" class="skeleton-mode">
-
-  <div class="btn-skeleton-wrap">
-
-    <div class="skeleton-stack">
-      <div class="skeleton-label skeleton"></div>
-      <div class="skeleton-btn"></div>
-    </div>
-
-    <div class="skeleton-stack">
-      <div class="skeleton-label skeleton"></div>
-      <div class="skeleton-btn"></div>
-    </div>
-
-    <div class="skeleton-stack">
-      <div class="skeleton-label skeleton"></div>
-      <div class="skeleton-btn"></div>
-    </div>
-
-    <div class="skeleton-stack">
-      <div class="skeleton-label skeleton"></div>
-      <div class="skeleton-btn"></div>
-    </div>
-
-  </div>
-
-  <!-- RIGHT SIDE -->
-  <div class="skeleton-right">
-
-    <div class="skeleton-label skeleton" style="width:30px;"></div>
-    <div class="skeleton-label skeleton" style="width:40px;"></div>
-
-    <div class="skeleton-btn" style="width:46px;height:28px;"></div>
-
-  </div>
-
+  <div class="btn-skeleton-wrap"></div>
+  <div class="skeleton-right"></div>
   </div>
 
    <footer class="footer" style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
@@ -525,6 +492,62 @@ function createStack(labelText, button) {
 
   return stack;
 }
+
+  function buildSkeleton() {
+  const actionRow = document.getElementById("actionRow");
+  const leftWrap = actionRow.querySelector(".btn-skeleton-wrap");
+  const rightWrap = actionRow.querySelector(".skeleton-right");
+
+  leftWrap.innerHTML = "";
+  rightWrap.innerHTML = "";
+
+  const params = new URLSearchParams(window.location.search);
+  const folder = (params.get("folder") || "").toLowerCase();
+
+  const isVIP =
+    folder.includes("vip") ||
+    folder.includes("🔓");
+
+  /* =========================
+     LEFT SIDE BUTTONS
+  ========================= */
+  const buttons = isVIP
+    ? ["Download", "Donate"]   // 🔥 VIP: no Share / Embed
+    : ["Share", "Embed", "Download", "Donate"];
+
+  buttons.forEach(() => {
+    const stack = document.createElement("div");
+    stack.className = "skeleton-stack";
+
+    const label = document.createElement("div");
+    label.className = "skeleton-label skeleton";
+
+    const btn = document.createElement("div");
+    btn.className = "skeleton-btn";
+
+    stack.appendChild(label);
+    stack.appendChild(btn);
+    leftWrap.appendChild(stack);
+  });
+
+  /* =========================
+     RIGHT SIDE (views placeholder)
+  ========================= */
+  const rightLabel1 = document.createElement("div");
+  rightLabel1.className = "skeleton-label skeleton";
+  rightLabel1.style.width = "30px";
+
+  const rightLabel2 = document.createElement("div");
+  rightLabel2.className = "skeleton-label skeleton";
+  rightLabel2.style.width = "40px";
+
+  const rightBtn = document.createElement("div");
+  rightBtn.className = "skeleton-btn";
+
+  rightWrap.appendChild(rightLabel1);
+  rightWrap.appendChild(rightLabel2);
+  rightWrap.appendChild(rightBtn);
+  }
 
 /* ---------------- MODALS ---------------- */
 /* =========================
@@ -1113,71 +1136,9 @@ watchLabel.textContent =
       titleEl.textContent = "Error loading video";
     });
 }
-
+buildSkeleton();
 init();
 </script>
-
-  <script>
-(function () {
-
-  /* =========================
-     VIP CHECK (FROM URL)
-  ========================= */
-  const params = new URLSearchParams(window.location.search);
-  const folder = (params.get("folder") || "").toLowerCase();
-
-  const isVIP =
-    folder.includes("vip") ||
-    folder.includes("🔓");
-
-  if (!isVIP) {
-    console.log("❌ NOT VIP — normal mode");
-    return;
-  }
-
-  console.log("💎 VIP — hiding Share & Embed");
-
-  /* =========================
-     REMOVE BUTTONS (SAFE)
-  ========================= */
-  function removeButtons() {
-
-    const leftGroup = document.querySelector("#actionRow > div > div:first-child");
-    if (!leftGroup) return;
-
-    leftGroup.querySelectorAll("div").forEach(stack => {
-
-      const labelEl = stack.firstElementChild;
-      if (!labelEl) return;
-
-      const label = labelEl.textContent?.trim().toLowerCase();
-
-      if (stack.children.length === 2) {
-        if (label === "share" || label === "embed") {
-          stack.remove();
-        }
-      }
-
-    });
-  }
-
-  /* =========================
-     RUN + WATCH
-  ========================= */
-  removeButtons();
-
-  const observer = new MutationObserver(removeButtons);
-
-  const actionRow = document.getElementById("actionRow");
-  if (actionRow) {
-    observer.observe(actionRow, {
-      childList: true,
-      subtree: true
-    });
-  }
-
-})();
-  </script>
   
 </body>
 </html>
