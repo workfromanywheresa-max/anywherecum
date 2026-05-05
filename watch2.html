@@ -400,7 +400,17 @@ function trackDownload(videoId) {
 /* ---------------- URL ---------------- */
 const params = new URLSearchParams(window.location.search);
 const videoId = params.get("video");
-let currentIndex = Number(params.get("q") || 0);
+let currentIndex = 0;
+
+function syncQualityFromURL(videoData) {
+  const q = Number(params.get("q"));
+
+  if (!isNaN(q) && videoData?.qualities?.[q]) {
+    currentIndex = q;
+  } else {
+    currentIndex = 0;
+  }
+}
 
 /* ---------------- ELEMENTS ---------------- */
 const player = document.getElementById("player");
@@ -458,28 +468,18 @@ function loadPlayer() {
   const skeletonEl = document.getElementById("videoSkeleton");
   skeletonEl.style.display = "block";
 
-  // ⚠️ HARD RESET (this is the real fix)
   player.innerHTML = "";
 
   const iframe = document.createElement("iframe");
   iframe.id = "videoFrame";
-  iframe.allowFullscreen = true;
   iframe.src = q.embed;
-
-  iframe.style.width = "100%";
-  iframe.style.aspectRatio = "16 / 9";
-  iframe.style.border = "none";
+  iframe.allowFullscreen = true;
 
   iframe.onload = () => {
     skeletonEl.style.display = "none";
   };
 
   player.appendChild(iframe);
-
-  // safety fallback
-  setTimeout(() => {
-    skeletonEl.style.display = "none";
-  }, 2000);
 }
   
 /* ---------------- STACK UI ---------------- */
@@ -1051,6 +1051,8 @@ watchLabel.textContent = "";
     .then(r => r.json())
     .then(videos => {
       videoData = videos.find(v => v.id === videoId);
+
+      syncQualityFromURL(videoData);
 
       if (!videoData) {
         titleEl.textContent = "Video not found";
