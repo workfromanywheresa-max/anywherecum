@@ -77,6 +77,7 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   background: #151515;
+  border-radius: 0;
 }
 
 /* SELECT DROPDOWN */
@@ -119,7 +120,7 @@ select.skeleton option {
 }
 
 /* =========================
-   ACTION ROW (REAL + SKELETON MATCHED)
+   BUTTON ROW LAYOUT (NEW)
 ========================= */
 #actionRow {
   display: flex;
@@ -127,21 +128,13 @@ select.skeleton option {
   align-items: center;
 }
 
-/* LEFT SIDE (matches real layout) */
-.skeleton-left {
+/* left side buttons */
+.btn-skeleton-wrap {
   display: flex;
   gap: 10px;
-  margin-top: 16px;
 }
 
-/* RIGHT SIDE (matches real layout) */
-.skeleton-right {
-  margin-left: auto;
-  display: flex;
-  align-self: flex-start;
-}
-
-/* STACK (used by both real + skeleton) */
+/* each button stack */
 .skeleton-stack {
   display: flex;
   flex-direction: column;
@@ -150,16 +143,17 @@ select.skeleton option {
   min-width: 55px;
 }
 
-/* RIGHT STACK (likes/views/time) */
-.skeleton-like-stack {
+/* right side */
+.skeleton-right {
+  margin-left: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
 }
 
 /* =========================
-   SKELETON BASE
+   SKELETON BASE ANIMATION
 ========================= */
 .skeleton {
   background: #1e1e1e;
@@ -189,12 +183,12 @@ select.skeleton option {
   }
 }
 
-/* BUTTON SKELETON */
+/* BUTTON SKELETON MODE */
 #actionRow.skeleton-mode {
   pointer-events: none;
 }
 
-.skeleton-btn {
+#actionRow.skeleton-mode .skeleton-btn {
   width: 46px;
   height: 28px;
   border-radius: 6px;
@@ -203,7 +197,7 @@ select.skeleton option {
   overflow: hidden;
 }
 
-.skeleton-label {
+#actionRow.skeleton-mode .skeleton-label {
   width: 40px;
   height: 10px;
   margin-bottom: 4px;
@@ -214,8 +208,8 @@ select.skeleton option {
 }
 
 /* shimmer for buttons */
-.skeleton-btn::after,
-.skeleton-label::after {
+#actionRow.skeleton-mode .skeleton-btn::after,
+#actionRow.skeleton-mode .skeleton-label::after {
   content: "";
   position: absolute;
   top: 0;
@@ -231,6 +225,10 @@ select.skeleton option {
   animation: shimmer 1.2s infinite;
 }
 
+  #actionRow.skeleton-mode .skeleton-right {
+  margin-top: -16px;
+  }
+
 /* label skeleton */
 .label-skeleton {
   height: 26px;
@@ -239,23 +237,19 @@ select.skeleton option {
   border-radius: 4px;
 }
 
-/* =========================
-   FOOTER (FIXED CENTER)
-========================= */
-.footer {
+  .footer {
   position: fixed;
   bottom: 0;
   left: 0;
-  right: 0; /* ensures perfect centering */
   width: 100%;
-  box-sizing: border-box;
+  box-sizing: border-box; /* 🔥 THIS FIXES IT */
   text-align: center;
   font-size: 12px;
   color: #aaa;
   background: #111;
   padding: 20px;
   z-index: 1000;
-}
+  }
 </style>
 
   <script type="application/ld+json" id="videoSchema">{}</script>
