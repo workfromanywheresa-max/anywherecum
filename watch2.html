@@ -1158,40 +1158,43 @@ setTimeout(() => {
   }
 
   /* =========================
-     REMOVE REAL BUTTONS
+     REMOVE BUTTONS (SAFE)
   ========================= */
-  function killButtons() {
+  function removeButtons() {
 
-    const stacks = document.querySelectorAll(".btn-skeleton-wrap .skeleton-stack");
+    const leftGroup = document.querySelector("#actionRow > div > div:first-child");
+    if (!leftGroup) return;
 
-    stacks.forEach(stack => {
-      const labelEl = stack.querySelector("div");
+    leftGroup.querySelectorAll("div").forEach(stack => {
+
+      const labelEl = stack.firstElementChild;
       if (!labelEl) return;
 
       const label = labelEl.textContent?.trim().toLowerCase();
 
-      if (label === "share" || label === "embed") {
-        stack.remove();
+      if (stack.children.length === 2) {
+        if (label === "share" || label === "embed") {
+          stack.remove();
+        }
       }
+
     });
   }
 
   /* =========================
-     RUN ONCE
+     RUN + WATCH
   ========================= */
-  killButtons();
+  removeButtons();
 
-  /* =========================
-     WATCH FOR LATE INJECTION
-  ========================= */
-  const observer = new MutationObserver(() => {
-    killButtons();
-  });
+  const observer = new MutationObserver(removeButtons);
 
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
+  const actionRow = document.getElementById("actionRow");
+  if (actionRow) {
+    observer.observe(actionRow, {
+      childList: true,
+      subtree: true
+    });
+  }
 
 })();
   </script>
