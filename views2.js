@@ -271,7 +271,7 @@ function toTitleCase(str) {
     .join(" ");
 }
 
-    function showFolderTitleSkeleton() {
+function showFolderTitleSkeleton() {
   const el = document.getElementById("folderTitle");
   if (!el) return;
 
@@ -391,13 +391,6 @@ function countDownloadOnce(videoId) {
   if (sessionStorage.getItem(key)) return;
   sessionStorage.setItem(key, "1");
   increaseViews(videoId);
-}
-
-function showFolderTitleSkeleton() {
-  const el = document.getElementById("folderTitle");
-  if (!el) return;
-
-  el.innerHTML = `<div class="skeleton-folder-title"></div>`;
 }
 
 /* ---------------- CONTAINER ---------------- */
