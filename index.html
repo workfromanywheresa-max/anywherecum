@@ -467,6 +467,36 @@ footer {
   0% { transform: translateX(0); }
   100% { transform: translateX(200%); }
     }
+    .latest-video-skeleton .title-skel {
+  height: 50px;
+  width: 100%;
+  background: #151515;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* fake text line */
+.latest-video-skeleton .title-skel .line {
+  width: 70%;
+  height: 12px;
+  border-radius: 4px;
+  background: #222;
+  position: relative;
+  overflow: hidden;
+}
+
+/* shimmer for title */
+.latest-video-skeleton .title-skel .line::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(90deg, #222 25%, #333 50%, #222 75%);
+  animation: shimmerLatest 1.2s infinite;
+}
   </style>
   
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -709,8 +739,12 @@ function googleTranslateElementInit() {
 
   <!-- Skeleton (shows first) -->
   <div id="latestVideoSkeleton" class="latest-video-skeleton">
-    <div class="video-skel"></div>
-    <div class="title-skel"></div>
+  <div class="video-skel"></div>
+
+  <!-- NEW: title skeleton -->
+  <div class="title-skel">
+    <div class="line"></div>
+  </div>
   </div>
 
   <!-- Real content (hidden until loaded) -->
