@@ -180,19 +180,17 @@ footer {
     border-radius: 12px;
   }
 }
-  .skeleton-box {
-  margin: 0;
-  }
 
 /* =========================
    SKELETON CONTAINER
 ========================= */
 
 .skeleton-box {
-  background: #222;
+  background: #222;                 /* matches videoBox */
   border-radius: 8px;
-  height: clamp(220px, 35vh, 400px);
+  height: clamp(220px, 35vh, 400px); /* matches video frame height */
   width: 100%;
+  overflow: hidden;
 
   display: flex;
   flex-direction: column;
@@ -200,9 +198,6 @@ footer {
 
   padding: 20px;
   gap: 10px;
-
-  /* IMPORTANT: match real video box behavior */
-  box-sizing: border-box;
 }
 
 /* =========================
@@ -1085,4 +1080,4 @@ if (!isVIP) return;
 <script type="module" src="views2.js"></script>
 
 </body>
-</html>
+  </html>
