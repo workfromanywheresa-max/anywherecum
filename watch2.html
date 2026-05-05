@@ -409,8 +409,23 @@ function trackDownload(videoId) {
   
 /* ---------------- URL ---------------- */
 const params = new URLSearchParams(window.location.search);
+
+/* =========================
+   VIDEO STATE
+========================= */
 const videoId = params.get("video");
 let currentIndex = Number(params.get("q") || 0);
+
+/* =========================
+   VIP STATE
+========================= */
+const folder = (params.get("folder") || "").toLowerCase();
+
+const isVIP =
+  folder.includes("vip") ||
+  folder.includes("🔓");
+
+console.log(isVIP ? "💎 VIP MODE" : "❌ NORMAL MODE");
 
 /* ---------------- ELEMENTS ---------------- */
 const player = document.getElementById("player");
@@ -497,33 +512,54 @@ function loadPlayer() {
 }
   
 /* ---------------- STACK UI ---------------- */
-function createStack(labelText, button) {
-  const stack = document.createElement("div");
-  stack.style.display = "flex";
-  stack.style.flexDirection = "column";
-  stack.style.alignItems = "center";
-  stack.style.justifyContent = "center";
-  stack.style.gap = "2px";
-  stack.style.minWidth = "55px";
+function buildSkeletonButtons() {
+  const row = document.getElementById("actionRow");
+  row.innerHTML = "";
 
-  const label = document.createElement("div");
-  label.textContent = labelText;
-  label.style.fontSize = "10px";
-  label.style.color = "#aaa";
+  const wrap = document.createElement("div");
+  wrap.className = "btn-skeleton-wrap";
+  wrap.style.display = "flex";
+  wrap.style.gap = "10px";
 
+  const stacks = [
+    createSkeletonStack(), // Share
+    createSkeletonStack(), // Embed
+    createSkeletonStack(), // Download
+    createSkeletonStack()  // Donate
+  ];
+
+  // VIP MODE → remove Share + Embed
+  const visibleStacks = isVIP ? stacks.slice(2) : stacks;
+
+  visibleStacks.forEach(s => wrap.appendChild(s));
+
+  const right = document.createElement("div");
+  right.className = "skeleton-right";
+  right.style.display = "flex";
+  right.style.flexDirection = "column";
+  right.style.gap = "2px";
+
+  const label1 = document.createElement("div");
+  label1.className = "skeleton";
+  label1.style.width = "30px";
+  label1.style.height = "10px";
+
+  const label2 = document.createElement("div");
+  label2.className = "skeleton";
+  label2.style.width = "40px";
+  label2.style.height = "10px";
+
+  const button = document.createElement("div");
+  button.className = "skeleton-btn";
   button.style.width = "46px";
   button.style.height = "28px";
-  button.style.border = "1px solid white";
-  button.style.borderRadius = "6px";
-  button.style.background = "transparent";
-  button.style.display = "flex";
-  button.style.alignItems = "center";
-  button.style.justifyContent = "center";
 
-  stack.appendChild(label);
-  stack.appendChild(button);
+  right.appendChild(label1);
+  right.appendChild(label2);
+  right.appendChild(button);
 
-  return stack;
+  row.appendChild(wrap);
+  row.appendChild(right);
 }
 
 /* ---------------- MODALS ---------------- */
@@ -990,8 +1026,10 @@ likeWrapper.appendChild(likeBtn);
 
   leftGroup.style.marginTop = "16px";
 
+  if (!isVIP) {
   leftGroup.appendChild(createStack("Share", shareBtn));
   leftGroup.appendChild(createStack("Embed", embedBtn));
+  }
   leftGroup.appendChild(createStack("Download", downloadBtn));
   leftGroup.appendChild(createStack("Donate", donateBtn));
 
@@ -1116,68 +1154,6 @@ watchLabel.textContent =
 
 init();
 </script>
-
-  <script>
-(function () {
-
-  /* =========================
-     VIP CHECK (FROM URL)
-  ========================= */
-  const params = new URLSearchParams(window.location.search);
-  const folder = (params.get("folder") || "").toLowerCase();
-
-  const isVIP =
-    folder.includes("vip") ||
-    folder.includes("🔓");
-
-  if (!isVIP) {
-    console.log("❌ NOT VIP — normal mode");
-    return;
-  }
-
-  console.log("💎 VIP — hiding Share & Embed");
-
-  /* =========================
-     REMOVE BUTTONS (SAFE)
-  ========================= */
-  function removeButtons() {
-
-    const leftGroup = document.querySelector("#actionRow > div > div:first-child");
-    if (!leftGroup) return;
-
-    leftGroup.querySelectorAll("div").forEach(stack => {
-
-      const labelEl = stack.firstElementChild;
-      if (!labelEl) return;
-
-      const label = labelEl.textContent?.trim().toLowerCase();
-
-      if (stack.children.length === 2) {
-        if (label === "share" || label === "embed") {
-          stack.remove();
-        }
-      }
-
-    });
-  }
-
-  /* =========================
-     RUN + WATCH
-  ========================= */
-  removeButtons();
-
-  const observer = new MutationObserver(removeButtons);
-
-  const actionRow = document.getElementById("actionRow");
-  if (actionRow) {
-    observer.observe(actionRow, {
-      childList: true,
-      subtree: true
-    });
-  }
-
-})();
-  </script>
   
 </body>
 </html>
