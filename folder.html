@@ -181,70 +181,43 @@ footer {
   }
 }
 
-  /* =========================
-   SKELETON LOADER (MATCHED TO YOUR UI)
-========================= */
-
 .skeleton-box {
-  background: #111;              /* matches your player area */
-  border-radius: 10px;
+  background: #222;                 /* matches videoBox */
+  border-radius: 8px;
   overflow: hidden;
   width: 100%;
-  height: clamp(220px, 40vh, 420px); /* matches iframe/video height feel */
-  position: relative;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-/* shimmer base */
-.skeleton {
+/* VIDEO PLACEHOLDER (MATCHES iframe wrapper) */
+.skeleton-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
   background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite;
-  border-radius: 6px;
 }
 
-/* shimmer animation */
+/* TITLE ONLY */
+.skeleton-title {
+  width: 70%;
+  height: 14px;
+  margin: 0 auto;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+/* SHIMMER */
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
-
-/* =========================
-   VIDEO AREA PLACEHOLDER
-========================= */
-
-.skeleton-thumb {
-  width: 100%;
-  height: 65%;            /* matches your video preview area */
-  border-radius: 8px;
-}
-
-/* =========================
-   TEXT AREA (TITLE + META)
-========================= */
-
-.skeleton-meta {
-  padding: 10px;
-}
-
-.skeleton-title {
-  width: 70%;
-  height: 14px;
-  margin-bottom: 10px;
-}
-
-.skeleton-line {
-  height: 10px;
-  margin: 6px 0;
-}
-
-.skeleton-text {
-  width: 45%;
-}
-
-/* optional second line variation */
-.skeleton-line.long {
-  width: 90%;
-  }
 </style>
 
 <!-- OneSignal -->
@@ -705,22 +678,9 @@ position:relative;
 </style>
 
 <div id="normalVideos">
-<div id="videoSkeleton" class="skeleton-box">
-
-  <!-- video thumbnail / iframe placeholder -->
-  <div class="skeleton skeleton-thumb"></div>
-
-  <!-- text area below video -->
-  <div class="skeleton-meta">
-
-    <div class="skeleton skeleton-title"></div>
-
-    <div class="skeleton skeleton-line long"></div>
-    <div class="skeleton skeleton-line skeleton-text"></div>
-    <div class="skeleton skeleton-line skeleton-text"></div>
-
-  </div>
-
+<div class="skeleton-box">
+  <div class="skeleton-thumb"></div>
+  <div class="skeleton-title"></div>
 </div>
   </div>
     
