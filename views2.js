@@ -384,7 +384,7 @@ function countDownloadOnce(videoId) {
 }
 
 /* ---------------- CONTAINER ---------------- */
-function showSkeletons(count = 6) {
+function showSkeletons(count = 10) {
   videosContainer.innerHTML = "";
 
   for (let i = 0; i < count; i++) {
