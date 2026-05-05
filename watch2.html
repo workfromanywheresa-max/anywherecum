@@ -497,27 +497,6 @@ function loadPlayer() {
 }
   
 /* ---------------- STACK UI ---------------- */
-function buildSkeletonButtons(isVIP) {
-  const wrap = document.createElement("div");
-  wrap.className = "btn-skeleton-wrap";
-
-  const count = isVIP ? 2 : 4;
-
-  for (let i = 0; i < count; i++) {
-    const stack = document.createElement("div");
-    stack.className = "skeleton-stack";
-
-    stack.innerHTML = `
-      <div class="skeleton-label skeleton"></div>
-      <div class="skeleton-btn"></div>
-    `;
-
-    wrap.appendChild(stack);
-  }
-
-  return wrap;
-}
-  
 function createStack(labelText, button) {
   const stack = document.createElement("div");
   stack.style.display = "flex";
@@ -677,20 +656,9 @@ document.getElementById("dlBox").addEventListener("click", (e) => {
 
 /* ---------------- BUTTONS ---------------- */
 function injectButtons(video) {
-const isVIP =
-  (new URLSearchParams(window.location.search)
-    .get("folder") || "")
-    .toLowerCase()
-    .includes("vip");
-  
   actionRow.classList.remove("skeleton-mode");
+actionRow.innerHTML = "";
   actionRow.innerHTML = "";
-  actionRow.innerHTML = "";
-
-// BUILD skeleton based on VIP
-const skeletonUI = buildSkeletonButtons(isVIP);
-actionRow.appendChild(skeletonUI);
-  
   actionRow.style.width = "100%";
 
   /* SHARE */
