@@ -386,6 +386,23 @@ function countDownloadOnce(videoId) {
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
 
+function showSkeletons(count = 6) {
+  videosContainer.innerHTML = "";
+
+  for (let i = 0; i < count; i++) {
+    const skel = document.createElement("div");
+    skel.className = "skeleton-box";
+
+    skel.innerHTML = `
+      <div class="skeleton-select"></div>
+      <div class="skeleton-thumb"></div>
+      <div class="skeleton-title"></div>
+    `;
+
+    videosContainer.appendChild(skel);
+  }
+}
+
 function scrollToVideoFromHash() {
   const hash = window.location.hash;
 
@@ -1034,9 +1051,13 @@ function reorderVideos(force = false) {
 }
 
 /* ---------------- LOAD ---------------- */
+showSkeletons(6); // 👈 inject loading UI first
+
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
+
+    videosContainer.innerHTML = "";
 
     const filtered = folderName
       ? videos.filter(v =>
