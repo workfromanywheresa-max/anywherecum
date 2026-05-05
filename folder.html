@@ -181,11 +181,8 @@ footer {
   }
 }
 
-/* =========================
-   SKELETON CARD (MATCH VIDEO BOX)
-========================= */
 .skeleton-box {
-  background: #222;
+  background: #222;                 /* matches videoBox */
   border-radius: 8px;
   overflow: hidden;
   width: 100%;
@@ -195,51 +192,28 @@ footer {
   gap: 10px;
 }
 
-/* =========================
-   VIDEO PLACEHOLDER (MATCH iframe)
-========================= */
+/* VIDEO PLACEHOLDER (MATCHES iframe wrapper) */
 .skeleton-thumb {
   width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: 8px;
-
   background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite;
 }
 
-/* =========================
-   SELECT PLACEHOLDER (MATCH REAL SELECT)
-========================= */
-.skeleton-select {
-  width: fit-content;
-  max-width: 90%;
-  height: 28px;
-  margin: 6px auto;
-  border-radius: 5px;
-
-  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-}
-
-/* =========================
-   TITLE PLACEHOLDER
-========================= */
+/* TITLE ONLY */
 .skeleton-title {
   width: 70%;
   height: 14px;
-  margin: 6px auto;
+  margin: 0 auto;
   border-radius: 4px;
-
   background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite;
 }
 
-/* =========================
-   SHIMMER ANIMATION
-========================= */
+/* SHIMMER */
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
