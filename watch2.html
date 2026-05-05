@@ -1069,7 +1069,11 @@ onValue(viewsRef, snap => {
 /* ---------------- INIT ---------------- */
 function init() {
   watchLabel.classList.add("skeleton", "label-skeleton");
-watchLabel.textContent = "";
+  watchLabel.textContent = "";
+
+  const titleEl = document.getElementById("title");
+  titleEl.classList.add("skeleton");
+  titleEl.textContent = "";
   if (!videoId) {
     titleEl.textContent = "No video selected";
     return;
