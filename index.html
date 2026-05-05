@@ -412,18 +412,40 @@ footer {
   pointer-events: none;
 }
 
-    /* Skeleton wrapper */
+    /* FULL latest video skeleton (video + title) */
 .latest-video-skeleton {
   position: relative;
-  height: 210px;
+  width: 100%;
+  height: 180px; /* matches li height */
   margin-bottom: 10px;
   overflow: hidden;
   border-radius: 8px;
   background: #111;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Shimmer layer */
-.latest-video-skeleton::after {
+/* VIDEO AREA SKELETON */
+.latest-video-skeleton .video-skel {
+  height: 130px;
+  width: 100%;
+  background: #111;
+  position: relative;
+  overflow: hidden;
+}
+
+/* TITLE AREA SKELETON */
+.latest-video-skeleton .title-skel {
+  height: 50px;
+  width: 100%;
+  background: #151515;
+  position: relative;
+  overflow: hidden;
+}
+
+/* SHIMMER */
+.latest-video-skeleton .video-skel::after,
+.latest-video-skeleton .title-skel::after {
   content: "";
   position: absolute;
   top: 0;
@@ -439,11 +461,11 @@ footer {
   animation: shimmerLatest 1.2s infinite;
 }
 
-/* Animation */
+/* ANIMATION */
 @keyframes shimmerLatest {
   0% { transform: translateX(0); }
   100% { transform: translateX(200%); }
-}
+    }
   </style>
   
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -681,7 +703,10 @@ function googleTranslateElementInit() {
   </div>
   
 <h2>🎥 Latest Video 🎥</h2>
-<div id="latestVideoSkeleton" class="latest-video-skeleton"></div>
+<div class="latest-video-skeleton">
+  <div class="video-skel"></div>
+  <div class="title-skel"></div>
+</div>
 <div id="latestVideo"></div>
   
   <div style="display:flex; justify-content:center; margin: 30px 0;">
