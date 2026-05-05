@@ -275,15 +275,21 @@ function showFolderTitleSkeleton() {
   const el = document.getElementById("folderTitle");
   if (!el) return;
 
+  // clear any existing text immediately to prevent flash
+  el.textContent = "";
+
+  // show skeleton
   el.innerHTML = `<div class="skeleton-folder-title"></div>`;
 }
 
 function setFolderTitle() {
-titleEl.textContent = "";
   const titleEl = document.getElementById("folderTitle");
   if (!titleEl) return;
 
   const normalized = rawFolderName.toLowerCase();
+
+  // remove skeleton before setting real text
+  titleEl.innerHTML = "";
 
   if (normalized === "🔒vip exclusive") {
     titleEl.textContent = "💎VIP Exclusive";
