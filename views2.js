@@ -278,9 +278,8 @@ function showFolderTitleSkeleton() {
   el.innerHTML = `<div class="skeleton-folder-title"></div>`;
 }
 
-  titleEl.textContent = "";
-
 function setFolderTitle() {
+titleEl.textContent = "";
   const titleEl = document.getElementById("folderTitle");
   if (!titleEl) return;
 
