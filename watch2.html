@@ -428,6 +428,22 @@ function setViewCache(videoId, value) {
   localStorage.setItem("views_" + videoId, value);
   }
 
+  function wrapBtn(label, btn) {
+  const wrap = document.createElement("div");
+  wrap.style.display = "flex";
+  wrap.style.flexDirection = "column";
+  wrap.style.alignItems = "center";
+  wrap.style.gap = "2px";
+
+  const text = document.createElement("div");
+  text.textContent = label;
+  text.style.fontSize = "10px";
+
+  wrap.appendChild(text);
+  wrap.appendChild(btn);
+  return wrap;
+  }
+
 /* ---------------- PLAYER ---------------- */
 function loadPlayer() {
   const q = videoData.qualities[currentIndex];
@@ -985,10 +1001,10 @@ likeWrapper.appendChild(likeBtn);
 
   leftGroup.style.marginTop = "16px";
 
-  leftGroup.appendChild(shareBtn);
-leftGroup.appendChild(embedBtn);
-leftGroup.appendChild(downloadBtn);
-leftGroup.appendChild(donateBtn);
+  leftGroup.appendChild(wrapBtn("Share", shareBtn));
+leftGroup.appendChild(wrapBtn("Embed", embedBtn));
+leftGroup.appendChild(wrapBtn("Download", downloadBtn));
+leftGroup.appendChild(wrapBtn("Donate", donateBtn));
 
   /* RIGHT */
   const rightGroup = document.createElement("div");
