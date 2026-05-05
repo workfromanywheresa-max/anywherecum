@@ -391,26 +391,12 @@ function showSkeletons(count = 6) {
     const skel = document.createElement("div");
     skel.className = "skeleton-box";
 
-    const wrapper = document.createElement("div");
-    wrapper.style.display = "flex";
-    wrapper.style.flexDirection = "column";
-    wrapper.style.width = "100%";
-    wrapper.style.height = "auto"; // ✅ FIX
+    skel.innerHTML = `
+      <div class="skeleton-select"></div>
+      <div class="skeleton-thumb"></div>
+      <div class="skeleton-title"></div>
+    `;
 
-    const select = document.createElement("div");
-    select.className = "skeleton-select";
-
-    const thumb = document.createElement("div");
-    thumb.className = "skeleton-thumb";
-
-    const title = document.createElement("div");
-    title.className = "skeleton-title";
-
-    wrapper.appendChild(select);
-    wrapper.appendChild(thumb);
-    wrapper.appendChild(title);
-
-    skel.appendChild(wrapper);
     videosContainer.appendChild(skel);
   }
 }
