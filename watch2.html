@@ -1157,6 +1157,42 @@ setTimeout(() => {
     return;
   }
 
+  /* =========================
+     REMOVE REAL BUTTONS
+  ========================= */
+  function killButtons() {
+
+    const stacks = document.querySelectorAll(".btn-skeleton-wrap .skeleton-stack");
+
+    stacks.forEach(stack => {
+      const labelEl = stack.querySelector("div");
+      if (!labelEl) return;
+
+      const label = labelEl.textContent?.trim().toLowerCase();
+
+      if (label === "share" || label === "embed") {
+        stack.remove();
+      }
+    });
+  }
+
+  /* =========================
+     RUN ONCE
+  ========================= */
+  killButtons();
+
+  /* =========================
+     WATCH FOR LATE INJECTION
+  ========================= */
+  const observer = new MutationObserver(() => {
+    killButtons();
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
 })();
   </script>
   
