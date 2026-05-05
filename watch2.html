@@ -380,6 +380,18 @@ Watch high quality video streaming online. Updated daily with new content.
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
+
+  /* =========================
+   VIP STATE (GLOBAL EARLY)
+========================= */
+const params = new URLSearchParams(window.location.search);
+const folder = (params.get("folder") || "").toLowerCase();
+
+const isVIP =
+  folder.includes("vip") ||
+  folder.includes("🔓");
+
+console.log(isVIP ? "💎 VIP MODE" : "❌ NORMAL MODE");
   
 /* ---------------- FIREBASE ---------------- */
 const app = initializeApp({
@@ -497,34 +509,51 @@ function loadPlayer() {
   }, 8000);
 }
   
-/* ---------------- STACK UI ---------------- */
-function createStack(labelText, button) {
-  const stack = document.createElement("div");
-  stack.style.display = "flex";
-  stack.style.flexDirection = "column";
-  stack.style.alignItems = "center";
-  stack.style.justifyContent = "center";
-  stack.style.gap = "2px";
-  stack.style.minWidth = "55px";
+/* ---------------- STACK UI (SKELETON BUILDER) ---------------- */
+function buildSkeletonButtons() {
+  const row = document.getElementById("actionRow");
+  if (!row) return;
 
-  const label = document.createElement("div");
-  label.textContent = labelText;
-  label.style.fontSize = "10px";
-  label.style.color = "#aaa";
+  row.innerHTML = "";
 
-  button.style.width = "46px";
-  button.style.height = "28px";
-  button.style.border = "1px solid white";
-  button.style.borderRadius = "6px";
-  button.style.background = "transparent";
-  button.style.display = "flex";
-  button.style.alignItems = "center";
-  button.style.justifyContent = "center";
+  const wrap = document.createElement("div");
+  wrap.className = "btn-skeleton-wrap";
 
-  stack.appendChild(label);
-  stack.appendChild(button);
+  const makeStack = () => {
+    const stack = document.createElement("div");
+    stack.className = "skeleton-stack";
 
-  return stack;
+    stack.innerHTML = `
+      <div class="skeleton-label skeleton"></div>
+      <div class="skeleton-btn"></div>
+    `;
+    return stack;
+  };
+
+  /* ---------------- LEFT SIDE ---------------- */
+
+  // NORMAL MODE: Share, Embed, Download, Donate
+  if (!isVIP) {
+    wrap.appendChild(makeStack()); // Share
+    wrap.appendChild(makeStack()); // Embed
+  }
+
+  wrap.appendChild(makeStack()); // Download
+  wrap.appendChild(makeStack()); // Donate
+
+  /* ---------------- RIGHT SIDE ---------------- */
+
+  const right = document.createElement("div");
+  right.className = "skeleton-right";
+
+  right.innerHTML = `
+    <div class="skeleton-label skeleton" style="width:30px;"></div>
+    <div class="skeleton-label skeleton" style="width:40px;"></div>
+    <div class="skeleton-btn" style="width:46px;height:28px;"></div>
+  `;
+
+  row.appendChild(wrap);
+  row.appendChild(right);
 }
 
 /* ---------------- MODALS ---------------- */
@@ -991,8 +1020,10 @@ likeWrapper.appendChild(likeBtn);
 
   leftGroup.style.marginTop = "16px";
 
+  if (!isVIP) {
   leftGroup.appendChild(createStack("Share", shareBtn));
   leftGroup.appendChild(createStack("Embed", embedBtn));
+  }
   leftGroup.appendChild(createStack("Download", downloadBtn));
   leftGroup.appendChild(createStack("Donate", donateBtn));
 
