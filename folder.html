@@ -321,6 +321,57 @@ footer {
 #folderTitle.show {
   visibility: visible;
 }
+
+  /* ===== WRAPPER ===== */
+#gt-wrapper {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 9999;
+}
+
+/* ===== SKELETON ===== */
+#gt-skeleton {
+  width: 140px;              /* matches typical select width */
+  height: 24px;              /* based on 12px font + padding */
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    #2a2a2a 25%,
+    #3a3a3a 50%,
+    #2a2a2a 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+/* hide real widget until ready */
+#google_translate_element {
+  opacity: 0;
+}
+
+/* ===== YOUR ORIGINAL STYLES (unchanged) ===== */
+.goog-te-gadget {
+  font-size: 0 !important;
+  background: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.goog-te-gadget select.goog-te-combo {
+  font-size: 12px !important;
+  padding: 3px 6px !important;
+  background: #333 !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 4px;
+  margin: 0 !important;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
 </style>
 
 <!-- OneSignal -->
@@ -366,69 +417,26 @@ OneSignalDeferred.push(async function(OneSignal) {
   </script>
 
   <!-- Google Translate -->
-<div id="google_translate_element"></div>
+<div id="gt-wrapper">
+  <div id="gt-skeleton"></div>
+  <div id="google_translate_element"></div>
+</div>
 
-<style>
-/* ===== GOOGLE TRANSLATE FIX ===== */
-#google_translate_element {
-  position: fixed !important;
-  top: 0 !important;
-  right: 0 !important;
-  left: auto !important;
-  z-index: 9999;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-/* Main widget */
-.goog-te-gadget {
-  font-size: 0 !important; /* hides "Select Language" text */
-  background: transparent !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-/* Dropdown only */
-.goog-te-gadget select.goog-te-combo {
-  font-size: 12px !important;
-  padding: 3px 6px !important;
-  background: #333 !important;
-  color: #fff !important;
-  border: none !important;
-  border-radius: 4px;
-  margin: 0 !important;
-}
-
-/* Hide extra branding / links */
-.goog-te-gadget span,
-.goog-te-gadget a,
-.goog-logo-link,
-.goog-te-gadget .goog-te-combo + span {
-  display: none !important;
-}
-
-/* Hide banner */
-.goog-te-banner-frame.skiptranslate {
-  display: none !important;
-}
-
-/* Prevent page shift */
-body {
-  top: 0 !important;
-}
-</style>
-
-<script>
+  <script>
 function googleTranslateElementInit() {
   new google.translate.TranslateElement({
     pageLanguage: 'en',
     layout: google.translate.TranslateElement.InlineLayout.HORIZONTAL,
     includedLanguages: 'af,ar,az,be,bg,ca,zh-CN,zh-TW,hr,cs,da,nl,en,eo,et,fi,fr,de,el,he,hi,hu,is,id,it,ja,ko,lv,lt,mk,ms,mt,no,pl,pt,ro,ru,sr,sk,sl,es,sw,sv,th,tr,uk,vi'
   }, 'google_translate_element');
-}
-</script>
 
-<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  // wait for widget to render then swap
+  setTimeout(() => {
+    document.getElementById("gt-skeleton").style.display = "none";
+    document.getElementById("google_translate_element").style.opacity = "1";
+  }, 1200);
+}
+  </script>
   
   <div id="topBanner" style="
   position: fixed;
