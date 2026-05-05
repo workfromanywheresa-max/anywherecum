@@ -315,12 +315,13 @@ footer {
 }
 
   #folderTitle {
-  visibility: hidden;
-}
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  }
 
-#folderTitle.show {
-  visibility: visible;
-}
+  #folderTitle.show {
+  opacity: 1;
+  }
 </style>
 
 <!-- OneSignal -->
