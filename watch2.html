@@ -296,7 +296,7 @@ function updateVideoSchema(videoData) {
 <div class="container">
 
 <!-- TITLE -->
-  <h1 id="title" class="title"></h1>
+  <h1 id="title" class="title skeleton"></h1>
   <p style="font-size:11px; color:#aaa; text-align:center;">
 Watch high quality video streaming online. Updated daily with new content.
   </p>
@@ -1058,7 +1058,6 @@ function init() {
   watchLabel.textContent = "";
 
   const titleEl = document.getElementById("title");
-  titleEl.classList.add("skeleton");
   titleEl.textContent = "";
   if (!videoId) {
     titleEl.textContent = "No video selected";
