@@ -412,6 +412,38 @@ footer {
   pointer-events: none;
 }
 
+    /* Skeleton wrapper */
+.latest-video-skeleton {
+  position: relative;
+  height: 210px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #111;
+}
+
+/* Shimmer layer */
+.latest-video-skeleton::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    #111 25%,
+    #2a2a2a 50%,
+    #111 75%
+  );
+  animation: shimmerLatest 1.2s infinite;
+}
+
+/* Animation */
+@keyframes shimmerLatest {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(200%); }
+}
   </style>
   
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -649,8 +681,9 @@ function googleTranslateElementInit() {
   </div>
   
 <h2>🎥 Latest Video 🎥</h2>
+<div id="latestVideoSkeleton" class="latest-video-skeleton"></div>
 <div id="latestVideo"></div>
-
+  
   <div style="display:flex; justify-content:center; margin: 30px 0;">
   <a href="competition.html"
      style="
@@ -1126,20 +1159,23 @@ async function loadVideos() {
 
       const latestDiv = document.getElementById("latestVideo");
 
-      if (latestDiv) {
-        latestDiv.innerHTML = "";
+if (latestDiv) {
 
-        const li = createPreviewItem(
-          latest,
-          "folder.html?folder=" + encodeURIComponent(latest.folder),
-          "Watch Now: New Video Available!",
-          latest.folder,
-          vipGlobal.active,
-          false
-        );
+  // ✅ REMOVE SKELETON FIRST
+  latestDiv.innerHTML = "";
+  document.getElementById("latestVideoSkeleton")?.remove();
 
-        latestDiv.appendChild(li);
-      }
+  const li = createPreviewItem(
+    latest,
+    "folder.html?folder=" + encodeURIComponent(latest.folder),
+    "Watch Now: New Video Available!",
+    latest.folder,
+    vipGlobal.active,
+    false
+  );
+
+  latestDiv.appendChild(li);
+}
     }
 
   } catch (err) {
