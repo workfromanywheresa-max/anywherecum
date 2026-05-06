@@ -836,7 +836,7 @@ function googleTranslateElementInit() {
        width:100%;
      ">
     Click here to unlock VIP Exlusive Free
-    [<span id="miniCountdown" style="color:#00ffcc;">0d:00h:00m:00s</span>]
+    <span id="miniCountdown" style="color:#00ffcc;">[0d:00h:00m:00s]</span>
   </a>
   </div>
 
@@ -1860,7 +1860,7 @@ function formatTime(diff) {
   const m = Math.floor((total % 3600) / 60);
   const s = total % 60;
 
-  return `(${d}d:${String(h).padStart(2,"0")}h:${String(m).padStart(2,"0")}m:${String(s).padStart(2,"0")}s)`;
+  return `[${d}d:${String(h).padStart(2,"0")}h:${String(m).padStart(2,"0")}m:${String(s).padStart(2,"0")}s]`;
 }
 
 /* ================= RENDER ================= */
