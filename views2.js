@@ -402,21 +402,12 @@ function countDownloadOnce(videoId) {
 /* ---------------- CONTAINER ---------------- */
 const videosContainer = document.getElementById("normalVideos");
 
-function showSkeletons(count = 10) {
-  videosContainer.innerHTML = "";
+function hideSkeletons() {
+  document.getElementById("skeletonContainer")?.classList.add("hidden");
+}
 
-  for (let i = 0; i < count; i++) {
-    const skel = document.createElement("div");
-    skel.className = "skeleton-box";
-
-    skel.innerHTML = `
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    `;
-
-    videosContainer.appendChild(skel);
-  }
+function showSkeletons() {
+  document.getElementById("skeletonContainer")?.classList.remove("hidden");
 }
 
 function scrollToVideoFromHash() {
@@ -1069,11 +1060,13 @@ function reorderVideos(force = false) {
 /* ---------------- LOAD ---------------- */
 showFolderTitleSkeleton();
 setFolderTitle();
-showSkeletons(10); // 👈 inject loading UI first
+showSkeletons(); // 👈 inject loading UI first
 
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
+
+    hideSkeletons();
     
     showFolderTitleSkeleton();
     setFolderTitle(); 
