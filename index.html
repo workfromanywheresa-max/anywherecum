@@ -1494,133 +1494,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 })();
   </script>
-
-  <script type="module">
-const API = "https://competition.workfromanywhere-sa.workers.dev";
-
-/* ================= SESSION ID ================= */
-function getSessionId() {
-  let id = sessionStorage.getItem("ac_session_id");
-
-  if (!id) {
-    id = crypto.randomUUID();
-    sessionStorage.setItem("ac_session_id", id);
-  }
-
-  return id;
-}
-
-const SESSION_ID = getSessionId();
-
-/* ================= CACHE KEYS ================= */
-const LS_KEY = "ac:vip:end_time";
-const SS_KEY = `ac:vip:end_time:${SESSION_ID}`;
-
-/* ================= STATE ================= */
-let endTime = null;
-let intervalId = null;
-let pollId = null;
-let lastRendered = "";
-
-/* ================= CACHE ================= */
-function getCachedTime() {
-  const session = Number(sessionStorage.getItem(SS_KEY));
-  const local = Number(localStorage.getItem(LS_KEY));
-
-  const sessionValid = Number.isFinite(session) ? session : null;
-  const localValid = Number.isFinite(local) ? local : null;
-
-  return sessionValid ?? localValid ?? null;
-}
-
-function setCachedTime(time) {
-  localStorage.setItem(LS_KEY, String(time));
-  sessionStorage.setItem(SS_KEY, String(time));
-}
-
-/* ================= FORMAT ================= */
-function formatTime(diff) {
-  if (diff <= 0) return "(ended)";
-
-  const total = Math.floor(diff / 1000);
-
-  const d = Math.floor(total / 86400);
-  const h = Math.floor((total % 86400) / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
-
-  return `(${d}d:${String(h).padStart(2,"0")}h:${String(m).padStart(2,"0")}m:${String(s).padStart(2,"0")}s)`;
-}
-
-/* ================= RENDER ================= */
-function renderTimer() {
-  const el = document.getElementById("miniCountdown");
-  if (!el || !endTime) return;
-
-  const diff = endTime - Date.now();
-  const formatted = formatTime(diff);
-
-  if (formatted !== lastRendered) {
-    lastRendered = formatted;
-    el.innerText = formatted;
-  }
-}
-
-/* ================= TIMER LOOP ================= */
-function startTimer() {
-  if (intervalId) return;
-
-  intervalId = setInterval(renderTimer, 1000);
-}
-
-/* ================= KV POLLING ================= */
-async function fetchStatus() {
-  try {
-    const res = await fetch(API + "/status", {
-      cache: "no-store"
-    });
-
-    const data = await res.json();
-
-    const newTime = Number(data?.end_time);
-
-    // only accept valid timestamp
-    if (Number.isFinite(newTime) && newTime > 0) {
-      if (newTime !== endTime) {
-        endTime = newTime;
-        setCachedTime(newTime);
-        renderTimer();
-      }
-    }
-  } catch (err) {
-    console.log("KV fetch failed:", err);
-  }
-}
-
-function startPolling() {
-  if (pollId) return;
-
-  fetchStatus(); // immediate first load
-
-  pollId = setInterval(fetchStatus, 5000);
-}
-
-/* ================= INIT ================= */
-function init() {
-  const el = document.getElementById("miniCountdown");
-  if (!el) return;
-
-  // instant load (no flicker)
-  endTime = getCachedTime();
-
-  if (endTime) renderTimer();
-
-  startTimer();
-  startPolling();
-}
-
-document.addEventListener("DOMContentLoaded", init);
-  </script>
   
   <script>  
 const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";  
@@ -1891,6 +1764,155 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
   </script>
+
+  <script type="module">
+const API = "https://competition.workfromanywhere-sa.workers.dev";
+
+/* ================= SESSION ID ================= */
+function getSessionId() {
+  let id = sessionStorage.getItem("ac_session_id");
+
+  if (!id) {
+    id = crypto.randomUUID();
+    sessionStorage.setItem("ac_session_id", id);
+  }
+
+  return id;
+}
+
+const SESSION_ID = getSessionId();
+
+/* ================= CACHE KEYS ================= */
+const LS_TIME_KEY = "ac:vip:end_time";
+const SS_TIME_KEY = `ac:vip:end_time:${SESSION_ID}`;
+
+const LS_FMT_KEY = "ac:vip:end_fmt";
+const SS_FMT_KEY = `ac:vip:end_fmt:${SESSION_ID}`;
+
+/* ================= STATE ================= */
+let endTime = null;
+let intervalId = null;
+let pollId = null;
+
+/* ================= CACHE ================= */
+function getCachedTime() {
+  const session = Number(sessionStorage.getItem(SS_TIME_KEY));
+  const local = Number(localStorage.getItem(LS_TIME_KEY));
+
+  const s = Number.isFinite(session) ? session : null;
+  const l = Number.isFinite(local) ? local : null;
+
+  return s ?? l ?? null;
+}
+
+function setCachedTime(time) {
+  localStorage.setItem(LS_TIME_KEY, String(time));
+  sessionStorage.setItem(SS_TIME_KEY, String(time));
+}
+
+/* cache formatted string too (prevents flicker) */
+function getCachedFormatted() {
+  return sessionStorage.getItem(SS_FMT_KEY) || localStorage.getItem(LS_FMT_KEY);
+}
+
+function setCachedFormatted(str) {
+  localStorage.setItem(LS_FMT_KEY, str);
+  sessionStorage.setItem(SS_FMT_KEY, str);
+}
+
+/* ================= FORMAT ================= */
+function formatTime(diff) {
+  if (diff <= 0) return "(ended)";
+
+  const total = Math.floor(diff / 1000);
+
+  const d = Math.floor(total / 86400);
+  const h = Math.floor((total % 86400) / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+
+  return `(${d}d:${String(h).padStart(2,"0")}h:${String(m).padStart(2,"0")}m:${String(s).padStart(2,"0")}s)`;
+}
+
+/* ================= RENDER ================= */
+function render(force = false) {
+  const el = document.getElementById("miniCountdown");
+  if (!el) return;
+
+  if (!endTime) return;
+
+  const diff = endTime - Date.now();
+  const formatted = formatTime(diff);
+
+  // prevent useless DOM writes (major flicker source)
+  if (!force && el.innerText === formatted) return;
+
+  el.innerText = formatted;
+  setCachedFormatted(formatted);
+}
+
+/* ================= TIMER ================= */
+function startTimer() {
+  if (intervalId) return;
+
+  intervalId = setInterval(() => render(false), 1000);
+}
+
+/* ================= KV POLLING ================= */
+async function fetchStatus() {
+  try {
+    const res = await fetch(API + "/status", { cache: "no-store" });
+    const data = await res.json();
+
+    const newTime = Number(data?.end_time);
+
+    if (Number.isFinite(newTime) && newTime > 0 && newTime !== endTime) {
+      endTime = newTime;
+      setCachedTime(newTime);
+
+      // immediate render update
+      render(true);
+    }
+  } catch (err) {
+    console.log("KV fetch failed:", err);
+  }
+}
+
+function startPolling() {
+  if (pollId) return;
+
+  fetchStatus();
+  pollId = setInterval(fetchStatus, 5000);
+}
+
+/* ================= INIT ================= */
+function init() {
+  const el = document.getElementById("miniCountdown");
+  if (!el) return;
+
+  // 1. hydrate instantly (NO blank state)
+  endTime = getCachedTime();
+
+  const cachedFmt = getCachedFormatted();
+
+  if (cachedFmt && !endTime) {
+    el.innerText = cachedFmt; // instant stable UI
+  }
+
+  // 2. if we do have time, render immediately
+  if (endTime) {
+    render(true);
+  }
+
+  // 3. start loops AFTER first paint
+  requestAnimationFrame(() => {
+    startTimer();
+    startPolling();
+  });
+}
+
+document.addEventListener("DOMContentLoaded", init);
+                                     </script>
   
   <script type="module" src="views.js"></script>
 
