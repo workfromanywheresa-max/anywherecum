@@ -1772,17 +1772,18 @@ const API = "https://competition.workfromanywhere-sa.workers.dev";
 const CACHE_KEY = "ac:vip:end_time";
 
 function saveCache(v) {
-  localStorage.setItem(CACHE_KEY, JSON.stringify(v));
+  localStorage.setItem(CACHE_KEY, String(v));
 }
 
 function loadCache() {
-  return JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
+  const v = Number(localStorage.getItem(CACHE_KEY));
+  return Number.isFinite(v) ? v : null;
 }
 
 /* ================= STATE ================= */
 let endTime = null;
-let intervalId = null;
-let pollId = null;
+let lastRenderText = "";
+let lastServerTime = 0;
 
 /* ================= FORMAT ================= */
 function formatTime(diff) {
@@ -1798,27 +1799,29 @@ function formatTime(diff) {
   return `(${d}d:${String(h).padStart(2,"0")}h:${String(m).padStart(2,"0")}m:${String(s).padStart(2,"0")}s)`;
 }
 
-/* ================= RENDER ================= */
-function render() {
+/* ================= RENDER (NO FLICKER CORE) ================= */
+function render(force = false) {
   const el = document.getElementById("miniCountdown");
   if (!el || !endTime) return;
 
   const diff = endTime - Date.now();
   const text = formatTime(diff);
 
-  if (el.innerText === text) return;
+  // 🔥 HARD GUARD: prevents ANY unnecessary DOM write
+  if (!force && text === lastRenderText) return;
 
-  el.innerText = text;
+  el.textContent = text;
+  lastRenderText = text;
 }
 
-/* ================= TIMER ================= */
+/* ================= TIMER (UI ONLY, NO API) ================= */
 function startTimer() {
-  if (intervalId) return;
-
-  intervalId = setInterval(render, 1000);
+  setInterval(() => {
+    render(false);
+  }, 1000);
 }
 
-/* ================= FETCH ================= */
+/* ================= FETCH (DATA ONLY, NO UI BLINK) ================= */
 async function fetchStatus() {
   try {
     const res = await fetch(API + "/status", { cache: "no-store" });
@@ -1827,10 +1830,15 @@ async function fetchStatus() {
     const newTime = Number(data?.end_time);
     if (!Number.isFinite(newTime)) return;
 
-    if (newTime !== endTime) {
+    // 🔥 ONLY update if server value changed
+    if (newTime !== lastServerTime) {
+      lastServerTime = newTime;
       endTime = newTime;
-      saveCache(endTime);
-      render();
+
+      saveCache(newTime);
+
+      // force render ONCE only (no flicker because timer handles updates)
+      render(true);
     }
 
   } catch (err) {
@@ -1838,33 +1846,33 @@ async function fetchStatus() {
   }
 }
 
+/* ================= POLLING ================= */
 function startPolling() {
-  if (pollId) return;
-
   fetchStatus();
-  pollId = setInterval(fetchStatus, 5000);
+  setInterval(fetchStatus, 5000);
 }
 
-/* ================= INIT ================= */
-function init() {
+/* ================= INIT (CACHE-FIRST LIKE ADMIN) ================= */
+document.addEventListener("DOMContentLoaded", () => {
   const el = document.getElementById("miniCountdown");
   if (!el) return;
 
-  /* 1. CACHE FIRST (like your admin dashboard) */
+  // 1. INSTANT CACHE LOAD (zero blank state)
   const cached = loadCache();
 
   if (cached) {
     endTime = cached;
-    render();
+    lastServerTime = cached;
+    render(true);
   }
 
-  /* 2. START LOOPS */
+  // 2. start UI loop immediately
   startTimer();
-  startPolling();
-}
 
-document.addEventListener("DOMContentLoaded", init);
-    </script>
+  // 3. start background sync
+  startPolling();
+});
+  </script>
   
   <script type="module" src="views.js"></script>
 
