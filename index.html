@@ -1496,20 +1496,7 @@ document.addEventListener("DOMContentLoaded", () => {
   </script>
 
   <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
 const API = "https://competition.workfromanywhere-sa.workers.dev";
-
-const firebaseConfig = {
-  databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-let endTime = null;
-let intervalId = null;
 
 /* ================= SESSION ID ================= */
 function getSessionId() {
@@ -1525,19 +1512,25 @@ function getSessionId() {
 
 const SESSION_ID = getSessionId();
 
-/* ================= CLEAN CACHE KEYS ================= */
+/* ================= CACHE KEYS ================= */
 const LS_KEY = "ac:vip:end_time";
 const SS_KEY = `ac:vip:end_time:${SESSION_ID}`;
 
-/* ================= CACHE (UNIFIED) ================= */
+/* ================= STATE ================= */
+let endTime = null;
+let intervalId = null;
+let pollId = null;
+let lastRendered = "";
+
+/* ================= CACHE ================= */
 function getCachedTime() {
   const session = Number(sessionStorage.getItem(SS_KEY));
-  if (!isNaN(session)) return session;
-
   const local = Number(localStorage.getItem(LS_KEY));
-  if (!isNaN(local)) return local;
 
-  return null;
+  const sessionValid = Number.isFinite(session) ? session : null;
+  const localValid = Number.isFinite(local) ? local : null;
+
+  return sessionValid ?? localValid ?? null;
 }
 
 function setCachedTime(time) {
@@ -1564,25 +1557,35 @@ function renderTimer() {
   const el = document.getElementById("miniCountdown");
   if (!el || !endTime) return;
 
-  el.innerText = formatTime(endTime - Date.now());
+  const diff = endTime - Date.now();
+  const formatted = formatTime(diff);
+
+  if (formatted !== lastRendered) {
+    lastRendered = formatted;
+    el.innerText = formatted;
+  }
 }
 
-/* ================= LOOP ================= */
+/* ================= TIMER LOOP ================= */
 function startTimer() {
   if (intervalId) return;
 
   intervalId = setInterval(renderTimer, 1000);
 }
 
-/* ================= SERVER ================= */
-async function loadStatus() {
+/* ================= KV POLLING ================= */
+async function fetchStatus() {
   try {
-    const res = await fetch(API + "/status", { cache: "no-store" });
+    const res = await fetch(API + "/status", {
+      cache: "no-store"
+    });
+
     const data = await res.json();
 
-    if (data?.end_time) {
-      const newTime = Number(data.end_time);
+    const newTime = Number(data?.end_time);
 
+    // only accept valid timestamp
+    if (Number.isFinite(newTime) && newTime > 0) {
       if (newTime !== endTime) {
         endTime = newTime;
         setCachedTime(newTime);
@@ -1590,8 +1593,16 @@ async function loadStatus() {
       }
     }
   } catch (err) {
-    console.log("Status load failed", err);
+    console.log("KV fetch failed:", err);
   }
+}
+
+function startPolling() {
+  if (pollId) return;
+
+  fetchStatus(); // immediate first load
+
+  pollId = setInterval(fetchStatus, 5000);
 }
 
 /* ================= INIT ================= */
@@ -1599,20 +1610,13 @@ function init() {
   const el = document.getElementById("miniCountdown");
   if (!el) return;
 
-  // ⚡ instant load (NO FLICKER)
+  // instant load (no flicker)
   endTime = getCachedTime();
 
   if (endTime) renderTimer();
 
   startTimer();
-  loadStatus();
-
-  // Firebase listener
-  const entriesRef = ref(db, "entries");
-  onValue(entriesRef, (snapshot) => {
-    const data = snapshot.val();
-    console.log("Entries:", data ? Object.keys(data).length : 0);
-  });
+  startPolling();
 }
 
 document.addEventListener("DOMContentLoaded", init);
