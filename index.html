@@ -1432,9 +1432,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   renderSkeletons(8); // show instantly
 
-  requestAnimationFrame(() => {
-    loadVideos().then(() => startVipCountdown());
-  });
+  loadVideos().then(() => startVipCountdown());
 });
   </script>
     
