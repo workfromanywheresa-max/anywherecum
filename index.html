@@ -1542,11 +1542,7 @@ function renderTimer() {
   const el = document.getElementById("miniCountdown");
   if (!el) return;
 
-  if (!endTime) {
-    // 🔥 reserve space ALWAYS (no blank UI)
-    el.innerText = "(0d:00h:00m:00s)";
-    return;
-  }
+  if (!endTime) return; // 🔥 NEVER overwrite cached UI
 
   const diff = endTime - Date.now();
   el.innerText = formatTime(diff);
@@ -1556,7 +1552,10 @@ function renderTimer() {
 function startTimer() {
   if (intervalId) return;
 
-  // 🔥 render instantly before first tick
+  // 🔥 ensure cache is used immediately
+  if (!endTime) endTime = getCachedEndTime();
+
+  // render instantly from cache
   renderTimer();
 
   intervalId = setInterval(renderTimer, 1000);
@@ -1573,7 +1572,7 @@ async function loadStatus() {
 
       if (!endTime || newTime !== endTime) {
         setCachedEndTime(newTime);
-        renderTimer(); // 🔥 instant update
+        renderTimer(); // update without reset blink
       }
     }
   } catch (e) {
@@ -1586,16 +1585,23 @@ function init() {
   const el = document.getElementById("miniCountdown");
   if (!el) return;
 
-  // 🔥 1. LOAD CACHE
+  // 🔥 STEP 1: load cache instantly
   endTime = getCachedEndTime();
 
-  // 🔥 2. START TIMER (handles rendering too)
+  // 🔥 STEP 2: render immediately (NO 00:00 FLASH)
+  if (endTime) {
+    renderTimer();
+  } else {
+    el.innerText = "(0d:00h:00m:00s)";
+  }
+
+  // 🔥 STEP 3: start live timer
   startTimer();
 
-  // 🔥 3. FETCH IN BACKGROUND
+  // 🔥 STEP 4: update from server in background
   loadStatus();
 
-  // 🔥 4. FIREBASE (unchanged)
+  // Firebase listener (unchanged)
   const entriesRef = ref(db, "entries");
   onValue(entriesRef, (snapshot) => {
     const data = snapshot.val();
@@ -1604,7 +1610,7 @@ function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
-  </script>
+</script>
   
   <script>  
 const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";  
