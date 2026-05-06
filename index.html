@@ -1521,13 +1521,12 @@ initializeApp(firebaseConfig);
 
 let endTime = null;
 let timerInterval = null;
-
-const miniCountdownEl = document.getElementById("miniCountdown");
+let miniCountdownEl;
 
 /* ================= CACHE ================= */
-const savedTime = localStorage.getItem("vip_end_time");
-if (savedTime) {
-  endTime = Number(savedTime);
+const savedTime = Number(localStorage.getItem("vip_end_time"));
+if (savedTime && !isNaN(savedTime)) {
+  endTime = savedTime;
 }
 
 /* ================= LOAD STATUS ================= */
@@ -1536,7 +1535,7 @@ async function loadStatus() {
     const res = await fetch(API + "/status");
     const data = await res.json();
 
-    if (data?.end_time) {
+    if (data?.end_time && !isNaN(Number(data.end_time))) {
       endTime = Number(data.end_time);
       localStorage.setItem("vip_end_time", endTime);
     }
@@ -1547,7 +1546,7 @@ async function loadStatus() {
   }
 }
 
-/* ================= TIMER (FIXED LIKE MAIN ONE) ================= */
+/* ================= TIMER ================= */
 function startTimer() {
   if (!miniCountdownEl || !endTime) return;
 
@@ -1578,11 +1577,12 @@ function startTimer() {
 }
 
 /* ================= INIT ================= */
-async function init() {
-  await loadStatus();
+function init() {
+  miniCountdownEl = document.getElementById("miniCountdown");
+  loadStatus();
 }
 
-init();
+document.addEventListener("DOMContentLoaded", init);
   </script>
   
   <script>  
