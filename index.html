@@ -1511,16 +1511,42 @@ const db = getDatabase(app);
 let endTime = null;
 let intervalId = null;
 
-/* ================= CACHE (GLOBAL) ================= */
-function getCachedEndTime() {
-  const saved = localStorage.getItem("vip_end_time");
+/* ================= SESSION ID ================= */
+function getSessionId() {
+  let id = sessionStorage.getItem("vip_session_id");
+  if (!id) {
+    id = crypto.randomUUID();
+    sessionStorage.setItem("vip_session_id", id);
+  }
+  return id;
+}
+
+const SESSION_ID = getSessionId();
+
+/* ================= CACHE KEYS ================= */
+const LS_KEY = "vip_end_time";
+const SS_KEY = "vip_end_time_" + SESSION_ID;
+
+/* ================= GLOBAL CACHE ================= */
+function getLocalCache() {
+  const saved = localStorage.getItem(LS_KEY);
   const num = Number(saved);
   return isNaN(num) ? null : num;
 }
 
-function setCachedEndTime(time) {
-  localStorage.setItem("vip_end_time", String(time));
-  endTime = time;
+function setLocalCache(time) {
+  localStorage.setItem(LS_KEY, String(time));
+}
+
+/* ================= SESSION CACHE ================= */
+function getSessionCache() {
+  const saved = sessionStorage.getItem(SS_KEY);
+  const num = Number(saved);
+  return isNaN(num) ? null : num;
+}
+
+function setSessionCache(time) {
+  sessionStorage.setItem(SS_KEY, String(time));
 }
 
 /* ================= FORMAT ================= */
@@ -1549,8 +1575,27 @@ function renderTimer() {
 /* ================= LOOP ================= */
 function startTimer() {
   if (intervalId) return;
-
   intervalId = setInterval(renderTimer, 1000);
+}
+
+/* ================= SET CACHE (BOTH LEVELS) ================= */
+function setCachedTime(time) {
+  endTime = time;
+  setLocalCache(time);
+  setSessionCache(time);
+}
+
+/* ================= LOAD FASTEST POSSIBLE VALUE ================= */
+function getBestCachedTime() {
+  // 🔥 session first (fastest, no flicker)
+  const session = getSessionCache();
+  if (session) return session;
+
+  // then global localStorage
+  const local = getLocalCache();
+  if (local) return local;
+
+  return null;
 }
 
 /* ================= SERVER ================= */
@@ -1562,10 +1607,9 @@ async function loadStatus() {
     if (data?.end_time) {
       const newTime = Number(data.end_time);
 
-      // update only if changed
       if (!endTime || newTime !== endTime) {
-        setCachedEndTime(newTime);
-        renderTimer(); // instant update, no flicker
+        setCachedTime(newTime);
+        renderTimer();
       }
     }
   } catch (e) {
@@ -1573,26 +1617,25 @@ async function loadStatus() {
   }
 }
 
-/* ================= INIT (IMPORTANT PART) ================= */
+/* ================= INIT ================= */
 function init() {
   const el = document.getElementById("miniCountdown");
   if (!el) return;
 
-  // 🔥 1. LOAD CACHE FIRST (before ANY render logic)
-  endTime = getCachedEndTime();
+  // 🔥 1. INSTANT LOAD FROM SESSION CACHE (NO FLICKER EVER)
+  endTime = getBestCachedTime();
 
-  // 🔥 2. INSTANT PAINT FROM CACHE (NO 00:00 EVER)
   if (endTime) {
     renderTimer();
   }
 
-  // 🔥 3. START LOOP
+  // 🔥 2. START LIVE TIMER LOOP IMMEDIATELY
   startTimer();
 
-  // 🔥 4. SERVER UPDATE (background only)
+  // 🔥 3. BACKGROUND SYNC (does NOT affect UI instantly)
   loadStatus();
 
-  // Firebase listener (unchanged)
+  // Firebase listener
   const entriesRef = ref(db, "entries");
   onValue(entriesRef, (snapshot) => {
     const data = snapshot.val();
@@ -1601,7 +1644,7 @@ function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
-                                     </script>
+                                  </script>
   
   <script>  
 const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";  
