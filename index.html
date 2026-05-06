@@ -1278,11 +1278,10 @@ for (let i = 0; i < SKELETON_COUNT; i++) {
 }
 
 /* =========================
-   2. FORCE VISUAL RENDER TIME
-   (IMPORTANT FIX)
+   2. SMALL UX BUFFER (optional)
+   views2.js uses natural async loading instead of forced paint sync
 ========================= */
-await new Promise(requestAnimationFrame);
-await new Promise(r => setTimeout(r, 500));
+await new Promise(r => setTimeout(r, 0));
 
 /* =========================
    3. CLEAR SKELETONS
@@ -1315,7 +1314,6 @@ folderNames = [...vipFolders, ...normalFolders];
 folderNames.forEach(folderName => {
 
   const list = folders[folderName];
-
   if (!list || !list.length) return;
 
   const latest = list.sort(
