@@ -1257,86 +1257,97 @@ async function loadVideos() {
 if (!folderList) return;
 
 /* =========================
-   1. SHOW SKELETONS FIRST
+   1. FORCE INSTANT SKELETON PAINT
 ========================= */
 folderList.innerHTML = "";
 
-const SKELETON_COUNT = 8;
+/* IMPORTANT: allow browser to paint FIRST */
+setTimeout(() => {
 
-for (let i = 0; i < SKELETON_COUNT; i++) {
-  const li = document.createElement("li");
-  li.className = "folder-skeleton";
+  const SKELETON_COUNT = 8;
 
-  li.innerHTML = `
-    <div class="video-skel"></div>
-    <div class="title-skel">
-      <div class="line"></div>
-    </div>
-  `;
+  for (let i = 0; i < SKELETON_COUNT; i++) {
+    const li = document.createElement("li");
+    li.className = "folder-skeleton";
 
-  folderList.appendChild(li);
-}
+    li.innerHTML = `
+      <div class="video-skel"></div>
+      <div class="title-skel">
+        <div class="line"></div>
+      </div>
+    `;
 
-/* =========================
-   2. SMALL UX BUFFER (optional)
-   views2.js uses natural async loading instead of forced paint sync
-========================= */
-await new Promise(r => setTimeout(r, 0));
+    folderList.appendChild(li);
+  }
 
-/* =========================
-   3. CLEAR SKELETONS
-========================= */
-folderList.innerHTML = "";
+}, 0);
+
 
 /* =========================
-   4. BUILD FOLDER DATA
+   2. LOAD DATA AFTER PAINT
 ========================= */
-let folderNames = Object.keys(folders);
+setTimeout(() => {
 
-const vipName = VIP_FOLDER.trim().toLowerCase();
+  try {
 
-/* =========================
-   5. PIN VIP FIRST
-========================= */
-const vipFolders = folderNames.filter(f =>
-  f.trim().toLowerCase() === vipName
-);
+    /* =========================
+       CLEAR SKELETONS
+    ========================= */
+    folderList.innerHTML = "";
 
-const normalFolders = folderNames.filter(f =>
-  f.trim().toLowerCase() !== vipName
-);
+    /* =========================
+       BUILD DATA
+    ========================= */
+    let folderNames = Object.keys(folders || {});
 
-folderNames = [...vipFolders, ...normalFolders];
+    const vipName = (VIP_FOLDER || "").trim().toLowerCase();
 
-/* =========================
-   6. RENDER REAL FOLDERS
-========================= */
-folderNames.forEach(folderName => {
+    const vipFolders = folderNames.filter(f =>
+      f.trim().toLowerCase() === vipName
+    );
 
-  const list = folders[folderName];
-  if (!list || !list.length) return;
+    const normalFolders = folderNames.filter(f =>
+      f.trim().toLowerCase() !== vipName
+    );
 
-  const latest = list.sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
-  )[0];
+    folderNames = [...vipFolders, ...normalFolders];
 
-  const folderURL =
-    "folder.html?folder=" + encodeURIComponent(folderName);
+    /* =========================
+       RENDER FOLDERS
+    ========================= */
+    folderNames.forEach(folderName => {
 
-  const isVipFolder =
-    folderName.trim().toLowerCase() === vipName;
+      const list = folders[folderName];
+      if (!list || !list.length) return;
 
-  const li = createPreviewItem(
-    latest,
-    folderURL,
-    folderName,
-    folderName,
-    vipGlobal.active,
-    isVipFolder
-  );
+      const latest = list.sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      )[0];
 
-  folderList.appendChild(li);
-});
+      const folderURL =
+        "folder.html?folder=" + encodeURIComponent(folderName);
+
+      const isVipFolder =
+        folderName.trim().toLowerCase() === vipName;
+
+      const li = createPreviewItem(
+        latest,
+        folderURL,
+        folderName,
+        folderName,
+        vipGlobal?.active,
+        isVipFolder
+      );
+
+      folderList.appendChild(li);
+    });
+
+  } catch (err) {
+    console.error("Folder render error:", err);
+    folderList.innerHTML = "<p style='color:white'>Failed to load folders</p>";
+  }
+
+}, 50);
     
     // =========================
     // LATEST VIDEO SECTION
