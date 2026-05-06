@@ -368,24 +368,19 @@ Watch high quality video streaming online. Updated daily with new content.
 
   <!-- =========================
      MOBILE AD (TOP)
-     Desktop hidden
 ========================= -->
-<div class="ad-slot mobile-ad">
+<div class="ad-slot mobile-ad hidden-ad">
   <ins id="1113665" data-width="300" data-height="112"></ins>
 </div>
 
 <!-- =========================
      DESKTOP AD (BOTTOM)
-     Mobile hidden
 ========================= -->
-<div class="ad-slot desktop-ad">
+<div class="ad-slot desktop-ad hidden-ad">
   <ins id="1113664" data-width="308" data-height="298"></ins>
 </div>
 
-<!-- =========================
-     SHARED AD CSS (CLS SAFE)
-========================= -->
-<style id="ad-style">
+<style>
 .ad-slot {
   margin: 20px auto;
   display: flex;
@@ -397,52 +392,54 @@ Watch high quality video streaming online. Updated daily with new content.
   position: relative;
 }
 
-/* MOBILE AD SIZE */
+/* MOBILE */
 .mobile-ad {
   width: 300px;
   height: 112px;
 }
 
-/* DESKTOP AD SIZE */
+/* DESKTOP */
 .desktop-ad {
   width: 308px;
   height: 298px;
 }
 
-/* hide desktop on mobile */
+/* hidden initially */
+.hidden-ad {
+  visibility: hidden;
+}
+
+/* responsive */
 @media (max-width: 768px) {
   .desktop-ad {
     display: none;
   }
 }
 
-/* hide mobile on desktop */
 @media (min-width: 769px) {
   .mobile-ad {
     display: none;
   }
 }
 
-/* ensure ad sits cleanly */
 .ad-slot ins {
   position: relative;
   z-index: 1;
 }
 </style>
 
-<!-- =========================
-     JUICYADS SCRIPT (ONCE ONLY)
-========================= -->
+<!-- JUICYADS -->
 <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
 
 <script type="text/javascript" data-cfasync="false">
   (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113665});
   (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113664});
 
-  // REMOVE CSS AFTER 15 SECONDS
+  // SHOW ADS AFTER 15 SECONDS
   setTimeout(() => {
-    const style = document.getElementById("ad-style");
-    if (style) style.remove();
+    document.querySelectorAll('.hidden-ad').forEach(ad => {
+      ad.style.visibility = 'visible';
+    });
   }, 15000);
 </script>
   
