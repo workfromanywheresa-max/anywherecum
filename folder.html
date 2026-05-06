@@ -182,7 +182,14 @@ footer {
 }
 
 /* =========================
-   SKELETON BOX (MATCH VIDEOBOX EXACTLY)
+   MATCH GRID SPACING EXACTLY
+========================= */
+#skeletonContainer {
+  display: contents; /* keeps grid gap working naturally */
+}
+
+/* =========================
+   SKELETON BOX (NO EXTRA INTERNAL MARGIN CONFLICT)
 ========================= */
 .skeleton-box {
   background: #222;
@@ -199,69 +206,56 @@ footer {
 
   padding: 20px;
 
-  align-content: flex-start; /* ✅ FIX: prevents internal stretch jump */
+  align-content: flex-start;
 }
 
 /* =========================
-   MATCH GRID BEHAVIOR
+   REMOVE "FAKE SPACING SHIFT" INSIDE SKELETON
 ========================= */
-#skeletonContainer {
-  display: contents;
+.skeleton-thumb,
+.skeleton-title,
+.skeleton-select {
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* =========================
-   THUMB (FIXED STABILITY)
-========================= */
+/* IMPORTANT: remove bottom margin that causes spacing mismatch */
 .skeleton-thumb {
   width: 100%;
   aspect-ratio: 16 / 9;
-
-  /* ❌ FIX: remove min-height (this causes jump) */
-  min-height: unset;
-
-  height: 180px; /* ✅ FIX: locks exact match with iframe */
+  height: 180px;
 
   border-radius: 8px;
   flex-shrink: 0;
 
-  background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-
-  margin-bottom: 6px;
-}
-
-/* =========================
-   SELECT (STABLE MATCH)
-========================= */
-.skeleton-select {
-  display: block;
-  width: fit-content;
-  max-width: 90%;
-
-  margin: 6px auto;
-  padding: 5px 10px;
-  border-radius: 5px;
-
-  min-width: unset;
-  height: 26px;
+  margin-bottom: 0; /* ✅ FIX: grid gap handles spacing now */
 
   background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite;
 }
 
-/* =========================
-   TITLE (NO JUMP FIX)
-========================= */
+/* TITLE */
 .skeleton-title {
   width: 70%;
-  min-height: 32px;
-  height: 32px; /* ✅ FIX: forces exact match */
+  height: 32px;
 
-  margin: 6px auto;
+  margin-top: 6px;
+  margin-bottom: 0; /* ✅ FIX */
 
   border-radius: 4px;
+
+  background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+/* SELECT */
+.skeleton-select {
+  margin-top: 6px;
+  margin-bottom: 0; /* ✅ FIX */
+
+  height: 26px;
 
   background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
   background-size: 200% 100%;
