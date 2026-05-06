@@ -1781,9 +1781,10 @@ function loadCache() {
 }
 
 /* ================= STATE ================= */
-let endTime = null;
+let endTime = loadCache();          // 🔥 instant hydration
 let lastRenderText = "";
-let lastServerTime = 0;
+let lastServerTime = endTime || 0;
+let elRef = null;
 
 /* ================= FORMAT ================= */
 function formatTime(diff) {
@@ -1799,29 +1800,35 @@ function formatTime(diff) {
   return `(${d}d:${String(h).padStart(2,"0")}h:${String(m).padStart(2,"0")}m:${String(s).padStart(2,"0")}s)`;
 }
 
-/* ================= RENDER (NO FLICKER CORE) ================= */
+/* ================= RENDER ================= */
 function render(force = false) {
-  const el = document.getElementById("miniCountdown");
-  if (!el || !endTime) return;
+  if (!elRef) elRef = document.getElementById("miniCountdown");
+  if (!elRef || !endTime) return;
 
-  const diff = endTime - Date.now();
-  const text = formatTime(diff);
+  const text = formatTime(endTime - Date.now());
 
-  // 🔥 HARD GUARD: prevents ANY unnecessary DOM write
   if (!force && text === lastRenderText) return;
 
-  el.textContent = text;
+  elRef.textContent = text;
   lastRenderText = text;
 }
 
-/* ================= TIMER (UI ONLY, NO API) ================= */
+/* ================= SAFE BOOT RENDER (🔥 KILLS BLINK) ================= */
+(function instantPaint() {
+  const el = document.getElementById("miniCountdown");
+
+  if (el && endTime) {
+    el.textContent = formatTime(endTime - Date.now());
+    elRef = el;
+  }
+})();
+
+/* ================= TIMER ================= */
 function startTimer() {
-  setInterval(() => {
-    render(false);
-  }, 1000);
+  setInterval(() => render(false), 1000);
 }
 
-/* ================= FETCH (DATA ONLY, NO UI BLINK) ================= */
+/* ================= FETCH ================= */
 async function fetchStatus() {
   try {
     const res = await fetch(API + "/status", { cache: "no-store" });
@@ -1830,15 +1837,13 @@ async function fetchStatus() {
     const newTime = Number(data?.end_time);
     if (!Number.isFinite(newTime)) return;
 
-    // 🔥 ONLY update if server value changed
     if (newTime !== lastServerTime) {
       lastServerTime = newTime;
       endTime = newTime;
 
       saveCache(newTime);
 
-      // force render ONCE only (no flicker because timer handles updates)
-      render(true);
+      render(true); // single forced update only
     }
 
   } catch (err) {
@@ -1852,24 +1857,15 @@ function startPolling() {
   setInterval(fetchStatus, 5000);
 }
 
-/* ================= INIT (CACHE-FIRST LIKE ADMIN) ================= */
+/* ================= DOM READY ================= */
 document.addEventListener("DOMContentLoaded", () => {
-  const el = document.getElementById("miniCountdown");
-  if (!el) return;
+  elRef = document.getElementById("miniCountdown");
+  if (!elRef) return;
 
-  // 1. INSTANT CACHE LOAD (zero blank state)
-  const cached = loadCache();
+  // 🔥 ensure first paint is correct
+  render(true);
 
-  if (cached) {
-    endTime = cached;
-    lastServerTime = cached;
-    render(true);
-  }
-
-  // 2. start UI loop immediately
   startTimer();
-
-  // 3. start background sync
   startPolling();
 });
   </script>
