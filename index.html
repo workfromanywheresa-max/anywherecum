@@ -970,17 +970,36 @@ function googleTranslateElementInit() {
   </a>
   </div>
   
-  <!-- JuicyAds v3.0 -->
-<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-
-<div style="display: flex; justify-content: center;">
+  <!-- =========================
+     BOTTOM AD (CLS SAFE)
+========================= -->
+<div class="ad-slot">
   <ins id="1113664" data-width="308" data-height="298"></ins>
 </div>
 
-  <script type="text/javascript" data-cfasync="false" async>
-  (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113664});
-</script>
-<!--JuicyAds END-->
+<!-- =========================
+     AD CSS (CLEAN + NO SHIMMER)
+========================= -->
+<style>
+.ad-slot {
+  width: 308px;
+  height: 298px;        /* 🔒 reserves space instantly */
+  margin: 20px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #111;     /* keeps space stable */
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ensure ad sits above background cleanly */
+.ad-slot ins {
+  position: relative;
+  z-index: 1;
+}
+</style>
 
 <!-- =========================
      JUICYADS SCRIPT
