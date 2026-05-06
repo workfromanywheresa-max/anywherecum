@@ -913,38 +913,7 @@ function googleTranslateElementInit() {
 </div>
   
 <div id="folderSection">
-  <ul id="folderList">
-
-    <!-- Skeletons (temporary placeholders) -->
-    <li class="folder-skeleton">
-      <div class="video-skel"></div>
-      <div class="title-skel">
-        <div class="line"></div>
-      </div>
-    </li>
-
-    <li class="folder-skeleton">
-      <div class="video-skel"></div>
-      <div class="title-skel">
-        <div class="line"></div>
-      </div>
-    </li>
-
-    <li class="folder-skeleton">
-      <div class="video-skel"></div>
-      <div class="title-skel">
-        <div class="line"></div>
-      </div>
-    </li>
-
-    <li class="folder-skeleton">
-      <div class="video-skel"></div>
-      <div class="title-skel">
-        <div class="line"></div>
-      </div>
-    </li>
-
-  </ul>
+  <ul id="folderList"></ul>
 </div>
 
   <div style="display:flex; justify-content:center; margin: 30px 0;">
@@ -1285,66 +1254,71 @@ async function loadVideos() {
     });
 
     const folderList = document.getElementById("folderList");
-    if (!folderList) return;
+if (!folderList) return;
 
-    // =========================
-    // SHOW SKELETONS
-    // =========================
-    folderList.innerHTML = "";
+/* =========================
+   SHOW SKELETONS (JS ONLY)
+========================= */
+folderList.innerHTML = "";
 
-    for (let i = 0; i < 8; i++) {
-      const li = document.createElement("li");
-      li.className = "folder-skeleton";
-      li.innerHTML = `
-        <div class="video-skel"></div>
-        <div class="title-skel">
-          <div class="line"></div>
-        </div>
-      `;
-      folderList.appendChild(li);
-    }
+for (let i = 0; i < 8; i++) {
+  const li = document.createElement("li");
+  li.className = "folder-skeleton";
 
-    // =========================
-    // BUILD ORDER (VIP FIRST)
-    // =========================
-    let folderNames = Object.keys(folders);
+  li.innerHTML = `
+    <div class="video-skel"></div>
+    <div class="title-skel">
+      <div class="line"></div>
+    </div>
+  `;
 
-    const vip = folderNames.filter(f =>
-      f.trim().toLowerCase() === VIP_FOLDER.trim().toLowerCase()
-    );
+  folderList.appendChild(li);
+}
 
-    const normal = folderNames.filter(f =>
-      f.trim().toLowerCase() !== VIP_FOLDER.trim().toLowerCase()
-    );
+/* =========================
+   BUILD FOLDERS
+========================= */
+let folderNames = Object.keys(folders);
 
-    folderNames = [...vip, ...normal];
+const vipName = VIP_FOLDER.trim().toLowerCase();
 
-    // =========================
-    // CLEAR SKELETONS
-    // =========================
-    folderList.innerHTML = "";
+/* VIP FIRST ALWAYS */
+const vip = folderNames.filter(f =>
+  f.trim().toLowerCase() === vipName
+);
 
-    // =========================
-    // RENDER FOLDERS
-    // =========================
-    folderNames.forEach(folderName => {
-      const latest = folders[folderName]
-        .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+const normal = folderNames.filter(f =>
+  f.trim().toLowerCase() !== vipName
+);
 
-      const folderURL =
-        "folder.html?folder=" + encodeURIComponent(folderName);
+folderNames = [...vip, ...normal];
 
-      const li = createPreviewItem(
-        latest,
-        folderURL,
-        folderName,
-        folderName,
-        vipGlobal.active,
-        folderName.trim().toLowerCase() === VIP_FOLDER.trim().toLowerCase()
-      );
+/* =========================
+   CLEAR SKELETONS
+========================= */
+folderList.innerHTML = "";
 
-      folderList.appendChild(li);
-    });
+/* =========================
+   RENDER FOLDERS
+========================= */
+folderNames.forEach(folderName => {
+  const latest = folders[folderName]
+    .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+
+  const folderURL =
+    "folder.html?folder=" + encodeURIComponent(folderName);
+
+  const li = createPreviewItem(
+    latest,
+    folderURL,
+    folderName,
+    folderName,
+    vipGlobal.active,
+    folderName.trim().toLowerCase() === vipName
+  );
+
+  folderList.appendChild(li);
+});
 
     // =========================
     // LATEST VIDEO SECTION
