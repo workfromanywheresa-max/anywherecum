@@ -1232,7 +1232,7 @@ function initAgeModal() {
 /* =========================
    LOAD VIDEOS
 ========================= */
- async function loadVideos() {
+async function loadVideos() {
   try {
     vipGlobal = await getVipStatus();
 
@@ -1257,7 +1257,7 @@ function initAgeModal() {
 if (!folderList) return;
 
 /* =========================
-   SHOW SKELETONS
+   SHOW SKELETONS (JS ONLY)
 ========================= */
 folderList.innerHTML = "";
 
@@ -1276,30 +1276,13 @@ for (let i = 0; i < 8; i++) {
 }
 
 /* =========================
-   LET BROWSER RENDER SKELETON FIRST
-========================= */
-await new Promise(requestAnimationFrame);
-
-/* =========================
-   FETCH + BUILD DATA
-========================= */
-const res = await fetch("./videos.json");
-const videos = await res.json();
-
-const folders = {};
-
-videos.forEach(v => {
-  if (!folders[v.folder]) folders[v.folder] = [];
-  folders[v.folder].push(v);
-});
-
-/* =========================
-   BUILD FOLDER LIST
+   BUILD FOLDERS
 ========================= */
 let folderNames = Object.keys(folders);
 
 const vipName = VIP_FOLDER.trim().toLowerCase();
 
+/* VIP FIRST ALWAYS */
 const vip = folderNames.filter(f =>
   f.trim().toLowerCase() === vipName
 );
@@ -1311,7 +1294,7 @@ const normal = folderNames.filter(f =>
 folderNames = [...vip, ...normal];
 
 /* =========================
-   REMOVE SKELETONS ONLY ONCE DATA IS READY
+   CLEAR SKELETONS
 ========================= */
 folderList.innerHTML = "";
 
@@ -1363,7 +1346,16 @@ folderNames.forEach(folderName => {
         false
       );
 
+      latestDiv.appendChild(li);
 
+      skeleton.style.display = "none";
+      latestDiv.style.display = "block";
+    }
+
+  } catch (err) {
+    console.error("Video load error:", err);
+  }
+}
     
 /* =========================
    SMOOTH COUNTDOWN LOOP
@@ -1806,4 +1798,4 @@ document.addEventListener("DOMContentLoaded", () => {
   <script type="module" src="views.js"></script>
 
 </body>
-</html>
+  </html>
