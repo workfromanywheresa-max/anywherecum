@@ -1132,12 +1132,12 @@ function formatCountdown(diff) {
 
   let result = "";
 
-  if (days > 0) result += `[${pad(days)}d]:`;
-  if (days > 0 || hours > 0) result += `[${pad(hours)}h]:`;
-  if (days > 0 || hours > 0 || minutes > 0) result += `[${pad(minutes)}m]:`;
-  result += `[${pad(seconds)}s]`;
+  if (days > 0) result += `${pad(days)}d:`;
+  if (days > 0 || hours > 0) result += `${pad(hours)}h:`;
+  if (days > 0 || hours > 0 || minutes > 0) result += `${pad(minutes)}m:`;
+  result += `${pad(seconds)}s`;
 
-  return result;
+  return `[${result}]`;
 }
 
 /* =========================
