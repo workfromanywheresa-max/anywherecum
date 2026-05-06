@@ -1271,7 +1271,9 @@ async function loadVideos() {
       expiryTime = new Date(vipGlobal.expiresAt).getTime();
     }
 
-    // ✅ FETCH ONCE ONLY
+    // =========================
+    // FETCH ONCE
+    // =========================
     const res = await fetch("./videos.json");
     const videos = await res.json();
 
@@ -1285,8 +1287,11 @@ async function loadVideos() {
     const folderList = document.getElementById("folderList");
     if (!folderList) return;
 
-    // show skeletons
+    // =========================
+    // SHOW SKELETONS
+    // =========================
     folderList.innerHTML = "";
+
     for (let i = 0; i < 4; i++) {
       const li = document.createElement("li");
       li.className = "folder-skeleton";
@@ -1299,11 +1304,30 @@ async function loadVideos() {
       folderList.appendChild(li);
     }
 
-    // clear skeletons before real data
+    // =========================
+    // BUILD ORDER (VIP FIRST)
+    // =========================
+    let folderNames = Object.keys(folders);
+
+    const vip = folderNames.filter(f =>
+      f.trim().toLowerCase() === VIP_FOLDER.trim().toLowerCase()
+    );
+
+    const normal = folderNames.filter(f =>
+      f.trim().toLowerCase() !== VIP_FOLDER.trim().toLowerCase()
+    );
+
+    folderNames = [...vip, ...normal];
+
+    // =========================
+    // CLEAR SKELETONS
+    // =========================
     folderList.innerHTML = "";
 
-    // build folders
-    Object.keys(folders).forEach(folderName => {
+    // =========================
+    // RENDER FOLDERS
+    // =========================
+    folderNames.forEach(folderName => {
       const latest = folders[folderName]
         .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
@@ -1316,14 +1340,18 @@ async function loadVideos() {
         folderName,
         folderName,
         vipGlobal.active,
-        folderName === VIP_FOLDER
+        folderName.trim().toLowerCase() === VIP_FOLDER.trim().toLowerCase()
       );
 
       folderList.appendChild(li);
     });
 
-    // latest video section
-    const nonVip = videos.filter(v => v.folder !== VIP_FOLDER);
+    // =========================
+    // LATEST VIDEO SECTION
+    // =========================
+    const nonVip = videos.filter(v =>
+      v.folder.trim().toLowerCase() !== VIP_FOLDER.trim().toLowerCase()
+    );
 
     if (nonVip.length) {
       const latest = nonVip.sort((a, b) =>
@@ -1353,7 +1381,7 @@ async function loadVideos() {
   } catch (err) {
     console.error("Video load error:", err);
   }
-    }
+}
     
 /* =========================
    SMOOTH COUNTDOWN LOOP
