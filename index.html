@@ -1282,6 +1282,7 @@ for (let i = 0; i < SKELETON_COUNT; i++) {
    (IMPORTANT FIX)
 ========================= */
 await new Promise(requestAnimationFrame);
+await new Promise(r => setTimeout(r, 500));
 
 /* =========================
    3. CLEAR SKELETONS
