@@ -1065,11 +1065,11 @@ let vipGlobal = null;
 let expiryTime = null;
 let lastCountdown = "";
 
+let countdownStarted = false;
+
 async function initVipCountdown() {
 
-    if (!expiryTime) return;
-
-  // 1. TRY LOAD FROM CACHE FIRST
+  // load cached first
   const cached = localStorage.getItem("vip_expiry");
 
   if (cached) {
@@ -1077,19 +1077,24 @@ async function initVipCountdown() {
     startVipCountdown();
   }
 
-  // 2. ALWAYS VERIFY IN BACKGROUND
-  vipGlobal = await getVipStatus();
+  // background refresh ONLY (NO restart)
+  try {
+    vipGlobal = await getVipStatus();
 
-  if (vipGlobal?.active && vipGlobal?.expiresAt) {
+    if (vipGlobal?.active && vipGlobal?.expiresAt) {
 
-    const newExpiry = new Date(vipGlobal.expiresAt).getTime();
+      const newExpiry = new Date(vipGlobal.expiresAt).getTime();
 
-    expiryTime = newExpiry;
+      localStorage.setItem("vip_expiry", newExpiry);
 
-    // SAVE TO CACHE (THIS IS THE KEY FIX)
-    localStorage.setItem("vip_expiry", newExpiry);
+      // 🔥 ONLY update if significantly different
+      if (!expiryTime || Math.abs(expiryTime - newExpiry) > 2000) {
+        expiryTime = newExpiry;
+      }
+    }
 
-    startVipCountdown();
+  } catch (err) {
+    console.error(err);
   }
 }
 
@@ -1470,7 +1475,9 @@ requestAnimationFrame(async () => {
    SMOOTH COUNTDOWN LOOP
 ========================= */
 function startVipCountdown() {
-  if (!expiryTime) return;
+  if (!expiryTime || countdownStarted) return;
+
+  countdownStarted = true;
 
   function tick() {
     const now = Date.now();
