@@ -835,7 +835,7 @@ function googleTranslateElementInit() {
        border-radius:8px;
      ">
     Click here to unlock VIP Exlusive Free
-    <span id="miniCountdown" style="color:#00ffcc;">(00:00:00)</span>
+    <span id="miniCountdown" style="color:#00ffcc;">(0d:00h:00m:00s)</span>
   </a>
   </div>
 
@@ -1508,15 +1508,25 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 let endTime = null;
+let intervalId = null;
+
+/* ================= INIT DEFAULT UI ================= */
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("miniCountdown");
+  if (btn) {
+    btn.innerText = "(0d:00h:00m:00s)"; // always visible default
+  }
+
+  init();
+});
 
 /* ================= CACHE ================= */
 const savedTime = localStorage.getItem("vip_end_time");
 if (savedTime) {
   endTime = Number(savedTime);
-  startTimer();
 }
 
-/* ================= LOAD STATUS FROM API ================= */
+/* ================= LOAD STATUS ================= */
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status");
@@ -1534,15 +1544,23 @@ async function loadStatus() {
 
 /* ================= TIMER ================= */
 function startTimer() {
-  updateTimer();
-  setInterval(updateTimer, 1000);
+  if (intervalId) clearInterval(intervalId);
+
+  updateTimer(); // immediate render (no flicker)
+
+  intervalId = setInterval(updateTimer, 1000);
 }
 
 function updateTimer() {
-  if (!endTime) return;
+  const btn = document.getElementById("miniCountdown");
+  if (!btn) return;
+
+  if (!endTime) {
+    btn.innerText = "(0d:00h:00m:00s)";
+    return;
+  }
 
   const diff = endTime - Date.now();
-  const btn = document.getElementById("miniCountdown");
 
   if (diff <= 0) {
     btn.innerText = "(ended)";
@@ -1556,16 +1574,14 @@ function updateTimer() {
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
 
-  const time =
-    `${days}d:` +
+  btn.innerText =
+    `(${days}d:` +
     `${String(hours).padStart(2,'0')}h:` +
     `${String(minutes).padStart(2,'0')}m:` +
-    `${String(seconds).padStart(2,'0')}s`;
-
-  btn.innerText = "(" + time + ")";
+    `${String(seconds).padStart(2,'0')}s)`;
 }
 
-/* ================= REALTIME (OPTIONAL ENTRIES COUNT) ================= */
+/* ================= REALTIME (OPTIONAL) ================= */
 function startEntryCounter() {
   const entriesRef = ref(db, "entries");
 
@@ -1581,11 +1597,14 @@ function startEntryCounter() {
 async function init() {
   await loadStatus();
   startEntryCounter();
+
+  // fallback: if API slow but cache exists
+  if (endTime) {
+    startTimer();
+  }
 }
-
-init();
   </script>
-
+  
   <script>  
 const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";  
 const CACHE_NAME = "live-video-cache-v1";  
