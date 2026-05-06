@@ -835,9 +835,7 @@ function googleTranslateElementInit() {
        border-radius:8px;
      ">
     Click here to unlock VIP Exlusive Free
-    <span id="miniCountdown" style="color:#00ffcc;">
-(0d:00h:00m:00s)
-    </span>
+    <span id="miniCountdown" style="color:#00ffcc;"></span>
   </a>
   </div>
 
@@ -1524,21 +1522,15 @@ function setCachedEndTime(time) {
   endTime = time;
 }
 
-/* ================= UI (NO FLICKER) ================= */
+/* ================= UI ================= */
 function renderTimerOnce() {
   const el = document.getElementById("miniCountdown");
-  if (!el) return;
-
-  // 🔥 Always show something (no loading state)
-  if (!endTime) {
-    el.innerText = "(0d:00h:00m:00s)";
-    return;
-  }
+  if (!el || !endTime) return; // 🔥 DO NOTHING if no cache yet
 
   const diff = endTime - Date.now();
 
   if (diff <= 0) {
-    el.innerText = "(0d:00h:00m:00s)";
+    el.innerText = "(ended)";
     return;
   }
 
@@ -1557,13 +1549,12 @@ function renderTimerOnce() {
 
 /* ================= LOOP ================= */
 function startTimer() {
-  if (intervalId) return; // 🔥 prevent restart flicker
+  if (intervalId) return;
 
-  renderTimerOnce(); // instant paint
   intervalId = setInterval(renderTimerOnce, 1000);
 }
 
-/* ================= SERVER LOAD ================= */
+/* ================= SERVER ================= */
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status", { cache: "no-store" });
@@ -1572,9 +1563,9 @@ async function loadStatus() {
     if (data?.end_time) {
       const newTime = Number(data.end_time);
 
-      // 🔥 Only update if different (no jump)
       if (newTime !== endTime) {
         setCachedEndTime(newTime);
+        renderTimerOnce(); // 🔥 instant update when API returns
       }
     }
   } catch (e) {
@@ -1587,19 +1578,21 @@ async function init() {
   const el = document.getElementById("miniCountdown");
   if (!el) return;
 
-  // 🔥 1. Load cache instantly
+  // 🔥 1. LOAD CACHE FIRST
   endTime = getCachedEndTime();
 
-  // 🔥 2. Paint immediately (no blank/loading)
-  renderTimerOnce();
+  // 🔥 2. ONLY render if cache exists
+  if (endTime) {
+    renderTimerOnce();
+  }
 
-  // 🔥 3. Start timer once (no flicker)
+  // 🔥 3. START LOOP
   startTimer();
 
-  // 🔥 4. Background API sync (silent update)
+  // 🔥 4. BACKGROUND FETCH
   loadStatus();
 
-  // 🔥 5. Firebase listener (optional)
+  // 🔥 5. FIREBASE
   const entriesRef = ref(db, "entries");
   onValue(entriesRef, (snapshot) => {
     const data = snapshot.val();
