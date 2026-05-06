@@ -189,86 +189,45 @@ footer {
   background: #222;
   border-radius: 8px;
   height: clamp(220px, 35vh, 400px);
-  width: 100%;
   overflow: hidden;
 
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-
+  align-items: center; /* 🔥 MUST match videoBox */
   padding: 20px;
   box-sizing: border-box;
 
-  margin-bottom: 20px;
+  width: 100%;
 }
-
-/* =========================
-   VIDEO PLACEHOLDER (MATCH iframe wrapper)
-========================= */
 
 .skeleton-thumb {
   width: 100%;
   aspect-ratio: 16 / 9;
   min-height: 180px;
 
-  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    #2a2a2a 25%,
+    #3a3a3a 50%,
+    #2a2a2a 75%
+  );
+
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+
+  border-radius: 0; /* 🔥 match iframe wrapper (no rounding mismatch) */
   overflow: hidden;
   flex-shrink: 0;
-
-  background: linear-gradient(
-    90deg,
-    #2a2a2a 25%,
-    #3a3a3a 50%,
-    #2a2a2a 75%
-  );
-
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-
-  margin-bottom: 6px;
 }
 
-/* =========================
-   SELECT PLACEHOLDER (MATCH REAL SELECT)
-========================= */
-
-.skeleton-select {
-  display: block;
-  width: fit-content;
-  max-width: 90%;
-
-  margin: 6px auto; /* matches real select spacing */
-
-  padding: 5px 10px;
-  border-radius: 5px;
-
-  min-width: 240px;
-  min-height: 20px;
-
-  background: linear-gradient(
-    90deg,
-    #2a2a2a 25%,
-    #3a3a3a 50%,
-    #2a2a2a 75%
-  );
-
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-
-  position: relative;
-  overflow: hidden;
+.videoTitle {
+  margin: 6px 0;
 }
-
-/* =========================
-   TITLE PLACEHOLDER (MATCH videoTitle spacing)
-========================= */
 
 .skeleton-title {
   width: 70%;
   min-height: 20px;
-
-  margin: 6px auto; /* matches your .videoTitle spacing */
-
+  margin: 6px 0;   /* 🔥 match real spacing */
   border-radius: 4px;
 
   background: linear-gradient(
@@ -280,6 +239,11 @@ footer {
 
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite;
+}
+
+.skeleton-box {
+  width: 100%;
+  max-width: 100%;
 }
 
 /* =========================
