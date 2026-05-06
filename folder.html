@@ -184,12 +184,27 @@ footer {
 /* =========================
    MATCH GRID SPACING EXACTLY
 ========================= */
-#skeletonContainer {
-  display: contents; /* keeps grid gap working naturally */
+
+/* REAL VIDEO GRID */
+#normalVideos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 15px; /* ✅ MAIN SPACING */
+  min-height: 600px;
+  align-items: start;
 }
 
 /* =========================
-   SKELETON BOX (NO EXTRA INTERNAL MARGIN CONFLICT)
+   SKELETON GRID (MATCH VIDEO GRID EXACTLY)
+========================= */
+#skeletonContainer {
+  display: grid; /* ❌ removed display: contents */
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 15px; /* ✅ SAME SPACING AS REAL GRID */
+}
+
+/* =========================
+   SKELETON BOX
 ========================= */
 .skeleton-box {
   background: #222;
@@ -205,12 +220,10 @@ footer {
   align-items: center;
 
   padding: 20px;
-
-  align-content: flex-start;
 }
 
 /* =========================
-   REMOVE "FAKE SPACING SHIFT" INSIDE SKELETON
+   SHARED CENTER FIX
 ========================= */
 .skeleton-thumb,
 .skeleton-title,
@@ -219,29 +232,32 @@ footer {
   margin-right: auto;
 }
 
-/* IMPORTANT: remove bottom margin that causes spacing mismatch */
+/* =========================
+   THUMB
+========================= */
 .skeleton-thumb {
   width: 100%;
   aspect-ratio: 16 / 9;
-  height: 180px;
+  min-height: 180px;
 
   border-radius: 8px;
   flex-shrink: 0;
 
-  margin-bottom: 0; /* ✅ FIX: grid gap handles spacing now */
+  margin-bottom: 6px;
 
   background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite;
 }
 
-/* TITLE */
+/* =========================
+   TITLE
+========================= */
 .skeleton-title {
   width: 70%;
-  height: 32px;
+  min-height: 20px;
 
-  margin-top: 6px;
-  margin-bottom: 0; /* ✅ FIX */
+  margin: 6px auto;
 
   border-radius: 4px;
 
@@ -250,12 +266,21 @@ footer {
   animation: shimmer 1.2s infinite;
 }
 
-/* SELECT */
+/* =========================
+   SELECT
+========================= */
 .skeleton-select {
-  margin-top: 6px;
-  margin-bottom: 0; /* ✅ FIX */
+  display: block;
+  width: fit-content;
+  max-width: 90%;
 
-  height: 26px;
+  margin: 6px auto;
+
+  padding: 5px 10px;
+  border-radius: 5px;
+
+  min-width: 240px;
+  min-height: 20px;
 
   background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
   background-size: 200% 100%;
@@ -265,16 +290,11 @@ footer {
 /* =========================
    SHIMMER ANIMATION
 ========================= */
-
 @keyframes shimmer {
-  0% {
-    background-position: 200% 0;
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
   }
-  100% {
-    background-position: -200% 0;
-  }
-  }
-
+  
   /* TOP TITLE SKELETON */
 .skeleton-folder-title {
   width: 40%;
