@@ -272,17 +272,17 @@ function toTitleCase(str) {
 }
 
 function showFolderTitleSkeleton() {
-  const el = document.getElementById("folderTitle");
-  if (!el) return;
+  const el = document.getElementById("folderTitleSkeleton");
+  const title = document.getElementById("folderTitle");
 
-  // hide real text while loading
-  el.classList.remove("show");
-
-  el.innerHTML = `<div class="skeleton-folder-title"></div>`;
+  if (el) el.style.display = "block";
+  if (title) title.classList.remove("show"); // hide real title
 }
 
 function setFolderTitle() {
   const titleEl = document.getElementById("folderTitle");
+  const skeletonEl = document.getElementById("folderTitleSkeleton");
+
   if (!titleEl) return;
 
   const normalized = rawFolderName?.toLowerCase();
@@ -295,9 +295,14 @@ function setFolderTitle() {
       : "All Videos";
   }
 
-  // reveal AFTER text is set
-  titleEl.classList.add("show");
-  }
+  // hide skeleton
+  if (skeletonEl) skeletonEl.style.display = "none";
+
+  // show real title AFTER text is ready
+  requestAnimationFrame(() => {
+    titleEl.classList.add("show");
+  });
+}
 
 /* ---------------- FORMAT ---------------- */
 function formatViews(num) {
@@ -1058,12 +1063,14 @@ function reorderVideos(force = false) {
 }
 
 /* ---------------- LOAD ---------------- */
+showFolderTitleSkeleton();
 showSkeletons(); // 👈 inject loading UI first
 
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
-
+    
+setFolderTitle();
     hideSkeletons();
     
     videosContainer.innerHTML = "";
