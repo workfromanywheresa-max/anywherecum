@@ -1477,6 +1477,14 @@ function startVipCountdown() {
     const now = Date.now();
     const diff = expiryTime - now;
 
+    if (diff <= 0) {
+  countdownEl.innerText = "⛔ VIP Access Expired";
+  clearInterval(countdownInterval);
+
+  localStorage.removeItem("vip_expiry"); // 🔥 important
+  return;
+    }
+
     const text = formatCountdown(diff);
     updateCountdownText(text);
 
