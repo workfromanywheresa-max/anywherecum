@@ -1145,11 +1145,12 @@ function formatCountdown(diff) {
 ========================= */
 function updateCountdownText(newText) {
   if (newText === lastCountdown) return;
-
   lastCountdown = newText;
 
-  document.querySelectorAll(".vipCountdown").forEach(el => {
-    el.textContent = newText;
+  requestAnimationFrame(() => {
+    document.querySelectorAll(".vipCountdown").forEach(el => {
+      el.textContent = newText;
+    });
   });
 }
 
