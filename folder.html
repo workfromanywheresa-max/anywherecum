@@ -182,13 +182,15 @@ footer {
 }
 
 /* =========================
-   SKELETON CONTAINER (MATCH VIDEO BOX EXACTLY)
+   SKELETON BOX (MATCH VIDEOBOX EXACTLY)
 ========================= */
-
 .skeleton-box {
   background: #222;
   border-radius: 8px;
   height: clamp(220px, 35vh, 400px);
+  width: 100%;              /* ✅ CRITICAL FIX */
+  box-sizing: border-box;   /* ✅ ensures same sizing rules */
+
   overflow: hidden;
 
   display: flex;
@@ -199,25 +201,24 @@ footer {
 }
 
 /* =========================
-   VIDEO PLACEHOLDER (MATCH iframe wrapper)
+   MATCH GRID BEHAVIOR
 ========================= */
+#skeletonContainer {
+  display: contents; /* ✅ makes skeleton boxes behave like real grid items */
+}
 
+/* =========================
+   THUMB (already good, minor tweak)
+========================= */
 .skeleton-thumb {
   width: 100%;
   aspect-ratio: 16 / 9;
   min-height: 180px;
 
   border-radius: 8px;
-  overflow: hidden;
   flex-shrink: 0;
 
-  background: linear-gradient(
-    90deg,
-    #2a2a2a 25%,
-    #3a3a3a 50%,
-    #2a2a2a 75%
-  );
-
+  background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite;
 
@@ -225,55 +226,39 @@ footer {
 }
 
 /* =========================
-   SELECT PLACEHOLDER (MATCH REAL SELECT)
+   SELECT (MATCH REAL SELECT EXACTLY)
 ========================= */
-
 .skeleton-select {
   display: block;
   width: fit-content;
   max-width: 90%;
 
-  margin: 6px auto; /* matches real select spacing */
+  margin: 6px auto;
 
   padding: 5px 10px;
   border-radius: 5px;
 
-  min-width: 240px;
-  min-height: 20px;
+  /* ❌ REMOVE this (it breaks alignment) */
+  min-width: unset;
 
-  background: linear-gradient(
-    90deg,
-    #2a2a2a 25%,
-    #3a3a3a 50%,
-    #2a2a2a 75%
-  );
+  height: 26px; /* closer to real select */
 
+  background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite;
-
-  position: relative;
-  overflow: hidden;
 }
 
 /* =========================
-   TITLE PLACEHOLDER (MATCH videoTitle spacing)
+   TITLE (MATCH REAL VIDEO TITLE SPACE)
 ========================= */
-
 .skeleton-title {
   width: 70%;
-  min-height: 20px;
-
-  margin: 6px auto; /* matches your .videoTitle spacing */
+  min-height: 32px;   /* ✅ MATCHES .videoTitle min-height */
+  margin: 6px auto;
 
   border-radius: 4px;
 
-  background: linear-gradient(
-    90deg,
-    #2a2a2a 25%,
-    #3a3a3a 50%,
-    #2a2a2a 75%
-  );
-
+  background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite;
 }
