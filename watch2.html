@@ -427,6 +427,12 @@ Watch high quality video streaming online. Updated daily with new content.
 .ad-slot ins {
   position: relative;
   z-index: 1;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.ad-slot.loaded ins {
+  opacity: 1;
 }
 </style>
 
@@ -435,11 +441,22 @@ Watch high quality video streaming online. Updated daily with new content.
 ========================= -->
 <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
 
-<script type="text/javascript" data-cfasync="false">
-  (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113665});
-  (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113664});
-</script>
+<script type="text/javascript">
+  function loadAds() {
+    // mark visible
+    document.querySelectorAll('.ad-slot').forEach(el => {
+      el.classList.add('loaded');
+    });
 
+    // load ads
+    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113665});
+    (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113664});
+  }
+
+  // 15 second delay
+  setTimeout(loadAds, 15000);
+</script>
+  
    <footer class="footer" style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
 © 2026 AnywhereCum – Legal content only. 18+<br>
 
