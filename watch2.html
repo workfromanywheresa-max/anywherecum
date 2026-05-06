@@ -1223,10 +1223,16 @@ watchLabel.textContent =
   if (isVIP) {
     document.body.classList.add("vip");
     console.log("💎 VIP mode enabled");
+
+    /* =========================
+       BLOCK ADS FOR VIP
+    ========================= */
+    document.querySelectorAll(".ad-slot").forEach(ad => ad.remove());
+
+    return; // stop everything else for VIP (no ads, no tracking below)
   } else {
     document.body.classList.remove("vip");
     console.log("❌ NOT VIP — normal mode");
-    return;
   }
 
   /* =========================
