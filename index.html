@@ -1257,97 +1257,86 @@ async function loadVideos() {
 if (!folderList) return;
 
 /* =========================
-   1. FORCE INSTANT SKELETON PAINT
+   1. SHOW SKELETONS FIRST
 ========================= */
 folderList.innerHTML = "";
 
-/* IMPORTANT: allow browser to paint FIRST */
-setTimeout(() => {
+const SKELETON_COUNT = 8;
 
-  const SKELETON_COUNT = 8;
+for (let i = 0; i < SKELETON_COUNT; i++) {
+  const li = document.createElement("li");
+  li.className = "folder-skeleton";
 
-  for (let i = 0; i < SKELETON_COUNT; i++) {
-    const li = document.createElement("li");
-    li.className = "folder-skeleton";
+  li.innerHTML = `
+    <div class="video-skel"></div>
+    <div class="title-skel">
+      <div class="line"></div>
+    </div>
+  `;
 
-    li.innerHTML = `
-      <div class="video-skel"></div>
-      <div class="title-skel">
-        <div class="line"></div>
-      </div>
-    `;
-
-    folderList.appendChild(li);
-  }
-
-}, 0);
-
+  folderList.appendChild(li);
+}
 
 /* =========================
-   2. LOAD DATA AFTER PAINT
+   2. FORCE PAINT (NO FAKE DELAY)
 ========================= */
-setTimeout(() => {
+await new Promise(requestAnimationFrame);
+await new Promise(requestAnimationFrame); // 👈 THIS is the real fix
 
-  try {
+/* =========================
+   3. BUILD FOLDER DATA
+========================= */
+let folderNames = Object.keys(folders);
 
-    /* =========================
-       CLEAR SKELETONS
-    ========================= */
-    folderList.innerHTML = "";
+const vipName = VIP_FOLDER.trim().toLowerCase();
 
-    /* =========================
-       BUILD DATA
-    ========================= */
-    let folderNames = Object.keys(folders || {});
+/* =========================
+   4. PIN VIP FIRST
+========================= */
+const vipFolders = folderNames.filter(f =>
+  f.trim().toLowerCase() === vipName
+);
 
-    const vipName = (VIP_FOLDER || "").trim().toLowerCase();
+const normalFolders = folderNames.filter(f =>
+  f.trim().toLowerCase() !== vipName
+);
 
-    const vipFolders = folderNames.filter(f =>
-      f.trim().toLowerCase() === vipName
-    );
+folderNames = [...vipFolders, ...normalFolders];
 
-    const normalFolders = folderNames.filter(f =>
-      f.trim().toLowerCase() !== vipName
-    );
+/* =========================
+   5. REMOVE SKELETONS
+========================= */
+folderList.innerHTML = "";
 
-    folderNames = [...vipFolders, ...normalFolders];
+/* =========================
+   6. RENDER REAL FOLDERS
+========================= */
+folderNames.forEach(folderName => {
 
-    /* =========================
-       RENDER FOLDERS
-    ========================= */
-    folderNames.forEach(folderName => {
+  const list = folders[folderName];
+  if (!list || !list.length) return;
 
-      const list = folders[folderName];
-      if (!list || !list.length) return;
+  const latest = list.sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  )[0];
 
-      const latest = list.sort(
-        (a, b) => new Date(b.date) - new Date(a.date)
-      )[0];
+  const folderURL =
+    "folder.html?folder=" + encodeURIComponent(folderName);
 
-      const folderURL =
-        "folder.html?folder=" + encodeURIComponent(folderName);
+  const isVipFolder =
+    folderName.trim().toLowerCase() === vipName;
 
-      const isVipFolder =
-        folderName.trim().toLowerCase() === vipName;
+  const li = createPreviewItem(
+    latest,
+    folderURL,
+    folderName,
+    folderName,
+    vipGlobal.active,
+    isVipFolder
+  );
 
-      const li = createPreviewItem(
-        latest,
-        folderURL,
-        folderName,
-        folderName,
-        vipGlobal?.active,
-        isVipFolder
-      );
-
-      folderList.appendChild(li);
-    });
-
-  } catch (err) {
-    console.error("Folder render error:", err);
-    folderList.innerHTML = "<p style='color:white'>Failed to load folders</p>";
-  }
-
-}, 50);
+  folderList.appendChild(li);
+});
     
     // =========================
     // LATEST VIDEO SECTION
