@@ -182,99 +182,62 @@ footer {
 }
 
 /* =========================
-   MATCH GRID SPACING EXACTLY
+   SKELETON CONTAINER (MATCH VIDEO BOX EXACTLY)
 ========================= */
 
-/* REAL VIDEO GRID */
-#normalVideos {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 15px; /* ✅ MAIN SPACING */
-  min-height: 600px;
-  align-items: start;
-}
-
-/* =========================
-   SKELETON GRID (MATCH VIDEO GRID EXACTLY)
-========================= */
-#skeletonContainer {
-  display: grid; /* ❌ removed display: contents */
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 15px; /* ✅ SAME SPACING AS REAL GRID */
-}
-
-/* =========================
-   SKELETON BOX
-========================= */
 .skeleton-box {
   background: #222;
   border-radius: 8px;
   height: clamp(220px, 35vh, 400px);
   width: 100%;
-  box-sizing: border-box;
-
   overflow: hidden;
 
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
 
   padding: 20px;
+  box-sizing: border-box;
+
+  margin-bottom: 20px;
 }
 
 /* =========================
-   SHARED CENTER FIX
+   VIDEO PLACEHOLDER (MATCH iframe wrapper)
 ========================= */
-.skeleton-thumb,
-.skeleton-title,
-.skeleton-select {
-  margin-left: auto;
-  margin-right: auto;
-}
 
-/* =========================
-   THUMB
-========================= */
 .skeleton-thumb {
   width: 100%;
   aspect-ratio: 16 / 9;
   min-height: 180px;
 
   border-radius: 8px;
+  overflow: hidden;
   flex-shrink: 0;
 
+  background: linear-gradient(
+    90deg,
+    #2a2a2a 25%,
+    #3a3a3a 50%,
+    #2a2a2a 75%
+  );
+
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+
   margin-bottom: 6px;
-
-  background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
 }
 
 /* =========================
-   TITLE
+   SELECT PLACEHOLDER (MATCH REAL SELECT)
 ========================= */
-.skeleton-title {
-  width: 70%;
-  min-height: 20px;
 
-  margin: 6px auto;
-
-  border-radius: 4px;
-
-  background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-}
-
-/* =========================
-   SELECT
-========================= */
 .skeleton-select {
   display: block;
   width: fit-content;
   max-width: 90%;
 
-  margin: 6px auto;
+  margin: 6px auto; /* matches real select spacing */
 
   padding: 5px 10px;
   border-radius: 5px;
@@ -282,7 +245,39 @@ footer {
   min-width: 240px;
   min-height: 20px;
 
-  background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
+  background: linear-gradient(
+    90deg,
+    #2a2a2a 25%,
+    #3a3a3a 50%,
+    #2a2a2a 75%
+  );
+
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+
+  position: relative;
+  overflow: hidden;
+}
+
+/* =========================
+   TITLE PLACEHOLDER (MATCH videoTitle spacing)
+========================= */
+
+.skeleton-title {
+  width: 70%;
+  min-height: 20px;
+
+  margin: 6px auto; /* matches your .videoTitle spacing */
+
+  border-radius: 4px;
+
+  background: linear-gradient(
+    90deg,
+    #2a2a2a 25%,
+    #3a3a3a 50%,
+    #2a2a2a 75%
+  );
+
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite;
 }
@@ -290,11 +285,16 @@ footer {
 /* =========================
    SHIMMER ANIMATION
 ========================= */
+
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
   }
-  
+  100% {
+    background-position: -200% 0;
+  }
+  }
+
   /* TOP TITLE SKELETON */
 .skeleton-folder-title {
   width: 40%;
@@ -758,74 +758,7 @@ position:relative;
 }
 </style>
 
-<div id="normalVideos">
-
-  <!-- SKELETONS (default visible) -->
-  <div id="skeletonContainer">
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-  </div>
-
-</div>
+<div id="normalVideos"></div>
     
   </main>
 
@@ -1158,4 +1091,4 @@ window.VIDEO_CONFIG = {
 <script type="module" src="views2.js"></script>
 
 </body>
-</html>
+  </html>
