@@ -1058,8 +1058,6 @@ function reorderVideos(force = false) {
 }
 
 /* ---------------- LOAD ---------------- */
-showFolderTitleSkeleton();
-setFolderTitle();
 showSkeletons(); // 👈 inject loading UI first
 
 fetch(dataSource)
@@ -1068,9 +1066,6 @@ fetch(dataSource)
 
     hideSkeletons();
     
-    showFolderTitleSkeleton();
-    setFolderTitle(); 
-
     videosContainer.innerHTML = "";
     
     const filtered = folderName
