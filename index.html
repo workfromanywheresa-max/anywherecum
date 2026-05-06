@@ -1065,6 +1065,15 @@ let vipGlobal = null;
 let expiryTime = null;
 let lastCountdown = "";
 
+async function initVipCountdown() {
+  vipGlobal = await getVipStatus();
+
+  if (vipGlobal?.active && vipGlobal?.expiresAt) {
+    expiryTime = new Date(vipGlobal.expiresAt).getTime();
+    startVipCountdown(); // start immediately once ready
+  }
+}
+
 /* ✅ NEW: observer */
 let observer = null;
 
@@ -1470,7 +1479,9 @@ document.addEventListener("click", async (e) => {
 ========================= */
 document.addEventListener("DOMContentLoaded", () => {
   initAgeModal();
-  loadVideos().then(() => startVipCountdown());
+
+  initVipCountdown(); // 👈 starts countdown ASAP
+  loadVideos();
 });
   </script>
     
