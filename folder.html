@@ -188,8 +188,8 @@ footer {
   background: #222;
   border-radius: 8px;
   height: clamp(220px, 35vh, 400px);
-  width: 100%;              /* ✅ CRITICAL FIX */
-  box-sizing: border-box;   /* ✅ ensures same sizing rules */
+  width: 100%;
+  box-sizing: border-box;
 
   overflow: hidden;
 
@@ -198,22 +198,28 @@ footer {
   align-items: center;
 
   padding: 20px;
+
+  align-content: flex-start; /* ✅ FIX: prevents internal stretch jump */
 }
 
 /* =========================
    MATCH GRID BEHAVIOR
 ========================= */
 #skeletonContainer {
-  display: contents; /* ✅ makes skeleton boxes behave like real grid items */
+  display: contents;
 }
 
 /* =========================
-   THUMB (already good, minor tweak)
+   THUMB (FIXED STABILITY)
 ========================= */
 .skeleton-thumb {
   width: 100%;
   aspect-ratio: 16 / 9;
-  min-height: 180px;
+
+  /* ❌ FIX: remove min-height (this causes jump) */
+  min-height: unset;
+
+  height: 180px; /* ✅ FIX: locks exact match with iframe */
 
   border-radius: 8px;
   flex-shrink: 0;
@@ -226,7 +232,7 @@ footer {
 }
 
 /* =========================
-   SELECT (MATCH REAL SELECT EXACTLY)
+   SELECT (STABLE MATCH)
 ========================= */
 .skeleton-select {
   display: block;
@@ -234,14 +240,11 @@ footer {
   max-width: 90%;
 
   margin: 6px auto;
-
   padding: 5px 10px;
   border-radius: 5px;
 
-  /* ❌ REMOVE this (it breaks alignment) */
   min-width: unset;
-
-  height: 26px; /* closer to real select */
+  height: 26px;
 
   background: linear-gradient(90deg,#2a2a2a 25%,#3a3a3a 50%,#2a2a2a 75%);
   background-size: 200% 100%;
@@ -249,11 +252,13 @@ footer {
 }
 
 /* =========================
-   TITLE (MATCH REAL VIDEO TITLE SPACE)
+   TITLE (NO JUMP FIX)
 ========================= */
 .skeleton-title {
   width: 70%;
-  min-height: 32px;   /* ✅ MATCHES .videoTitle min-height */
+  min-height: 32px;
+  height: 32px; /* ✅ FIX: forces exact match */
+
   margin: 6px auto;
 
   border-radius: 4px;
