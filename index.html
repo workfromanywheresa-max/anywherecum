@@ -1123,21 +1123,29 @@ function formatCountdown(diff) {
 
   const total = Math.floor(diff / 1000);
 
+  const pad = (n) => String(n).padStart(2, "0");
+
+  // ⏱ Under 1 hour → MM:SS only
+  if (total < 3600) {
+    const minutes = Math.floor(total / 60);
+    const seconds = total % 60;
+    return `${pad(minutes)}:${pad(seconds)}`;
+  }
+
+  // ⏱ 1 hour+ → D:H:M:S format
   const days = Math.floor(total / 86400);
   const hours = Math.floor((total % 86400) / 3600);
   const minutes = Math.floor((total % 3600) / 60);
   const seconds = total % 60;
 
-  const pad = (n) => String(n).padStart(2, "0");
-
   let result = "";
 
   if (days > 0) result += `${pad(days)}d:`;
   if (days > 0 || hours > 0) result += `${pad(hours)}h:`;
-  if (days > 0 || hours > 0 || minutes > 0) result += `${pad(minutes)}m:`;
+  result += `${pad(minutes)}m:`;
   result += `${pad(seconds)}s`;
 
-  return `💎 Unlocked [${result}]`;
+  return result;
 }
 
 /* =========================
