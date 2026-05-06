@@ -819,13 +819,13 @@ function googleTranslateElementInit() {
 
 </div>
   
-  <div style="display:flex; justify-content:center; margin: 30px 0;">
+  <div style="display:flex; justify-content:center; margin:30px 0;">
   <a href="competition.html"
      style="
        display:inline-flex;
        align-items:center;
        justify-content:center;
-       gap:8px;
+       gap:10px;
        padding:12px 22px;
        background:#000;
        color:#fff;
@@ -833,9 +833,24 @@ function googleTranslateElementInit() {
        font-size:12px;
        font-weight:bold;
        border-radius:8px;
+       user-select:none;
+       transition:0.2s ease;
      ">
-    Click here to unlock VIP Exlusive Free
-    <span id="miniCountdown" style="color:#00ffcc;">(0d:00h:00m:00s)</span>
+
+    <span>
+      Click here to unlock VIP Exclusive Free
+    </span>
+
+    <span id="miniCountdown"
+          style="
+            color:#00ffcc;
+            display:inline-block;
+            min-width:140px;
+            text-align:left;
+          ">
+      (loading...)
+    </span>
+
   </a>
   </div>
 
@@ -1513,12 +1528,8 @@ let intervalId = null;
 /* ================= CACHE ================= */
 function getCachedEndTime() {
   const saved = localStorage.getItem("vip_end_time");
-  if (!saved) return null;
-
   const num = Number(saved);
-  if (isNaN(num)) return null;
-
-  return num;
+  return isNaN(num) ? null : num;
 }
 
 function setCachedEndTime(time) {
@@ -1526,12 +1537,19 @@ function setCachedEndTime(time) {
   endTime = time;
 }
 
-/* ================= RENDER (NO FLICKER CORE) ================= */
+/* ================= UI (ALWAYS SAFE PAINT) ================= */
 function renderTimerOnce() {
   const el = document.getElementById("miniCountdown");
-  if (!el || !endTime) return;
+  if (!el) return;
+
+  // 🔥 always show something (even before data loads)
+  if (!endTime) {
+    el.innerText = "(loading...)";
+    return;
+  }
 
   const diff = endTime - Date.now();
+
   if (diff <= 0) {
     el.innerText = "(ended)";
     return;
@@ -1554,11 +1572,11 @@ function renderTimerOnce() {
 function startTimer() {
   if (intervalId) clearInterval(intervalId);
 
-  renderTimerOnce(); // immediate paint (important)
+  renderTimerOnce(); // instant paint
   intervalId = setInterval(renderTimerOnce, 1000);
 }
 
-/* ================= LOAD SERVER ================= */
+/* ================= SERVER LOAD ================= */
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status", { cache: "no-store" });
@@ -1573,23 +1591,24 @@ async function loadStatus() {
   }
 }
 
-/* ================= INIT (NO FLICKER FLOW) ================= */
+/* ================= INIT ================= */
 async function init() {
   const el = document.getElementById("miniCountdown");
   if (!el) return;
 
-  // 1. load cache instantly
+  // 1. INSTANT CACHE LOAD
   endTime = getCachedEndTime();
 
-  // 2. render IMMEDIATELY if exists (no loading text ever)
-  if (endTime) {
-    startTimer();
-  }
+  // 2. INSTANT FIRST PAINT (even if null)
+  renderTimerOnce();
 
-  // 3. fetch server in background
+  // 3. START LOOP IMMEDIATELY (prevents flicker)
+  startTimer();
+
+  // 4. BACKGROUND SERVER SYNC
   loadStatus();
 
-  // 4. realtime listener
+  // 5. FIREBASE LISTENER
   const entriesRef = ref(db, "entries");
   onValue(entriesRef, (snapshot) => {
     const data = snapshot.val();
