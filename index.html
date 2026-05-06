@@ -1509,6 +1509,8 @@ const db = getDatabase(app);
 
 let endTime = null;
 
+const miniCountdownEl = document.getElementById("miniCountdown");
+
 /* ================= CACHE ================= */
 const savedTime = localStorage.getItem("vip_end_time");
 if (savedTime) {
@@ -1539,13 +1541,12 @@ function startTimer() {
 }
 
 function updateTimer() {
-  if (!endTime) return;
+  if (!endTime || !miniCountdownEl) return;
 
   const diff = endTime - Date.now();
-  const btn = document.getElementById("miniCountdown");
 
   if (diff <= 0) {
-    btn.innerText = "(ended)";
+    miniCountdownEl.textContent = "(ended)";
     return;
   }
 
@@ -1562,19 +1563,11 @@ function updateTimer() {
     `${String(minutes).padStart(2,'0')}m:` +
     `${String(seconds).padStart(2,'0')}s`;
 
-  btn.innerText = "(" + time + ")";
-}
+  const newText = `(${time})`;
 
-/* ================= REALTIME (OPTIONAL ENTRIES COUNT) ================= */
-function startEntryCounter() {
-  const entriesRef = ref(db, "entries");
-
-  onValue(entriesRef, (snapshot) => {
-    const data = snapshot.val();
-    const count = data ? Object.keys(data).length : 0;
-
-    console.log("Entries:", count);
-  });
+  if (miniCountdownEl.textContent !== newText) {
+    miniCountdownEl.textContent = newText;
+  }
 }
 
 /* ================= INIT ================= */
