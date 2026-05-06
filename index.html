@@ -1429,7 +1429,12 @@ document.addEventListener("click", async (e) => {
 ========================= */
 document.addEventListener("DOMContentLoaded", () => {
   initAgeModal();
-  loadVideos().then(() => startVipCountdown());
+
+  renderSkeletons(8); // show instantly
+
+  requestAnimationFrame(() => {
+    loadVideos().then(() => startVipCountdown());
+  });
 });
   </script>
     
