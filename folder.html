@@ -954,28 +954,24 @@ window.VIDEO_CONFIG = {
 (function () {
 
   /* =========================
-     VIP CHECK (MATCHED CLEAN)
+     1. VIP CHECK (STRICT FOLDER ONLY)
   ========================= */
   const params = new URLSearchParams(window.location.search);
   const folder = (params.get("folder") || "").toLowerCase();
 
-  const sessionVIP = localStorage.getItem("vip_status") === "true";
-
-  const urlVIP =
+  const isVIP =
     folder.includes("vip") ||
     folder.includes("🔒");
 
-  const isVIP = sessionVIP || urlVIP;
-
   if (!isVIP) {
-    console.log("❌ NOT VIP — normal mode");
+    console.log("❌ NOT VIP FOLDER — script stopped");
     return;
   }
 
-  console.log("💎 VIP MODE ON — Share & Embed Removed");
+  console.log("💎 VIP FOLDER DETECTED — Share & Ads Removed");
 
   /* =========================
-     0. BLOCK POPUPS
+     2. BLOCK POPUPS
   ========================= */
   window.open = function (url) {
     console.log("🚫 POPUP BLOCKED:", url);
@@ -987,7 +983,7 @@ window.VIDEO_CONFIG = {
   });
 
   /* =========================
-     1. CSS CLEAN BLOCK
+     3. CSS CLEAN BLOCK
   ========================= */
   const style = document.createElement("style");
   style.innerHTML = `
@@ -1023,7 +1019,7 @@ window.VIDEO_CONFIG = {
   document.head.appendChild(style);
 
   /* =========================
-     2. BLOCK SCRIPTS
+     4. BLOCK SCRIPTS
   ========================= */
   const blockedKeywords = ["ads", "profit", "cpm", "pop", "banner"];
 
@@ -1033,10 +1029,11 @@ window.VIDEO_CONFIG = {
   }
 
   /* =========================
-     3. DOM CLEANER
+     5. DOM CLEANER (REAL-TIME)
   ========================= */
   const observer = new MutationObserver(() => {
 
+    // Remove share/embed buttons
     document.querySelectorAll(`
       .shareBtn,
       .embedBtn,
@@ -1044,6 +1041,7 @@ window.VIDEO_CONFIG = {
       [class*="embed"]
     `).forEach(el => el.remove());
 
+    // Block scripts
     document.querySelectorAll("script").forEach(script => {
       if (script.src && isBlockedScript(script.src)) {
         console.log("🚫 BLOCKED SCRIPT:", script.src);
@@ -1051,9 +1049,10 @@ window.VIDEO_CONFIG = {
       }
     });
 
+    // Block iframes
     document.querySelectorAll("iframe").forEach(iframe => {
       const src = iframe.src || "";
-      if (src.includes("pop") || src.includes("profit") || src.includes("cpm")) {
+      if (isBlockedScript(src)) {
         console.log("🚫 BLOCKED IFRAME:", src);
         iframe.remove();
       }
@@ -1067,7 +1066,7 @@ window.VIDEO_CONFIG = {
   });
 
   /* =========================
-     4. SAFETY LOOP
+     6. SAFETY LOOP (BACKUP CLEANER)
   ========================= */
   function clean() {
     document.querySelectorAll(`
