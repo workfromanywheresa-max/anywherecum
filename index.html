@@ -497,6 +497,73 @@ footer {
   background: linear-gradient(90deg, #222 25%, #333 50%, #222 75%);
   animation: shimmerLatest 1.2s infinite;
 }
+
+    /* =========================
+   FOLDER CARD SKELETON
+========================= */
+.folder-skeleton {
+  background: #222; /* same as li */
+  border-radius: 8px;
+  position: relative;
+  height: 180px; /* ✅ same as li */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* VIDEO AREA */
+.folder-skeleton .video-skel {
+  height: 130px; /* ✅ same as real video */
+  width: 100%;
+  background: #000; /* same as video bg */
+  position: relative;
+  overflow: hidden;
+}
+
+/* TITLE AREA (same as .folder-link) */
+.folder-skeleton .title-skel {
+  height: 50px; /* ✅ same */
+  width: 100%;
+  background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* FAKE TEXT LINE */
+.folder-skeleton .title-skel .line {
+  width: 60%;
+  height: 14px;
+  border-radius: 4px;
+  background: #333;
+  position: relative;
+  overflow: hidden;
+}
+
+/* SHIMMER EFFECT */
+.folder-skeleton .video-skel::after,
+.folder-skeleton .title-skel .line::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgba(255,255,255,0.08) 50%,
+    transparent 75%
+  );
+  animation: shimmerFolder 1.2s infinite;
+}
+
+/* ANIMATION */
+@keyframes shimmerFolder {
+  100% {
+    transform: translateX(200%);
+  }
+}
   </style>
   
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -846,7 +913,38 @@ function googleTranslateElementInit() {
 </div>
   
 <div id="folderSection">
-  <ul id="folderList"></ul>
+  <ul id="folderList">
+
+    <!-- Skeletons (temporary placeholders) -->
+    <li class="folder-skeleton">
+      <div class="video-skel"></div>
+      <div class="title-skel">
+        <div class="line"></div>
+      </div>
+    </li>
+
+    <li class="folder-skeleton">
+      <div class="video-skel"></div>
+      <div class="title-skel">
+        <div class="line"></div>
+      </div>
+    </li>
+
+    <li class="folder-skeleton">
+      <div class="video-skel"></div>
+      <div class="title-skel">
+        <div class="line"></div>
+      </div>
+    </li>
+
+    <li class="folder-skeleton">
+      <div class="video-skel"></div>
+      <div class="title-skel">
+        <div class="line"></div>
+      </div>
+    </li>
+
+  </ul>
 </div>
 
   <div style="display:flex; justify-content:center; margin: 30px 0;">
@@ -1184,6 +1282,23 @@ async function loadVideos() {
     });
 
     const folderList = document.getElementById("folderList");
+
+    const folderList = document.getElementById("folderList");
+
+for (let i = 0; i < 4; i++) {
+  const li = document.createElement("li");
+  li.className = "folder-skeleton";
+
+  li.innerHTML = `
+    <div class="video-skel"></div>
+    <div class="title-skel">
+      <div class="line"></div>
+    </div>
+  `;
+
+  folderList.appendChild(li);
+}
+    
     if (!folderList) return;
 
     folderList.innerHTML = "";
