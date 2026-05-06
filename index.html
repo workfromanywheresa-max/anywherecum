@@ -970,17 +970,59 @@ function googleTranslateElementInit() {
   </a>
   </div>
   
-  <!-- JuicyAds v3.0 -->
-<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-
-<div style="display: flex; justify-content: center;">
+  <!-- =========================
+     BOTTOM AD (CLS SAFE)
+========================= -->
+<div class="ad-slot">
   <ins id="1113664" data-width="308" data-height="298"></ins>
 </div>
 
-<script type="text/javascript" data-cfasync="false" async>
+<!-- =========================
+     AD CSS (NO LAYOUT SHIFT)
+========================= -->
+<style>
+.ad-slot {
+  width: 308px;
+  height: 298px;        /* 🔒 reserves space instantly */
+  margin: 20px auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #111;     /* prevents blank flash */
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* optional: smooth loading feel */
+.ad-slot::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,#111,#1a1a1a,#111);
+  animation: adShimmer 1.2s infinite;
+  z-index: 0;
+}
+
+.ad-slot ins {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes adShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+</style>
+
+<!-- =========================
+     JUICYADS SCRIPT
+========================= -->
+<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+
+<script type="text/javascript" data-cfasync="false">
   (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113664});
 </script>
-<!--JuicyAds END-->
   
 <footer style="text-align:center; padding:15px; color:#fff; font-size:12px;">
   © 2026 AnywhereCum – Legal content only. 18+<br>
