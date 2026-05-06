@@ -182,15 +182,23 @@ footer {
 }
 
 /* =========================
-   SKELETON CONTAINER (MATCH VIDEO BOX EXACTLY)
+   SKELETON GRID (MATCH VIDEO GRID EXACTLY)
 ========================= */
+#skeletonContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 15px;
+  align-items: start;
+}
 
+/* =========================
+   SKELETON BOX (REMOVE CONFLICTING SPACING)
+========================= */
 .skeleton-box {
   background: #222;
   border-radius: 8px;
   height: clamp(220px, 35vh, 400px);
   width: 100%;
-  overflow: hidden;
 
   display: flex;
   flex-direction: column;
@@ -199,7 +207,8 @@ footer {
   padding: 20px;
   box-sizing: border-box;
 
-  margin-bottom: 20px;
+  /* ❌ REMOVE THIS (it breaks grid spacing) */
+  margin-bottom: 0;
 }
 
 /* =========================
