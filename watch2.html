@@ -369,17 +369,20 @@ Watch high quality video streaming online. Updated daily with new content.
   <!-- =========================
      MOBILE AD (TOP)
 ========================= -->
-<div class="ad-slot mobile-ad hidden-ad">
+<div class="ad-slot mobile-ad">
   <ins id="1113665" data-width="300" data-height="112"></ins>
 </div>
 
 <!-- =========================
      DESKTOP AD (BOTTOM)
 ========================= -->
-<div class="ad-slot desktop-ad hidden-ad">
+<div class="ad-slot desktop-ad">
   <ins id="1113664" data-width="308" data-height="298"></ins>
 </div>
 
+<!-- =========================
+     SHARED AD CSS
+========================= -->
 <style>
 .ad-slot {
   margin: 20px auto;
@@ -404,43 +407,105 @@ Watch high quality video streaming online. Updated daily with new content.
   height: 298px;
 }
 
-/* hidden initially */
-.hidden-ad {
-  visibility: hidden;
-}
-
-/* responsive */
+/* hide desktop on mobile */
 @media (max-width: 768px) {
   .desktop-ad {
     display: none;
   }
 }
 
+/* hide mobile on desktop */
 @media (min-width: 769px) {
   .mobile-ad {
     display: none;
   }
 }
 
+/* countdown overlay */
+.ad-countdown {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: #111;
+  color: #fff;
+  font-size: 15px;
+  z-index: 10;
+}
+
+/* hidden ads initially */
 .ad-slot ins {
-  position: relative;
-  z-index: 1;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 </style>
 
-<!-- JUICYADS -->
+<!-- =========================
+     JUICYADS SCRIPT
+========================= -->
 <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
 
-<script type="text/javascript" data-cfasync="false">
-  (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113665});
-  (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113664});
+<!-- =========================
+     15 SECOND DELAY
+========================= -->
+<script>
+window.addEventListener("DOMContentLoaded", () => {
 
-  // SHOW ADS AFTER 15 SECONDS
-  setTimeout(() => {
-    document.querySelectorAll('.hidden-ad').forEach(ad => {
-      ad.style.visibility = 'visible';
+  /* CREATE COUNTDOWN */
+  document.querySelectorAll(".ad-slot").forEach(slot => {
+
+    const countdown = document.createElement("div");
+
+    countdown.className = "ad-countdown";
+    countdown.innerHTML = `Ad loading in <span>15</span>s...`;
+
+    slot.appendChild(countdown);
+
+  });
+
+  let seconds = 15;
+
+  const interval = setInterval(() => {
+
+    seconds--;
+
+    document.querySelectorAll(".ad-countdown span").forEach(span => {
+      span.textContent = seconds;
     });
-  }, 15000);
+
+    if (seconds <= 0) {
+
+      clearInterval(interval);
+
+      /* REMOVE COUNTDOWN */
+      document.querySelectorAll(".ad-countdown").forEach(el => {
+        el.remove();
+      });
+
+      /* SHOW ADS */
+      document.querySelectorAll(".ad-slot ins").forEach(ad => {
+        ad.style.visibility = "visible";
+        ad.style.opacity = "1";
+      });
+
+      /* LOAD ADS AFTER 15s */
+      (adsbyjuicy = window.adsbyjuicy || []).push({
+        adzone: 1113665
+      });
+
+      (adsbyjuicy = window.adsbyjuicy || []).push({
+        adzone: 1113664
+      });
+
+    }
+
+  }, 1000);
+
+});
 </script>
   
    <footer class="footer" style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
