@@ -1067,11 +1067,30 @@ let expiryTime = null;
 let lastCountdown = "";
 
 async function initVipCountdown() {
+
+    if (!expiryTime) return;
+
+  // 1. TRY LOAD FROM CACHE FIRST
+  const cached = localStorage.getItem("vip_expiry");
+
+  if (cached) {
+    expiryTime = Number(cached);
+    startVipCountdown();
+  }
+
+  // 2. ALWAYS VERIFY IN BACKGROUND
   vipGlobal = await getVipStatus();
 
   if (vipGlobal?.active && vipGlobal?.expiresAt) {
-    expiryTime = new Date(vipGlobal.expiresAt).getTime();
-    startVipCountdown(); // start immediately once ready
+
+    const newExpiry = new Date(vipGlobal.expiresAt).getTime();
+
+    expiryTime = newExpiry;
+
+    // SAVE TO CACHE (THIS IS THE KEY FIX)
+    localStorage.setItem("vip_expiry", newExpiry);
+
+    startVipCountdown();
   }
 }
 
