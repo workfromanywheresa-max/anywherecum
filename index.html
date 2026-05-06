@@ -1119,7 +1119,7 @@ async function getVipStatus() {
    COUNTDOWN CALC
 ========================= */
 function formatCountdown(diff) {
-  if (diff <= 0) return "Expired";
+  if (diff <= 0) return "(Expired)";
 
   const total = Math.floor(diff / 1000);
 
@@ -1278,7 +1278,7 @@ function createPreviewItem(video, folderURL, linkText, folderName, vipActive, is
   link.href = "javascript:void(0)";
 
   if (isVipFolder && vipActive) {
-    link.innerHTML = `💎 Unlocked (<span class="vipCountdown"></span>)`;
+    link.innerHTML = `💎 Unlocked <span class="vipCountdown"></span>`;
   } else {
     link.textContent = linkText;
   }
