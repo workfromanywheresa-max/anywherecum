@@ -1282,9 +1282,12 @@ async function loadVideos() {
     });
 
     const folderList = document.getElementById("folderList");
+if (!folderList) return;
 
-    const folderList = document.getElementById("folderList");
+// 1. CLEAR ANY OLD CONTENT (important)
+folderList.innerHTML = "";
 
+// 2. SHOW SKELETONS WHILE LOADING
 for (let i = 0; i < 4; i++) {
   const li = document.createElement("li");
   li.className = "folder-skeleton";
@@ -1298,40 +1301,35 @@ for (let i = 0; i < 4; i++) {
 
   folderList.appendChild(li);
 }
-    
-    if (!folderList) return;
 
-    folderList.innerHTML = "";
+// 3. FETCH DATA
+const res = await fetch("./videos.json");
+const videos = await res.json();
 
-    let folderNames = Object.keys(folders);
+// 4. REMOVE SKELETONS BEFORE REAL DATA
+folderList.innerHTML = "";
 
-    folderNames.sort((a, b) => {
-      if (a === VIP_FOLDER) return -1;
-      if (b === VIP_FOLDER) return 1;
-      return 0;
-    });
+// 5. BUILD REAL CONTENT
+let folderNames = Object.keys(folders);
 
-    folderNames.forEach(folderName => {
+folderNames.forEach(folderName => {
+  const latest = folders[folderName]
+    .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
-      const latest = folders[folderName]
-        .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+  const folderURL =
+    "folder.html?folder=" + encodeURIComponent(folderName);
 
-      const folderURL =
-        "folder.html?folder=" + encodeURIComponent(folderName);
+  const li = createPreviewItem(
+    latest,
+    folderURL,
+    folderName,
+    folderName,
+    vipGlobal.active,
+    folderName === VIP_FOLDER
+  );
 
-      let label = folderName;
-
-      const li = createPreviewItem(
-        latest,
-        folderURL,
-        label,
-        folderName,
-        vipGlobal.active,
-        folderName === VIP_FOLDER
-      );
-
-      folderList.appendChild(li);
-    });
+  folderList.appendChild(li);
+});
 
     const nonVip = videos.filter(v => v.folder !== VIP_FOLDER);
 
