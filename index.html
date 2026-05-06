@@ -1523,36 +1523,43 @@ function setCachedEndTime(time) {
   endTime = time;
 }
 
-/* ================= UI ================= */
-function renderTimerOnce() {
-  const el = document.getElementById("miniCountdown");
-  if (!el || !endTime) return; // 🔥 DO NOTHING if no cache yet
-
-  const diff = endTime - Date.now();
-
-  if (diff <= 0) {
-    el.innerText = "(ended)";
-    return;
-  }
+/* ================= FORMAT ================= */
+function formatTime(diff) {
+  if (diff <= 0) return "(ended)";
 
   const totalSeconds = Math.floor(diff / 1000);
+
   const days = Math.floor(totalSeconds / 86400);
   const hours = Math.floor((totalSeconds % 86400) / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
 
-  el.innerText =
-    `(${days}d:` +
-    `${String(hours).padStart(2, "0")}h:` +
-    `${String(minutes).padStart(2, "0")}m:` +
-    `${String(seconds).padStart(2, "0")}s)`;
+  return `(${days}d:${String(hours).padStart(2,"0")}h:${String(minutes).padStart(2,"0")}m:${String(seconds).padStart(2,"0")}s)`;
+}
+
+/* ================= RENDER ================= */
+function renderTimer() {
+  const el = document.getElementById("miniCountdown");
+  if (!el) return;
+
+  if (!endTime) {
+    // 🔥 reserve space ALWAYS (no blank UI)
+    el.innerText = "(0d:00h:00m:00s)";
+    return;
+  }
+
+  const diff = endTime - Date.now();
+  el.innerText = formatTime(diff);
 }
 
 /* ================= LOOP ================= */
 function startTimer() {
   if (intervalId) return;
 
-  intervalId = setInterval(renderTimerOnce, 1000);
+  // 🔥 render instantly before first tick
+  renderTimer();
+
+  intervalId = setInterval(renderTimer, 1000);
 }
 
 /* ================= SERVER ================= */
@@ -1564,9 +1571,9 @@ async function loadStatus() {
     if (data?.end_time) {
       const newTime = Number(data.end_time);
 
-      if (newTime !== endTime) {
+      if (!endTime || newTime !== endTime) {
         setCachedEndTime(newTime);
-        renderTimerOnce(); // 🔥 instant update when API returns
+        renderTimer(); // 🔥 instant update
       }
     }
   } catch (e) {
@@ -1575,25 +1582,20 @@ async function loadStatus() {
 }
 
 /* ================= INIT ================= */
-async function init() {
+function init() {
   const el = document.getElementById("miniCountdown");
   if (!el) return;
 
-  // 🔥 1. LOAD CACHE FIRST
+  // 🔥 1. LOAD CACHE
   endTime = getCachedEndTime();
 
-  // 🔥 2. ONLY render if cache exists
-  if (endTime) {
-    renderTimerOnce();
-  }
-
-  // 🔥 3. START LOOP
+  // 🔥 2. START TIMER (handles rendering too)
   startTimer();
 
-  // 🔥 4. BACKGROUND FETCH
+  // 🔥 3. FETCH IN BACKGROUND
   loadStatus();
 
-  // 🔥 5. FIREBASE
+  // 🔥 4. FIREBASE (unchanged)
   const entriesRef = ref(db, "entries");
   onValue(entriesRef, (snapshot) => {
     const data = snapshot.val();
