@@ -836,7 +836,6 @@ function googleTranslateElementInit() {
        width:100%;
      ">
     Click here to unlock VIP Exlusive Free
-    <span id="miniCountdown" style="color:#00ffcc;">(0d:00h:00m:00s)</span>
   </a>
   </div>
 
@@ -1763,89 +1762,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 });
-  </script>
-
-  <script type="module">
-const API = "https://competition.workfromanywhere-sa.workers.dev";
-
-/* ================= CACHE ================= */
-const CACHE_KEY = "ac:vip:end_time";
-
-function saveCache(v) {
-  localStorage.setItem(CACHE_KEY, String(v));
-}
-
-function loadCache() {
-  const v = Number(localStorage.getItem(CACHE_KEY));
-  return Number.isFinite(v) ? v : null;
-}
-
-/* ================= STATE ================= */
-let endTime = loadCache();
-let lastRenderText = "";
-let elRef = document.getElementById("miniCountdown");
-
-/* ================= FORMAT ================= */
-function formatTime(diff) {
-  if (diff <= 0) return "(ended)";
-
-  const total = Math.floor(diff / 1000);
-  const d = Math.floor(total / 86400);
-  const h = Math.floor((total % 86400) / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
-
-  return `(${d}d:${String(h).padStart(2,"0")}h:${String(m).padStart(2,"0")}m:${String(s).padStart(2,"0")}s)`;
-}
-
-/* ================= RENDER ================= */
-function render(force = false) {
-  if (!elRef || !endTime) return;
-
-  const text = formatTime(endTime - Date.now());
-
-  if (!force && text === lastRenderText) return;
-
-  elRef.textContent = text;
-  lastRenderText = text;
-}
-
-/* ================= 🔥 INSTANT PAINT (NO BLINK) ================= */
-(function bootInstant() {
-  if (!elRef) return;
-
-  if (endTime) {
-    elRef.textContent = formatTime(endTime - Date.now());
-  } else {
-    elRef.textContent = "(loading...)";
-  }
-})();
-
-/* ================= TIMER ================= */
-setInterval(() => render(false), 1000);
-
-/* ================= FETCH ================= */
-async function fetchStatus() {
-  try {
-    const res = await fetch(API + "/status", { cache: "no-store" });
-    const data = await res.json();
-
-    const newTime = Number(data?.end_time);
-    if (!Number.isFinite(newTime)) return;
-
-    if (newTime !== endTime) {
-      endTime = newTime;
-      saveCache(newTime);
-      render(true);
-    }
-  } catch (err) {
-    console.log("Fetch failed:", err);
-  }
-}
-
-/* ================= POLLING ================= */
-fetchStatus();
-setInterval(fetchStatus, 5000);
   </script>
   
   <script type="module" src="views.js"></script>
