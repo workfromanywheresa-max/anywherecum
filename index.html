@@ -564,19 +564,6 @@ footer {
     transform: translateX(200%);
   }
 }
-
-    #miniCountdown {
-  display: inline-block;
-  margin-left: 8px;
-  min-width: 80px;   /* reserves consistent space */
-  text-align: center;
-
-  font-size: 11px;
-  font-weight: bold;
-
-  color: #00ffcc;
-  white-space: nowrap;
-    }
   </style>
   
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
@@ -1509,7 +1496,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const API = "https://competition.workfromanywhere-sa.workers.dev";
 
@@ -1517,30 +1504,29 @@ const firebaseConfig = {
   databaseURL: "https://anywherecum-1c8d0-default-rtdb.firebaseio.com"
 };
 
-initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
 let endTime = null;
-let timerInterval = null;
-let miniCountdownEl;
 
 /* ================= CACHE ================= */
-const savedTime = Number(localStorage.getItem("vip_end_time"));
-if (savedTime && !isNaN(savedTime)) {
-  endTime = savedTime;
+const savedTime = localStorage.getItem("vip_end_time");
+if (savedTime) {
+  endTime = Number(savedTime);
+  startTimer();
 }
 
-/* ================= LOAD STATUS ================= */
+/* ================= LOAD STATUS FROM API ================= */
 async function loadStatus() {
   try {
     const res = await fetch(API + "/status");
     const data = await res.json();
 
-    if (data?.end_time && !isNaN(Number(data.end_time))) {
+    if (data?.end_time) {
       endTime = Number(data.end_time);
       localStorage.setItem("vip_end_time", endTime);
+      startTimer();
     }
-
-    startTimer();
   } catch (e) {
     console.log("Status load failed", e);
   }
@@ -1548,43 +1534,58 @@ async function loadStatus() {
 
 /* ================= TIMER ================= */
 function startTimer() {
-  if (!miniCountdownEl || !endTime) return;
+  updateTimer();
+  setInterval(updateTimer, 1000);
+}
 
-  clearInterval(timerInterval);
+function updateTimer() {
+  if (!endTime) return;
 
-  function updateTimer() {
-    const diff = endTime - Date.now();
+  const diff = endTime - Date.now();
+  const btn = document.getElementById("miniCountdown");
 
-    if (diff <= 0) {
-      miniCountdownEl.textContent = "(ended)";
-      clearInterval(timerInterval);
-      return;
-    }
-
-    const totalSeconds = Math.floor(diff / 1000);
-
-    const days = Math.floor(totalSeconds / 86400);
-    const hours = Math.floor((totalSeconds % 86400) / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    miniCountdownEl.textContent =
-      `(${days}d:${String(hours).padStart(2,'0')}h:${String(minutes).padStart(2,'0')}m:${String(seconds).padStart(2,'0')}s)`;
+  if (diff <= 0) {
+    btn.innerText = "(ended)";
+    return;
   }
 
-  updateTimer();
-  timerInterval = setInterval(updateTimer, 1000);
+  const totalSeconds = Math.floor(diff / 1000);
+
+  const days = Math.floor(totalSeconds / (3600 * 24));
+  const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  const time =
+    `${days}d:` +
+    `${String(hours).padStart(2,'0')}h:` +
+    `${String(minutes).padStart(2,'0')}m:` +
+    `${String(seconds).padStart(2,'0')}s`;
+
+  btn.innerText = "(" + time + ")";
+}
+
+/* ================= REALTIME (OPTIONAL ENTRIES COUNT) ================= */
+function startEntryCounter() {
+  const entriesRef = ref(db, "entries");
+
+  onValue(entriesRef, (snapshot) => {
+    const data = snapshot.val();
+    const count = data ? Object.keys(data).length : 0;
+
+    console.log("Entries:", count);
+  });
 }
 
 /* ================= INIT ================= */
-function init() {
-  miniCountdownEl = document.getElementById("miniCountdown");
-  loadStatus();
+async function init() {
+  await loadStatus();
+  startEntryCounter();
 }
 
-document.addEventListener("DOMContentLoaded", init);
+init();
   </script>
-  
+
   <script>  
 const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";  
 const CACHE_NAME = "live-video-cache-v1";  
@@ -1858,4 +1859,4 @@ document.addEventListener("DOMContentLoaded", () => {
   <script type="module" src="views.js"></script>
 
 </body>
-    </html>
+  </html>
