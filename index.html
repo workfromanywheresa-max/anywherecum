@@ -1517,7 +1517,6 @@ function getCachedEndTime() {
 
   const num = Number(saved);
 
-  // validate timestamp (not garbage / not too old)
   if (isNaN(num) || num < Date.now() - 86400000) {
     localStorage.removeItem("vip_end_time");
     return null;
@@ -1531,36 +1530,11 @@ function setCachedEndTime(time) {
   endTime = time;
 }
 
-/* ================= INIT DEFAULT UI ================= */
-document.addEventListener("DOMContentLoaded", () => {
-  const el = document.getElementById("miniCountdown");
-  if (el) {
-    el.innerText = "(0d:00h:00m:00s)";
-  }
-
-  init();
-});
-
-/* ================= LOAD STATUS ================= */
-async function loadStatus() {
-  try {
-    const res = await fetch(API + "/status");
-    const data = await res.json();
-
-    if (data?.end_time) {
-      setCachedEndTime(Number(data.end_time));
-      startTimer();
-    }
-  } catch (e) {
-    console.log("Status load failed", e);
-  }
-}
-
 /* ================= TIMER ================= */
 function startTimer() {
   if (intervalId) clearInterval(intervalId);
 
-  updateTimer(); // immediate paint (no flicker)
+  updateTimer(); // immediate paint (important)
   intervalId = setInterval(updateTimer, 1000);
 }
 
@@ -1568,10 +1542,7 @@ function updateTimer() {
   const el = document.getElementById("miniCountdown");
   if (!el) return;
 
-  if (!endTime) {
-    el.innerText = "(0d:00h:00m:00s)";
-    return;
-  }
+  if (!endTime) return;
 
   const diff = endTime - Date.now();
 
@@ -1594,6 +1565,21 @@ function updateTimer() {
     `${String(seconds).padStart(2, "0")}s)`;
 }
 
+/* ================= LOAD STATUS ================= */
+async function loadStatus() {
+  try {
+    const res = await fetch(API + "/status");
+    const data = await res.json();
+
+    if (data?.end_time) {
+      setCachedEndTime(Number(data.end_time));
+      startTimer();
+    }
+  } catch (e) {
+    console.log("Status load failed", e);
+  }
+}
+
 /* ================= REALTIME COUNTER ================= */
 function startEntryCounter() {
   const entriesRef = ref(db, "entries");
@@ -1608,25 +1594,34 @@ function startEntryCounter() {
 
 /* ================= INIT ================= */
 async function init() {
-  // 1. load cache instantly
+  const el = document.getElementById("miniCountdown");
+
+  // 1. load cache FIRST (no flicker)
   endTime = getCachedEndTime();
 
   if (endTime) {
-    startTimer();
+    startTimer(); // immediately show cached countdown
   }
 
-  // 2. refresh from server
+  // 2. only show fallback text if NOTHING exists
+  if (!endTime && el) {
+    el.innerText = "(loading...)";
+  }
+
+  // 3. fetch latest server value
   await loadStatus();
 
-  // 3. realtime listener
+  // 4. realtime listener
   startEntryCounter();
 
-  // 4. safety fallback
+  // 5. safety start
   if (endTime && !intervalId) {
     startTimer();
   }
 }
-      </script>
+
+document.addEventListener("DOMContentLoaded", init);
+    </script>
   
   <script>  
 const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";  
