@@ -1068,6 +1068,12 @@ let lastCountdown = "";
 /* ✅ NEW: observer */
 let observer = null;
 
+let countdownEls = [];
+
+function cacheCountdownEls() {
+  countdownEls = document.querySelectorAll(".vipCountdown");
+}
+
 /* =========================
    STOP ACTIVE VIDEO (UPDATED)
 ========================= */
@@ -1125,12 +1131,12 @@ function formatCountdown(diff) {
 ========================= */
 function updateCountdownText(newText) {
   if (newText === lastCountdown) return;
-
   lastCountdown = newText;
 
-  document.querySelectorAll(".vipCountdown").forEach(el => {
-    el.textContent = newText;
-  });
+  for (let i = 0; i < countdownEls.length; i++) {
+    const el = countdownEls[i];
+    if (el) el.textContent = newText;
+  }
 }
 
 /* =========================
@@ -1353,6 +1359,8 @@ requestAnimationFrame(async () => {
 
   folderList.innerHTML = "";
 
+  cacheCountdownEls(); // 🔥 re-grab countdown elements after DOM rebuild
+
   folderNames.forEach(folderName => {
 
     const list = folders[folderName];
@@ -1459,7 +1467,11 @@ document.addEventListener("click", async (e) => {
 ========================= */
 document.addEventListener("DOMContentLoaded", () => {
   initAgeModal();
-  loadVideos().then(() => startVipCountdown());
+
+  loadVideos().then(() => {
+    startVipCountdown();
+    cacheCountdownEls(); // ✅ ADD THIS HERE
+  });
 });
   </script>
     
