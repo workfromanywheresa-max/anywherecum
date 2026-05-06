@@ -367,19 +367,26 @@ Watch high quality video streaming online. Updated daily with new content.
   </div>
 
   <!-- =========================
-     BOTTOM AD (CLS SAFE)
+     MOBILE AD (TOP)
+     Desktop hidden
 ========================= -->
-<div class="ad-slot">
+<div class="ad-slot mobile-ad">
   <ins id="1113665" data-width="300" data-height="112"></ins>
 </div>
 
 <!-- =========================
-     AD CSS (UPDATED SIZE)
+     DESKTOP AD (BOTTOM)
+     Mobile hidden
+========================= -->
+<div class="ad-slot desktop-ad">
+  <ins id="1113664" data-width="308" data-height="298"></ins>
+</div>
+
+<!-- =========================
+     SHARED AD CSS (CLS SAFE)
 ========================= -->
 <style>
 .ad-slot {
-  width: 300px;
-  height: 112px;        /* 🔒 updated to match new ad */
   margin: 20px auto;
   display: flex;
   justify-content: center;
@@ -390,7 +397,33 @@ Watch high quality video streaming online. Updated daily with new content.
   position: relative;
 }
 
-/* ensure ad sits above background cleanly */
+/* MOBILE AD SIZE */
+.mobile-ad {
+  width: 300px;
+  height: 112px;
+}
+
+/* DESKTOP AD SIZE */
+.desktop-ad {
+  width: 308px;
+  height: 298px;
+}
+
+/* hide desktop on mobile */
+@media (max-width: 768px) {
+  .desktop-ad {
+    display: none;
+  }
+}
+
+/* hide mobile on desktop */
+@media (min-width: 769px) {
+  .mobile-ad {
+    display: none;
+  }
+}
+
+/* ensure ad sits cleanly */
 .ad-slot ins {
   position: relative;
   z-index: 1;
@@ -398,15 +431,14 @@ Watch high quality video streaming online. Updated daily with new content.
 </style>
 
 <!-- =========================
-     JUICYADS SCRIPT
+     JUICYADS SCRIPT (ONCE ONLY)
 ========================= -->
 <script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
 
 <script type="text/javascript" data-cfasync="false">
   (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113665});
+  (adsbyjuicy = window.adsbyjuicy || []).push({'adzone':1113664});
 </script>
-
-<!--JuicyAds END-->
 
    <footer class="footer" style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
 © 2026 AnywhereCum – Legal content only. 18+<br>
