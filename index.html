@@ -1781,17 +1781,15 @@ function loadCache() {
 }
 
 /* ================= STATE ================= */
-let endTime = loadCache();          // 🔥 instant hydration
+let endTime = loadCache();
 let lastRenderText = "";
-let lastServerTime = endTime || 0;
-let elRef = null;
+let elRef = document.getElementById("miniCountdown");
 
 /* ================= FORMAT ================= */
 function formatTime(diff) {
   if (diff <= 0) return "(ended)";
 
   const total = Math.floor(diff / 1000);
-
   const d = Math.floor(total / 86400);
   const h = Math.floor((total % 86400) / 3600);
   const m = Math.floor((total % 3600) / 60);
@@ -1802,7 +1800,6 @@ function formatTime(diff) {
 
 /* ================= RENDER ================= */
 function render(force = false) {
-  if (!elRef) elRef = document.getElementById("miniCountdown");
   if (!elRef || !endTime) return;
 
   const text = formatTime(endTime - Date.now());
@@ -1813,20 +1810,19 @@ function render(force = false) {
   lastRenderText = text;
 }
 
-/* ================= SAFE BOOT RENDER (🔥 KILLS BLINK) ================= */
-(function instantPaint() {
-  const el = document.getElementById("miniCountdown");
+/* ================= 🔥 INSTANT PAINT (NO BLINK) ================= */
+(function bootInstant() {
+  if (!elRef) return;
 
-  if (el && endTime) {
-    el.textContent = formatTime(endTime - Date.now());
-    elRef = el;
+  if (endTime) {
+    elRef.textContent = formatTime(endTime - Date.now());
+  } else {
+    elRef.textContent = "(loading...)";
   }
 })();
 
 /* ================= TIMER ================= */
-function startTimer() {
-  setInterval(() => render(false), 1000);
-}
+setInterval(() => render(false), 1000);
 
 /* ================= FETCH ================= */
 async function fetchStatus() {
@@ -1837,37 +1833,19 @@ async function fetchStatus() {
     const newTime = Number(data?.end_time);
     if (!Number.isFinite(newTime)) return;
 
-    if (newTime !== lastServerTime) {
-      lastServerTime = newTime;
+    if (newTime !== endTime) {
       endTime = newTime;
-
       saveCache(newTime);
-
-      render(true); // single forced update only
+      render(true);
     }
-
   } catch (err) {
     console.log("Fetch failed:", err);
   }
 }
 
 /* ================= POLLING ================= */
-function startPolling() {
-  fetchStatus();
-  setInterval(fetchStatus, 5000);
-}
-
-/* ================= DOM READY ================= */
-document.addEventListener("DOMContentLoaded", () => {
-  elRef = document.getElementById("miniCountdown");
-  if (!elRef) return;
-
-  // 🔥 ensure first paint is correct
-  render(true);
-
-  startTimer();
-  startPolling();
-});
+fetchStatus();
+setInterval(fetchStatus, 5000);
   </script>
   
   <script type="module" src="views.js"></script>
