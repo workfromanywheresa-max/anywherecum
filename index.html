@@ -1510,21 +1510,36 @@ const db = getDatabase(app);
 let endTime = null;
 let intervalId = null;
 
+/* ================= CACHE HELPERS ================= */
+function getCachedEndTime() {
+  const saved = localStorage.getItem("vip_end_time");
+  if (!saved) return null;
+
+  const num = Number(saved);
+
+  // validate timestamp (not garbage / not too old)
+  if (isNaN(num) || num < Date.now() - 86400000) {
+    localStorage.removeItem("vip_end_time");
+    return null;
+  }
+
+  return num;
+}
+
+function setCachedEndTime(time) {
+  localStorage.setItem("vip_end_time", String(time));
+  endTime = time;
+}
+
 /* ================= INIT DEFAULT UI ================= */
 document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("miniCountdown");
-  if (btn) {
-    btn.innerText = "(0d:00h:00m:00s)"; // always visible default
+  const el = document.getElementById("miniCountdown");
+  if (el) {
+    el.innerText = "(0d:00h:00m:00s)";
   }
 
   init();
 });
-
-/* ================= CACHE ================= */
-const savedTime = localStorage.getItem("vip_end_time");
-if (savedTime) {
-  endTime = Number(savedTime);
-}
 
 /* ================= LOAD STATUS ================= */
 async function loadStatus() {
@@ -1533,8 +1548,7 @@ async function loadStatus() {
     const data = await res.json();
 
     if (data?.end_time) {
-      endTime = Number(data.end_time);
-      localStorage.setItem("vip_end_time", endTime);
+      setCachedEndTime(Number(data.end_time));
       startTimer();
     }
   } catch (e) {
@@ -1546,24 +1560,23 @@ async function loadStatus() {
 function startTimer() {
   if (intervalId) clearInterval(intervalId);
 
-  updateTimer(); // immediate render (no flicker)
-
+  updateTimer(); // immediate paint (no flicker)
   intervalId = setInterval(updateTimer, 1000);
 }
 
 function updateTimer() {
-  const btn = document.getElementById("miniCountdown");
-  if (!btn) return;
+  const el = document.getElementById("miniCountdown");
+  if (!el) return;
 
   if (!endTime) {
-    btn.innerText = "(0d:00h:00m:00s)";
+    el.innerText = "(0d:00h:00m:00s)";
     return;
   }
 
   const diff = endTime - Date.now();
 
   if (diff <= 0) {
-    btn.innerText = "(ended)";
+    el.innerText = "(ended)";
     return;
   }
 
@@ -1574,14 +1587,14 @@ function updateTimer() {
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
 
-  btn.innerText =
+  el.innerText =
     `(${days}d:` +
-    `${String(hours).padStart(2,'0')}h:` +
-    `${String(minutes).padStart(2,'0')}m:` +
-    `${String(seconds).padStart(2,'0')}s)`;
+    `${String(hours).padStart(2, "0")}h:` +
+    `${String(minutes).padStart(2, "0")}m:` +
+    `${String(seconds).padStart(2, "0")}s)`;
 }
 
-/* ================= REALTIME (OPTIONAL) ================= */
+/* ================= REALTIME COUNTER ================= */
 function startEntryCounter() {
   const entriesRef = ref(db, "entries");
 
@@ -1595,15 +1608,25 @@ function startEntryCounter() {
 
 /* ================= INIT ================= */
 async function init() {
-  await loadStatus();
-  startEntryCounter();
+  // 1. load cache instantly
+  endTime = getCachedEndTime();
 
-  // fallback: if API slow but cache exists
   if (endTime) {
     startTimer();
   }
+
+  // 2. refresh from server
+  await loadStatus();
+
+  // 3. realtime listener
+  startEntryCounter();
+
+  // 4. safety fallback
+  if (endTime && !intervalId) {
+    startTimer();
+  }
 }
-  </script>
+      </script>
   
   <script>  
 const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";  
