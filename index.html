@@ -1271,6 +1271,7 @@ async function loadVideos() {
       expiryTime = new Date(vipGlobal.expiresAt).getTime();
     }
 
+    // ✅ FETCH ONCE ONLY
     const res = await fetch("./videos.json");
     const videos = await res.json();
 
@@ -1282,55 +1283,46 @@ async function loadVideos() {
     });
 
     const folderList = document.getElementById("folderList");
-if (!folderList) return;
+    if (!folderList) return;
 
-// 1. CLEAR ANY OLD CONTENT (important)
-folderList.innerHTML = "";
+    // show skeletons
+    folderList.innerHTML = "";
+    for (let i = 0; i < 4; i++) {
+      const li = document.createElement("li");
+      li.className = "folder-skeleton";
+      li.innerHTML = `
+        <div class="video-skel"></div>
+        <div class="title-skel">
+          <div class="line"></div>
+        </div>
+      `;
+      folderList.appendChild(li);
+    }
 
-// 2. SHOW SKELETONS WHILE LOADING
-for (let i = 0; i < 4; i++) {
-  const li = document.createElement("li");
-  li.className = "folder-skeleton";
+    // clear skeletons before real data
+    folderList.innerHTML = "";
 
-  li.innerHTML = `
-    <div class="video-skel"></div>
-    <div class="title-skel">
-      <div class="line"></div>
-    </div>
-  `;
+    // build folders
+    Object.keys(folders).forEach(folderName => {
+      const latest = folders[folderName]
+        .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
-  folderList.appendChild(li);
-}
+      const folderURL =
+        "folder.html?folder=" + encodeURIComponent(folderName);
 
-// 3. FETCH DATA
-const res = await fetch("./videos.json");
-const videos = await res.json();
+      const li = createPreviewItem(
+        latest,
+        folderURL,
+        folderName,
+        folderName,
+        vipGlobal.active,
+        folderName === VIP_FOLDER
+      );
 
-// 4. REMOVE SKELETONS BEFORE REAL DATA
-folderList.innerHTML = "";
+      folderList.appendChild(li);
+    });
 
-// 5. BUILD REAL CONTENT
-let folderNames = Object.keys(folders);
-
-folderNames.forEach(folderName => {
-  const latest = folders[folderName]
-    .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
-
-  const folderURL =
-    "folder.html?folder=" + encodeURIComponent(folderName);
-
-  const li = createPreviewItem(
-    latest,
-    folderURL,
-    folderName,
-    folderName,
-    vipGlobal.active,
-    folderName === VIP_FOLDER
-  );
-
-  folderList.appendChild(li);
-});
-
+    // latest video section
     const nonVip = videos.filter(v => v.folder !== VIP_FOLDER);
 
     if (nonVip.length) {
@@ -1339,34 +1331,30 @@ folderNames.forEach(folderName => {
       )[0];
 
       const skeleton = document.getElementById("latestVideoSkeleton");
-const latestDiv = document.getElementById("latestVideo");
+      const latestDiv = document.getElementById("latestVideo");
 
-if (latestDiv) {
+      latestDiv.innerHTML = "";
 
-  latestDiv.innerHTML = "";
+      const li = createPreviewItem(
+        latest,
+        "folder.html?folder=" + encodeURIComponent(latest.folder),
+        "Watch Now: New Video Available!",
+        latest.folder,
+        vipGlobal.active,
+        false
+      );
 
-  const li = createPreviewItem(
-    latest,
-    "folder.html?folder=" + encodeURIComponent(latest.folder),
-    "Watch Now: New Video Available!",
-    latest.folder,
-    vipGlobal.active,
-    false
-  );
+      latestDiv.appendChild(li);
 
-  latestDiv.appendChild(li);
-
-  // ✅ smooth swap (no layout jump)
-  skeleton.style.display = "none";
-  latestDiv.style.display = "block";
-  }
+      skeleton.style.display = "none";
+      latestDiv.style.display = "block";
     }
 
   } catch (err) {
     console.error("Video load error:", err);
   }
-}
-
+    }
+    
 /* =========================
    SMOOTH COUNTDOWN LOOP
 ========================= */
