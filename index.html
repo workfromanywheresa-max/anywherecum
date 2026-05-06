@@ -1111,15 +1111,34 @@ async function getVipStatus() {
    COUNTDOWN CALC
 ========================= */
 function formatCountdown(diff) {
-  if (diff <= 0) return "Expired";
+  if (diff <= 0) return "(00:00)";
 
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-  const minutes = Math.floor((diff / (1000 * 60)) % 60);
-  const seconds = Math.floor((diff / 1000) % 60);
+  const total = Math.floor(diff / 1000);
 
-  return `${days}d ${hours}h ${minutes}m ${seconds}s left`;
-}
+  const d = Math.floor(total / 86400);
+  const h = Math.floor((total % 86400) / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+
+  // 🔥 1. Days still show full format
+  if (d > 0) {
+    return `(${d}d:${h}h:${m}m:${String(s).padStart(2, "0")}s)`;
+  }
+
+  // 🔥 2. Under 1 hour → MM:SS style
+  if (h > 0) {
+    const totalMinutes = h * 60 + m;
+    return `(${totalMinutes}m:${String(s).padStart(2, "0")}s)`;
+  }
+
+  // 🔥 3. Under 1 hour but still minutes only
+  if (m > 0) {
+    return `(${m}m:${String(s).padStart(2, "0")}s)`;
+  }
+
+  // 🔥 4. Under 1 minute → pure MM:SS style
+  return `(${String(s).padStart(2, "0")}s)`;
+    }
 
 /* =========================
    UPDATE DOM (NO FLICKER)
