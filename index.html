@@ -1257,11 +1257,13 @@ async function loadVideos() {
 if (!folderList) return;
 
 /* =========================
-   SHOW SKELETONS (JS ONLY)
+   1. SHOW SKELETONS FIRST
 ========================= */
 folderList.innerHTML = "";
 
-for (let i = 0; i < 8; i++) {
+const SKELETON_COUNT = 8;
+
+for (let i = 0; i < SKELETON_COUNT; i++) {
   const li = document.createElement("li");
   li.className = "folder-skeleton";
 
@@ -1276,37 +1278,55 @@ for (let i = 0; i < 8; i++) {
 }
 
 /* =========================
-   BUILD FOLDERS
+   2. FORCE VISUAL RENDER TIME
+   (IMPORTANT FIX)
+========================= */
+await new Promise(requestAnimationFrame);
+await new Promise(r => setTimeout(r, 500));
+
+/* =========================
+   3. CLEAR SKELETONS
+========================= */
+folderList.innerHTML = "";
+
+/* =========================
+   4. BUILD FOLDER DATA
 ========================= */
 let folderNames = Object.keys(folders);
 
 const vipName = VIP_FOLDER.trim().toLowerCase();
 
-/* VIP FIRST ALWAYS */
-const vip = folderNames.filter(f =>
+/* =========================
+   5. PIN VIP FIRST
+========================= */
+const vipFolders = folderNames.filter(f =>
   f.trim().toLowerCase() === vipName
 );
 
-const normal = folderNames.filter(f =>
+const normalFolders = folderNames.filter(f =>
   f.trim().toLowerCase() !== vipName
 );
 
-folderNames = [...vip, ...normal];
+folderNames = [...vipFolders, ...normalFolders];
 
 /* =========================
-   CLEAR SKELETONS
-========================= */
-folderList.innerHTML = "";
-
-/* =========================
-   RENDER FOLDERS
+   6. RENDER REAL FOLDERS
 ========================= */
 folderNames.forEach(folderName => {
-  const latest = folders[folderName]
-    .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+
+  const list = folders[folderName];
+
+  if (!list || !list.length) return;
+
+  const latest = list.sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  )[0];
 
   const folderURL =
     "folder.html?folder=" + encodeURIComponent(folderName);
+
+  const isVipFolder =
+    folderName.trim().toLowerCase() === vipName;
 
   const li = createPreviewItem(
     latest,
@@ -1314,12 +1334,12 @@ folderNames.forEach(folderName => {
     folderName,
     folderName,
     vipGlobal.active,
-    folderName.trim().toLowerCase() === vipName
+    isVipFolder
   );
 
   folderList.appendChild(li);
 });
-
+    
     // =========================
     // LATEST VIDEO SECTION
     // =========================
