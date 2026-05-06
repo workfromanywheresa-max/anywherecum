@@ -1510,17 +1510,13 @@ const db = getDatabase(app);
 let endTime = null;
 let intervalId = null;
 
-/* ================= CACHE HELPERS ================= */
+/* ================= CACHE ================= */
 function getCachedEndTime() {
   const saved = localStorage.getItem("vip_end_time");
   if (!saved) return null;
 
   const num = Number(saved);
-
-  if (isNaN(num) || num < Date.now() - 86400000) {
-    localStorage.removeItem("vip_end_time");
-    return null;
-  }
+  if (isNaN(num)) return null;
 
   return num;
 }
@@ -1530,31 +1526,20 @@ function setCachedEndTime(time) {
   endTime = time;
 }
 
-/* ================= TIMER ================= */
-function startTimer() {
-  if (intervalId) clearInterval(intervalId);
-
-  updateTimer(); // immediate paint (important)
-  intervalId = setInterval(updateTimer, 1000);
-}
-
-function updateTimer() {
+/* ================= RENDER (NO FLICKER CORE) ================= */
+function renderTimerOnce() {
   const el = document.getElementById("miniCountdown");
-  if (!el) return;
-
-  if (!endTime) return;
+  if (!el || !endTime) return;
 
   const diff = endTime - Date.now();
-
   if (diff <= 0) {
     el.innerText = "(ended)";
     return;
   }
 
   const totalSeconds = Math.floor(diff / 1000);
-
-  const days = Math.floor(totalSeconds / (3600 * 24));
-  const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
 
@@ -1565,10 +1550,18 @@ function updateTimer() {
     `${String(seconds).padStart(2, "0")}s)`;
 }
 
-/* ================= LOAD STATUS ================= */
+/* ================= LOOP ================= */
+function startTimer() {
+  if (intervalId) clearInterval(intervalId);
+
+  renderTimerOnce(); // immediate paint (important)
+  intervalId = setInterval(renderTimerOnce, 1000);
+}
+
+/* ================= LOAD SERVER ================= */
 async function loadStatus() {
   try {
-    const res = await fetch(API + "/status");
+    const res = await fetch(API + "/status", { cache: "no-store" });
     const data = await res.json();
 
     if (data?.end_time) {
@@ -1580,48 +1573,32 @@ async function loadStatus() {
   }
 }
 
-/* ================= REALTIME COUNTER ================= */
-function startEntryCounter() {
-  const entriesRef = ref(db, "entries");
+/* ================= INIT (NO FLICKER FLOW) ================= */
+async function init() {
+  const el = document.getElementById("miniCountdown");
+  if (!el) return;
 
+  // 1. load cache instantly
+  endTime = getCachedEndTime();
+
+  // 2. render IMMEDIATELY if exists (no loading text ever)
+  if (endTime) {
+    startTimer();
+  }
+
+  // 3. fetch server in background
+  loadStatus();
+
+  // 4. realtime listener
+  const entriesRef = ref(db, "entries");
   onValue(entriesRef, (snapshot) => {
     const data = snapshot.val();
-    const count = data ? Object.keys(data).length : 0;
-
-    console.log("Entries:", count);
+    console.log("Entries:", data ? Object.keys(data).length : 0);
   });
 }
 
-/* ================= INIT ================= */
-async function init() {
-  const el = document.getElementById("miniCountdown");
-
-  // 1. load cache FIRST (no flicker)
-  endTime = getCachedEndTime();
-
-  if (endTime) {
-    startTimer(); // immediately show cached countdown
-  }
-
-  // 2. only show fallback text if NOTHING exists
-  if (!endTime && el) {
-    el.innerText = "(loading...)";
-  }
-
-  // 3. fetch latest server value
-  await loadStatus();
-
-  // 4. realtime listener
-  startEntryCounter();
-
-  // 5. safety start
-  if (endTime && !intervalId) {
-    startTimer();
-  }
-}
-
 document.addEventListener("DOMContentLoaded", init);
-    </script>
+  </script>
   
   <script>  
 const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";  
