@@ -913,7 +913,49 @@ function googleTranslateElementInit() {
 </div>
   
 <div id="folderSection">
-  <ul id="folderList"></ul>
+  <ul id="folderList">
+
+    <li class="folder-skeleton">
+      <div class="video-skel"></div>
+      <div class="title-skel"><div class="line"></div></div>
+    </li>
+
+    <li class="folder-skeleton">
+      <div class="video-skel"></div>
+      <div class="title-skel"><div class="line"></div></div>
+    </li>
+
+    <li class="folder-skeleton">
+      <div class="video-skel"></div>
+      <div class="title-skel"><div class="line"></div></div>
+    </li>
+
+    <li class="folder-skeleton">
+      <div class="video-skel"></div>
+      <div class="title-skel"><div class="line"></div></div>
+    </li>
+
+    <li class="folder-skeleton">
+      <div class="video-skel"></div>
+      <div class="title-skel"><div class="line"></div></div>
+    </li>
+
+    <li class="folder-skeleton">
+      <div class="video-skel"></div>
+      <div class="title-skel"><div class="line"></div></div>
+    </li>
+
+    <li class="folder-skeleton">
+      <div class="video-skel"></div>
+      <div class="title-skel"><div class="line"></div></div>
+    </li>
+
+    <li class="folder-skeleton">
+      <div class="video-skel"></div>
+      <div class="title-skel"><div class="line"></div></div>
+    </li>
+
+  </ul>
 </div>
 
   <div style="display:flex; justify-content:center; margin: 30px 0;">
@@ -1256,94 +1298,58 @@ async function loadVideos() {
     const folderList = document.getElementById("folderList");
 if (!folderList) return;
 
-/* =========================
-   1. SKELETON RENDER
-========================= */
-function renderSkeletons(count = 8) {
-  const fragment = document.createDocumentFragment();
+requestAnimationFrame(async () => {
+  const res = await fetch("./videos.json");
+  const videos = await res.json();
 
-  for (let i = 0; i < count; i++) {
-    const li = document.createElement("li");
-    li.className = "folder-skeleton";
+  const folders = {};
 
-    li.innerHTML = `
-      <div class="video-skel"></div>
-      <div class="title-skel">
-        <div class="line"></div>
-      </div>
-    `;
+  videos.forEach(v => {
+    if (!folders[v.folder]) folders[v.folder] = [];
+    folders[v.folder].push(v);
+  });
 
-    fragment.appendChild(li);
-  }
+  let folderNames = Object.keys(folders);
+
+  const vipName = VIP_FOLDER.trim().toLowerCase();
+
+  const vipFolders = folderNames.filter(f =>
+    f.trim().toLowerCase() === vipName
+  );
+
+  const normalFolders = folderNames.filter(f =>
+    f.trim().toLowerCase() !== vipName
+  );
+
+  folderNames = [...vipFolders, ...normalFolders];
 
   folderList.innerHTML = "";
-  folderList.appendChild(fragment);
-}
 
-/* =========================
-   2. INIT SKELETONS FIRST
-========================= */
-renderSkeletons(8);
+  folderNames.forEach(folderName => {
 
-/* =========================
-   3. WAIT FOR PAINT
-========================= */
-requestAnimationFrame(() => {
-  requestAnimationFrame(() => {
+    const list = folders[folderName];
+    if (!list?.length) return;
 
-    /* =========================
-       4. BUILD DATA
-    ========================= */
-    let folderNames = Object.keys(folders);
+    const latest = list.sort(
+      (a, b) => new Date(b.date) - new Date(a.date)
+    )[0];
 
-    const vipName = VIP_FOLDER.trim().toLowerCase();
+    const folderURL =
+      "folder.html?folder=" + encodeURIComponent(folderName);
 
-    const vipFolders = folderNames.filter(f =>
-      f.trim().toLowerCase() === vipName
+    const isVipFolder =
+      folderName.trim().toLowerCase() === vipName;
+
+    const li = createPreviewItem(
+      latest,
+      folderURL,
+      folderName,
+      folderName,
+      vipGlobal.active,
+      isVipFolder
     );
 
-    const normalFolders = folderNames.filter(f =>
-      f.trim().toLowerCase() !== vipName
-    );
-
-    // VIP FIRST ORDER
-    folderNames = [...vipFolders, ...normalFolders];
-
-    /* =========================
-       5. CLEAR SKELETONS
-    ========================= */
-    folderList.innerHTML = "";
-
-    /* =========================
-       6. RENDER REAL FOLDERS
-    ========================= */
-    folderNames.forEach(folderName => {
-
-      const list = folders[folderName];
-      if (!list || !list.length) return;
-
-      const latest = list.sort(
-        (a, b) => new Date(b.date) - new Date(a.date)
-      )[0];
-
-      const folderURL =
-        "folder.html?folder=" + encodeURIComponent(folderName);
-
-      const isVipFolder =
-        folderName.trim().toLowerCase() === vipName;
-
-      const li = createPreviewItem(
-        latest,
-        folderURL,
-        folderName,
-        folderName,
-        vipGlobal?.active,
-        isVipFolder
-      );
-
-      folderList.appendChild(li);
-    });
-
+    folderList.appendChild(li);
   });
 });
     
