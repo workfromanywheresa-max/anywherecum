@@ -1253,102 +1253,59 @@ async function loadVideos() {
       folders[v.folder].push(v);
     });
 
-    const folderList = document.getElementById("folderList");
-if (!folderList) return;
+    renderSkeletons(8);
 
-/* =========================
-   1. SKELETON RENDER (INSTANT)
-========================= */
-function renderSkeletons(count = 8) {
-  const fragment = document.createDocumentFragment();
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
 
-  for (let i = 0; i < count; i++) {
-    const li = document.createElement("li");
-    li.className = "folder-skeleton";
+    // =========================
+    // VIP LOGIC ADDED HERE
+    // =========================
+    let folderNames = Object.keys(folders);
 
-    li.innerHTML = `
-      <div class="video-skel"></div>
-      <div class="title-skel">
-        <div class="line"></div>
-      </div>
-    `;
+    const vipName = VIP_FOLDER.trim().toLowerCase();
 
-    fragment.appendChild(li);
-  }
+    const vipFolders = folderNames.filter(f =>
+      f.trim().toLowerCase() === vipName
+    );
 
-  folderList.innerHTML = "";
-  folderList.appendChild(fragment);
-}
+    const normalFolders = folderNames.filter(f =>
+      f.trim().toLowerCase() !== vipName
+    );
 
-/* =========================
-   2. PAINT SYNC (MATCHES YOUR SYSTEM)
-========================= */
-function paintSync() {
-  return new Promise(r => requestAnimationFrame(() => r()));
-}
+    folderNames = [...vipFolders, ...normalFolders];
 
-/* =========================
-   3. SHOW SKELETONS FIRST
-========================= */
-renderSkeletons(8);
+    // NOW build real folders
+    folderList.innerHTML = "";
 
-/* =========================
-   4. FORCE BROWSER PAINT (CRITICAL FIX)
-========================= */
-await paintSync();
-await paintSync();
+    folderNames.forEach(folderName => {
 
-/* =========================
-   5. NOW BUILD DATA (YOUR ORIGINAL LOGIC)
-========================= */
-let folderNames = Object.keys(folders);
+      const list = folders[folderName];
+      if (!list || !list.length) return;
 
-const vipName = VIP_FOLDER.trim().toLowerCase();
+      const latest = list.sort(
+        (a, b) => new Date(b.date) - new Date(a.date)
+      )[0];
 
-/* VIP FIRST */
-const vipFolders = folderNames.filter(f =>
-  f.trim().toLowerCase() === vipName
-);
+      const folderURL =
+        "folder.html?folder=" + encodeURIComponent(folderName);
 
-const normalFolders = folderNames.filter(f =>
-  f.trim().toLowerCase() !== vipName
-);
+      const isVipFolder =
+        folderName.trim().toLowerCase() === vipName;
 
-folderNames = [...vipFolders, ...normalFolders];
+      const li = createPreviewItem(
+        latest,
+        folderURL,
+        folderName,
+        folderName,
+        vipGlobal?.active,
+        isVipFolder
+      );
 
-/* =========================
-   6. REMOVE SKELETONS (ONLY AFTER PAINT)
-========================= */
-folderList.innerHTML = "";
+      folderList.appendChild(li);
+    });
 
-/* =========================
-   7. RENDER REAL FOLDERS
-========================= */
-folderNames.forEach(folderName => {
-
-  const list = folders[folderName];
-  if (!list || !list.length) return;
-
-  const latest = list.sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
-  )[0];
-
-  const folderURL =
-    "folder.html?folder=" + encodeURIComponent(folderName);
-
-  const isVipFolder =
-    folderName.trim().toLowerCase() === vipName;
-
-  const li = createPreviewItem(
-    latest,
-    folderURL,
-    folderName,
-    folderName,
-    vipGlobal.active,
-    isVipFolder
-  );
-
-  folderList.appendChild(li);
+  });
 });
     
     // =========================
