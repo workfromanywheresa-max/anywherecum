@@ -1257,42 +1257,55 @@ async function loadVideos() {
 if (!folderList) return;
 
 /* =========================
-   1. SHOW SKELETONS FIRST
+   1. SKELETON RENDER (INSTANT)
 ========================= */
-folderList.innerHTML = "";
+function renderSkeletons(count = 8) {
+  const fragment = document.createDocumentFragment();
 
-const SKELETON_COUNT = 8;
+  for (let i = 0; i < count; i++) {
+    const li = document.createElement("li");
+    li.className = "folder-skeleton";
 
-for (let i = 0; i < SKELETON_COUNT; i++) {
-  const li = document.createElement("li");
-  li.className = "folder-skeleton";
+    li.innerHTML = `
+      <div class="video-skel"></div>
+      <div class="title-skel">
+        <div class="line"></div>
+      </div>
+    `;
 
-  li.innerHTML = `
-    <div class="video-skel"></div>
-    <div class="title-skel">
-      <div class="line"></div>
-    </div>
-  `;
+    fragment.appendChild(li);
+  }
 
-  folderList.appendChild(li);
+  folderList.innerHTML = "";
+  folderList.appendChild(fragment);
 }
 
 /* =========================
-   2. FORCE PAINT (NO FAKE DELAY)
+   2. PAINT SYNC (MATCHES YOUR SYSTEM)
 ========================= */
-await new Promise(requestAnimationFrame);
-await new Promise(requestAnimationFrame); // 👈 THIS is the real fix
+function paintSync() {
+  return new Promise(r => requestAnimationFrame(() => r()));
+}
 
 /* =========================
-   3. BUILD FOLDER DATA
+   3. SHOW SKELETONS FIRST
+========================= */
+renderSkeletons(8);
+
+/* =========================
+   4. FORCE BROWSER PAINT (CRITICAL FIX)
+========================= */
+await paintSync();
+await paintSync();
+
+/* =========================
+   5. NOW BUILD DATA (YOUR ORIGINAL LOGIC)
 ========================= */
 let folderNames = Object.keys(folders);
 
 const vipName = VIP_FOLDER.trim().toLowerCase();
 
-/* =========================
-   4. PIN VIP FIRST
-========================= */
+/* VIP FIRST */
 const vipFolders = folderNames.filter(f =>
   f.trim().toLowerCase() === vipName
 );
@@ -1304,12 +1317,12 @@ const normalFolders = folderNames.filter(f =>
 folderNames = [...vipFolders, ...normalFolders];
 
 /* =========================
-   5. REMOVE SKELETONS
+   6. REMOVE SKELETONS (ONLY AFTER PAINT)
 ========================= */
 folderList.innerHTML = "";
 
 /* =========================
-   6. RENDER REAL FOLDERS
+   7. RENDER REAL FOLDERS
 ========================= */
 folderNames.forEach(folderName => {
 
