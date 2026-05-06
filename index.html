@@ -1511,7 +1511,7 @@ const db = getDatabase(app);
 let endTime = null;
 let intervalId = null;
 
-/* ================= CACHE ================= */
+/* ================= CACHE (GLOBAL) ================= */
 function getCachedEndTime() {
   const saved = localStorage.getItem("vip_end_time");
   const num = Number(saved);
@@ -1540,9 +1540,7 @@ function formatTime(diff) {
 /* ================= RENDER ================= */
 function renderTimer() {
   const el = document.getElementById("miniCountdown");
-  if (!el) return;
-
-  if (!endTime) return; // 🔥 NEVER overwrite cached UI
+  if (!el || !endTime) return;
 
   const diff = endTime - Date.now();
   el.innerText = formatTime(diff);
@@ -1551,12 +1549,6 @@ function renderTimer() {
 /* ================= LOOP ================= */
 function startTimer() {
   if (intervalId) return;
-
-  // 🔥 ensure cache is used immediately
-  if (!endTime) endTime = getCachedEndTime();
-
-  // render instantly from cache
-  renderTimer();
 
   intervalId = setInterval(renderTimer, 1000);
 }
@@ -1570,9 +1562,10 @@ async function loadStatus() {
     if (data?.end_time) {
       const newTime = Number(data.end_time);
 
+      // update only if changed
       if (!endTime || newTime !== endTime) {
         setCachedEndTime(newTime);
-        renderTimer(); // update without reset blink
+        renderTimer(); // instant update, no flicker
       }
     }
   } catch (e) {
@@ -1580,25 +1573,23 @@ async function loadStatus() {
   }
 }
 
-/* ================= INIT ================= */
+/* ================= INIT (IMPORTANT PART) ================= */
 function init() {
   const el = document.getElementById("miniCountdown");
   if (!el) return;
 
-  // 🔥 STEP 1: load cache instantly
+  // 🔥 1. LOAD CACHE FIRST (before ANY render logic)
   endTime = getCachedEndTime();
 
-  // 🔥 STEP 2: render immediately (NO 00:00 FLASH)
+  // 🔥 2. INSTANT PAINT FROM CACHE (NO 00:00 EVER)
   if (endTime) {
     renderTimer();
-  } else {
-    el.innerText = "(0d:00h:00m:00s)";
   }
 
-  // 🔥 STEP 3: start live timer
+  // 🔥 3. START LOOP
   startTimer();
 
-  // 🔥 STEP 4: update from server in background
+  // 🔥 4. SERVER UPDATE (background only)
   loadStatus();
 
   // Firebase listener (unchanged)
@@ -1610,7 +1601,7 @@ function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
-</script>
+                                     </script>
   
   <script>  
 const BASE = "https://pub-9d2dda426f5442ebbb1bd8b6ce4ab99c.r2.dev/live/";  
