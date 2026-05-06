@@ -405,11 +405,14 @@ function countDownloadOnce(videoId) {
 }
 
 /* ---------------- CONTAINER ---------------- */
-const videosContainer = document.getElementById("normalVideos");
+const videosContainer = document.getElementById("videoContainer");
+const skeletonContainer = document.getElementById("skeletonContainer");
 
 function hideSkeletons() {
-  document.getElementById("skeletonContainer")?.classList.add("hidden");
-}
+  if (skeletonContainer) {
+    skeletonContainer.style.display = "none";
+  }
+        }
 
 function showSkeletons() {
   document.getElementById("skeletonContainer")?.classList.remove("hidden");
