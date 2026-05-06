@@ -1768,57 +1768,21 @@ document.addEventListener("DOMContentLoaded", () => {
   <script type="module">
 const API = "https://competition.workfromanywhere-sa.workers.dev";
 
-/* ================= SESSION ID ================= */
-function getSessionId() {
-  let id = sessionStorage.getItem("ac_session_id");
+/* ================= CACHE ================= */
+const CACHE_KEY = "ac:vip:end_time";
 
-  if (!id) {
-    id = crypto.randomUUID();
-    sessionStorage.setItem("ac_session_id", id);
-  }
-
-  return id;
+function saveCache(v) {
+  localStorage.setItem(CACHE_KEY, JSON.stringify(v));
 }
 
-const SESSION_ID = getSessionId();
-
-/* ================= CACHE KEYS ================= */
-const LS_TIME_KEY = "ac:vip:end_time";
-const SS_TIME_KEY = `ac:vip:end_time:${SESSION_ID}`;
-
-const LS_FMT_KEY = "ac:vip:end_fmt";
-const SS_FMT_KEY = `ac:vip:end_fmt:${SESSION_ID}`;
+function loadCache() {
+  return JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
+}
 
 /* ================= STATE ================= */
 let endTime = null;
 let intervalId = null;
 let pollId = null;
-
-/* ================= CACHE ================= */
-function getCachedTime() {
-  const session = Number(sessionStorage.getItem(SS_TIME_KEY));
-  const local = Number(localStorage.getItem(LS_TIME_KEY));
-
-  const s = Number.isFinite(session) ? session : null;
-  const l = Number.isFinite(local) ? local : null;
-
-  return s ?? l ?? null;
-}
-
-function setCachedTime(time) {
-  localStorage.setItem(LS_TIME_KEY, String(time));
-  sessionStorage.setItem(SS_TIME_KEY, String(time));
-}
-
-/* cache formatted string too (prevents flicker) */
-function getCachedFormatted() {
-  return sessionStorage.getItem(SS_FMT_KEY) || localStorage.getItem(LS_FMT_KEY);
-}
-
-function setCachedFormatted(str) {
-  localStorage.setItem(LS_FMT_KEY, str);
-  sessionStorage.setItem(SS_FMT_KEY, str);
-}
 
 /* ================= FORMAT ================= */
 function formatTime(diff) {
@@ -1835,46 +1799,42 @@ function formatTime(diff) {
 }
 
 /* ================= RENDER ================= */
-function render(force = false) {
+function render() {
   const el = document.getElementById("miniCountdown");
-  if (!el) return;
-
-  if (!endTime) return;
+  if (!el || !endTime) return;
 
   const diff = endTime - Date.now();
-  const formatted = formatTime(diff);
+  const text = formatTime(diff);
 
-  // prevent useless DOM writes (major flicker source)
-  if (!force && el.innerText === formatted) return;
+  if (el.innerText === text) return;
 
-  el.innerText = formatted;
-  setCachedFormatted(formatted);
+  el.innerText = text;
 }
 
 /* ================= TIMER ================= */
 function startTimer() {
   if (intervalId) return;
 
-  intervalId = setInterval(() => render(false), 1000);
+  intervalId = setInterval(render, 1000);
 }
 
-/* ================= KV POLLING ================= */
+/* ================= FETCH ================= */
 async function fetchStatus() {
   try {
     const res = await fetch(API + "/status", { cache: "no-store" });
     const data = await res.json();
 
     const newTime = Number(data?.end_time);
+    if (!Number.isFinite(newTime)) return;
 
-    if (Number.isFinite(newTime) && newTime > 0 && newTime !== endTime) {
+    if (newTime !== endTime) {
       endTime = newTime;
-      setCachedTime(newTime);
-
-      // immediate render update
-      render(true);
+      saveCache(endTime);
+      render();
     }
+
   } catch (err) {
-    console.log("KV fetch failed:", err);
+    console.log("Fetch failed:", err);
   }
 }
 
@@ -1890,29 +1850,21 @@ function init() {
   const el = document.getElementById("miniCountdown");
   if (!el) return;
 
-  // 1. hydrate instantly (NO blank state)
-  endTime = getCachedTime();
+  /* 1. CACHE FIRST (like your admin dashboard) */
+  const cached = loadCache();
 
-  const cachedFmt = getCachedFormatted();
-
-  if (cachedFmt && !endTime) {
-    el.innerText = cachedFmt; // instant stable UI
+  if (cached) {
+    endTime = cached;
+    render();
   }
 
-  // 2. if we do have time, render immediately
-  if (endTime) {
-    render(true);
-  }
-
-  // 3. start loops AFTER first paint
-  requestAnimationFrame(() => {
-    startTimer();
-    startPolling();
-  });
+  /* 2. START LOOPS */
+  startTimer();
+  startPolling();
 }
 
 document.addEventListener("DOMContentLoaded", init);
-                                     </script>
+    </script>
   
   <script type="module" src="views.js"></script>
 
