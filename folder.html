@@ -6,29 +6,30 @@
 <title>Folder Videos</title>
 
 <style>
-body {
-  font-family: Arial, sans-serif;
-  background: #1a1a1a;
-  color: #fff;
-  margin: 0;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* MAIN FLEX FIX */
-main {
-  flex: 1;
-}
-
-/* GLOBAL FIX */
+/* =========================
+   GLOBAL FIX
+========================= */
 * {
   box-sizing: border-box;
 }
 
-/* TOP BAR */
+body {
+  margin: 0;
+  padding: 15px;
+  background: #1a1a1a;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* MAIN FLEX */
+main {
+  flex: 1;
+}
+
+/* =========================
+   TOP BAR
+========================= */
 .topBar {
   display: flex;
   justify-content: flex-start;
@@ -45,7 +46,9 @@ button {
   font-size: 12px;
 }
 
-/* TITLES */
+/* =========================
+   TITLES
+========================= */
 h2 {
   color: #ff4444;
   text-align: center;
@@ -60,41 +63,54 @@ h2 {
 }
 
 /* =========================
-   VIDEO GRID (NO JUMPING)
+   VIDEO GRID (MAIN FIX)
 ========================= */
-#normalVideos {
+#videoGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 15px;
-  min-height: 600px;
   align-items: start;
 }
 
+/* IMPORTANT: makes skeleton + videos share SAME grid */
+#skeletonContainer,
+#videoContainer {
+  display: contents;
+}
+
 /* =========================
-   VIDEO BOX
+   VIDEO + SKELETON BOX (MATCH EXACT SIZE)
 ========================= */
-.videoBox {
+.videoBox,
+.skeleton-box {
   background: #222;
   border-radius: 8px;
   height: clamp(220px, 35vh, 400px);
+  width: 100%;
   overflow: hidden;
 
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
+
   padding: 20px;
 }
 
-/* VIDEO WRAPPER */
-.videoFrameWrapper {
+/* =========================
+   THUMB / VIDEO AREA
+========================= */
+.videoFrameWrapper,
+.skeleton-thumb {
   width: 100%;
   aspect-ratio: 16 / 9;
   min-height: 180px;
-  background: #000;
+
+  border-radius: 8px;
   overflow: hidden;
   flex-shrink: 0;
 }
 
+/* REAL VIDEO */
 .videoFrameWrapper iframe,
 .videoFrameWrapper img {
   width: 100%;
@@ -104,50 +120,97 @@ h2 {
   display: block;
 }
 
-/* TEXT AREAS */
-.videoTitle {
-  margin: 6px 0;
-  font-size: 13px;
-  cursor: pointer;
-  text-decoration: underline;
-  text-align: center;
-
-  min-height: 32px;
-}
-
-.views {
-  color: #aaa;
-  margin: 2px 0;
-  font-size: 12px;
-  text-align: center;
-
-  min-height: 16px;
-}
-
-.downloadBtn,
-.shareBtn,
-.embedBtn, {
-  transform: translateY(-10px);
-}
-  
 /* =========================
-   DROPDOWN (FIXED)
+   SKELETON THUMB ANIMATION
 ========================= */
-select {
-  display: block;
-  width: fit-content;     /* ✅ prevents full width */
-  max-width: 90%;
-  margin: 6px auto;       /* ✅ center horizontally */
+.skeleton-thumb {
+  background: linear-gradient(
+    90deg,
+    #2a2a2a 25%,
+    #3a3a3a 50%,
+    #2a2a2a 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+  margin-bottom: 6px;
+}
 
+/* =========================
+   TITLE (REAL + SKELETON)
+========================= */
+.videoTitle,
+.skeleton-title {
+  width: 70%;
+  min-height: 20px;
+  margin: 6px auto;
+  text-align: center;
+  border-radius: 4px;
+}
+
+/* skeleton title */
+.skeleton-title {
+  background: linear-gradient(
+    90deg,
+    #2a2a2a 25%,
+    #3a3a3a 50%,
+    #2a2a2a 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+/* =========================
+   SELECT / DROPDOWN
+========================= */
+select,
+.skeleton-select {
+  display: block;
+  width: fit-content;
+  max-width: 90%;
+  margin: 6px auto;
   padding: 5px 10px;
   border-radius: 5px;
-  border: none;
-  background: #333;
-  color: #fff;
   font-size: 12px;
 }
 
-/* FOOTER */
+/* skeleton select */
+.skeleton-select {
+  min-width: 240px;
+  min-height: 20px;
+
+  background: linear-gradient(
+    90deg,
+    #2a2a2a 25%,
+    #3a3a3a 50%,
+    #2a2a2a 75%
+  );
+
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+/* real select */
+select {
+  background: #333;
+  color: #fff;
+  border: none;
+}
+
+/* =========================
+   SHIMMER ANIMATION
+========================= */
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* =========================
+   FOOTER
+========================= */
 footer {
   text-align: center;
   padding: 2px;
@@ -161,166 +224,18 @@ footer {
    MOBILE FIX
 ========================= */
 @media (max-width: 768px) {
-
   body {
     padding: 10px;
   }
 
-  #normalVideos {
+  #videoGrid {
     grid-template-columns: 1fr;
-    padding: 0 8px;
   }
 
-  .videoBox {
-    border-radius: 12px;
-    margin: 8px 0;
-  }
-
-  .videoFrameWrapper {
+  .videoBox,
+  .skeleton-box {
     border-radius: 12px;
   }
-}
-
-/* =========================
-   SKELETON GRID (MATCH VIDEO GRID EXACTLY)
-========================= */
-#skeletonContainer {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 15px;
-  align-items: start;
-}
-
-/* =========================
-   SKELETON BOX (REMOVE CONFLICTING SPACING)
-========================= */
-.skeleton-box {
-  background: #222;
-  border-radius: 8px;
-  height: clamp(220px, 35vh, 400px);
-  width: 100%;
-
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-
-  padding: 20px;
-  box-sizing: border-box;
-
-  /* ❌ REMOVE THIS (it breaks grid spacing) */
-  margin-bottom: 0;
-}
-
-/* =========================
-   VIDEO PLACEHOLDER (MATCH iframe wrapper)
-========================= */
-
-.skeleton-thumb {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  min-height: 180px;
-
-  border-radius: 8px;
-  overflow: hidden;
-  flex-shrink: 0;
-
-  background: linear-gradient(
-    90deg,
-    #2a2a2a 25%,
-    #3a3a3a 50%,
-    #2a2a2a 75%
-  );
-
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-
-  margin-bottom: 6px;
-}
-
-/* =========================
-   SELECT PLACEHOLDER (MATCH REAL SELECT)
-========================= */
-
-.skeleton-select {
-  display: block;
-  width: fit-content;
-  max-width: 90%;
-
-  margin: 6px auto; /* matches real select spacing */
-
-  padding: 5px 10px;
-  border-radius: 5px;
-
-  min-width: 240px;
-  min-height: 20px;
-
-  background: linear-gradient(
-    90deg,
-    #2a2a2a 25%,
-    #3a3a3a 50%,
-    #2a2a2a 75%
-  );
-
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-
-  position: relative;
-  overflow: hidden;
-}
-
-/* =========================
-   TITLE PLACEHOLDER (MATCH videoTitle spacing)
-========================= */
-
-.skeleton-title {
-  width: 70%;
-  min-height: 20px;
-
-  margin: 6px auto; /* matches your .videoTitle spacing */
-
-  border-radius: 4px;
-
-  background: linear-gradient(
-    90deg,
-    #2a2a2a 25%,
-    #3a3a3a 50%,
-    #2a2a2a 75%
-  );
-
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-}
-
-/* =========================
-   SHIMMER ANIMATION
-========================= */
-
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-  }
-
-  /* TOP TITLE SKELETON */
-.skeleton-folder-title {
-  width: 40%;
-  height: 28px; /* matches real h2 height feel */
-  margin: 10px auto;
-
-  border-radius: 6px;
-
-  background: linear-gradient(
-    90deg,
-    #2a2a2a 25%,
-    #3a3a3a 50%,
-    #2a2a2a 75%
-  );
-
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
 }
 
   #folderTitle {
@@ -767,9 +682,9 @@ position:relative;
 }
 </style>
 
-<div id="normalVideos">
+<div id="videoGrid">
 
-  <!-- SKELETONS (default visible) -->
+  <!-- SKELETONS -->
   <div id="skeletonContainer">
 
     <div class="skeleton-box">
@@ -802,37 +717,10 @@ position:relative;
       <div class="skeleton-title"></div>
     </div>
 
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
   </div>
+
+  <!-- REAL VIDEOS -->
+  <div id="videoContainer"></div>
 
 </div>
     
