@@ -1232,7 +1232,7 @@ function initAgeModal() {
 /* =========================
    LOAD VIDEOS
 ========================= */
-async function loadVideos() {
+ async function loadVideos() {
   try {
     vipGlobal = await getVipStatus();
 
@@ -1346,16 +1346,7 @@ folderNames.forEach(folderName => {
         false
       );
 
-      latestDiv.appendChild(li);
 
-      skeleton.style.display = "none";
-      latestDiv.style.display = "block";
-    }
-
-  } catch (err) {
-    console.error("Video load error:", err);
-  }
-}
     
 /* =========================
    SMOOTH COUNTDOWN LOOP
