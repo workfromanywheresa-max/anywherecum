@@ -418,9 +418,22 @@ Watch high quality video streaming online. Updated daily with new content.
   }
 }
 
-/* HIDE ADS INITIALLY */
-.ad-slot ins {
+/* =========================
+   TOGGLE STATES
+========================= */
+
+/* hidden state */
+.ad-slot ins.hidden-ad {
   visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+/* visible state */
+.ad-slot ins.visible-ad {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.4s ease;
 }
 </style>
 
@@ -430,13 +443,13 @@ Watch high quality video streaming online. Updated daily with new content.
 <script>
 window.addEventListener("load", () => {
 
+  /* START HIDDEN */
+  document.querySelectorAll(".ad-slot ins").forEach(ad => {
+    ad.classList.add("hidden-ad");
+  });
+
   /* WAIT 15 SECONDS */
   setTimeout(() => {
-
-    /* SHOW ADS */
-    document.querySelectorAll(".ad-slot ins").forEach(ad => {
-      ad.style.visibility = "visible";
-    });
 
     /* LOAD ADS */
     (adsbyjuicy = window.adsbyjuicy || []).push({
@@ -445,6 +458,12 @@ window.addEventListener("load", () => {
 
     (adsbyjuicy = window.adsbyjuicy || []).push({
       adzone: 1113664
+    });
+
+    /* SWITCH TO VISIBLE */
+    document.querySelectorAll(".ad-slot ins").forEach(ad => {
+      ad.classList.remove("hidden-ad");
+      ad.classList.add("visible-ad");
     });
 
   }, 15000);
