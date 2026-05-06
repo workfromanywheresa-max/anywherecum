@@ -1229,14 +1229,15 @@ watchLabel.textContent =
     ========================= */
     document.querySelectorAll(".ad-slot").forEach(ad => ad.remove());
 
-    return; // stop everything else for VIP (no ads, no tracking below)
   } else {
     document.body.classList.remove("vip");
     console.log("❌ NOT VIP — normal mode");
+    return;
   }
 
   /* =========================
      REMOVE BUTTONS (SAFE)
+     (UNCHANGED - EXACTLY AS YOURS)
   ========================= */
   function removeButtons() {
 
