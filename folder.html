@@ -189,15 +189,17 @@ footer {
   background: #222;
   border-radius: 8px;
   height: clamp(220px, 35vh, 400px);
+  width: 100%;
   overflow: hidden;
 
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
 
   padding: 20px;
+  box-sizing: border-box;
 
-  margin-bottom: 15px; /* 👈 spacing between skeleton boxes */
+  margin-bottom: 20px;
 }
 
 /* =========================
@@ -756,74 +758,7 @@ position:relative;
 }
 </style>
 
-<div id="normalVideos">
-
-  <!-- SKELETONS (default visible) -->
-  <div id="skeletonContainer">
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-    <div class="skeleton-box">
-      <div class="skeleton-select"></div>
-      <div class="skeleton-thumb"></div>
-      <div class="skeleton-title"></div>
-    </div>
-
-  </div>
-
-</div>
+<div id="normalVideos"></div>
     
   </main>
 
