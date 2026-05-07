@@ -508,30 +508,35 @@ const player = document.getElementById("player");
   document.addEventListener("click", (e) => {
   const player = document.getElementById("player");
 
-  if (!player.contains(e.target)) return;
-
+  // safety check
+  if (!player || !player.contains(e.target)) return;
   if (!videoData) return;
 
-  countWatchOnce(videoData.id);
+  const videoId = videoData.id;
 
-  if (timerStarted) return;
-  timerStarted = true;
+  // instant watch count
+  countWatchOnce(videoId);
 
-  setTimeout(async () => {
-    try {
-      await fetch("https://task.workfromanywhere-sa.workers.dev/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          videoId: videoData.id,
-          type: "preview_click",
-          visitId: visitId,
-          timestamp: Date.now()
-        })
-      });
-    } catch (err) {
-      console.error(err);
-    }
+  // prevent duplicate timer per video
+  const timerKey = `preview_timer_${videoId}`;
+  if (sessionStorage.getItem(timerKey)) return;
+
+  sessionStorage.setItem(timerKey, "1");
+
+  setTimeout(() => {
+    const payload = JSON.stringify({
+      videoId,
+      type: "preview_click",
+      visitId,
+      timestamp: Date.now()
+    });
+
+    // more reliable than fetch for delayed tracking
+    navigator.sendBeacon(
+      "https://task.workfromanywhere-sa.workers.dev/",
+      new Blob([payload], { type: "application/json" })
+    );
+
   }, 5 * 60 * 1000);
 });
   
