@@ -399,20 +399,29 @@ Watch high quality video streaming online. Updated daily with new content.
 
 </div>
 
-<!-- ✅ BOTTOM AD WRAPPER (SIZE-MATCHED OVERLAY) -->
-<div id="bottom-ad-wrapper" style="
+<!-- ✅ AD OVERLAY WRAPPER -->
+<div id="ad" style="
   position: fixed;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  display: inline-flex;
-  margin: 0;
-  visibility: hidden; /* prevents flicker */
-  z-index: 999999;
-  pointer-events: auto;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  pointer-events: none; /* lets page scroll unless ad is clicked */
+  z-index: 9999;
 ">
 
-  <div id="bottom-ad-container"></div>
+  <!-- enables clicks only on ad -->
+  <div style="pointer-events: auto;">
+    <div id="bottom-ad-wrapper" style="
+      display: flex;
+      justify-content: center;
+      margin: 20px auto;
+      visibility: hidden; /* prevents flicker */
+    ">
+      <div id="bottom-ad-container"></div>
+    </div>
+  </div>
 
 </div>
 
@@ -435,7 +444,7 @@ window.addEventListener("load", function () {
 
   const isDesktop = window.innerWidth >= 768;
 
-  // 🔥 SET EXACT AD SIZE (wrapper will auto-match because it's inline-flex)
+  // 🔥 FIXED SIZE FIRST (no layout shift)
   if (isDesktop) {
     container.style.width = "308px";
     container.style.height = "298px";
@@ -444,7 +453,6 @@ window.addEventListener("load", function () {
     container.style.height = "112px";
   }
 
-  // clear loader
   container.innerHTML = "";
 
   const script = document.createElement("script");
@@ -457,14 +465,8 @@ window.addEventListener("load", function () {
   const adzone = isDesktop ? 1113664 : 1113665;
 
   ins.id = String(adzone);
-  ins.setAttribute(
-    "data-width",
-    isDesktop ? "308" : "300"
-  );
-  ins.setAttribute(
-    "data-height",
-    isDesktop ? "298" : "112"
-  );
+  ins.setAttribute("data-width", isDesktop ? "308" : "300");
+  ins.setAttribute("data-height", isDesktop ? "298" : "112");
 
   ins.style.display = "block";
   ins.style.margin = "0 auto";
@@ -475,7 +477,7 @@ window.addEventListener("load", function () {
   window.adsbyjuicy = window.adsbyjuicy || [];
   window.adsbyjuicy.push({ adzone });
 
-  // 🔥 show only after ready
+  // show after load (no flicker)
   wrapper.style.visibility = "visible";
 
 });
