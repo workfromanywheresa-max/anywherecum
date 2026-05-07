@@ -385,30 +385,13 @@ Watch high quality video streaming online. Updated daily with new content.
 
   </div>
 
-  <!-- =========================
-     MOBILE AD (TOP)
-========================= -->
-<div class="ad-slot mobile-ad">
-  <div id="1113665" class="adsbyjuicy"></div>
-</div>
-
-<!-- =========================
-     DESKTOP AD (BOTTOM)
-========================= -->
-<div class="ad-slot desktop-ad">
-  <div id="1113664" class="adsbyjuicy"></div>
-</div>
-
-<!-- =========================
-     SHARED AD CSS (NORMAL)
-========================= -->
-<style>
+  <style>
 .ad-slot {
   margin: 20px auto;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: transparent;
+  background: #2b2b2b; /* optional visual placeholder */
   border-radius: 8px;
   overflow: hidden;
   position: relative;
@@ -418,12 +401,21 @@ Watch high quality video streaming online. Updated daily with new content.
 .mobile-ad {
   width: 300px;
   height: 112px;
+  min-height: 112px;   /* reserve space */
 }
 
 /* DESKTOP AD SIZE */
 .desktop-ad {
   width: 308px;
   height: 298px;
+  min-height: 298px;   /* reserve space */
+}
+
+/* force ins to occupy full space even before load */
+.ad-slot ins {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 /* hide desktop on mobile */
@@ -439,35 +431,24 @@ Watch high quality video streaming online. Updated daily with new content.
     display: none !important;
   }
 }
+  </style>
 
-/* ensure ad sits cleanly */
-.ad-slot > div {
-  width: 100%;
-  height: 100%;
-}
-</style>
+  <!-- JUICYADS SCRIPT -->
+<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
 
-<!-- =========================
-     JUICYADS SCRIPT (NORMAL LOAD)
-========================= -->
-<script
-  type="text/javascript"
-  data-cfasync="false"
-  async
-  src="https://poweredby.jads.co/js/jads.js">
-</script>
+<!-- MOBILE -->
+<div class="ad-slot mobile-ad">
+  <ins id="1113665" data-width="300" data-height="112"></ins>
+</div>
+
+<!-- DESKTOP -->
+<div class="ad-slot desktop-ad">
+  <ins id="1113664" data-width="308" data-height="298"></ins>
+</div>
 
 <script type="text/javascript" data-cfasync="false">
-window.addEventListener("load", () => {
-
-  window.adsbyjuicy = window.adsbyjuicy || [];
-
-  setTimeout(() => {
-    window.adsbyjuicy.push({ adzone: 1113665 });
-    window.adsbyjuicy.push({ adzone: 1113664 });
-  }, 500);
-
-});
+  (adsbyjuicy = window.adsbyjuicy || []).push({ adzone: 1113665 });
+  (adsbyjuicy = window.adsbyjuicy || []).push({ adzone: 1113664 });
 </script>
   
    <footer class="footer" style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
