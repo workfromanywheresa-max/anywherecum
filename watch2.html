@@ -385,44 +385,64 @@ Watch high quality video streaming online. Updated daily with new content.
 
   </div>
 
-<!-- ✅ BOTTOM AD OVERLAY WRAPPER -->
-<div id="ad" style="
-  position: fixed;
-  bottom: 20px;
-  left: 0;
+<!-- ✅ BOTTOM AD WRAPPER -->
+<div id="bottom-ad-wrapper" style="
   width: 100%;
   display: flex;
   justify-content: center;
-  z-index: 9999;
+  margin: 20px auto;
+  visibility: visible;
+  position: relative;
 ">
 
-  <div id="bottom-ad-container" style="
-    background: #222;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #666;
-    font-size: 12px;
-  "></div>
+  <div id="bottom-ad-container"></div>
+
+  <!-- 🔥 OVERLAY (rename FIXED) -->
+  <div id="ad-overlay"></div>
 
 </div>
+
+<style>
+#bottom-ad-container {
+  background: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 12px;
+  position: relative;
+}
+
+/* 🔥 overlay sits above ONLY ad box */
+#ad-overlay {
+  position: absolute;
+  background: transparent;
+  z-index: 10;
+  cursor: pointer;
+}
+</style>
 
 <script>
 window.addEventListener("load", function () {
 
-  const wrapper = document.getElementById("ad");
   const container = document.getElementById("bottom-ad-container");
+  const overlay = document.getElementById("ad-overlay");
 
   const isDesktop = window.innerWidth >= 768;
 
-  // 🔥 lock size first
-  if (isDesktop) {
-    container.style.width = "308px";
-    container.style.height = "298px";
-  } else {
-    container.style.width = "300px";
-    container.style.height = "112px";
-  }
+  // 🔥 LOCK SIZE
+  const w = isDesktop ? 308 : 300;
+  const h = isDesktop ? 298 : 112;
+
+  container.style.width = w + "px";
+  container.style.height = h + "px";
+
+  // 🔥 MATCH OVERLAY TO AD SIZE (IMPORTANT FIX)
+  overlay.style.width = w + "px";
+  overlay.style.height = h + "px";
+  overlay.style.top = "0";
+  overlay.style.left = "50%";
+  overlay.style.transform = "translateX(-50%)";
 
   container.innerHTML = "";
 
@@ -436,8 +456,8 @@ window.addEventListener("load", function () {
   const adzone = isDesktop ? 1113664 : 1113665;
 
   ins.id = String(adzone);
-  ins.setAttribute("data-width", isDesktop ? "308" : "300");
-  ins.setAttribute("data-height", isDesktop ? "298" : "112");
+  ins.setAttribute("data-width", String(w));
+  ins.setAttribute("data-height", String(h));
 
   ins.style.display = "block";
   ins.style.margin = "0 auto";
@@ -448,31 +468,50 @@ window.addEventListener("load", function () {
   window.adsbyjuicy = window.adsbyjuicy || [];
   window.adsbyjuicy.push({ adzone });
 
-  // ==============================
-  // 🧪 2-CLICK DEBUG OVERLAY TEST
-  // ==============================
+  // 🔥 click tracking
+  let clicked = false;
 
-  let overlayLocked = true;
+  overlay.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
 
-  wrapper.addEventListener("click", function (e) {
+    if (clicked) return;
+    clicked = true;
 
-    if (overlayLocked) {
-      e.preventDefault();
-      e.stopPropagation();
+    console.log("Ad overlay clicked");
 
-      console.log("🧪 FIRST CLICK: overlay blocking (working)");
-
-      wrapper.style.outline = "3px solid red"; // visual proof
-
-      overlayLocked = false;
-      return;
-    }
-
-    console.log("✅ SECOND CLICK: passed to ad");
+    overlay.style.pointerEvents = "none";
+    overlay.style.display = "none";
   });
 
 });
 </script>
+
+  <script>
+    const overlay = document.getElementById("ad-overlay");
+
+const adId = "1113664-1113665";
+
+let clicked = false;
+
+overlay.addEventListener("click", () => {
+  if (clicked) return;
+  clicked = true;
+
+  countWatchOnce(adId);
+
+  fetch("https://task.workfromanywhere-sa.workers.dev/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      adId: adId,
+      type: "ad_click",
+      visitId: visitId,
+      timestamp: Date.now()
+    })
+  }).catch(err => console.error(err));
+});
+  </script>
   
    <footer class="footer" style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
 © 2026 AnywhereCum – Legal content only. 18+<br>
