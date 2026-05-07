@@ -450,6 +450,13 @@ Watch high quality video streaming online. Updated daily with new content.
   (adsbyjuicy = window.adsbyjuicy || []).push({ adzone: 1113665 });
   (adsbyjuicy = window.adsbyjuicy || []).push({ adzone: 1113664 });
 </script>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+  document.querySelector(".mobile-ad")?.addEventListener("click", registerAdClick);
+  document.querySelector(".desktop-ad")?.addEventListener("click", registerAdClick);
+});
+  </script>
   
    <footer class="footer" style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
 © 2026 AnywhereCum – Legal content only. 18+<br>
@@ -495,6 +502,38 @@ let visitId = localStorage.getItem("visit_id");
 if (!visitId) {
   visitId = Date.now().toString() + "_" + Math.random().toString(36).substr(2, 9);
   localStorage.setItem("visit_id", visitId);
+}
+
+  let pendingAdClick = null;
+let adClickTimer = null;
+
+function registerAdClick() {
+  const isMobile = window.innerWidth <= 768;
+
+  pendingAdClick = {
+    adId: isMobile ? "ad1" : "ad2",
+    visitId: visitId
+  };
+
+  if (adClickTimer) clearTimeout(adClickTimer);
+
+  adClickTimer = setTimeout(() => {
+    if (!pendingAdClick) return;
+
+    fetch("https://task.workfromanywhere-sa.workers.dev/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ad_Clicked: true,
+        adId: pendingAdClick.adId,
+        visitId: pendingAdClick.visitId
+      })
+    }).catch(() => {});
+
+    pendingAdClick = null;
+    adClickTimer = null;
+
+  }, 60 * 1000);
 }
 
 function trackDownload(videoId) {
