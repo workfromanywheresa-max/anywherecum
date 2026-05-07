@@ -385,28 +385,27 @@ Watch high quality video streaming online. Updated daily with new content.
 
   </div>
 
-<!-- ✅ BOTTOM AD WRAPPER -->
+<!-- ✅ BOTTOM AD OVERLAY WRAPPER -->
 <div id="ad" style="
+  position: fixed;
+  bottom: 20px;
+  left: 0;
   width: 100%;
   display: flex;
   justify-content: center;
-  margin: 20px auto;
+  z-index: 9999;
 ">
 
-  <div id="bottom-ad-container"></div>
+  <div id="bottom-ad-container" style="
+    background: #222;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 12px;
+  "></div>
 
 </div>
-
-<style>
-#bottom-ad-container {
-  background: #222;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #666;
-  font-size: 12px;
-}
-</style>
 
 <script>
 window.addEventListener("load", function () {
@@ -416,7 +415,7 @@ window.addEventListener("load", function () {
 
   const isDesktop = window.innerWidth >= 768;
 
-  // 🔥 LOCK SIZE FIRST (prevents CSS switch flicker)
+  // 🔥 lock size first
   if (isDesktop) {
     container.style.width = "308px";
     container.style.height = "298px";
@@ -425,7 +424,6 @@ window.addEventListener("load", function () {
     container.style.height = "112px";
   }
 
-  // clear loader
   container.innerHTML = "";
 
   const script = document.createElement("script");
@@ -438,14 +436,8 @@ window.addEventListener("load", function () {
   const adzone = isDesktop ? 1113664 : 1113665;
 
   ins.id = String(adzone);
-  ins.setAttribute(
-    "data-width",
-    isDesktop ? "308" : "300"
-  );
-  ins.setAttribute(
-    "data-height",
-    isDesktop ? "298" : "112"
-  );
+  ins.setAttribute("data-width", isDesktop ? "308" : "300");
+  ins.setAttribute("data-height", isDesktop ? "298" : "112");
 
   ins.style.display = "block";
   ins.style.margin = "0 auto";
@@ -455,7 +447,31 @@ window.addEventListener("load", function () {
 
   window.adsbyjuicy = window.adsbyjuicy || [];
   window.adsbyjuicy.push({ adzone });
-  
+
+  // ==============================
+  // 🧪 2-CLICK DEBUG OVERLAY TEST
+  // ==============================
+
+  let overlayLocked = true;
+
+  wrapper.addEventListener("click", function (e) {
+
+    if (overlayLocked) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      console.log("🧪 FIRST CLICK: overlay blocking (working)");
+
+      wrapper.style.outline = "3px solid red"; // visual proof
+
+      overlayLocked = false;
+      return;
+    }
+
+    console.log("✅ SECOND CLICK: passed to ad");
+  });
+
+});
 </script>
   
    <footer class="footer" style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
