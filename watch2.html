@@ -385,18 +385,18 @@ Watch high quality video streaming online. Updated daily with new content.
 
   </div>
 
-  <!-- ✅ BOTTOM JUICYADS AD (CPM ORDER FIXED) -->
+  <!-- ✅ BOTTOM AD WRAPPER (MOBILE + DESKTOP) -->
 <div id="bottom-ad-wrapper" style="
-  width: 300px;
-  height: 112px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
   margin: 20px auto;
-  position: relative;
-  background: #222;
 ">
 
   <div id="bottom-ad-container" style="
-    width: 100%;
-    height: 100%;
+    width: 300px;
+    height: 112px;
+    background: #222;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -413,34 +413,45 @@ window.addEventListener("load", function () {
 
   const adContainer = document.getElementById("bottom-ad-container");
 
-  // 1. create script FIRST
+  const isDesktop = window.innerWidth >= 768;
+
+  // clear loader
+  adContainer.innerHTML = "";
+
+  // create script FIRST
   const script = document.createElement("script");
   script.async = true;
   script.setAttribute("data-cfasync", "false");
   script.src = "https://poweredby.jads.co/js/jads.js";
 
-  // 2. create ad element
+  // create ad slot
   const ins = document.createElement("ins");
-  ins.id = "1113665";
-  ins.setAttribute("data-width", "300");
-  ins.setAttribute("data-height", "112");
+
+  if (isDesktop) {
+    // DESKTOP AD
+    ins.id = "1113664";
+    ins.setAttribute("data-width", "308");
+    ins.setAttribute("data-height", "298");
+  } else {
+    // MOBILE AD
+    ins.id = "1113665";
+    ins.setAttribute("data-width", "300");
+    ins.setAttribute("data-height", "112");
+  }
 
   ins.style.display = "block";
   ins.style.margin = "0 auto";
 
-  // 3. clear loader
-  adContainer.innerHTML = "";
-
-  // 4. append ad FIRST
+  // append AD first
   adContainer.appendChild(ins);
 
-  // 5. append script LAST (corrected order)
+  // append script LAST (important for CPM/order fix)
   adContainer.appendChild(script);
 
-  // 6. trigger render
+  // trigger JuicyAds
   window.adsbyjuicy = window.adsbyjuicy || [];
   window.adsbyjuicy.push({
-    adzone: 1113665
+    adzone: isDesktop ? 1113664 : 1113665
   });
 
 });
