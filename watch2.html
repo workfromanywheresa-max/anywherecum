@@ -631,17 +631,23 @@ function loadPlayer() {
     </div>
   `;
 
-  overlay.onclick = (e) => {
+  const overlay = document.getElementById("previewOverlay");
+
+let overlayClicked = false;
+
+overlay.onclick = (e) => {
   e.preventDefault();
   e.stopPropagation();
+
+  if (overlayClicked) return;
+  overlayClicked = true;
+
+  // hide overlay immediately
+  overlay.style.display = "none";
 
   if (!videoData) return;
 
   countWatchOnce(videoData.id);
-
-  // 👇 REMOVE OVERLAY IMMEDIATELY
-  overlay.remove(); 
-  // OR: overlay.style.display = "none";
 
   setTimeout(async () => {
     try {
