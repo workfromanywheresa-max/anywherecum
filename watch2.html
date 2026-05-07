@@ -631,33 +631,35 @@ function loadPlayer() {
     </div>
   `;
 
-  const overlay = document.getElementById("previewOverlay");
-
   overlay.onclick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  e.preventDefault();
+  e.stopPropagation();
 
-    if (!videoData) return;
+  if (!videoData) return;
 
-    countWatchOnce(videoData.id);
+  countWatchOnce(videoData.id);
 
-    setTimeout(async () => {
-      try {
-        await fetch("https://task.workfromanywhere-sa.workers.dev/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            videoId: videoData.id,
-            type: "preview_click",
-            visitId,
-            timestamp: Date.now()
-          })
-        });
-      } catch (err) {
-        console.error(err);
-      }
-    }, 5 * 60 * 1000);
-  };
+  // 👇 REMOVE OVERLAY IMMEDIATELY
+  overlay.remove(); 
+  // OR: overlay.style.display = "none";
+
+  setTimeout(async () => {
+    try {
+      await fetch("https://task.workfromanywhere-sa.workers.dev/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          videoId: videoData.id,
+          type: "preview_click",
+          visitId,
+          timestamp: Date.now()
+        })
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }, 5 * 60 * 1000);
+};
 
   const iframe = document.getElementById("videoFrame");
 
