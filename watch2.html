@@ -476,6 +476,39 @@ window.addEventListener("load", function () {
 
 });
 </script>
+
+  <script>
+window.addEventListener("load", () => {
+
+  const ad = document.getElementById("bottom-ad-wrapper");
+
+  let clicked = false;
+
+  ad.addEventListener("click", async (e) => {
+    e.stopPropagation();
+
+    if (clicked) return;
+    clicked = true;
+
+    try {
+      await fetch("https://task.workfromanywhere-sa.workers.dev/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          type: "ad_click",
+          adId: "1113665-1113664",
+          visitId
+        })
+      });
+    } catch (err) {
+      console.error("Click send failed:", err);
+    }
+  });
+
+});
+  </script>
   
    <footer class="footer" style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
 © 2026 AnywhereCum – Legal content only. 18+<br>
