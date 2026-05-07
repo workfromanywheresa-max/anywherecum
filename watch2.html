@@ -288,7 +288,7 @@ body.vip .btn-skeleton-wrap .skeleton-stack:nth-child(3) {
   border: none;
 }
 
-#previewOverlay {
+#preview {
   position: absolute;
   inset: 0;
   cursor: pointer;
@@ -582,36 +582,47 @@ function loadPlayer() {
     </div>
   `;
 
-  let previewClicked = false;
+  const preview = document.getElementById("preview");
 
-preview.addEventListener("click", (e) => {
-  e.preventDefault();
-  e.stopPropagation();
+let previewClicked = false;
 
-  if (previewClicked) return;
-  previewClicked = true;
+if (preview) {
+  preview.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-  preview.style.display = "none";
+    if (previewClicked) return;
+    previewClicked = true;
 
-  countWatchOnce(video.id);
+    // hide overlay
+    preview.style.display = "none";
 
-  setTimeout(async () => {
-    try {
-      await fetch("https://task.workfromanywhere-sa.workers.dev/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          videoId: video.id,
-          type: "preview_click",
-          visitId: visitId,
-          timestamp: Date.now()
-        })
-      });
-    } catch (err) {
-      console.error(err);
+    const id = videoData.id;
+
+    // optional safety check
+    if (typeof countWatchOnce === "function") {
+      countWatchOnce(id);
     }
-  }, 5 * 60 * 1000);
-});
+
+    // delayed tracking (your original logic preserved)
+    setTimeout(async () => {
+      try {
+        await fetch("https://task.workfromanywhere-sa.workers.dev/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            videoId: id,
+            type: "preview_click",
+            visitId,
+            timestamp: Date.now()
+          })
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }, 5 * 60 * 1000);
+  });
+}
 
   const iframe = document.getElementById("videoFrame");
 
