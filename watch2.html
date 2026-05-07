@@ -616,24 +616,48 @@ function loadPlayer() {
   const q = videoData.qualities[currentIndex];
 
   const oldFrame = document.getElementById("videoFrame");
-
-  // 🔥 HARD STOP old video
   if (oldFrame) {
-    oldFrame.src = "";        // kill stream
-    oldFrame.remove();        // remove from DOM
+    oldFrame.src = "";
+    oldFrame.remove();
   }
 
-  // show skeleton (safe check)
   const skeleton = document.getElementById("videoSkeleton");
   if (skeleton) skeleton.style.display = "block";
 
-  // inject new iframe
   player.innerHTML = `
-  <div class="video-wrapper">
-    <iframe id="videoFrame" src="${q.embed}" allowfullscreen></iframe>
-    <div id="previewOverlay"></div>
-  </div>
-`;
+    <div class="video-wrapper">
+      <iframe id="videoFrame" src="${q.embed}" allowfullscreen></iframe>
+      <div id="previewOverlay"></div>
+    </div>
+  `;
+
+  const overlay = document.getElementById("previewOverlay");
+
+  overlay.onclick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!videoData) return;
+
+    countWatchOnce(videoData.id);
+
+    setTimeout(async () => {
+      try {
+        await fetch("https://task.workfromanywhere-sa.workers.dev/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            videoId: videoData.id,
+            type: "preview_click",
+            visitId,
+            timestamp: Date.now()
+          })
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    }, 5 * 60 * 1000);
+  };
 
   const iframe = document.getElementById("videoFrame");
 
@@ -642,7 +666,6 @@ function loadPlayer() {
     if (skeleton) skeleton.style.display = "none";
   };
 
-  // fallback (in case onload doesn't fire)
   setTimeout(() => {
     const skeleton = document.getElementById("videoSkeleton");
     if (skeleton) skeleton.style.display = "none";
