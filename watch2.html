@@ -506,8 +506,7 @@ overlay.addEventListener("click", () => {
     body: JSON.stringify({
       adId: adId,
       type: "ad_click",
-      visitId: visitId,
-      timestamp: Date.now()
+      visitId: visitId // reused only, not recreated
     })
   }).catch(err => console.error(err));
 });
