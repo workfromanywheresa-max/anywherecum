@@ -471,7 +471,20 @@ window.addEventListener("load", function () {
   // 🔥 click tracking
   let clicked = false;
 
-}};
+  overlay.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (clicked) return;
+    clicked = true;
+
+    console.log("Ad overlay clicked");
+
+    overlay.style.pointerEvents = "none";
+    overlay.style.display = "none";
+  });
+
+});
 </script>
   
    <footer class="footer" style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
@@ -1397,4 +1410,4 @@ function init() {
   </script>
   
 </body>
-  </html>
+</html>
