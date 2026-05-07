@@ -383,7 +383,7 @@ Watch high quality video streaming online. Updated daily with new content.
 </div>
 
 <!-- =========================
-     SHARED AD CSS (CLS SAFE)
+     SHARED AD CSS
 ========================= -->
 <style>
 .ad-slot {
@@ -397,33 +397,26 @@ Watch high quality video streaming online. Updated daily with new content.
   position: relative;
 }
 
-/* MOBILE AD SIZE */
+/* MOBILE */
 .mobile-ad {
   width: 300px;
   height: 112px;
 }
 
-/* DESKTOP AD SIZE */
+/* DESKTOP */
 .desktop-ad {
   width: 308px;
   height: 298px;
 }
 
-/* hide desktop on mobile */
 @media (max-width: 768px) {
-  .desktop-ad {
-    display: none;
-  }
+  .desktop-ad { display: none; }
 }
 
-/* hide mobile on desktop */
 @media (min-width: 769px) {
-  .mobile-ad {
-    display: none;
-  }
+  .mobile-ad { display: none; }
 }
 
-/* ensure ad sits cleanly */
 .ad-slot ins {
   position: relative;
   z-index: 1;
@@ -431,39 +424,49 @@ Watch high quality video streaming online. Updated daily with new content.
 </style>
 
 <!-- =========================
-     JUICYADS SCRIPT (ONCE ONLY)
+     JUICYADS SCRIPT
 ========================= -->
-<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+<script async src="https://poweredby.jads.co/js/jads.js"></script>
 
 <!-- =========================
-     15 SECOND DELAY FIX
+     TAP-TO-TRIGGER ADS
 ========================= -->
-<script type="text/javascript">
-window.addEventListener("load", () => {
+<script>
+let adsLoaded = false;
 
-  setTimeout(() => {
+function loadAds() {
+  if (adsLoaded) return;
+  adsLoaded = true;
 
-    // safety check (prevents silent failure)
-    if (!window.adsbyjuicy) {
-      console.log("Ads not ready yet, retrying...");
-      return;
-    }
+  if (!window.adsbyjuicy) {
+    console.log("Ad system not ready yet");
+    return;
+  }
 
-    // trigger ads
-    (adsbyjuicy = window.adsbyjuicy || []).push({
-      adzone: 1113665
-    });
+  (adsbyjuicy = window.adsbyjuicy || []).push({
+    adzone: 1113665
+  });
 
-    (adsbyjuicy = window.adsbyjuicy || []).push({
-      adzone: 1113664
-    });
+  (adsbyjuicy = window.adsbyjuicy || []).push({
+    adzone: 1113664
+  });
 
-    console.log("Ads triggered after 15 seconds");
+  console.log("Ads triggered on first tap");
+}
 
-  }, 15000);
+/* trigger on ANY user interaction */
+function firstInteraction() {
+  loadAds();
 
-});
-     </script>
+  // remove listeners after first trigger
+  document.removeEventListener("click", firstInteraction);
+  document.removeEventListener("touchstart", firstInteraction);
+}
+
+/* listen for first tap anywhere */
+document.addEventListener("click", firstInteraction);
+document.addEventListener("touchstart", firstInteraction);
+</script>
   
    <footer class="footer" style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
 © 2026 AnywhereCum – Legal content only. 18+<br>
