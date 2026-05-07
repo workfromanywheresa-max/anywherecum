@@ -385,70 +385,98 @@ Watch high quality video streaming online. Updated daily with new content.
 
   </div>
 
-  <style>
-.ad-slot {
+  <!-- ✅ SHARED AD WRAPPER (EXACT SAME STRUCTURE) -->
+<div id="bottom-ad-wrapper" style="
   margin: 20px auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #2b2b2b; /* optional visual placeholder */
-  border-radius: 8px;
-  overflow: hidden;
   position: relative;
-}
+  background: #222;
+">
 
-/* MOBILE AD SIZE */
-.mobile-ad {
-  width: 300px;
-  height: 112px;
-  min-height: 112px;   /* reserve space */
-}
+  <!-- Loader -->
+  <div id="bottom-ad-container" style="
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 12px;
+  ">
+    Loading ad...
+  </div>
 
-/* DESKTOP AD SIZE */
-.desktop-ad {
-  width: 308px;
-  height: 298px;
-  min-height: 298px;   /* reserve space */
-}
+</div>
 
-/* force ins to occupy full space even before load */
-.ad-slot ins {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-/* hide desktop on mobile */
+<style>
+/* ✅ MOBILE SIZE */
 @media (max-width: 768px) {
-  .desktop-ad {
-    display: none !important;
+  #bottom-ad-wrapper {
+    width: 300px;
+    height: 112px;
   }
 }
 
-/* hide mobile on desktop */
+/* ✅ DESKTOP SIZE */
 @media (min-width: 769px) {
-  .mobile-ad {
-    display: none !important;
+  #bottom-ad-wrapper {
+    width: 308px;
+    height: 298px;
   }
 }
-  </style>
+</style>
 
-  <!-- JUICYADS SCRIPT -->
-<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
+<!-- ✅ JUICYADS LIBRARY -->
+<script
+  type="text/javascript"
+  data-cfasync="false"
+  async
+  src="https://poweredby.jads.co/js/jads.js">
+</script>
 
-<!-- MOBILE -->
-<div class="ad-slot mobile-ad">
-  <ins id="1113665" data-width="300" data-height="112"></ins>
-</div>
+<script>
+window.addEventListener("load", function () {
 
-<!-- DESKTOP -->
-<div class="ad-slot desktop-ad">
-  <ins id="1113664" data-width="308" data-height="298"></ins>
-</div>
+  const adContainer = document.getElementById("bottom-ad-container");
 
-<script type="text/javascript" data-cfasync="false">
-  (adsbyjuicy = window.adsbyjuicy || []).push({ adzone: 1113665 });
-  (adsbyjuicy = window.adsbyjuicy || []).push({ adzone: 1113664 });
+  /* =========================
+     CREATE INS
+  ========================= */
+
+  const adIns = document.createElement("ins");
+
+  /* MOBILE */
+  if (window.innerWidth <= 768) {
+
+    adIns.id = "1113665";
+    adIns.setAttribute("data-width", "300");
+    adIns.setAttribute("data-height", "112");
+
+    adContainer.innerHTML = "";
+    adContainer.appendChild(adIns);
+
+    (window.adsbyjuicy = window.adsbyjuicy || []).push({
+      adzone: 1113665
+    });
+
+  }
+
+  /* DESKTOP */
+  else {
+
+    adIns.id = "1113664";
+    adIns.setAttribute("data-width", "308");
+    adIns.setAttribute("data-height", "298");
+
+    adContainer.innerHTML = "";
+    adContainer.appendChild(adIns);
+
+    (window.adsbyjuicy = window.adsbyjuicy || []).push({
+      adzone: 1113664
+    });
+
+  }
+
+});
 </script>
 
   <script>
