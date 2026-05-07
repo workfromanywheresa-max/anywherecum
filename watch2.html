@@ -1283,39 +1283,12 @@ function init() {
 
       loadPlayer();
       injectButtons(videoData);
-
-      /* ✅ CLICK EVENT MUST GO HERE */
-      player.addEventListener("click", () => {
-        if (!videoData) return;
-
-        countWatchOnce(videoData.id);
-
-        setTimeout(async () => {
-          try {
-            await fetch("https://task.workfromanywhere-sa.workers.dev/", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: JSON.stringify({
-                videoId: videoData.id,
-                type: "preview_click",
-                visitId,
-                timestamp: Date.now()
-              })
-            });
-          } catch (err) {
-            console.error(err);
-          }
-        }, 5 * 60 * 1000);
-      });
-
     })
     .catch(err => {
       console.error(err);
       titleEl.textContent = "Error loading video";
     });
-  }
+}
 
   init();
 </script>
