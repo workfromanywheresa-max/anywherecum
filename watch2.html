@@ -430,11 +430,11 @@ Watch high quality video streaming online. Updated daily with new content.
 }
 </style>
 
-  <div style="text-align:center; margin-top:0px;">
+  <div style="text-align:center; margin-top:5px;">
   <button id="getCodeBtn" style="display:none;">Get Code</button>
 
   <!-- KEEP YOUR SIZE HERE ONLY -->
-  <div id="codeBox" style="margin-top:0px; font-size:14px;"></div>
+  <div id="codeBox" style="margin-top:5px; font-size:14px;"></div>
 </div>
 
 <script>
@@ -472,7 +472,7 @@ if (!visitId) {
       btn.style.display = "none";
 
       box.innerHTML = `
-        <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
+        <div style="display:flex; align-items:center; justify-content:center; gap:0px;">
           <span>Your Code:</span>
           <b id="codeValue">${data.code}</b>
 
@@ -518,7 +518,7 @@ btn.addEventListener("click", async function () {
 
     if (data.code) {
       box.innerHTML = `
-        <div style="display:flex; align-items:center; justify-content:center; gap:6px;">
+        <div style="display:flex; align-items:center; justify-content:center; gap:0px;">
           <span>Your Code:</span>
           <b id="codeValue">${data.code}</b>
 
