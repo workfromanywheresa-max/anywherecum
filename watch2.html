@@ -486,31 +486,6 @@ window.addEventListener("load", function () {
 
 });
 </script>
-
-  <script>
-    const overlay = document.getElementById("ad-overlay");
-
-const adId = "1113664-1113665";
-
-let clicked = false;
-
-overlay.addEventListener("click", () => {
-  if (clicked) return;
-  clicked = true;
-
-  countWatchOnce(adId);
-
-  fetch("https://task.workfromanywhere-sa.workers.dev/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      adId: adId,
-      type: "ad_click",
-      visitId: visitId // reused only, not recreated
-    })
-  }).catch(err => console.error(err));
-});
-  </script>
   
    <footer class="footer" style="text-align:center; padding:20px; font-size:12px; color:#aaa; background:#111; margin-top:10px;">
 © 2026 AnywhereCum – Legal content only. 18+<br>
@@ -568,6 +543,50 @@ function trackDownload(videoId) {
     })
   }).catch(() => {});
 }
+
+/* ---------------- AD TRACKING ---------------- */
+const overlay = document.getElementById("ad-overlay");
+
+const adId = "1113664-1113665";
+
+let adClicked = false;
+
+function initAdTracking() {
+  if (!overlay) return;
+
+  overlay.addEventListener("click", async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (adClicked) return;
+    adClicked = true;
+
+    // optional hook (only if defined elsewhere in module)
+    if (typeof countWatchOnce === "function") {
+      countWatchOnce(adId);
+    }
+
+    try {
+      await fetch("https://task.workfromanywhere-sa.workers.dev/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          adId,
+          type: "ad_click",
+          visitId,
+          timestamp: Date.now()
+        })
+      });
+    } catch (err) {
+      console.error("Ad worker error:", err);
+    }
+
+    overlay.style.pointerEvents = "none";
+    overlay.style.display = "none";
+  });
+}
+
+initAdTracking();
   
 /* ---------------- URL ---------------- */
 const params = new URLSearchParams(window.location.search);
