@@ -504,6 +504,37 @@ let currentIndex = Number(params.get("q") || 0);
 
 /* ---------------- ELEMENTS ---------------- */
 const player = document.getElementById("player");
+
+  document.addEventListener("click", (e) => {
+  const player = document.getElementById("player");
+
+  if (!player.contains(e.target)) return;
+
+  if (!videoData) return;
+
+  countWatchOnce(videoData.id);
+
+  if (timerStarted) return;
+  timerStarted = true;
+
+  setTimeout(async () => {
+    try {
+      await fetch("https://task.workfromanywhere-sa.workers.dev/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          videoId: videoData.id,
+          type: "preview_click",
+          visitId: visitId,
+          timestamp: Date.now()
+        })
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }, 5 * 60 * 1000);
+});
+  
 const titleEl = document.getElementById("title");
 const qualityEl = document.getElementById("quality");
 const watchLabel = document.getElementById("watchLabel");
