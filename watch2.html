@@ -467,7 +467,24 @@ window.addEventListener("load", function () {
 
   window.adsbyjuicy = window.adsbyjuicy || [];
   window.adsbyjuicy.push({ adzone });
-}};
+
+  // 🔥 click tracking
+  let clicked = false;
+
+  overlay.addEventListener("click", function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (clicked) return;
+    clicked = true;
+
+    console.log("Ad overlay clicked");
+
+    overlay.style.pointerEvents = "none";
+    overlay.style.display = "none";
+  });
+
+});
 </script>
 
   <script>
@@ -477,31 +494,21 @@ const adId = "1113664-1113665";
 
 let clicked = false;
 
-overlay.addEventListener("click", async (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-
+overlay.addEventListener("click", () => {
   if (clicked) return;
   clicked = true;
 
-  console.log("Ad clicked");
+  countWatchOnce(adId);
 
-  overlay.style.pointerEvents = "none";
-  overlay.style.display = "none";
-
-  try {
-    await fetch("https://task.workfromanywhere-sa.workers.dev/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        adId: adId,
-        type: "ad_click",
-        visitId: window.visitId || localStorage.getItem("visit_id")
-      })
-    });
-  } catch (err) {
-    console.error("Worker error:", err);
-  }
+  fetch("https://task.workfromanywhere-sa.workers.dev/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      adId: adId,
+      type: "ad_click",
+      visitId: visitId // reused only, not recreated
+    })
+  }).catch(err => console.error(err));
 });
   </script>
   
@@ -544,7 +551,7 @@ const app = initializeApp({
 const db = getDatabase(app);
 
 /* ---------------- VISIT ID ---------------- */
-window.visitId = localStorage.getItem("visit_id");
+let visitId = localStorage.getItem("visit_id");
 
 if (!visitId) {
   visitId = Date.now().toString() + "_" + Math.random().toString(36).substr(2, 9);
