@@ -385,7 +385,7 @@ Watch high quality video streaming online. Updated daily with new content.
 
   </div>
 
-  <!-- ✅ SHARED AD WRAPPER (EXACT SAME STRUCTURE) -->
+  <!-- ✅ SHARED AD WRAPPER -->
 <div id="bottom-ad-wrapper" style="
   margin: 20px auto;
   position: relative;
@@ -408,7 +408,7 @@ Watch high quality video streaming online. Updated daily with new content.
 </div>
 
 <style>
-/* ✅ MOBILE SIZE */
+/* ✅ MOBILE */
 @media (max-width: 768px) {
   #bottom-ad-wrapper {
     width: 300px;
@@ -416,7 +416,7 @@ Watch high quality video streaming online. Updated daily with new content.
   }
 }
 
-/* ✅ DESKTOP SIZE */
+/* ✅ DESKTOP */
 @media (min-width: 769px) {
   #bottom-ad-wrapper {
     width: 308px;
@@ -427,9 +427,9 @@ Watch high quality video streaming online. Updated daily with new content.
 
 <!-- ✅ JUICYADS LIBRARY -->
 <script
+  async
   type="text/javascript"
   data-cfasync="false"
-  async
   src="https://poweredby.jads.co/js/jads.js">
 </script>
 
@@ -438,47 +438,44 @@ window.addEventListener("load", function () {
 
   const adContainer = document.getElementById("bottom-ad-container");
 
+  if (!adContainer) return;
+
   /* =========================
-     CREATE INS
+     CREATE JUICYADS INS
   ========================= */
 
   const adIns = document.createElement("ins");
 
+  adIns.className = "juicyads";
+
   /* MOBILE */
   if (window.innerWidth <= 768) {
 
-    adIns.id = "1113665";
+    adIns.setAttribute("data-adzone", "1113665");
     adIns.setAttribute("data-width", "300");
     adIns.setAttribute("data-height", "112");
-
-    adContainer.innerHTML = "";
-    adContainer.appendChild(adIns);
-
-    (window.adsbyjuicy = window.adsbyjuicy || []).push({
-      adzone: 1113665
-    });
 
   }
 
   /* DESKTOP */
   else {
 
-    adIns.id = "1113664";
+    adIns.setAttribute("data-adzone", "1113664");
     adIns.setAttribute("data-width", "308");
     adIns.setAttribute("data-height", "298");
 
-    adContainer.innerHTML = "";
-    adContainer.appendChild(adIns);
-
-    (window.adsbyjuicy = window.adsbyjuicy || []).push({
-      adzone: 1113664
-    });
-
   }
+
+  /* REPLACE LOADER */
+  adContainer.innerHTML = "";
+  adContainer.appendChild(adIns);
+
+  /* LOAD AD */
+  (window.adsbyjuicy = window.adsbyjuicy || []).push({});
 
 });
 </script>
-
+  
   <script>
     document.querySelectorAll(".ad-slot").forEach((slot) => {
   let clicked = false;
