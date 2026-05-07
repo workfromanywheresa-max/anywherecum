@@ -1212,6 +1212,7 @@ function init() {
 
   const titleEl = document.getElementById("title");
   titleEl.textContent = "";
+
   if (!videoId) {
     titleEl.textContent = "No video selected";
     return;
@@ -1227,16 +1228,15 @@ function init() {
         return;
       }
 
-// ✅ ADD THIS LINE
-updateVideoSchema(videoData);
+      updateVideoSchema(videoData);
 
       document.title = videoData.title;
       titleEl.textContent = videoData.title;
-titleEl.classList.remove("skeleton");
+      titleEl.classList.remove("skeleton");
 
       watchLabel.classList.remove("skeleton", "label-skeleton");
-watchLabel.textContent =
-  `Watch "${videoData.title}" — streaming now in high quality`;
+      watchLabel.textContent =
+        `Watch "${videoData.title}" — streaming now in high quality`;
 
       metaDesc.setAttribute(
         "content",
@@ -1251,7 +1251,7 @@ watchLabel.textContent =
         qualityEl.appendChild(opt);
       });
 
-  qualityEl.classList.remove("skeleton");
+      qualityEl.classList.remove("skeleton");
 
       qualityEl.onchange = () => {
         currentIndex = Number(qualityEl.value);
@@ -1260,38 +1260,39 @@ watchLabel.textContent =
 
       loadPlayer();
       injectButtons(videoData);
-    })
 
-    player.addEventListener("click", (e) => {
-  if (!videoData) return;
+      /* ✅ CLICK EVENT MUST GO HERE */
+      player.addEventListener("click", () => {
+        if (!videoData) return;
 
-  countWatchOnce(videoData.id);
+        countWatchOnce(videoData.id);
 
-  setTimeout(async () => {
-    try {
-      await fetch("https://task.workfromanywhere-sa.workers.dev/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          videoId: videoData.id,
-          type: "preview_click",
-          visitId: visitId,
-          timestamp: Date.now()
-        })
+        setTimeout(async () => {
+          try {
+            await fetch("https://task.workfromanywhere-sa.workers.dev/", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                videoId: videoData.id,
+                type: "preview_click",
+                visitId,
+                timestamp: Date.now()
+              })
+            });
+          } catch (err) {
+            console.error(err);
+          }
+        }, 5 * 60 * 1000);
       });
-    } catch (err) {
-      console.error(err);
-    }
-  }, 5 * 60 * 1000);
-});
-    
+
+    })
     .catch(err => {
       console.error(err);
       titleEl.textContent = "Error loading video";
     });
-}
+  }
 
   init();
 </script>
