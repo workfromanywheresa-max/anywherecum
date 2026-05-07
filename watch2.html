@@ -401,16 +401,21 @@ Watch high quality video streaming online. Updated daily with new content.
 
 <style>
 #bottom-ad-container {
-  width: 300px;
-  height: 112px;
   background: #222;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #666;
   font-size: 12px;
+
+  /* default mobile size */
+  width: 300px;
+  height: 112px;
+
+  transition: none; /* no flicker animation */
 }
 
+/* desktop size */
 @media (min-width: 768px) {
   #bottom-ad-container {
     width: 308px;
