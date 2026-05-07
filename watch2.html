@@ -385,7 +385,7 @@ Watch high quality video streaming online. Updated daily with new content.
 
   </div>
 
-  <!-- ✅ BOTTOM JUICYADS AD (MATCHED 300x112 EXACTLY, NO SHIFT) -->
+  <!-- ✅ BOTTOM JUICYADS AD (CPM ORDER FIXED) -->
 <div id="bottom-ad-wrapper" style="
   width: 300px;
   height: 112px;
@@ -394,7 +394,6 @@ Watch high quality video streaming online. Updated daily with new content.
   background: #222;
 ">
 
-  <!-- Stable loader -->
   <div id="bottom-ad-container" style="
     width: 100%;
     height: 100%;
@@ -409,28 +408,36 @@ Watch high quality video streaming online. Updated daily with new content.
 
 </div>
 
-<script type="text/javascript" data-cfasync="false" async src="https://poweredby.jads.co/js/jads.js"></script>
-
 <script>
 window.addEventListener("load", function () {
 
-  const container = document.getElementById("bottom-ad-container");
+  const adContainer = document.getElementById("bottom-ad-container");
 
-  // JuicyAds slot (matches your provided code)
+  // 1. create script FIRST
+  const script = document.createElement("script");
+  script.async = true;
+  script.setAttribute("data-cfasync", "false");
+  script.src = "https://poweredby.jads.co/js/jads.js";
+
+  // 2. create ad element
   const ins = document.createElement("ins");
   ins.id = "1113665";
   ins.setAttribute("data-width", "300");
   ins.setAttribute("data-height", "112");
 
-  // Keep it centered
   ins.style.display = "block";
   ins.style.margin = "0 auto";
 
-  // Swap loader with ad safely
-  container.innerHTML = "";
-  container.appendChild(ins);
+  // 3. clear loader
+  adContainer.innerHTML = "";
 
-  // Trigger JuicyAds render
+  // 4. append ad FIRST
+  adContainer.appendChild(ins);
+
+  // 5. append script LAST (corrected order)
+  adContainer.appendChild(script);
+
+  // 6. trigger render
   window.adsbyjuicy = window.adsbyjuicy || [];
   window.adsbyjuicy.push({
     adzone: 1113665
