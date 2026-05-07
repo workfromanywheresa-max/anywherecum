@@ -483,7 +483,8 @@ const wrapper = document.getElementById("bottom-ad-wrapper");
 let adClicked = false;
 
 if (wrapper) {
-  wrapper.addEventListener("click", async () => {
+  wrapper.addEventListener("click", async (e) => {
+    e.preventDefault();
 
     if (adClicked) return;
     adClicked = true;
@@ -502,15 +503,18 @@ if (wrapper) {
         body: JSON.stringify({
           adId: adzone,
           type: "ad_click",
-          visitId,
-          timestamp: Date.now()
+          visitId
         })
       });
     } catch (err) {
-      console.error(err);
+      console.error("Ad click tracking failed:", err);
     }
 
-  }, { passive: true });
+    setTimeout(() => {
+      adClicked = false;
+    }, 5000);
+
+  }, { passive: false });
 }
   </script>
   
