@@ -399,13 +399,17 @@ Watch high quality video streaming online. Updated daily with new content.
 
 </div>
 
-<!-- ✅ BOTTOM AD WRAPPER -->
+<!-- ✅ BOTTOM AD WRAPPER (SIZE-MATCHED OVERLAY) -->
 <div id="bottom-ad-wrapper" style="
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin: 20px auto;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  margin: 0;
   visibility: hidden; /* prevents flicker */
+  z-index: 999999;
+  pointer-events: auto;
 ">
 
   <div id="bottom-ad-container"></div>
@@ -431,7 +435,7 @@ window.addEventListener("load", function () {
 
   const isDesktop = window.innerWidth >= 768;
 
-  // 🔥 LOCK SIZE FIRST (prevents CSS switch flicker)
+  // 🔥 SET EXACT AD SIZE (wrapper will auto-match because it's inline-flex)
   if (isDesktop) {
     container.style.width = "308px";
     container.style.height = "298px";
@@ -471,12 +475,12 @@ window.addEventListener("load", function () {
   window.adsbyjuicy = window.adsbyjuicy || [];
   window.adsbyjuicy.push({ adzone });
 
-  // 🔥 show only AFTER everything is ready (kills flash)
+  // 🔥 show only after ready
   wrapper.style.visibility = "visible";
 
 });
 </script>
-
+  
   <script>
 const wrapper = document.getElementById("bottom-ad-wrapper");
 
