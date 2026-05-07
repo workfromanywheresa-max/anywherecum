@@ -275,6 +275,25 @@ body.vip .btn-skeleton-wrap .skeleton-stack:nth-child(2) {
 body.vip .btn-skeleton-wrap .skeleton-stack:nth-child(3) {
   display: flex !important;
 }
+
+  .video-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+.video-wrapper iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+#previewOverlay {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  background: transparent;
+}
 </style>
 
   <script type="application/ld+json" id="videoSchema">{}</script>
@@ -610,8 +629,11 @@ function loadPlayer() {
 
   // inject new iframe
   player.innerHTML = `
+  <div class="video-wrapper">
     <iframe id="videoFrame" src="${q.embed}" allowfullscreen></iframe>
-  `;
+    <div id="previewOverlay"></div>
+  </div>
+`;
 
   const iframe = document.getElementById("videoFrame");
 
@@ -1239,6 +1261,32 @@ watchLabel.textContent =
       loadPlayer();
       injectButtons(videoData);
     })
+
+    player.addEventListener("click", (e) => {
+  if (!videoData) return;
+
+  countWatchOnce(videoData.id);
+
+  setTimeout(async () => {
+    try {
+      await fetch("https://task.workfromanywhere-sa.workers.dev/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          videoId: videoData.id,
+          type: "preview_click",
+          visitId: visitId,
+          timestamp: Date.now()
+        })
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }, 5 * 60 * 1000);
+});
+    
     .catch(err => {
       console.error(err);
       titleEl.textContent = "Error loading video";
