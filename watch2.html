@@ -385,7 +385,7 @@ Watch high quality video streaming online. Updated daily with new content.
 
   </div>
 
-  <!-- ✅ BOTTOM AD WRAPPER (MOBILE + DESKTOP) -->
+  <!-- ✅ BOTTOM AD WRAPPER -->
 <div id="bottom-ad-wrapper" style="
   width: 100%;
   display: flex;
@@ -393,47 +393,54 @@ Watch high quality video streaming online. Updated daily with new content.
   margin: 20px auto;
 ">
 
-  <div id="bottom-ad-container" style="
-    width: 300px;
-    height: 112px;
-    background: #222;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #666;
-    font-size: 12px;
-  ">
+  <div id="bottom-ad-container">
     Loading ad...
   </div>
 
 </div>
+
+<style>
+#bottom-ad-container {
+  width: 300px;
+  height: 112px;
+  background: #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 12px;
+}
+
+@media (min-width: 768px) {
+  #bottom-ad-container {
+    width: 308px;
+    height: 298px;
+  }
+}
+</style>
 
 <script>
 window.addEventListener("load", function () {
 
   const adContainer = document.getElementById("bottom-ad-container");
 
-  const isDesktop = window.innerWidth >= 768;
-
-  // clear loader
+  // clear loader text only
   adContainer.innerHTML = "";
 
-  // create script FIRST
+  const isDesktop = window.innerWidth >= 768;
+
   const script = document.createElement("script");
   script.async = true;
   script.setAttribute("data-cfasync", "false");
   script.src = "https://poweredby.jads.co/js/jads.js";
 
-  // create ad slot
   const ins = document.createElement("ins");
 
   if (isDesktop) {
-    // DESKTOP AD
     ins.id = "1113664";
     ins.setAttribute("data-width", "308");
     ins.setAttribute("data-height", "298");
   } else {
-    // MOBILE AD
     ins.id = "1113665";
     ins.setAttribute("data-width", "300");
     ins.setAttribute("data-height", "112");
@@ -442,13 +449,9 @@ window.addEventListener("load", function () {
   ins.style.display = "block";
   ins.style.margin = "0 auto";
 
-  // append AD first
   adContainer.appendChild(ins);
-
-  // append script LAST (important for CPM/order fix)
   adContainer.appendChild(script);
 
-  // trigger JuicyAds
   window.adsbyjuicy = window.adsbyjuicy || [];
   window.adsbyjuicy.push({
     adzone: isDesktop ? 1113664 : 1113665
