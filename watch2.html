@@ -398,7 +398,7 @@ Watch high quality video streaming online. Updated daily with new content.
   <div id="bottom-ad-container"></div>
 
   <!-- 🔥 OVERLAY (rename FIXED) -->
-  <div id="ad></div>
+  <div id="ad-overlay></div>
 
 </div>
 
@@ -414,7 +414,7 @@ Watch high quality video streaming online. Updated daily with new content.
 }
 
 /* 🔥 overlay sits above ONLY ad box */
-#ad {
+#ad-overlay {
   position: absolute;
   background: transparent;
   z-index: 9999;
@@ -481,7 +481,7 @@ function trackDownload(videoId) {
 
 /* ---------------- AD INIT ---------------- */
 const adContainer = document.getElementById("bottom-ad-container");
-const ad = document.getElementById("ad");
+const overlay = document.getElementById("ad-overlay");
 
 const isDesktop = window.innerWidth >= 768;
 
