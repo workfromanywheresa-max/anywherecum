@@ -398,7 +398,7 @@ Watch high quality video streaming online. Updated daily with new content.
   <div id="bottom-ad-container"></div>
 
   <!-- 🔥 OVERLAY (rename FIXED) -->
-  <div id="ad-overlay></div>
+  <div id="ad-overlay"></div>
 
 </div>
 
@@ -417,7 +417,7 @@ Watch high quality video streaming online. Updated daily with new content.
 #ad-overlay {
   position: absolute;
   background: transparent;
-  z-index: 9999;
+  z-index: 10;
   cursor: pointer;
 }
 </style>
@@ -541,7 +541,8 @@ overlay.addEventListener("click", async (e) => {
       body: JSON.stringify({
         adId,
         type: "ad_click",
-        visitId
+        visitId,
+        timestamp: Date.now()
       })
     });
 
@@ -1376,4 +1377,4 @@ function init() {
   </script>
   
 </body>
-</html>
+  </html>
