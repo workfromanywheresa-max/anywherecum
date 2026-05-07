@@ -578,27 +578,22 @@ function loadPlayer() {
   player.innerHTML = `
     <div class="video-wrapper">
       <iframe id="videoFrame" src="${q.embed}" allowfullscreen></iframe>
-      <div id="previewOverlay"></div>
+      <div id="preview"></div>
     </div>
   `;
 
-  const overlay = document.getElementById("previewOverlay");
+  let previewClicked = false;
 
-let overlayClicked = false;
-
-overlay.onclick = (e) => {
+preview.addEventListener("click", (e) => {
   e.preventDefault();
   e.stopPropagation();
 
-  if (overlayClicked) return;
-  overlayClicked = true;
+  if (previewClicked) return;
+  previewClicked = true;
 
-  // hide overlay immediately
-  overlay.style.display = "none";
+  preview.style.display = "none";
 
-  if (!videoData) return;
-
-  countWatchOnce(videoData.id);
+  countWatchOnce(video.id);
 
   setTimeout(async () => {
     try {
@@ -606,9 +601,9 @@ overlay.onclick = (e) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          videoId: videoData.id,
+          videoId: video.id,
           type: "preview_click",
-          visitId,
+          visitId: visitId,
           timestamp: Date.now()
         })
       });
@@ -616,7 +611,7 @@ overlay.onclick = (e) => {
       console.error(err);
     }
   }, 5 * 60 * 1000);
-};
+});
 
   const iframe = document.getElementById("videoFrame");
 
