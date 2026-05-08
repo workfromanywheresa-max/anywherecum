@@ -752,20 +752,10 @@ function showAdLoading() {
 
   // placeholder content (no spinner)
   container.innerHTML = `
-    <div style="
-      width:80%;
-      height:100%;
-      display: flex;
-      align-items:center;
-      justify-content:center;
-      color:#666;
-      font-size:12px;
-      background:#222;
-    ">
-      Loading AD...
-    </div>
-  `;
-}
+  <div id="ad-loading">
+    Loading AD...
+  </div>
+`;
   
 /* ---------------- URL ---------------- */
 const params = new URLSearchParams(window.location.search);
