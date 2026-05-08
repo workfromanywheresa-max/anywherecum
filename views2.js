@@ -166,6 +166,23 @@ function buildWatchUrl(videoId, selectedIndex = "") {
 const cache = {};
 const ORDER_KEY = "video_order";
 
+/* ---------------- PINNED TRENDING ---------------- */
+function getPinnedTrending() {
+  return JSON.parse(localStorage.getItem("pinnedTrending") || "[]");
+}
+
+function setPinnedTrending(list) {
+  localStorage.setItem("pinnedTrending", JSON.stringify(list));
+}
+
+function addPinnedTrending(id) {
+  const list = getPinnedTrending();
+  if (!list.includes(id)) {
+    list.push(id);
+    setPinnedTrending(list);
+  }
+}
+
 function saveCache(key, value) {
   cache[key] = value;
   localStorage.setItem(key, value);
@@ -1037,13 +1054,24 @@ let currentPage = 1;
 
 function renderPage(filtered) {
 
+  const pinned = new Set(getPinnedTrending());
+
   videosContainer.innerHTML = "";
 
   // 🔥 SORT ENTIRE DATASET FIRST
   const sorted = [...filtered].sort((a, b) => {
 
+    const pinned = new Set(getPinnedTrending());
+
   const A = videoDataMap[a.id] || a;
   const B = videoDataMap[b.id] || b;
+
+  const APinned = pinned.has(a.id);
+const BPinned = pinned.has(b.id);
+
+// 🔥 PINNED ALWAYS FIRST (override everything)
+if (APinned && !BPinned) return -1;
+if (!APinned && BPinned) return 1;
 
   const ATrending = (A.cycleViews || 0) >= 10;
   const BTrending = (B.cycleViews || 0) >= 10;
@@ -1360,21 +1388,22 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
       // force this video to top priority
       videoDataMap[v.id].trendingBoost = Date.now();
 
-      // jump user to page 1
-      currentPage = 1;
+// 🔥 SAVE AS PINNED (survives refresh)
+addPinnedTrending(v.id);
 
-      const params = new URLSearchParams(window.location.search);
-      params.set("page", 1);
+currentPage = 1;
 
-      history.replaceState(
-        null,
-        "",
-        "?" + params.toString()
+const params = new URLSearchParams(window.location.search);
+params.set("page", 1);
+
+history.replaceState(null, "", "?" + params.toString());
       );
     }
 
     updateUI(v.id);
 
+    // 🔥 FULL RE-RENDER
+    renderPage(filtered);
   }
 });
 
@@ -1382,22 +1411,3 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
 
   })
   .catch(console.error);
-
-window.addEventListener("cycle-update", (e) => {
-  const { videoId, cycleViews } = e.detail || {};
-
-  if (!videoId) return;
-
-  if (!videoDataMap[videoId]) return;
-
-  videoDataMap[videoId].cycleViews = cycleViews;
-
-  const isTrending = cycleViews >= 10;
-
-  // update cache
-  localStorage.setItem("cycle_" + videoId, cycleViews);
-  localStorage.setItem("trending_" + videoId, isTrending ? "1" : "0");
-
-  // ONLY update UI (DO NOT re-render page)
-  updateUI(videoId);
-});
