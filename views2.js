@@ -1039,57 +1039,53 @@ function renderPage(filtered) {
 
   videosContainer.innerHTML = "";
 
-  // 🔥 SORT ENTIRE DATASET FIRST
-  const sorted = [...filtered].sort((a, b) => {
-
-  const A = videoDataMap[a.id] || a;
-  const B = videoDataMap[b.id] || b;
-
-  const ATrending = (A.cycleViews || 0) >= 10;
-  const BTrending = (B.cycleViews || 0) >= 10;
-
-  // 🔥 trending always first
-  if (ATrending && !BTrending) return -1;
-  if (!ATrending && BTrending) return 1;
-
-  // 🔥 newest trending goes absolute top
-  if (ATrending && BTrending) {
-
-    const boostA = A.trendingBoost || 0;
-    const boostB = B.trendingBoost || 0;
-
-    // newest promoted trending first
-    if (boostA !== boostB) {
-      return boostB - boostA;
-    }
-
-    // fallback to cycle views
-    return (B.cycleViews || 0) - (A.cycleViews || 0);
-  }
-
-  // original JSON order
-  return (A.originalIndex || 0) - (B.originalIndex || 0);
-});
+  // ❌ REMOVE global sorting
+  // const sorted = [...filtered].sort(...)
 
   const start = (currentPage - 1) * pageSize;
   const end = start + pageSize;
 
-  const pageItems = sorted.slice(start, end);
+  const pageItems = filtered.slice(start, end); // 👈 ONLY paginate first
+
+  // 🔥 NOW sort ONLY within current page
+  pageItems.sort((a, b) => {
+
+    const A = videoDataMap[a.id] || a;
+    const B = videoDataMap[b.id] || b;
+
+    const ATrending = (A.cycleViews || 0) >= 10;
+    const BTrending = (B.cycleViews || 0) >= 10;
+
+    if (ATrending && !BTrending) return -1;
+    if (!ATrending && BTrending) return 1;
+
+    if (ATrending && BTrending) {
+      const boostA = A.trendingBoost || 0;
+      const boostB = B.trendingBoost || 0;
+
+      if (boostA !== boostB) {
+        return boostB - boostA;
+      }
+
+      return (B.cycleViews || 0) - (A.cycleViews || 0);
+    }
+
+    return (A.originalIndex || 0) - (B.originalIndex || 0);
+  });
 
   pageItems.forEach((v, index) => {
 
     videoDataMap[v.id] = {
-  ...videoDataMap[v.id],
-  ...v,
-  originalIndex:
-    videoDataMap[v.id]?.originalIndex ??
-    filtered.findIndex(x => x.id === v.id),
+      ...videoDataMap[v.id],
+      ...v,
+      originalIndex:
+        videoDataMap[v.id]?.originalIndex ??
+        filtered.findIndex(x => x.id === v.id),
       totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
       cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
     };
 
     const box = createVideoBox(v);
-
     videosContainer.appendChild(box);
 
     videoElements[v.id] = {
@@ -1100,7 +1096,7 @@ function renderPage(filtered) {
     updateUI(v.id);
   });
 
-  renderPagination(sorted);
+  renderPagination(filtered); // 👈 IMPORTANT: not sorted anymore
 }
 
 function renderPagination(filtered, reset = false) {
