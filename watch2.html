@@ -395,10 +395,9 @@ Watch high quality video streaming online. Updated daily with new content.
 <!-- ✅ BOTTOM AD WRAPPER -->
 <div id="bottom-ad-wrapper" style="
   width: 100%;
-  display: flex;
+  display: none;
   justify-content: center;
   margin: 20px auto;
-  visibility: hidden;
   position: relative;
 ">
 
@@ -654,7 +653,7 @@ adContainer.appendChild(adScript);
 window.adsbyjuicy = window.adsbyjuicy || [];
 window.adsbyjuicy.push({ adzone });
 
-document.getElementById("bottom-ad-wrapper").style.visibility = "visible";
+document.getElementById("bottom-ad-wrapper").style.display = "flex";
 
 /* ---------------- AD TRACKING ---------------- */
 
