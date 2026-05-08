@@ -1034,56 +1034,50 @@ function updateUI(id) {
 /* ---------------- REORDER (TRENDING PRIORITY) ---------------- */
 const pageSize = 10;
 let currentPage = 1;
+let trendingDirty = false;
+
+function getSortedVideos(filtered) {
+  return [...filtered].sort((a, b) => {
+
+    const A = videoDataMap[a.id] || a;
+    const B = videoDataMap[b.id] || b;
+
+    const ATrending = (A.cycleViews || 0) >= 10;
+    const BTrending = (B.cycleViews || 0) >= 10;
+
+    // 🔥 Trending first
+    if (ATrending && !BTrending) return -1;
+    if (!ATrending && BTrending) return 1;
+
+    // 🔥 Both trending → newest first
+    if (ATrending && BTrending) {
+      return (B.trendingBoost || 0) - (A.trendingBoost || 0);
+    }
+
+    // 🔥 Default order
+    return (A.originalIndex || 0) - (B.originalIndex || 0);
+  });
+}
 
 function renderPage(filtered) {
 
   videosContainer.innerHTML = "";
 
-  // 🔥 SORT ENTIRE DATASET FIRST
-  const sorted = [...filtered].sort((a, b) => {
-
-  const A = videoDataMap[a.id] || a;
-  const B = videoDataMap[b.id] || b;
-
-  const ATrending = (A.cycleViews || 0) >= 10;
-  const BTrending = (B.cycleViews || 0) >= 10;
-
-  // 🔥 trending always first
-  if (ATrending && !BTrending) return -1;
-  if (!ATrending && BTrending) return 1;
-
-  // 🔥 newest trending goes absolute top
-  if (ATrending && BTrending) {
-
-    const boostA = A.trendingBoost || 0;
-    const boostB = B.trendingBoost || 0;
-
-    // newest promoted trending first
-    if (boostA !== boostB) {
-      return boostB - boostA;
-    }
-
-    // fallback to cycle views
-    return (B.cycleViews || 0) - (A.cycleViews || 0);
-  }
-
-  // original JSON order
-  return (A.originalIndex || 0) - (B.originalIndex || 0);
-});
+  const sorted = getSortedVideos(filtered);
 
   const start = (currentPage - 1) * pageSize;
   const end = start + pageSize;
 
   const pageItems = sorted.slice(start, end);
 
-  pageItems.forEach((v, index) => {
+  pageItems.forEach((v) => {
 
     videoDataMap[v.id] = {
-  ...videoDataMap[v.id],
-  ...v,
-  originalIndex:
-    videoDataMap[v.id]?.originalIndex ??
-    filtered.findIndex(x => x.id === v.id),
+      ...videoDataMap[v.id],
+      ...v,
+      originalIndex:
+        videoDataMap[v.id]?.originalIndex ??
+        filtered.findIndex(x => x.id === v.id),
       totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
       cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
     };
@@ -1168,14 +1162,14 @@ function renderPagination(filtered, reset = false) {
     wrapper.appendChild(createBtn("<<", () => {
       currentPage = 1;
       updateURL(currentPage);
-      renderPage(filtered);
+      trendingDirty = true;
       scrollTop();
     }));
 
     wrapper.appendChild(createBtn("<", () => {
       currentPage = currentPage - 1;
       updateURL(currentPage);
-      renderPage(filtered);
+      trendingDirty = true;
       scrollTop();
     }));
   }
@@ -1196,7 +1190,7 @@ function renderPagination(filtered, reset = false) {
     const btn = createBtn(i, () => {
       currentPage = i;
       updateURL(currentPage);
-      renderPage(filtered);
+      trendingDirty = true;
       scrollTop();
     });
 
@@ -1214,14 +1208,14 @@ function renderPagination(filtered, reset = false) {
     wrapper.appendChild(createBtn(">", () => {
       currentPage = currentPage + 1;
       updateURL(currentPage);
-      renderPage(filtered);
+      trendingDirty = true;
       scrollTop();
     }));
 
     wrapper.appendChild(createBtn(">>", () => {
       currentPage = totalPages;
       updateURL(currentPage);
-      renderPage(filtered);
+      trendingDirty = true;
       scrollTop();
     }));
   }
@@ -1254,7 +1248,7 @@ setFolderTitle();
     }
 
   currentPage = Number(new URLSearchParams(window.location.search).get("page")) || 1;
-renderPage(filtered);
+trendingDirty = true;
 
     if (videoIdFromURL) {
 
@@ -1338,54 +1332,35 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
       onValue(ref(db, "cycleViews/" + v.id), snap => {
 
   const val = snap.val();
+  if (val === null) return;
 
-  if (val !== null) {
+  const oldViews = Number(videoDataMap[v.id]?.cycleViews || 0);
+  const oldTrending = oldViews >= 10;
 
-    // current latest value
-    const newViews = Number(val);
+  videoDataMap[v.id].cycleViews = Number(val);
 
-    // previous trending state
-    const wasTrending =
-      videoDataMap[v.id]?.wasTrending || false;
+  const newViews = Number(videoDataMap[v.id].cycleViews || 0);
+  const newTrending = newViews >= 10;
 
-    // new trending state
-    const isTrending = newViews >= 10;
+  // 🔥 JUST BECAME TRENDING
+  if (!oldTrending && newTrending) {
 
-    // save latest views
-    videoDataMap[v.id].cycleViews = newViews;
+    videoDataMap[v.id].trendingBoost = Date.now();
 
-    // 🔥 REAL transition only
-    if (!wasTrending && isTrending) {
+    // reset to page 1
+    currentPage = 1;
 
-      // remember trending state
-      videoDataMap[v.id].wasTrending = true;
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", 1);
 
-      // newest trending goes top
-      videoDataMap[v.id].trendingBoost = Date.now();
+    history.replaceState(null, "", "?" + params.toString());
 
-      // jump to first page
-      currentPage = 1;
-
-      const params = new URLSearchParams(window.location.search);
-      params.set("page", 1);
-
-      history.replaceState(
-        null,
-        "",
-        "?" + params.toString()
-      );
-    }
-
-    // reset if no longer trending
-    if (!isTrending) {
-      videoDataMap[v.id].wasTrending = false;
-    }
-
-    updateUI(v.id);
-
-    // rerender UI
+    // 🔥 FORCE IMMEDIATE REORDER + RERENDER
     renderPage(filtered);
+    return;
   }
+
+  updateUI(v.id);
 });
 
     });
