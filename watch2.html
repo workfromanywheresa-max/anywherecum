@@ -714,6 +714,28 @@ function initAd() {
   });
 }
 
+function showAdLoading() {
+  const wrapper = document.getElementById("bottom-ad-wrapper");
+  const container = document.getElementById("bottom-ad-container");
+
+  wrapper.style.visibility = "visible";
+
+  container.innerHTML = `
+    <div style="
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#aaa;
+      font-size:12px;
+      background:#222;
+    ">
+      Loading AD...
+    </div>
+  `;
+}
+  
 /* ---------------- URL ---------------- */
 const params = new URLSearchParams(window.location.search);
 const videoId = params.get("video");
@@ -803,7 +825,11 @@ if (preview) {
     // hide overlay
     preview.style.display = "none";
 
-    setTimeout(() => {
+    // immediately show loading ad UI
+showAdLoading();
+
+// delay real ad load (your original logic preserved)
+setTimeout(() => {
   initAd();
 }, 5 * 60 * 1000);
 
