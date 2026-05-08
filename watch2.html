@@ -717,9 +717,27 @@ function initAd() {
 function showAdLoading() {
   const wrapper = document.getElementById("bottom-ad-wrapper");
   const container = document.getElementById("bottom-ad-container");
+  const overlay = document.getElementById("ad-overlay");
 
+  const isDesktop = window.innerWidth >= 768;
+
+  const w = isDesktop ? 308 : 300;
+  const h = isDesktop ? 298 : 112;
+
+  // show wrapper
   wrapper.style.visibility = "visible";
 
+  // match real ad sizing exactly
+  container.style.width = w + "px";
+  container.style.height = h + "px";
+
+  overlay.style.width = w + "px";
+  overlay.style.height = h + "px";
+  overlay.style.top = "0";
+  overlay.style.left = "50%";
+  overlay.style.transform = "translateX(-50%)";
+
+  // clean placeholder (NO spinner, NO animation)
   container.innerHTML = `
     <div style="
       width:100%;
@@ -727,9 +745,9 @@ function showAdLoading() {
       display:flex;
       align-items:center;
       justify-content:center;
-      color:#aaa;
-      font-size:12px;
       background:#222;
+      color:#666;
+      font-size:12px;
     ">
       Loading AD...
     </div>
