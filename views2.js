@@ -1065,137 +1065,6 @@ function reorderVideos(force = false) {
   });
 }
 
-/* =========================
-   PAGINATION SYSTEM
-========================= */
-
-let allVideos = [];
-let currentPage = 1;
-const PAGE_SIZE = 10;
-
-/* ---------- HELPERS ---------- */
-
-function getTotalPages() {
-  return Math.ceil(allVideos.length / PAGE_SIZE);
-}
-
-function createBtn(text, onClick) {
-  const btn = document.createElement("button");
-  btn.textContent = text;
-
-  btn.style.padding = "6px 10px";
-  btn.style.border = "1px solid #444";
-  btn.style.background = "#111";
-  btn.style.color = "white";
-  btn.style.cursor = "pointer";
-  btn.style.borderRadius = "6px";
-
-  btn.onclick = onClick;
-  return btn;
-}
-
-/* ---------- RENDER PAGE ---------- */
-
-function renderPage() {
-  videosContainer.innerHTML = "";
-
-  const start = (currentPage - 1) * PAGE_SIZE;
-  const end = start + PAGE_SIZE;
-
-  const pageItems = allVideos.slice(start, end);
-
-  pageItems.forEach((v, index) => {
-
-    if (videoElements[v.id]) return;
-
-    videoDataMap[v.id] = {
-      ...v,
-      originalIndex: start + index,
-      totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
-      cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
-    };
-
-    const box = createVideoBox(v);
-    videosContainer.appendChild(box);
-
-    videoElements[v.id] = {
-      box,
-      views: box.querySelector(".views")
-    };
-
-    updateUI(v.id);
-  });
-
-  renderPagination();
-  reorderVideos(true);
-}
-
-/* ---------- PAGINATION BAR ---------- */
-
-function renderPagination() {
-  let old = document.getElementById("pagination");
-  if (old) old.remove();
-
-  const totalPages = getTotalPages();
-
-  const container = document.createElement("div");
-  container.id = "pagination";
-
-  container.style.display = "flex";
-  container.style.gap = "6px";
-  container.style.justifyContent = "center";
-  container.style.margin = "20px 0";
-  container.style.flexWrap = "wrap";
-
-  // << first
-  container.appendChild(createBtn("<<", () => {
-    currentPage = 1;
-    renderPage();
-  }));
-
-  // < prev
-  container.appendChild(createBtn("<", () => {
-    if (currentPage > 1) {
-      currentPage--;
-      renderPage();
-    }
-  }));
-
-  // page numbers (window)
-  let start = Math.max(1, currentPage - 2);
-  let end = Math.min(totalPages, start + 4);
-
-  for (let i = start; i <= end; i++) {
-    const btn = createBtn(i, () => {
-      currentPage = i;
-      renderPage();
-    });
-
-    if (i === currentPage) {
-      btn.style.background = "#ffcc00";
-      btn.style.color = "#000";
-    }
-
-    container.appendChild(btn);
-  }
-
-  // next >
-  container.appendChild(createBtn(">", () => {
-    if (currentPage < totalPages) {
-      currentPage++;
-      renderPage();
-    }
-  }));
-
-  // last >>
-  container.appendChild(createBtn(">>", () => {
-    currentPage = totalPages;
-    renderPage();
-  }));
-
-  document.body.appendChild(container);
-}
-
 /* ---------------- LOAD ---------------- */
 showFolderTitleSkeleton();
 showSkeletons(); // 👈 inject loading UI first
@@ -1220,9 +1089,14 @@ setFolderTitle();
       return;
     }
 
-    allVideos = filtered;
-currentPage = 1;
-renderPage();
+    filtered.forEach((v, index) => {
+
+      videoDataMap[v.id] = {
+        ...v,
+        originalIndex: index,
+        totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
+        cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
+      };
 
       const box = createVideoBox(v);
       videosContainer.appendChild(box);
