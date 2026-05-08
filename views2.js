@@ -1179,7 +1179,7 @@ function renderPagination(filtered) {
     renderPage(filtered);
   }));
 
-  videosContainer.appendChild(wrapper);
+  videosContainer.insertAdjacentElement("afterend", wrapper);
 }
 
 /* ---------------- LOAD ---------------- */
