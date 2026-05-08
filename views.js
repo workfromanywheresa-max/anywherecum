@@ -10,8 +10,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig); 
 const db = getDatabase(app);
 
-/* ---------------- LIVE SYNC (INDEX ONLY CACHE) ---------------- */
-
 const cycleRef = ref(db, "cycleViews");
 
 onValue(cycleRef, (snapshot) => {
@@ -20,31 +18,22 @@ onValue(cycleRef, (snapshot) => {
   Object.entries(data).forEach(([videoId, cycleViews]) => {
 
     // cache latest trending state locally
-    localStorage.setItem("cycle_" + videoId, cycleViews);
+    localStorage.setItem("cycle_" + videoId, cycleViews || 0);
 
     const isTrending = (cycleViews || 0) >= 10;
     localStorage.setItem("trending_" + videoId, isTrending ? "1" : "0");
+
+    // 🔥 notify other tabs instantly
+    window.dispatchEvent(new CustomEvent("cycle-update", {
+      detail: { videoId, cycleViews }
+    }));
   });
 });
 
-
-/* ---------------- CROSS-TAB SYNC ---------------- */
-
+/* optional cross-tab sync */
 window.addEventListener("storage", (e) => {
-  if (!e.key) return;
-
-  if (e.key.startsWith("cycle_") || e.key.startsWith("trending_")) {
-
-    const videoId =
-      e.key.replace("cycle_", "").replace("trending_", "");
-
-    window.dispatchEvent(new CustomEvent("trendUpdate", {
-      detail: {
-        videoId,
-        cycleViews: Number(localStorage.getItem("cycle_" + videoId) || 0),
-        isTrending: localStorage.getItem("trending_" + videoId) === "1"
-      }
-    }));
+  if (e.key?.startsWith("cycle_")) {
+    window.dispatchEvent(new Event("cycle-update"));
   }
 });
 
