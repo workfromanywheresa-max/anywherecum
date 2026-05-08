@@ -1065,6 +1065,113 @@ function reorderVideos(force = false) {
   });
 }
 
+const pageSize = 10;
+let currentPage = 1;
+
+function renderPage(filtered) {
+
+  videosContainer.innerHTML = "";
+
+  const start = (currentPage - 1) * pageSize;
+  const end = start + pageSize;
+
+  const pageItems = filtered.slice(start, end);
+
+  pageItems.forEach((v, index) => {
+
+    videoDataMap[v.id] = {
+      ...v,
+      originalIndex: index,
+      totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
+      cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
+    };
+
+    const box = createVideoBox(v);
+    videosContainer.appendChild(box);
+
+    videoElements[v.id] = {
+      box,
+      views: box.querySelector(".views")
+    };
+
+    updateUI(v.id);
+  });
+
+  renderPagination(filtered);
+}
+
+function renderPagination(filtered) {
+
+  const totalPages = Math.ceil(filtered.length / pageSize);
+
+  let old = document.getElementById("pagination");
+  if (old) old.remove();
+
+  const wrapper = document.createElement("div");
+  wrapper.id = "pagination";
+  wrapper.style.display = "flex";
+  wrapper.style.gap = "5px";
+  wrapper.style.justifyContent = "center";
+  wrapper.style.margin = "20px 0";
+  wrapper.style.flexWrap = "wrap";
+
+  function createBtn(text, disabled, onClick) {
+    const btn = document.createElement("button");
+    btn.textContent = text;
+    btn.disabled = disabled;
+
+    btn.style.padding = "6px 10px";
+    btn.style.background = "#222";
+    btn.style.color = "white";
+    btn.style.border = "1px solid #444";
+    btn.style.borderRadius = "6px";
+    btn.style.cursor = "pointer";
+
+    btn.onclick = onClick;
+    return btn;
+  }
+
+  wrapper.appendChild(createBtn("<<", currentPage === 1, () => {
+    currentPage = 1;
+    renderPage(filtered);
+  }));
+
+  wrapper.appendChild(createBtn("<", currentPage === 1, () => {
+    currentPage--;
+    renderPage(filtered);
+  }));
+
+  const startPage = Math.max(1, currentPage - 2);
+  const endPage = Math.min(totalPages, startPage + 9);
+
+  for (let i = startPage; i <= endPage; i++) {
+
+    const btn = createBtn(i, false, () => {
+      currentPage = i;
+      renderPage(filtered);
+    });
+
+    if (i === currentPage) {
+      btn.style.background = "#ffcc00";
+      btn.style.color = "#000";
+    }
+
+    wrapper.appendChild(btn);
+  }
+
+  wrapper.appendChild(createBtn(">", currentPage === totalPages, () => {
+    currentPage++;
+    renderPage(filtered);
+  }));
+
+  wrapper.appendChild(createBtn(">>", currentPage === totalPages, () => {
+    currentPage = totalPages;
+    renderPage(filtered);
+  }));
+
+  videosContainer.appendChild(wrapper);
+}
+
 /* ---------------- LOAD ---------------- */
 showFolderTitleSkeleton();
 showSkeletons(); // 👈 inject loading UI first
@@ -1088,6 +1195,9 @@ setFolderTitle();
       videosContainer.innerHTML = "<p>No videos found.</p>";
       return;
     }
+
+  currentPage = 1;
+renderPage(filtered);
 
     filtered.forEach((v, index) => {
 
