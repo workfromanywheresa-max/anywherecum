@@ -1537,56 +1537,64 @@ function init() {
     folder.includes("vip") ||
     folder.includes("🔓");
 
-  if (isVIP) {
-    document.body.classList.add("vip");
-    console.log("💎 VIP mode enabled");
-
-    /* =========================
-       HIDE ADS + CODE
-       (KEEP SPACE RESERVED)
-    ========================= */
-
-    // hide ad content only
-    const adContainer = document.getElementById("bottom-ad-container");
-    const adLoading = document.getElementById("ad-loading");
-    const adOverlay = document.getElementById("ad-overlay");
-
-    if (adContainer) {
-      adContainer.style.visibility = "hidden";
-    }
-
-    if (adLoading) {
-      adLoading.style.visibility = "hidden";
-    }
-
-    if (adOverlay) {
-      adOverlay.style.visibility = "hidden";
-    }
-
-    // keep wrapper space
-    const adWrapper = document.getElementById("bottom-ad-wrapper");
-
-    if (adWrapper) {
-      adWrapper.style.visibility = "visible";
-    }
-
-    // hide code section contents only
-    const getCodeBtn = document.getElementById("getCodeBtn");
-    const codeBox = document.getElementById("codeBox");
-
-    if (getCodeBtn) {
-      getCodeBtn.style.visibility = "hidden";
-    }
-
-    if (codeBox) {
-      codeBox.style.visibility = "hidden";
-    }
-
-  } else {
+  if (!isVIP) {
     document.body.classList.remove("vip");
     console.log("❌ NOT VIP — normal mode");
     return;
   }
+
+  document.body.classList.add("vip");
+  console.log("💎 VIP mode enabled");
+
+  /* =========================
+     HIDE STATIC ELEMENTS
+  ========================= */
+
+  function hideVIPElements() {
+
+    const adContainer = document.getElementById("bottom-ad-container");
+    const adLoading = document.getElementById("ad-loading");
+    const adOverlay = document.getElementById("ad-overlay");
+    const adWrapper = document.getElementById("bottom-ad-wrapper");
+
+    const getCodeBtn = document.getElementById("getCodeBtn");
+    const codeBox = document.getElementById("codeBox");
+
+    if (adContainer) adContainer.style.visibility = "hidden";
+    if (adLoading) adLoading.style.visibility = "hidden";
+    if (adOverlay) adOverlay.style.visibility = "hidden";
+
+    if (adWrapper) adWrapper.style.visibility = "visible";
+
+    if (getCodeBtn) getCodeBtn.style.visibility = "hidden";
+    if (codeBox) codeBox.style.visibility = "hidden";
+  }
+
+  hideVIPElements();
+
+  /* =========================
+     HIDE PREVIEW (IMPORTANT)
+     - handles dynamic injection
+  ========================= */
+
+  function hidePreview() {
+    const preview = document.getElementById("preview");
+    if (preview) {
+      preview.style.display = "none";
+    }
+  }
+
+  hidePreview();
+
+  // watch for preview being injected later
+  const previewObserver = new MutationObserver(() => {
+    hidePreview();
+  });
+
+  previewObserver.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
 
   /* =========================
      REMOVE BUTTONS (SAFE)
@@ -1612,16 +1620,12 @@ function init() {
     });
   }
 
-  /* =========================
-     RUN + WATCH
-  ========================= */
   removeButtons();
-
-  const observer = new MutationObserver(removeButtons);
 
   const actionRow = document.getElementById("actionRow");
 
   if (actionRow) {
+    const observer = new MutationObserver(removeButtons);
     observer.observe(actionRow, {
       childList: true,
       subtree: true
@@ -1629,7 +1633,7 @@ function init() {
   }
 
 })();
-        </script>
+  </script>
   
 </body>
 </html>
