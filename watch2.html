@@ -614,56 +614,50 @@ function trackDownload(videoId) {
 }
 
 /* ---------------- AD INIT ---------------- */
-let adInitialized = false;
+const adContainer = document.getElementById("bottom-ad-container");
+const overlay = document.getElementById("ad-overlay");
 
-function initAd() {
-  if (adInitialized) return;
-  adInitialized = true;
+const isDesktop = window.innerWidth >= 768;
 
-  const adContainer = document.getElementById("bottom-ad-container");
-  const overlay = document.getElementById("ad-overlay");
+const w = isDesktop ? 308 : 300;
+const h = isDesktop ? 298 : 112;
 
-  const isDesktop = window.innerWidth >= 768;
+adContainer.style.width = w + "px";
+adContainer.style.height = h + "px";
 
-  const w = isDesktop ? 308 : 300;
-  const h = isDesktop ? 298 : 112;
+overlay.style.width = w + "px";
+overlay.style.height = h + "px";
+overlay.style.top = "0";
+overlay.style.left = "50%";
+overlay.style.transform = "translateX(-50%)";
 
-  adContainer.style.width = w + "px";
-  adContainer.style.height = h + "px";
+const adzone = isDesktop ? 1113664 : 1113665;
 
-  overlay.style.width = w + "px";
-  overlay.style.height = h + "px";
-  overlay.style.top = "0";
-  overlay.style.left = "50%";
-  overlay.style.transform = "translateX(-50%)";
+const adScript = document.createElement("script");
+adScript.async = true;
+adScript.setAttribute("data-cfasync", "false");
+adScript.src = "https://poweredby.jads.co/js/jads.js";
 
-  const adzone = isDesktop ? 1113664 : 1113665;
+const ins = document.createElement("ins");
 
-  const adScript = document.createElement("script");
-  adScript.async = true;
-  adScript.setAttribute("data-cfasync", "false");
-  adScript.src = "https://poweredby.jads.co/js/jads.js";
+ins.id = String(adzone);
+ins.setAttribute("data-width", String(w));
+ins.setAttribute("data-height", String(h));
 
-  const ins = document.createElement("ins");
+ins.style.display = "block";
+ins.style.margin = "0 auto";
 
-  ins.id = String(adzone);
-  ins.setAttribute("data-width", String(w));
-  ins.setAttribute("data-height", String(h));
+adContainer.innerHTML = "";
+adContainer.appendChild(ins);
+adContainer.appendChild(adScript);
 
-  ins.style.display = "block";
-  ins.style.margin = "0 auto";
+window.adsbyjuicy = window.adsbyjuicy || [];
+window.adsbyjuicy.push({ adzone });
 
-  adContainer.innerHTML = "";
-  adContainer.appendChild(ins);
-  adContainer.appendChild(adScript);
-
-  window.adsbyjuicy = window.adsbyjuicy || [];
-  window.adsbyjuicy.push({ adzone });
-
-  document.getElementById("bottom-ad-wrapper").style.visibility = "visible";
-  }
+document.getElementById("bottom-ad-wrapper").style.visibility = "visible";
 
 /* ---------------- AD TRACKING ---------------- */
+
 const adId = "1113664-1113665";
 
 let adClicked = false;
@@ -785,10 +779,6 @@ if (preview) {
 
     // hide overlay
     preview.style.display = "none";
-
-    setTimeout(() => {
-  initAd();
-}, 5 * 60 * 1000);
 
     const id = videoData.id;
 
