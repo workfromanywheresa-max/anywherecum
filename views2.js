@@ -1042,50 +1042,60 @@ function renderPage(filtered) {
   // 🔥 SORT ENTIRE DATASET FIRST
   const sorted = [...filtered].sort((a, b) => {
 
-  const A = videoDataMap[a.id] || a;
-  const B = videoDataMap[b.id] || b;
+    const A = videoDataMap[a.id] || a;
+    const B = videoDataMap[b.id] || b;
 
-  const ATrending = (A.cycleViews || 0) >= 10;
-  const BTrending = (B.cycleViews || 0) >= 10;
+    const ATrending = (A.cycleViews || 0) >= 10;
+    const BTrending = (B.cycleViews || 0) >= 10;
 
-  // 🔥 trending always first
-  if (ATrending && !BTrending) return -1;
-  if (!ATrending && BTrending) return 1;
+    // 🔥 trending always first
+    if (ATrending && !BTrending) return -1;
+    if (!ATrending && BTrending) return 1;
 
-  // 🔥 newest trending goes absolute top
-  if (ATrending && BTrending) {
+    // 🔥 BOTH TRENDING
+    if (ATrending && BTrending) {
 
-    const boostA = A.trendingBoost || 0;
-    const boostB = B.trendingBoost || 0;
+      const boostA = A.trendingBoost || 0;
+      const boostB = B.trendingBoost || 0;
 
-    // newest promoted trending first
-    if (boostA !== boostB) {
-      return boostB - boostA;
+      // newest trending first
+      if (boostA !== boostB) {
+        return boostB - boostA;
+      }
+
+      // fallback cycle views
+      return (B.cycleViews || 0) - (A.cycleViews || 0);
     }
 
-    // fallback to cycle views
-    return (B.cycleViews || 0) - (A.cycleViews || 0);
-  }
-
-  // original JSON order
-  return (A.originalIndex || 0) - (B.originalIndex || 0);
-});
+    // 🔥 NORMAL VIDEOS = ORIGINAL JSON ORDER
+    return (A.originalIndex || 0) - (B.originalIndex || 0);
+  });
 
   const start = (currentPage - 1) * pageSize;
   const end = start + pageSize;
 
   const pageItems = sorted.slice(start, end);
 
-  pageItems.forEach((v, index) => {
+  pageItems.forEach((v) => {
 
     videoDataMap[v.id] = {
-  ...videoDataMap[v.id],
-  ...v,
-  originalIndex:
-  videoDataMap[v.id]?.originalIndex ??
-  videos.findIndex(x => x.id === v.id),
-      totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
-      cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
+      ...videoDataMap[v.id],
+      ...v,
+
+      // 🔥 KEEP PERMANENT ORIGINAL POSITION
+      originalIndex:
+        videoDataMap[v.id]?.originalIndex ??
+        originalOrderMap[v.id],
+
+      totalViews:
+        Number(getCache("views_" + v.id)) ||
+        v.totalViews ||
+        0,
+
+      cycleViews:
+        Number(getCache("cycle_" + v.id)) ||
+        v.cycleViews ||
+        0
     };
 
     const box = createVideoBox(v);
@@ -1236,6 +1246,12 @@ showSkeletons(); // 👈 inject loading UI first
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
+
+    const originalOrderMap = {};
+
+videos.forEach((v, i) => {
+  originalOrderMap[v.id] = i;
+});
     
 setFolderTitle();
     hideSkeletons();
@@ -1333,7 +1349,7 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
           videoDataMap[v.id].totalViews = val;
           updateUI(v.id);
         }
-      });   
+      });
 
       onValue(ref(db, "cycleViews/" + v.id), snap => {
 
