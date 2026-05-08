@@ -254,7 +254,17 @@ select.skeleton option {
   color: #aaa;
   background: #111;
   padding: 20px;
+}
+
+/* Desktop only */
+@media (min-width: 768px) {
+  .footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
   }
+}
 
   /* DEFAULT: everything visible */
 .btn-skeleton-wrap .skeleton-stack {
