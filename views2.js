@@ -1100,7 +1100,11 @@ function renderPage(filtered) {
   renderPagination(filtered);
 }
 
-function renderPagination(filtered) {
+function renderPagination(filtered, reset = false) {
+
+  if (reset) {
+    currentPage = 1;
+  }
 
   const totalPages = Math.ceil(filtered.length / pageSize);
 
@@ -1115,7 +1119,6 @@ function renderPagination(filtered) {
   wrapper.style.margin = "20px 0";
   wrapper.style.flexWrap = "wrap";
 
-  // ✅ NO SMOOTH SCROLL — instant jump (no visible animation)
   function scrollTop() {
     window.scrollTo(0, 0);
   }
@@ -1136,7 +1139,6 @@ function renderPagination(filtered) {
     return btn;
   }
 
-  // FIRST + PREV
   wrapper.appendChild(createBtn("<<", currentPage === 1, () => {
     currentPage = 1;
     renderPage(filtered);
@@ -1149,7 +1151,6 @@ function renderPagination(filtered) {
     scrollTop();
   }));
 
-  // SHOW ONLY 10 PAGES MAX
   const maxButtons = 10;
 
   let start = Math.max(1, currentPage - 4);
@@ -1176,7 +1177,6 @@ function renderPagination(filtered) {
     wrapper.appendChild(btn);
   }
 
-  // NEXT + LAST
   wrapper.appendChild(createBtn(">", currentPage === totalPages, () => {
     currentPage = Math.min(totalPages, currentPage + 1);
     renderPage(filtered);
@@ -1189,9 +1189,8 @@ function renderPagination(filtered) {
     scrollTop();
   }));
 
-  // Keep placement (below videos)
   videosContainer.insertAdjacentElement("afterend", wrapper);
-                                }
+}
 
 /* ---------------- LOAD ---------------- */
 showFolderTitleSkeleton();
