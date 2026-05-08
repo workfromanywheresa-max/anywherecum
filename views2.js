@@ -1363,8 +1363,12 @@ if (!oldTrending && newTrending) {
 
     updateUI(v.id);
 
-    // 🔥 FULL RE-RENDER
-    renderPage(filtered);
+// debounce re-render (prevents flicker + jumping)
+clearTimeout(window.__rerenderTimer);
+
+window.__rerenderTimer = setTimeout(() => {
+  renderPage(filtered);
+}, 150);
   }
 });
 
