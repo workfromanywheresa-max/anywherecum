@@ -683,41 +683,6 @@ function initAd() {
   });
 }
 
-/* ---------------- AD TRACKING ---------------- */
-
-const adId = "1113664-1113665";
-
-let adClicked = false;
-
-overlay.addEventListener("click", () => {
-
-  if (adClicked) return;
-  adClicked = true;
-
-  // remove overlay immediately
-  overlay.style.display = "none";
-
-  // re-enable iframe clicks
-  const iframe = adContainer.querySelector("iframe");
-
-  if (iframe) {
-    iframe.style.pointerEvents = "auto";
-  }
-
-  // send to Worker after 1 minute
-  setTimeout(() => {
-    navigator.sendBeacon(
-      "https://task.workfromanywhere-sa.workers.dev/",
-      JSON.stringify({
-        adId: adId,
-        type: "ad_click",
-        visitId: visitId,
-        timestamp: Date.now()
-      })
-    );
-  }, 60000); // 60 seconds
-});
-  
 /* ---------------- URL ---------------- */
 const params = new URLSearchParams(window.location.search);
 const videoId = params.get("video");
