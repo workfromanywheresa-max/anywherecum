@@ -1118,6 +1118,8 @@ function renderPagination(filtered, reset = false) {
 
   const totalPages = Math.ceil(filtered.length / pageSize);
 
+  if (totalPages === 0) return;
+
   if (currentPage > totalPages) currentPage = totalPages;
   if (currentPage < 1) currentPage = 1;
 
@@ -1133,7 +1135,7 @@ function renderPagination(filtered, reset = false) {
   wrapper.style.flexWrap = "wrap";
 
   function scrollTop() {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo(0, 0);
   }
 
   function updateURL(page) {
@@ -1142,10 +1144,9 @@ function renderPagination(filtered, reset = false) {
     history.replaceState(null, "", "?" + params.toString());
   }
 
-  function createBtn(text, disabled, onClick) {
+  function createBtn(text, onClick) {
     const btn = document.createElement("button");
     btn.textContent = text;
-    btn.disabled = disabled;
 
     btn.style.padding = "6px 10px";
     btn.style.background = "#222";
@@ -1158,37 +1159,38 @@ function renderPagination(filtered, reset = false) {
     return btn;
   }
 
-  // FIRST
-  wrapper.appendChild(createBtn("<<", currentPage === 1, () => {
-    currentPage = 1;
-    updateURL(currentPage);
-    renderPage(filtered);
-    scrollTop();
-  }));
+  // 🔥 FIRST + PREV (ONLY if not on page 1)
+  if (currentPage > 1) {
 
-  // PREV
-  wrapper.appendChild(createBtn("<", currentPage === 1, () => {
-    currentPage = Math.max(1, currentPage - 1);
-    updateURL(currentPage);
-    renderPage(filtered);
-    scrollTop();
-  }));
+    wrapper.appendChild(createBtn("<<", () => {
+      currentPage = 1;
+      updateURL(currentPage);
+      renderPage(filtered);
+      scrollTop();
+    }));
 
-  // ==============================
-  // 🔥 PAGE NUMBERS WITH "..."
-  // ==============================
+    wrapper.appendChild(createBtn("<", () => {
+      currentPage = currentPage - 1;
+      updateURL(currentPage);
+      renderPage(filtered);
+      scrollTop();
+    }));
+  }
 
-  const maxButtons = 7;
+  // PAGE BUTTONS
+  const maxButtons = 10;
 
-  let start = Math.max(1, currentPage - 2);
-  let end = Math.min(totalPages, start + maxButtons - 1);
+  let start = Math.max(1, currentPage - 4);
+  let end = start + maxButtons - 1;
 
-  if (end - start < maxButtons - 1) {
+  if (end > totalPages) {
+    end = totalPages;
     start = Math.max(1, end - maxButtons + 1);
   }
 
-  function addPage(i) {
-    const btn = createBtn(i, false, () => {
+  for (let i = start; i <= end; i++) {
+
+    const btn = createBtn(i, () => {
       currentPage = i;
       updateURL(currentPage);
       renderPage(filtered);
@@ -1203,52 +1205,23 @@ function renderPagination(filtered, reset = false) {
     wrapper.appendChild(btn);
   }
 
-  // FIRST + ...
-  if (start > 1) {
-    addPage(1);
+  // 🔥 NEXT + LAST (ONLY if not on last page)
+  if (currentPage < totalPages) {
 
-    if (start > 2) {
-      const dots = document.createElement("span");
-      dots.textContent = "...";
-      dots.style.padding = "6px";
-      dots.style.color = "#aaa";
-      wrapper.appendChild(dots);
-    }
+    wrapper.appendChild(createBtn(">", () => {
+      currentPage = currentPage + 1;
+      updateURL(currentPage);
+      renderPage(filtered);
+      scrollTop();
+    }));
+
+    wrapper.appendChild(createBtn(">>", () => {
+      currentPage = totalPages;
+      updateURL(currentPage);
+      renderPage(filtered);
+      scrollTop();
+    }));
   }
-
-  // MAIN RANGE
-  for (let i = start; i <= end; i++) {
-    addPage(i);
-  }
-
-  // ... + LAST
-  if (end < totalPages) {
-    if (end < totalPages - 1) {
-      const dots = document.createElement("span");
-      dots.textContent = "...";
-      dots.style.padding = "6px";
-      dots.style.color = "#aaa";
-      wrapper.appendChild(dots);
-    }
-
-    addPage(totalPages);
-  }
-
-  // NEXT
-  wrapper.appendChild(createBtn(">", currentPage === totalPages, () => {
-    currentPage = Math.min(totalPages, currentPage + 1);
-    updateURL(currentPage);
-    renderPage(filtered);
-    scrollTop();
-  }));
-
-  // LAST
-  wrapper.appendChild(createBtn(">>", currentPage === totalPages, () => {
-    currentPage = totalPages;
-    updateURL(currentPage);
-    renderPage(filtered);
-    scrollTop();
-  }));
 
   videosContainer.insertAdjacentElement("afterend", wrapper);
 }
