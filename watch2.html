@@ -418,6 +418,7 @@ Watch high quality video streaming online. Updated daily with new content.
   color: #666;
   font-size: 12px;
   position: relative;
+  visibility: hidden;
 }
 
 /* 🔥 overlay sits above ONLY ad box */
@@ -614,87 +615,48 @@ function trackDownload(videoId) {
 }
 
 /* ---------------- AD INIT ---------------- */
-
 const adContainer = document.getElementById("bottom-ad-container");
 const overlay = document.getElementById("ad-overlay");
-const wrapper = document.getElementById("bottom-ad-wrapper");
 
-let currentMode = null;
+const isDesktop = window.innerWidth >= 768;
 
-function loadAd() {
+const w = isDesktop ? 308 : 300;
+const h = isDesktop ? 298 : 112;
 
-  const isDesktop = window.innerWidth >= 768;
-  const mode = isDesktop ? "desktop" : "mobile";
+adContainer.style.width = w + "px";
+adContainer.style.height = h + "px";
 
-  // prevent unnecessary reloads
-  if (mode === currentMode) return;
-  currentMode = mode;
+overlay.style.width = w + "px";
+overlay.style.height = h + "px";
+overlay.style.top = "0";
+overlay.style.left = "50%";
+overlay.style.transform = "translateX(-50%)";
 
-  const w = isDesktop ? 308 : 300;
-  const h = isDesktop ? 298 : 112;
+const adzone = isDesktop ? 1113664 : 1113665;
 
-  const adzone = isDesktop ? 1113664 : 1113665;
+const adScript = document.createElement("script");
+adScript.async = true;
+adScript.setAttribute("data-cfasync", "false");
+adScript.src = "https://poweredby.jads.co/js/jads.js";
 
-  // clear old ad completely
-  adContainer.innerHTML = "";
+const ins = document.createElement("ins");
 
-  // set sizes
-  adContainer.style.width = w + "px";
-  adContainer.style.height = h + "px";
+ins.id = String(adzone);
+ins.setAttribute("data-width", String(w));
+ins.setAttribute("data-height", String(h));
 
-  overlay.style.width = w + "px";
-  overlay.style.height = h + "px";
-  overlay.style.top = "0";
-  overlay.style.left = "50%";
-  overlay.style.transform = "translateX(-50%)";
+ins.style.display = "block";
+ins.style.margin = "0 auto";
 
-  // create fresh ad
-  const ins = document.createElement("ins");
+adContainer.innerHTML = "";
+adContainer.appendChild(ins);
+adContainer.appendChild(adScript);
 
-  ins.id = String(adzone);
-  ins.setAttribute("data-width", String(w));
-  ins.setAttribute("data-height", String(h));
+window.adsbyjuicy = window.adsbyjuicy || [];
+window.adsbyjuicy.push({ adzone });
 
-  ins.style.display = "block";
-  ins.style.margin = "0 auto";
+document.getElementById("bottom-ad-wrapper").style.visibility = "visible";
 
-  adContainer.appendChild(ins);
-
-  const adScript = document.createElement("script");
-  adScript.async = true;
-  adScript.setAttribute("data-cfasync", "false");
-  adScript.src = "https://poweredby.jads.co/js/jads.js";
-
-  adContainer.appendChild(adScript);
-
-  window.adsbyjuicy = window.adsbyjuicy || [];
-  window.adsbyjuicy.push({ adzone });
-
-  wrapper.style.visibility = "visible";
-
-  // reset overlay state
-  overlay.style.display = "block";
-
-  const iframe = adContainer.querySelector("iframe");
-  if (iframe) {
-    iframe.style.pointerEvents = "none";
-  }
-}
-
-/* INITIAL LOAD */
-loadAd();
-
-/* RELOAD WHEN SCREEN CHANGES */
-window.addEventListener("resize", () => {
-
-  clearTimeout(window.__adResizeTimer);
-
-  window.__adResizeTimer = setTimeout(() => {
-    loadAd();
-  }, 300);
-
-});
-  
 /* ---------------- AD TRACKING ---------------- */
 
 const adId = "1113664-1113665";
