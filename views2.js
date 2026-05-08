@@ -1076,8 +1076,6 @@ function renderPage(filtered) {
 
   const pageItems = sorted.slice(start, end);
 
-    sessionStorage.removeItem("scroll_state");
-
   pageItems.forEach((v, index) => {
 
     videoDataMap[v.id] = {
@@ -1170,14 +1168,14 @@ function renderPagination(filtered, reset = false) {
     wrapper.appendChild(createBtn("<<", () => {
       currentPage = 1;
       updateURL(currentPage);
-      safeRerender(filtered, v.id);
+      renderPage(filtered);
       scrollTop();
     }));
 
     wrapper.appendChild(createBtn("<", () => {
       currentPage = currentPage - 1;
       updateURL(currentPage);
-      safeRerender(filtered, v.id);
+      renderPage(filtered);
       scrollTop();
     }));
   }
@@ -1198,7 +1196,7 @@ function renderPagination(filtered, reset = false) {
     const btn = createBtn(i, () => {
       currentPage = i;
       updateURL(currentPage);
-      safeRerender(filtered, v.id);
+      renderPage(filtered);
       scrollTop();
     });
 
@@ -1216,61 +1214,19 @@ function renderPagination(filtered, reset = false) {
     wrapper.appendChild(createBtn(">", () => {
       currentPage = currentPage + 1;
       updateURL(currentPage);
-      safeRerender(filtered, v.id);
+      renderPage(filtered);
       scrollTop();
     }));
 
     wrapper.appendChild(createBtn(">>", () => {
       currentPage = totalPages;
       updateURL(currentPage);
-      safeRerender(filtered, v.id);
+      renderPage(filtered);
       scrollTop();
     }));
   }
 
   videosContainer.insertAdjacentElement("afterend", wrapper);
-}
-
-function saveScrollState(videoId) {
-  const state = {
-    page: currentPage,
-    scrollY: window.scrollY,
-    videoId: videoId || null
-  };
-
-  sessionStorage.setItem("scroll_state", JSON.stringify(state));
-}
-
-function restoreScrollState(filtered) {
-  const raw = sessionStorage.getItem("scroll_state");
-  if (!raw) return;
-
-  const state = JSON.parse(raw);
-
-  if (state.page) currentPage = state.page;
-
-  requestAnimationFrame(() => {
-
-    if (state.videoId) {
-      const el = document.getElementById(`video-${state.videoId}`);
-
-      if (el) {
-        el.scrollIntoView({
-          behavior: "auto",
-          block: "center"
-        });
-        return;
-      }
-    }
-
-    window.scrollTo(0, state.scrollY || 0);
-  });
-}
-
-function safeRerender(filtered, videoId) {
-  saveScrollState(videoId);
-  safeRerender(filtered, v.id);
-  restoreScrollState(filtered);
 }
 
 /* ---------------- LOAD ---------------- */
@@ -1298,7 +1254,7 @@ setFolderTitle();
     }
 
   currentPage = Number(new URLSearchParams(window.location.search).get("page")) || 1;
-safeRerender(filtered, v.id);
+renderPage(filtered);
 
     if (videoIdFromURL) {
 
@@ -1399,57 +1355,17 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
     const newTrending = newViews >= 10;
 
     // 🔥 JUST BECAME TRENDING
-    if (!oldTrending && newTrending) {
+if (!oldTrending && newTrending) {
 
-      // force this video to top priority
-      videoDataMap[v.id].trendingBoost = Date.now();
-
-      // jump user to page 1
-      currentPage = 1;
-
-      const params = new URLSearchParams(window.location.search);
-      params.set("page", 1);
-
-      history.replaceState(
-        null,
-        "",
-        "?" + params.toString()
-      );
-    }
+  // only boost ranking, DO NOT reset page
+  videoDataMap[v.id].trendingBoost = Date.now();
+}
 
     updateUI(v.id);
 
     // 🔥 FULL RE-RENDER
-    if (val !== null) {
-
-  const oldViews =
-    Number(videoDataMap[v.id]?.cycleViews || 0);
-
-  const oldTrending = oldViews >= 10;
-
-  videoDataMap[v.id].cycleViews = Number(val);
-
-  const newViews =
-    Number(videoDataMap[v.id].cycleViews || 0);
-
-  const newTrending = newViews >= 10;
-
-  if (!oldTrending && newTrending) {
-    videoDataMap[v.id].trendingBoost = Date.now();
-
-    currentPage = 1;
-
-    const params = new URLSearchParams(window.location.search);
-    params.set("page", 1);
-
-    history.replaceState(null, "", "?" + params.toString());
+    renderPage(filtered);
   }
-
-  updateUI(v.id);
-
-  // ✅ FIX GOES HERE
-  safeRerender(filtered, v.id);
-    }
 });
 
     });
