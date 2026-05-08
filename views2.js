@@ -1131,35 +1131,29 @@ function renderPagination(filtered) {
     return btn;
   }
 
-  // first
+  // FIRST + PREV
   wrapper.appendChild(createBtn("<<", currentPage === 1, () => {
     currentPage = 1;
     renderPage(filtered);
   }));
 
-  // prev
   wrapper.appendChild(createBtn("<", currentPage === 1, () => {
     currentPage = Math.max(1, currentPage - 1);
     renderPage(filtered);
   }));
 
-  // 🔥 FIXED PAGE WINDOW (max 10 buttons)
-  let maxButtons = 10;
+  // ✅ SHOW ONLY 10 PAGES MAX (SIMPLE WINDOW)
+  const maxButtons = 10;
 
-  let startPage = currentPage - Math.floor(maxButtons / 2);
-  let endPage = currentPage + Math.floor(maxButtons / 2) - 1;
+  let start = Math.max(1, currentPage - 4);
+  let end = start + maxButtons - 1;
 
-  if (startPage < 1) {
-    startPage = 1;
-    endPage = maxButtons;
+  if (end > totalPages) {
+    end = totalPages;
+    start = Math.max(1, end - maxButtons + 1);
   }
 
-  if (endPage > totalPages) {
-    endPage = totalPages;
-    startPage = Math.max(1, totalPages - maxButtons + 1);
-  }
-
-  for (let i = startPage; i <= endPage; i++) {
+  for (let i = start; i <= end; i++) {
 
     const btn = createBtn(i, false, () => {
       currentPage = i;
@@ -1174,20 +1168,19 @@ function renderPagination(filtered) {
     wrapper.appendChild(btn);
   }
 
-  // next
+  // NEXT + LAST
   wrapper.appendChild(createBtn(">", currentPage === totalPages, () => {
     currentPage = Math.min(totalPages, currentPage + 1);
     renderPage(filtered);
   }));
 
-  // last
   wrapper.appendChild(createBtn(">>", currentPage === totalPages, () => {
     currentPage = totalPages;
     renderPage(filtered);
   }));
 
   videosContainer.appendChild(wrapper);
-                    }
+}
 
 /* ---------------- LOAD ---------------- */
 showFolderTitleSkeleton();
