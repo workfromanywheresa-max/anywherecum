@@ -397,7 +397,7 @@ Watch high quality video streaming online. Updated daily with new content.
   display: flex;
   justify-content: center;
   margin: 20px auto;
-  visibility: visible;
+  visibility: hidden;
   position: relative;
 ">
 
@@ -644,6 +644,8 @@ adContainer.appendChild(adScript);
 
 window.adsbyjuicy = window.adsbyjuicy || [];
 window.adsbyjuicy.push({ adzone });
+
+document.getElementById("bottom-ad-wrapper").style.visibility = "visible";
 
 /* ---------------- AD TRACKING ---------------- */
 
