@@ -1333,14 +1333,6 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
 
     filtered.forEach(v => {
 
-      onValue(ref(db, "views/" + v.id), snap => {
-        const val = snap.val();
-        if (val !== null) {
-          videoDataMap[v.id].totalViews = val;
-          updateUI(v.id);
-        }
-      });
-
       onValue(ref(db, "cycleViews/" + v.id), snap => {
 
   const val = snap.val();
@@ -1387,10 +1379,11 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
           restoringAfterReset = false;
         });
       });
+    }
 
-    } // ✅ closes if
+  }
 
-  } // ✅ closes if (val !== null)
+});
 
-}); // ✅ closes onValue
+      
   .catch(console.error);
