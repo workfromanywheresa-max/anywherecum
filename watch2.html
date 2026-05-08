@@ -1538,6 +1538,7 @@ function init() {
     folder.includes("🔓");
 
   if (isVIP) {
+
     document.body.classList.add("vip");
     console.log("💎 VIP mode enabled");
 
@@ -1546,35 +1547,67 @@ function init() {
     ========================= */
     document.querySelectorAll(".ad-slot").forEach(ad => ad.remove());
 
+    /* =========================
+       HIDE GET CODE SECTION
+    ========================= */
+    const codeSection = document.getElementById("codeSection");
+
+    if (codeSection) {
+      codeSection.style.display = "none";
+    }
+
+    /* =========================
+       HIDE AD WRAPPER
+    ========================= */
+    const adWrapper =
+      document.getElementById("bottom-ad-wrapper");
+
+    if (adWrapper) {
+      adWrapper.style.display = "none";
+    }
+
   } else {
+
     document.body.classList.remove("vip");
     console.log("❌ NOT VIP — normal mode");
     return;
+
   }
 
   /* =========================
-     REMOVE BUTTONS (SAFE)
-     (UNCHANGED - EXACTLY AS YOURS)
+     REMOVE SHARE + EMBED
   ========================= */
   function removeButtons() {
 
-    const leftGroup = document.querySelector("#actionRow > div > div:first-child");
+    const leftGroup =
+      document.querySelector(
+        "#actionRow > div > div:first-child"
+      );
+
     if (!leftGroup) return;
 
     leftGroup.querySelectorAll("div").forEach(stack => {
 
       const labelEl = stack.firstElementChild;
+
       if (!labelEl) return;
 
-      const label = labelEl.textContent?.trim().toLowerCase();
+      const label =
+        labelEl.textContent?.trim().toLowerCase();
 
       if (stack.children.length === 2) {
-        if (label === "share" || label === "embed") {
+
+        if (
+          label === "share" ||
+          label === "embed"
+        ) {
           stack.remove();
         }
+
       }
 
     });
+
   }
 
   /* =========================
@@ -1582,14 +1615,19 @@ function init() {
   ========================= */
   removeButtons();
 
-  const observer = new MutationObserver(removeButtons);
+  const observer =
+    new MutationObserver(removeButtons);
 
-  const actionRow = document.getElementById("actionRow");
+  const actionRow =
+    document.getElementById("actionRow");
+
   if (actionRow) {
+
     observer.observe(actionRow, {
       childList: true,
       subtree: true
     });
+
   }
 
 })();
