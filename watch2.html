@@ -642,15 +642,14 @@ function trackDownload(videoId) {
 
 /* ---------------- AD INIT ---------------- */
 function initAd() {
+
   const wrapper = document.getElementById("bottom-ad-wrapper");
+  const adContainer = document.getElementById("bottom-ad-container");
+  const overlay = document.getElementById("ad-overlay");
   const loading = document.getElementById("ad-loading");
 
-  // show wrapper immediately
   wrapper.style.visibility = "visible";
 
-  // show loading state
-  if (loading) loading.style.display = "flex";
-  
   const isDesktop = window.innerWidth >= 768;
 
   const w = isDesktop ? 308 : 300;
@@ -667,10 +666,8 @@ function initAd() {
 
   const adzone = isDesktop ? 1113664 : 1113665;
 
-  const adScript = document.createElement("script");
-  adScript.async = true;
-  adScript.setAttribute("data-cfasync", "false");
-  adScript.src = "https://poweredby.jads.co/js/jads.js";
+  // CLEAR ONLY OLD AD CONTENT
+  adContainer.innerHTML = "";
 
   const ins = document.createElement("ins");
 
@@ -681,33 +678,40 @@ function initAd() {
   ins.style.display = "block";
   ins.style.margin = "0 auto";
 
-  adContainer.innerHTML = "";
+  const adScript = document.createElement("script");
+  adScript.async = true;
+  adScript.setAttribute("data-cfasync", "false");
+  adScript.src = "https://poweredby.jads.co/js/jads.js";
+
   adContainer.appendChild(ins);
   adContainer.appendChild(adScript);
 
   window.adsbyjuicy = window.adsbyjuicy || [];
   window.adsbyjuicy.push({ adzone });
 
-  document.getElementById("bottom-ad-wrapper").style.visibility = "visible";
-
-  // hide loading once ad is injected
-  setTimeout(() => {
-    if (loading) loading.style.display = "none";
-  }, 300);
+  // HIDE LOADING
+  if (loading) {
+    loading.style.display = "none";
+  }
 
   const adId = "1113664-1113665";
   let adClicked = false;
 
   overlay.addEventListener("click", () => {
+
     if (adClicked) return;
     adClicked = true;
 
     overlay.style.display = "none";
 
     const iframe = adContainer.querySelector("iframe");
-    if (iframe) iframe.style.pointerEvents = "auto";
+
+    if (iframe) {
+      iframe.style.pointerEvents = "auto";
+    }
 
     setTimeout(() => {
+
       navigator.sendBeacon(
         "https://task.workfromanywhere-sa.workers.dev/",
         JSON.stringify({
@@ -717,11 +721,15 @@ function initAd() {
           timestamp: Date.now()
         })
       );
-    }, 60000);
-  });
-}
 
-function showAdLoading() {
+    }, 60000);
+
+  });
+
+    }
+
+  function showAdLoading() {
+
   const wrapper = document.getElementById("bottom-ad-wrapper");
   const container = document.getElementById("bottom-ad-container");
   const overlay = document.getElementById("ad-overlay");
@@ -731,25 +739,14 @@ function showAdLoading() {
   const w = isDesktop ? 308 : 300;
   const h = isDesktop ? 298 : 112;
 
-  // SHOW wrapper
   wrapper.style.visibility = "visible";
 
-  // IMPORTANT: center wrapper content exactly like real ad
   wrapper.style.display = "flex";
   wrapper.style.justifyContent = "center";
 
-  // lock exact ad size
   container.style.width = w + "px";
   container.style.height = h + "px";
 
-  // make sure container does NOT stretch full width
-  container.style.flex = "0 0 auto";
-  container.style.display = "flex";
-  container.style.alignItems = "center";
-  container.style.justifyContent = "center";
-  container.style.background = "#222";
-
-  // overlay must match same box
   overlay.style.width = w + "px";
   overlay.style.height = h + "px";
   overlay.style.position = "absolute";
@@ -757,13 +754,17 @@ function showAdLoading() {
   overlay.style.transform = "translateX(-50%)";
   overlay.style.top = "0";
 
-  // placeholder content (no spinner)
-  container.innerHTML = `
-  <div id="ad-loading">
-    Loading AD...
-  </div>
-`;
-}
+  // IMPORTANT
+  container.innerHTML = "";
+
+  const loading = document.createElement("div");
+
+  loading.id = "ad-loading";
+  loading.textContent = "Loading AD...";
+
+  container.appendChild(loading);
+
+  }
   
 /* ---------------- URL ---------------- */
 const params = new URLSearchParams(window.location.search);
