@@ -184,6 +184,10 @@ function setLikeCache(videoId, value) {
 }
 
 /* ---------------- STATE ---------------- */
+let lastPageBeforeReset = 1;
+let lastScrollYBeforeReset = 0;
+let restoringAfterReset = false;
+
 const videoDataMap = {};
 const videoElements = {};
 let currentPreviewVideo = null;
@@ -1117,7 +1121,9 @@ function renderPagination(filtered, reset = false) {
     pageFromURL = 1;
   }
 
+  if (!restoringAfterReset) {
   currentPage = pageFromURL;
+  }
 
   const totalPages = Math.ceil(filtered.length / pageSize);
 
@@ -1357,28 +1363,37 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
     // 🔥 JUST BECAME TRENDING
     if (!oldTrending && newTrending) {
 
-      // force this video to top priority
-      videoDataMap[v.id].trendingBoost = Date.now();
+  // ✅ SAVE CURRENT STATE BEFORE RESET
+  lastPageBeforeReset = currentPage;
+  lastScrollYBeforeReset = window.scrollY;
 
-      // jump user to page 1
-      currentPage = 1;
+  // force this video to top priority
+  videoDataMap[v.id].trendingBoost = Date.now();
 
-      const params = new URLSearchParams(window.location.search);
-      params.set("page", 1);
+  // mark restore mode
+  restoringAfterReset = true;
 
-      history.replaceState(
-        null,
-        "",
-        "?" + params.toString()
-      );
-    }
+  // jump user to page 1 temporarily
+  currentPage = 1;
 
-    updateUI(v.id);
+  const params = new URLSearchParams(window.location.search);
+  params.set("page", 1);
 
-    // 🔥 FULL RE-RENDER
+  history.replaceState(null, "", "?" + params.toString());
+
+  renderPage(filtered);
+
+  // 🔥 restore after DOM paints
+  requestAnimationFrame(() => {
+    currentPage = lastPageBeforeReset;
     renderPage(filtered);
-  }
-});
+
+    requestAnimationFrame(() => {
+      window.scrollTo(0, lastScrollYBeforeReset);
+      restoringAfterReset = false;
+    });
+  });
+    }
 
     });
 
