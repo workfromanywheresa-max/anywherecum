@@ -798,11 +798,6 @@ let previewClicked = false;
 
 if (preview) {
   preview.addEventListener("click", (e) => {
-    
-    setTimeout(() => {
-  initAd();
-}, 5 * 60 * 1000);
-    
     e.preventDefault();
     e.stopPropagation();
 
@@ -811,6 +806,10 @@ if (preview) {
 
     // hide overlay
     preview.style.display = "none";
+
+    setTimeout(() => {
+  initAd();
+}, 5 * 60 * 1000);
 
     const id = videoData.id;
 
