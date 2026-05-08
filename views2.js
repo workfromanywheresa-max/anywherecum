@@ -1366,7 +1366,7 @@ if (!oldTrending && newTrending) {
 // only re-render if needed (optional guard)
 requestAnimationFrame(() => {
   renderPage(filtered);
-});
+}
 });
 
     });
