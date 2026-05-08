@@ -1183,25 +1183,51 @@ function renderPagination(filtered) {
 }
 
 /* ---------------- LOAD ---------------- */
+showFolderTitleSkeleton();
+showSkeletons(); // 👈 inject loading UI first
+
+fetch(dataSource)
+  .then(res => res.json())
+  .then(videos => {
+    
 setFolderTitle();
-hideSkeletons();
+    hideSkeletons();
+    
+    videosContainer.innerHTML = "";
+    
+    const filtered = folderName
+      ? videos.filter(v =>
+          (v.folder || "").trim().toLowerCase() === folderName
+        )
+      : videos;
 
-const filtered = folderName
-  ? videos.filter(v =>
-      (v.folder || "").trim().toLowerCase() === folderName
-    )
-  : videos;
+    if (filtered.length === 0) {
+      videosContainer.innerHTML = "<p>No videos found.</p>";
+      return;
+    }
 
-if (filtered.length === 0) {
-  videosContainer.innerHTML = "<p>No videos found.</p>";
-  return;
-}
-
-currentPage = 1;
+  currentPage = 1;
 renderPage(filtered);
-reorderVideos(true);
-scrollToVideoFromHash();
-updateAllTimes();
+
+    filtered.forEach((v, index) => {
+
+      videoDataMap[v.id] = {
+        ...v,
+        originalIndex: index,
+        totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
+        cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
+      };
+
+      const box = createVideoBox(v);
+      videosContainer.appendChild(box);
+
+      videoElements[v.id] = {
+        box,
+        views: box.querySelector(".views")
+      };
+
+      updateUI(v.id);
+    });
 
     if (videoIdFromURL) {
 
