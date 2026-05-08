@@ -1253,9 +1253,25 @@ setFolderTitle();
       return;
     }
 
-  currentPage = Number(new URLSearchParams(window.location.search).get("page")) || 1;
-renderPage(filtered);
+  const urlParams = new URLSearchParams(window.location.search);
+const urlPage = Number(urlParams.get("page"));
 
+// ✅ ALWAYS reset when entering a folder (your requirement)
+const isFolderOpen = !!folderName;
+
+if (isFolderOpen) {
+  currentPage = 1;
+
+  // force URL to page 1 so back/refresh stays correct
+  const params = new URLSearchParams(window.location.search);
+  params.set("page", "1");
+  history.replaceState(null, "", "?" + params.toString());
+} else {
+  currentPage = urlPage > 0 ? urlPage : 1;
+}
+
+renderPage(filtered);
+    
     if (videoIdFromURL) {
 
   const waitForData = setInterval(() => {
