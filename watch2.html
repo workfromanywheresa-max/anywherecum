@@ -724,20 +724,33 @@ function showAdLoading() {
   const w = isDesktop ? 308 : 300;
   const h = isDesktop ? 298 : 112;
 
-  // show wrapper
+  // SHOW wrapper
   wrapper.style.visibility = "visible";
 
-  // match real ad sizing exactly
+  // IMPORTANT: center wrapper content exactly like real ad
+  wrapper.style.display = "flex";
+  wrapper.style.justifyContent = "center";
+
+  // lock exact ad size
   container.style.width = w + "px";
   container.style.height = h + "px";
 
+  // make sure container does NOT stretch full width
+  container.style.flex = "0 0 auto";
+  container.style.display = "flex";
+  container.style.alignItems = "center";
+  container.style.justifyContent = "center";
+  container.style.background = "#222";
+
+  // overlay must match same box
   overlay.style.width = w + "px";
   overlay.style.height = h + "px";
-  overlay.style.top = "0";
+  overlay.style.position = "absolute";
   overlay.style.left = "50%";
   overlay.style.transform = "translateX(-50%)";
+  overlay.style.top = "0";
 
-  // clean placeholder (NO spinner, NO animation)
+  // placeholder content (no spinner)
   container.innerHTML = `
     <div style="
       width:100%;
@@ -745,9 +758,9 @@ function showAdLoading() {
       display:flex;
       align-items:center;
       justify-content:center;
-      background:#222;
       color:#666;
       font-size:12px;
+      background:#222;
     ">
       Loading AD...
     </div>
