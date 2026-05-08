@@ -393,21 +393,23 @@ Watch high quality video streaming online. Updated daily with new content.
   </div>
 
 <!-- ✅ BOTTOM AD WRAPPER -->
-  <style>
-#bottom-ad-wrapper {
+<div id="bottom-ad-wrapper" style="
   width: 100%;
   display: flex;
   justify-content: center;
   margin: 20px auto;
+  visibility: hidden;
+  position: relative;
+">
 
-  /* 🔥 reserve space (prevents footer jump) */
-  height: 112px;
-  overflow: hidden;
+  <div id="bottom-ad-container"></div>
 
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
+  <!-- 🔥 OVERLAY (rename FIXED) -->
+  <div id="ad-overlay"></div>
 
+</div>
+
+<style>
 #bottom-ad-container {
   background: #222;
   display: flex;
@@ -416,29 +418,14 @@ Watch high quality video streaming online. Updated daily with new content.
   color: #666;
   font-size: 12px;
   position: relative;
-
-  width: 300px;
-  height: 112px; /* MOBILE DEFAULT */
 }
 
-/* DESKTOP */
-@media (min-width: 768px) {
-  #bottom-ad-wrapper {
-    height: 298px;
-  }
-
-  #bottom-ad-container {
-    width: 308px;
-    height: 298px;
-  }
-}
-
-/* overlay */
+/* 🔥 overlay sits above ONLY ad box */
 #ad-overlay {
   position: absolute;
   background: transparent;
-  cursor: pointer;
   z-index: 10;
+  cursor: pointer;
 }
 
   #bottom-ad-container iframe {
@@ -621,7 +608,6 @@ function trackDownload(videoId) {
 /* ---------------- AD INIT ---------------- */
 const adContainer = document.getElementById("bottom-ad-container");
 const overlay = document.getElementById("ad-overlay");
-const wrapper = document.getElementById("bottom-ad-wrapper");
 
 const isDesktop = window.innerWidth >= 768;
 
@@ -639,28 +625,29 @@ overlay.style.transform = "translateX(-50%)";
 
 const adzone = isDesktop ? 1113664 : 1113665;
 
-const script = document.createElement("script");
-script.async = true;
-script.setAttribute("data-cfasync", "false");
-script.src = "https://poweredby.jads.co/js/jads.js";
+const adScript = document.createElement("script");
+adScript.async = true;
+adScript.setAttribute("data-cfasync", "false");
+adScript.src = "https://poweredby.jads.co/js/jads.js";
 
 const ins = document.createElement("ins");
+
 ins.id = String(adzone);
 ins.setAttribute("data-width", String(w));
 ins.setAttribute("data-height", String(h));
+
 ins.style.display = "block";
 ins.style.margin = "0 auto";
 
 adContainer.innerHTML = "";
 adContainer.appendChild(ins);
-adContainer.appendChild(script);
+adContainer.appendChild(adScript);
 
 window.adsbyjuicy = window.adsbyjuicy || [];
 window.adsbyjuicy.push({ adzone });
 
-/* 🔥 SHOW WITHOUT JUMP */
-wrapper.style.opacity = "1";
-  
+document.getElementById("bottom-ad-wrapper").style.visibility = "visible";
+
 /* ---------------- AD TRACKING ---------------- */
 
 const adId = "1113664-1113665";
