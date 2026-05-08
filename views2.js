@@ -1115,11 +1115,9 @@ function renderPagination(filtered) {
   wrapper.style.margin = "20px 0";
   wrapper.style.flexWrap = "wrap";
 
+  // ✅ NO SMOOTH SCROLL — instant jump (no visible animation)
   function scrollTop() {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth"
-    });
+    window.scrollTo(0, 0);
   }
 
   function createBtn(text, disabled, onClick) {
@@ -1191,8 +1189,9 @@ function renderPagination(filtered) {
     scrollTop();
   }));
 
+  // Keep placement (below videos)
   videosContainer.insertAdjacentElement("afterend", wrapper);
-}
+                                }
 
 /* ---------------- LOAD ---------------- */
 showFolderTitleSkeleton();
