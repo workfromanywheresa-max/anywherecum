@@ -402,6 +402,8 @@ Watch high quality video streaming online. Updated daily with new content.
   position: relative;
 ">
 
+  <div id="ad-loader">Loading ad...</div>
+
   <div id="bottom-ad-container"></div>
 
   <!-- 🔥 OVERLAY (rename FIXED) -->
@@ -443,6 +445,22 @@ Watch high quality video streaming online. Updated daily with new content.
 @media (min-width: 768px) {
   #bottom-ad-wrapper {
     min-height: 298px; /* desktop */
+  }
+}
+
+  #ad-loader {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #666;
+  font-size: 12px;
+  min-height: 112px;
+}
+
+@media (min-width:768px) {
+  #ad-loader {
+    min-height: 298px;
   }
 }
 </style>
@@ -614,62 +632,52 @@ function trackDownload(videoId) {
 }
 
 /* ---------------- AD INIT ---------------- */
-
 const adContainer = document.getElementById("bottom-ad-container");
 const overlay = document.getElementById("ad-overlay");
 const adWrapper = document.getElementById("bottom-ad-wrapper");
+const loader = document.getElementById("ad-loader");
 
 let currentMode = null;
-
-function destroyAd() {
-
-  // kill ad iframe/scripts
-  adContainer.innerHTML = "";
-
-  // reset overlay
-  overlay.style.display = "block";
-
-  // hide wrapper while rebuilding
-  adWrapper.style.visibility = "hidden";
-
-  // clear juicy queue safely
-  window.adsbyjuicy = [];
-
-}
+let rebuilding = false;
 
 function buildAd() {
+
+  if (rebuilding) return;
 
   const isDesktop = window.innerWidth >= 768;
   const mode = isDesktop ? "desktop" : "mobile";
 
-  // prevent duplicate rebuilds
   if (mode === currentMode) return;
 
-  currentMode = mode;
-
-  // FULL DESTROY
-  destroyAd();
+  rebuilding = true;
 
   const w = isDesktop ? 308 : 300;
   const h = isDesktop ? 298 : 112;
 
+  const adzone = isDesktop ? 1113664 : 1113665;
+
+  // HIDE OLD AD
+  adContainer.style.display = "none";
+  overlay.style.display = "none";
+
+  // SHOW LOADER
+  loader.style.display = "flex";
+
+  // CLEAR OLD
+  adContainer.innerHTML = "";
+
+  // SIZE
   adContainer.style.width = w + "px";
   adContainer.style.height = h + "px";
 
   overlay.style.width = w + "px";
   overlay.style.height = h + "px";
+
   overlay.style.top = "0";
   overlay.style.left = "50%";
   overlay.style.transform = "translateX(-50%)";
 
-  const adzone = isDesktop ? 1113664 : 1113665;
-
-  // recreate script fresh
-  const adScript = document.createElement("script");
-  adScript.async = true;
-  adScript.setAttribute("data-cfasync", "false");
-  adScript.src = "https://poweredby.jads.co/js/jads.js";
-
+  // CREATE NEW
   const ins = document.createElement("ins");
 
   ins.id = String(adzone);
@@ -679,23 +687,38 @@ function buildAd() {
   ins.style.display = "block";
   ins.style.margin = "0 auto";
 
+  const adScript = document.createElement("script");
+
+  adScript.async = true;
+  adScript.setAttribute("data-cfasync", "false");
+  adScript.src = "https://poweredby.jads.co/js/jads.js";
+
   adContainer.appendChild(ins);
   adContainer.appendChild(adScript);
 
-  // rebuild juicy queue
   window.adsbyjuicy = window.adsbyjuicy || [];
   window.adsbyjuicy.push({ adzone });
 
-  // show again
-  adWrapper.style.visibility = "visible";
+  // WAIT FOR RENDER
+  setTimeout(() => {
 
-  console.log("Ad rebuilt:", mode);
+    loader.style.display = "none";
+
+    adContainer.style.display = "flex";
+    overlay.style.display = "block";
+
+    currentMode = mode;
+    rebuilding = false;
+
+    console.log("Ad ready:", mode);
+
+  }, 1200);
+
 }
 
-/* INITIAL LOAD */
 buildAd();
 
-/* 🔥 AUTO KILL + REBUILD ON RESIZE */
+/* RESIZE */
 let resizeTimer;
 
 window.addEventListener("resize", () => {
@@ -704,12 +727,7 @@ window.addEventListener("resize", () => {
 
   resizeTimer = setTimeout(() => {
 
-    const newMode =
-      window.innerWidth >= 768 ? "desktop" : "mobile";
-
-    if (newMode !== currentMode) {
-      buildAd();
-    }
+    buildAd();
 
   }, 250);
 
@@ -1570,4 +1588,4 @@ function init() {
   </script>
   
 </body>
-  </html>
+</html>
