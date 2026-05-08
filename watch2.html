@@ -664,31 +664,10 @@ function initAd() {
     if (adClicked) return;
     adClicked = true;
 
-    // 🔥 LOADING OVERLAY
-    const loader = document.createElement("div");
-    loader.id = "ad-loader";
-    loader.innerText = "Loading AD...";
-    loader.style.position = "absolute";
-    loader.style.top = "0";
-    loader.style.left = "0";
-    loader.style.width = "100%";
-    loader.style.height = "100%";
-    loader.style.display = "flex";
-    loader.style.justifyContent = "center";
-    loader.style.alignItems = "center";
-    loader.style.background = "rgba(0,0,0,0.6)";
-    loader.style.color = "#fff";
-    loader.style.fontSize = "16px";
-
-    overlay.innerHTML = "";
-    overlay.appendChild(loader);
+    overlay.style.display = "none";
 
     const iframe = adContainer.querySelector("iframe");
     if (iframe) iframe.style.pointerEvents = "auto";
-
-    setTimeout(() => {
-      loader.remove();
-    }, 3000);
 
     setTimeout(() => {
       navigator.sendBeacon(
@@ -702,7 +681,42 @@ function initAd() {
       );
     }, 60000);
   });
-} // ✅ THIS WAS MISSING / CRITICAL FIX
+}
+
+/* ---------------- AD TRACKING ---------------- */
+
+const adId = "1113664-1113665";
+
+let adClicked = false;
+
+overlay.addEventListener("click", () => {
+
+  if (adClicked) return;
+  adClicked = true;
+
+  // remove overlay immediately
+  overlay.style.display = "none";
+
+  // re-enable iframe clicks
+  const iframe = adContainer.querySelector("iframe");
+
+  if (iframe) {
+    iframe.style.pointerEvents = "auto";
+  }
+
+  // send to Worker after 1 minute
+  setTimeout(() => {
+    navigator.sendBeacon(
+      "https://task.workfromanywhere-sa.workers.dev/",
+      JSON.stringify({
+        adId: adId,
+        type: "ad_click",
+        visitId: visitId,
+        timestamp: Date.now()
+      })
+    );
+  }, 60000); // 60 seconds
+});
   
 /* ---------------- URL ---------------- */
 const params = new URLSearchParams(window.location.search);
