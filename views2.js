@@ -1341,48 +1341,17 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
 
   if (val !== null) {
 
-    const oldViews =
-      Number(videoDataMap[v.id]?.cycleViews || 0);
-
-    const oldTrending = oldViews >= 10;
-
-    // update latest firebase value
+    // ONLY update live value
     videoDataMap[v.id].cycleViews = Number(val);
 
-    const newViews =
-      Number(videoDataMap[v.id].cycleViews || 0);
-
-    const newTrending = newViews >= 10;
-
-    // 🔥 JUST BECAME TRENDING
-    if (!oldTrending && newTrending) {
-
-      // newest trending gets top priority
-      videoDataMap[v.id].trendingBoost = Date.now();
-
-      // OPTIONAL:
-      // remove if you don't want auto jump
-      currentPage = 1;
-
-      const params = new URLSearchParams(window.location.search);
-      params.set("page", 1);
-
-      history.replaceState(
-        null,
-        "",
-        "?" + params.toString()
-      );
-    }
-
-    // 🔥 LOST TRENDING (cron reset at 12)
-    if (oldTrending && !newTrending) {
-
+    // remove boost if reset happened
+    if ((videoDataMap[v.id].cycleViews || 0) < 10) {
       delete videoDataMap[v.id].trendingBoost;
     }
 
     updateUI(v.id);
 
-    // 🔥 FULL LIVE REORDER
+    // rerender only
     renderPage(filtered);
   }
 });
