@@ -661,50 +661,48 @@ function initAd() {
   let adClicked = false;
 
   overlay.addEventListener("click", () => {
-  if (adClicked) return;
-  adClicked = true;
+    if (adClicked) return;
+    adClicked = true;
 
-  // 🔥 SHOW LOADING OVERLAY
-  const loader = document.createElement("div");
-  loader.id = "ad-loader";
-  loader.innerText = "Loading AD...";
-  loader.style.position = "absolute";
-  loader.style.top = "0";
-  loader.style.left = "0";
-  loader.style.width = "100%";
-  loader.style.height = "100%";
-  loader.style.display = "flex";
-  loader.style.justifyContent = "center";
-  loader.style.alignItems = "center";
-  loader.style.background = "rgba(0,0,0,0.6)";
-  loader.style.color = "#fff";
-  loader.style.fontSize = "16px";
+    // 🔥 LOADING OVERLAY
+    const loader = document.createElement("div");
+    loader.id = "ad-loader";
+    loader.innerText = "Loading AD...";
+    loader.style.position = "absolute";
+    loader.style.top = "0";
+    loader.style.left = "0";
+    loader.style.width = "100%";
+    loader.style.height = "100%";
+    loader.style.display = "flex";
+    loader.style.justifyContent = "center";
+    loader.style.alignItems = "center";
+    loader.style.background = "rgba(0,0,0,0.6)";
+    loader.style.color = "#fff";
+    loader.style.fontSize = "16px";
 
-  overlay.innerHTML = "";
-  overlay.appendChild(loader);
+    overlay.innerHTML = "";
+    overlay.appendChild(loader);
 
-  // allow ad interaction
-  const iframe = adContainer.querySelector("iframe");
-  if (iframe) iframe.style.pointerEvents = "auto";
+    const iframe = adContainer.querySelector("iframe");
+    if (iframe) iframe.style.pointerEvents = "auto";
 
-  // remove loader after 3s
-  setTimeout(() => {
-    loader.remove();
-  }, 3000);
+    setTimeout(() => {
+      loader.remove();
+    }, 3000);
 
-  // delayed beacon
-  setTimeout(() => {
-    navigator.sendBeacon(
-      "https://task.workfromanywhere-sa.workers.dev/",
-      JSON.stringify({
-        adId,
-        type: "ad_click",
-        visitId,
-        timestamp: Date.now()
-      })
-    );
-  }, 60000);
-});
+    setTimeout(() => {
+      navigator.sendBeacon(
+        "https://task.workfromanywhere-sa.workers.dev/",
+        JSON.stringify({
+          adId,
+          type: "ad_click",
+          visitId,
+          timestamp: Date.now()
+        })
+      );
+    }, 60000);
+  });
+} // ✅ THIS WAS MISSING / CRITICAL FIX
   
 /* ---------------- URL ---------------- */
 const params = new URLSearchParams(window.location.search);
