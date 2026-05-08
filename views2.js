@@ -166,23 +166,6 @@ function buildWatchUrl(videoId, selectedIndex = "") {
 const cache = {};
 const ORDER_KEY = "video_order";
 
-/* ---------------- PINNED TRENDING ---------------- */
-function getPinnedTrending() {
-  return JSON.parse(localStorage.getItem("pinnedTrending") || "[]");
-}
-
-function setPinnedTrending(list) {
-  localStorage.setItem("pinnedTrending", JSON.stringify(list));
-}
-
-function addPinnedTrending(id) {
-  const list = getPinnedTrending();
-  if (!list.includes(id)) {
-    list.push(id);
-    setPinnedTrending(list);
-  }
-}
-
 function saveCache(key, value) {
   cache[key] = value;
   localStorage.setItem(key, value);
@@ -1054,22 +1037,21 @@ let currentPage = 1;
 
 function renderPage(filtered) {
 
-  const pinned = new Set(getPinnedTrending());
-
   videosContainer.innerHTML = "";
 
   // 🔥 SORT ENTIRE DATASET FIRST
   const sorted = [...filtered].sort((a, b) => {
 
-    const pinned = new Set(getPinnedTrending());
+  const A = videoDataMap[a.id] || a;
+  const B = videoDataMap[b.id] || b;
 
-  const APinned = pinned.has(a.id);
-const BPinned = pinned.has(b.id);
+  const ATrending = (A.cycleViews || 0) >= 10;
+  const BTrending = (B.cycleViews || 0) >= 10;
 
-// 🔥 PINNED ALWAYS FIRST (override everything)
-if (APinned && !BPinned) return -1;
-if (!APinned && BPinned) return 1;
-    
+  // 🔥 trending always first
+  if (ATrending && !BTrending) return -1;
+  if (!ATrending && BTrending) return 1;
+
   // 🔥 newest trending goes absolute top
   if (ATrending && BTrending) {
 
@@ -1378,15 +1360,16 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
       // force this video to top priority
       videoDataMap[v.id].trendingBoost = Date.now();
 
-// 🔥 SAVE AS PINNED (survives refresh)
-addPinnedTrending(v.id);
+      // jump user to page 1
+      currentPage = 1;
 
-currentPage = 1;
+      const params = new URLSearchParams(window.location.search);
+      params.set("page", 1);
 
-const params = new URLSearchParams(window.location.search);
-params.set("page", 1);
-
-history.replaceState(null, "", "?" + params.toString());
+      history.replaceState(
+        null,
+        "",
+        "?" + params.toString()
       );
     }
 
