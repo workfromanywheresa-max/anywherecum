@@ -1069,8 +1069,11 @@ function renderPage(filtered) {
   pageItems.forEach((v, index) => {
 
     videoDataMap[v.id] = {
-      ...v,
-      originalIndex: filtered.findIndex(x => x.id === v.id),
+  ...videoDataMap[v.id],
+  ...v,
+  originalIndex:
+    videoDataMap[v.id]?.originalIndex ??
+    filtered.findIndex(x => x.id === v.id),
       totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
       cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
     };
