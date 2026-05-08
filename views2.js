@@ -1104,14 +1104,12 @@ function renderPagination(filtered, reset = false) {
 
   const urlParams = new URLSearchParams(window.location.search);
 
-  // 🔥 Read page from URL
   let pageFromURL = Number(urlParams.get("page"));
 
   if (!pageFromURL || pageFromURL < 1) {
     pageFromURL = currentPage || 1;
   }
 
-  // optional reset override
   if (reset) {
     pageFromURL = 1;
   }
@@ -1120,11 +1118,9 @@ function renderPagination(filtered, reset = false) {
 
   const totalPages = Math.ceil(filtered.length / pageSize);
 
-  // clamp page
   if (currentPage > totalPages) currentPage = totalPages;
   if (currentPage < 1) currentPage = 1;
 
-  // remove old pagination
   let old = document.getElementById("pagination");
   if (old) old.remove();
 
@@ -1137,10 +1133,9 @@ function renderPagination(filtered, reset = false) {
   wrapper.style.flexWrap = "wrap";
 
   function scrollTop() {
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  // 🔥 URL updater
   function updateURL(page) {
     const params = new URLSearchParams(window.location.search);
     params.set("page", page);
@@ -1179,19 +1174,20 @@ function renderPagination(filtered, reset = false) {
     scrollTop();
   }));
 
-  // PAGE BUTTONS
-  const maxButtons = 10;
+  // ==============================
+  // 🔥 PAGE NUMBERS WITH "..."
+  // ==============================
 
-  let start = Math.max(1, currentPage - 4);
-  let end = start + maxButtons - 1;
+  const maxButtons = 7;
 
-  if (end > totalPages) {
-    end = totalPages;
+  let start = Math.max(1, currentPage - 2);
+  let end = Math.min(totalPages, start + maxButtons - 1);
+
+  if (end - start < maxButtons - 1) {
     start = Math.max(1, end - maxButtons + 1);
   }
 
-  for (let i = start; i <= end; i++) {
-
+  function addPage(i) {
     const btn = createBtn(i, false, () => {
       currentPage = i;
       updateURL(currentPage);
@@ -1205,6 +1201,37 @@ function renderPagination(filtered, reset = false) {
     }
 
     wrapper.appendChild(btn);
+  }
+
+  // FIRST + ...
+  if (start > 1) {
+    addPage(1);
+
+    if (start > 2) {
+      const dots = document.createElement("span");
+      dots.textContent = "...";
+      dots.style.padding = "6px";
+      dots.style.color = "#aaa";
+      wrapper.appendChild(dots);
+    }
+  }
+
+  // MAIN RANGE
+  for (let i = start; i <= end; i++) {
+    addPage(i);
+  }
+
+  // ... + LAST
+  if (end < totalPages) {
+    if (end < totalPages - 1) {
+      const dots = document.createElement("span");
+      dots.textContent = "...";
+      dots.style.padding = "6px";
+      dots.style.color = "#aaa";
+      wrapper.appendChild(dots);
+    }
+
+    addPage(totalPages);
   }
 
   // NEXT
