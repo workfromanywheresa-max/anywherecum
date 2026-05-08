@@ -1393,7 +1393,7 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
       restoringAfterReset = false;
     });
   });
-    }
+    
 
     });
 
