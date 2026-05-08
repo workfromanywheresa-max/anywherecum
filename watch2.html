@@ -1538,76 +1538,78 @@ function init() {
     folder.includes("🔓");
 
   if (isVIP) {
-
     document.body.classList.add("vip");
     console.log("💎 VIP mode enabled");
 
     /* =========================
-       BLOCK ADS FOR VIP
+       HIDE ADS + CODE
+       (KEEP SPACE RESERVED)
     ========================= */
-    document.querySelectorAll(".ad-slot").forEach(ad => ad.remove());
 
-    /* =========================
-       HIDE GET CODE SECTION
-    ========================= */
-    const codeSection = document.getElementById("codeSection");
+    // hide ad content only
+    const adContainer = document.getElementById("bottom-ad-container");
+    const adLoading = document.getElementById("ad-loading");
+    const adOverlay = document.getElementById("ad-overlay");
 
-    if (codeSection) {
-      codeSection.style.display = "none";
+    if (adContainer) {
+      adContainer.style.visibility = "hidden";
     }
 
-    /* =========================
-       HIDE AD WRAPPER
-    ========================= */
-    const adWrapper =
-      document.getElementById("bottom-ad-wrapper");
+    if (adLoading) {
+      adLoading.style.visibility = "hidden";
+    }
+
+    if (adOverlay) {
+      adOverlay.style.visibility = "hidden";
+    }
+
+    // keep wrapper space
+    const adWrapper = document.getElementById("bottom-ad-wrapper");
 
     if (adWrapper) {
-      adWrapper.style.display = "none";
+      adWrapper.style.visibility = "visible";
+    }
+
+    // hide code section contents only
+    const getCodeBtn = document.getElementById("getCodeBtn");
+    const codeBox = document.getElementById("codeBox");
+
+    if (getCodeBtn) {
+      getCodeBtn.style.visibility = "hidden";
+    }
+
+    if (codeBox) {
+      codeBox.style.visibility = "hidden";
     }
 
   } else {
-
     document.body.classList.remove("vip");
     console.log("❌ NOT VIP — normal mode");
     return;
-
   }
 
   /* =========================
-     REMOVE SHARE + EMBED
+     REMOVE BUTTONS (SAFE)
   ========================= */
   function removeButtons() {
 
-    const leftGroup =
-      document.querySelector(
-        "#actionRow > div > div:first-child"
-      );
-
+    const leftGroup = document.querySelector("#actionRow > div > div:first-child");
     if (!leftGroup) return;
 
     leftGroup.querySelectorAll("div").forEach(stack => {
 
       const labelEl = stack.firstElementChild;
-
       if (!labelEl) return;
 
-      const label =
-        labelEl.textContent?.trim().toLowerCase();
+      const label = labelEl.textContent?.trim().toLowerCase();
 
       if (stack.children.length === 2) {
-
-        if (
-          label === "share" ||
-          label === "embed"
-        ) {
+        if (label === "share" || label === "embed") {
           stack.remove();
         }
-
       }
 
     });
-
   }
 
   /* =========================
@@ -1615,23 +1617,19 @@ function init() {
   ========================= */
   removeButtons();
 
-  const observer =
-    new MutationObserver(removeButtons);
+  const observer = new MutationObserver(removeButtons);
 
-  const actionRow =
-    document.getElementById("actionRow");
+  const actionRow = document.getElementById("actionRow");
 
   if (actionRow) {
-
     observer.observe(actionRow, {
       childList: true,
       subtree: true
     });
-
   }
 
 })();
-  </script>
+        </script>
   
 </body>
 </html>
