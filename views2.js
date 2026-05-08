@@ -1115,6 +1115,13 @@ function renderPagination(filtered) {
   wrapper.style.margin = "20px 0";
   wrapper.style.flexWrap = "wrap";
 
+  function scrollTop() {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  }
+
   function createBtn(text, disabled, onClick) {
     const btn = document.createElement("button");
     btn.textContent = text;
@@ -1135,14 +1142,16 @@ function renderPagination(filtered) {
   wrapper.appendChild(createBtn("<<", currentPage === 1, () => {
     currentPage = 1;
     renderPage(filtered);
+    scrollTop();
   }));
 
   wrapper.appendChild(createBtn("<", currentPage === 1, () => {
     currentPage = Math.max(1, currentPage - 1);
     renderPage(filtered);
+    scrollTop();
   }));
 
-  // ✅ SHOW ONLY 10 PAGES MAX (SIMPLE WINDOW)
+  // SHOW ONLY 10 PAGES MAX
   const maxButtons = 10;
 
   let start = Math.max(1, currentPage - 4);
@@ -1158,6 +1167,7 @@ function renderPagination(filtered) {
     const btn = createBtn(i, false, () => {
       currentPage = i;
       renderPage(filtered);
+      scrollTop();
     });
 
     if (i === currentPage) {
@@ -1172,11 +1182,13 @@ function renderPagination(filtered) {
   wrapper.appendChild(createBtn(">", currentPage === totalPages, () => {
     currentPage = Math.min(totalPages, currentPage + 1);
     renderPage(filtered);
+    scrollTop();
   }));
 
   wrapper.appendChild(createBtn(">>", currentPage === totalPages, () => {
     currentPage = totalPages;
     renderPage(filtered);
+    scrollTop();
   }));
 
   videosContainer.insertAdjacentElement("afterend", wrapper);
