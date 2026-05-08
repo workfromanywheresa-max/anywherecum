@@ -402,8 +402,6 @@ Watch high quality video streaming online. Updated daily with new content.
   position: relative;
 ">
 
-  <div id="ad-loader">Loading ad...</div>
-
   <div id="bottom-ad-container"></div>
 
   <!-- 🔥 OVERLAY (rename FIXED) -->
@@ -445,22 +443,6 @@ Watch high quality video streaming online. Updated daily with new content.
 @media (min-width: 768px) {
   #bottom-ad-wrapper {
     min-height: 298px; /* desktop */
-  }
-}
-
-  #ad-loader {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #666;
-  font-size: 12px;
-  min-height: 112px;
-}
-
-@media (min-width:768px) {
-  #ad-loader {
-    min-height: 298px;
   }
 }
 </style>
@@ -632,124 +614,48 @@ function trackDownload(videoId) {
 }
 
 /* ---------------- AD INIT ---------------- */
-
 const adContainer = document.getElementById("bottom-ad-container");
 const overlay = document.getElementById("ad-overlay");
-const adWrapper = document.getElementById("bottom-ad-wrapper");
-const loader = document.getElementById("ad-loader");
 
-let currentMode = null;
-let rebuilding = false;
+const isDesktop = window.innerWidth >= 768;
 
-function buildAd() {
+const w = isDesktop ? 308 : 300;
+const h = isDesktop ? 298 : 112;
 
-  if (rebuilding) return;
+adContainer.style.width = w + "px";
+adContainer.style.height = h + "px";
 
-  const isDesktop = window.innerWidth >= 768;
-  const mode = isDesktop ? "desktop" : "mobile";
+overlay.style.width = w + "px";
+overlay.style.height = h + "px";
+overlay.style.top = "0";
+overlay.style.left = "50%";
+overlay.style.transform = "translateX(-50%)";
 
-  if (mode === currentMode) {
-    adWrapper.style.visibility = "visible";
-    return;
-  }
+const adzone = isDesktop ? 1113664 : 1113665;
 
-  rebuilding = true;
+const adScript = document.createElement("script");
+adScript.async = true;
+adScript.setAttribute("data-cfasync", "false");
+adScript.src = "https://poweredby.jads.co/js/jads.js";
 
-  const w = isDesktop ? 308 : 300;
-  const h = isDesktop ? 298 : 112;
+const ins = document.createElement("ins");
 
-  const adzone = isDesktop ? 1113664 : 1113665;
+ins.id = String(adzone);
+ins.setAttribute("data-width", String(w));
+ins.setAttribute("data-height", String(h));
 
-  /* =========================
-     HIDE OLD AD COMPLETELY
-  ========================= */
+ins.style.display = "block";
+ins.style.margin = "0 auto";
 
-  adWrapper.style.visibility = "hidden";
+adContainer.innerHTML = "";
+adContainer.appendChild(ins);
+adContainer.appendChild(adScript);
 
-  adContainer.style.display = "none";
-  overlay.style.display = "none";
+window.adsbyjuicy = window.adsbyjuicy || [];
+window.adsbyjuicy.push({ adzone });
 
-  adContainer.innerHTML = "";
+document.getElementById("bottom-ad-wrapper").style.visibility = "visible";
 
-  loader.style.display = "flex";
-
-  /* =========================
-     SET SIZES
-  ========================= */
-
-  adContainer.style.width = w + "px";
-  adContainer.style.height = h + "px";
-
-  overlay.style.width = w + "px";
-  overlay.style.height = h + "px";
-
-  overlay.style.top = "0";
-  overlay.style.left = "50%";
-  overlay.style.transform = "translateX(-50%)";
-
-  /* =========================
-     BUILD NEW AD
-  ========================= */
-
-  const ins = document.createElement("ins");
-
-  ins.id = String(adzone);
-  ins.setAttribute("data-width", String(w));
-  ins.setAttribute("data-height", String(h));
-
-  ins.style.display = "block";
-  ins.style.margin = "0 auto";
-
-  const adScript = document.createElement("script");
-
-  adScript.async = true;
-  adScript.setAttribute("data-cfasync", "false");
-  adScript.src = "https://poweredby.jads.co/js/jads.js";
-
-  adContainer.appendChild(ins);
-  adContainer.appendChild(adScript);
-
-  window.adsbyjuicy = window.adsbyjuicy || [];
-  window.adsbyjuicy.push({ adzone });
-
-  /* =========================
-     WAIT FOR RENDER
-  ========================= */
-
-  setTimeout(() => {
-
-    loader.style.display = "none";
-
-    adContainer.style.display = "flex";
-    overlay.style.display = "block";
-
-    adWrapper.style.visibility = "visible";
-
-    currentMode = mode;
-    rebuilding = false;
-
-    console.log("Ad ready:", mode);
-
-  }, 1200);
-}
-
-/* INITIAL */
-buildAd();
-
-/* RESIZE */
-let resizeTimer;
-
-window.addEventListener("resize", () => {
-
-  clearTimeout(resizeTimer);
-
-  resizeTimer = setTimeout(() => {
-
-    buildAd();
-
-  }, 250);
-});
-  
 /* ---------------- AD TRACKING ---------------- */
 
 const adId = "1113664-1113665";
@@ -1605,4 +1511,4 @@ function init() {
   </script>
   
 </body>
-</html>
+  </html>
