@@ -680,7 +680,7 @@ function initAd() {
   loader.style.color = "#fff";
   loader.style.fontSize = "16px";
 
-  overlay.innerHTML = ""; // optional: clear old content
+  overlay.innerHTML = "";
   overlay.appendChild(loader);
 
   // allow ad interaction
@@ -692,6 +692,7 @@ function initAd() {
     loader.remove();
   }, 3000);
 
+  // delayed beacon
   setTimeout(() => {
     navigator.sendBeacon(
       "https://task.workfromanywhere-sa.workers.dev/",
