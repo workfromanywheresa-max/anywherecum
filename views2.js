@@ -1063,13 +1063,13 @@ function renderPage(filtered) {
 
     const pinned = new Set(getPinnedTrending());
 
-  const ATrending = (A.cycleViews || 0) >= 10;
-  const BTrending = (B.cycleViews || 0) >= 10;
+  const APinned = pinned.has(a.id);
+const BPinned = pinned.has(b.id);
 
-  // 🔥 trending always first
-  if (ATrending && !BTrending) return -1;
-  if (!ATrending && BTrending) return 1;
-
+// 🔥 PINNED ALWAYS FIRST (override everything)
+if (APinned && !BPinned) return -1;
+if (!APinned && BPinned) return 1;
+    
   // 🔥 newest trending goes absolute top
   if (ATrending && BTrending) {
 
