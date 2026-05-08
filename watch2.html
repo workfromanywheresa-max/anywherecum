@@ -632,6 +632,7 @@ function trackDownload(videoId) {
 }
 
 /* ---------------- AD INIT ---------------- */
+
 const adContainer = document.getElementById("bottom-ad-container");
 const overlay = document.getElementById("ad-overlay");
 const adWrapper = document.getElementById("bottom-ad-wrapper");
@@ -647,7 +648,10 @@ function buildAd() {
   const isDesktop = window.innerWidth >= 768;
   const mode = isDesktop ? "desktop" : "mobile";
 
-  if (mode === currentMode) return;
+  if (mode === currentMode) {
+    adWrapper.style.visibility = "visible";
+    return;
+  }
 
   rebuilding = true;
 
@@ -656,17 +660,23 @@ function buildAd() {
 
   const adzone = isDesktop ? 1113664 : 1113665;
 
-  // HIDE OLD AD
+  /* =========================
+     HIDE OLD AD COMPLETELY
+  ========================= */
+
+  adWrapper.style.visibility = "hidden";
+
   adContainer.style.display = "none";
   overlay.style.display = "none";
 
-  // SHOW LOADER
-  loader.style.display = "flex";
-
-  // CLEAR OLD
   adContainer.innerHTML = "";
 
-  // SIZE
+  loader.style.display = "flex";
+
+  /* =========================
+     SET SIZES
+  ========================= */
+
   adContainer.style.width = w + "px";
   adContainer.style.height = h + "px";
 
@@ -677,7 +687,10 @@ function buildAd() {
   overlay.style.left = "50%";
   overlay.style.transform = "translateX(-50%)";
 
-  // CREATE NEW
+  /* =========================
+     BUILD NEW AD
+  ========================= */
+
   const ins = document.createElement("ins");
 
   ins.id = String(adzone);
@@ -699,7 +712,10 @@ function buildAd() {
   window.adsbyjuicy = window.adsbyjuicy || [];
   window.adsbyjuicy.push({ adzone });
 
-  // WAIT FOR RENDER
+  /* =========================
+     WAIT FOR RENDER
+  ========================= */
+
   setTimeout(() => {
 
     loader.style.display = "none";
@@ -707,15 +723,17 @@ function buildAd() {
     adContainer.style.display = "flex";
     overlay.style.display = "block";
 
+    adWrapper.style.visibility = "visible";
+
     currentMode = mode;
     rebuilding = false;
 
     console.log("Ad ready:", mode);
 
   }, 1200);
-
 }
 
+/* INITIAL */
 buildAd();
 
 /* RESIZE */
@@ -730,9 +748,8 @@ window.addEventListener("resize", () => {
     buildAd();
 
   }, 250);
-
 });
-
+  
 /* ---------------- AD TRACKING ---------------- */
 
 const adId = "1113664-1113665";
