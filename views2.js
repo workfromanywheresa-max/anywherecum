@@ -1375,8 +1375,6 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
 
     updateUI(v.id);
 
-    // 🔥 FULL RE-RENDER
-    renderPage(filtered);
   }
 });
 
@@ -1384,3 +1382,22 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
 
   })
   .catch(console.error);
+
+window.addEventListener("cycle-update", (e) => {
+  const { videoId, cycleViews } = e.detail || {};
+
+  if (!videoId) return;
+
+  if (!videoDataMap[videoId]) return;
+
+  videoDataMap[videoId].cycleViews = cycleViews;
+
+  const isTrending = cycleViews >= 10;
+
+  // update cache
+  localStorage.setItem("cycle_" + videoId, cycleViews);
+  localStorage.setItem("trending_" + videoId, isTrending ? "1" : "0");
+
+  // ONLY update UI (DO NOT re-render page)
+  updateUI(videoId);
+});
