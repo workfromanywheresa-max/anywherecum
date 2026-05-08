@@ -614,47 +614,74 @@ function trackDownload(videoId) {
 }
 
 /* ---------------- AD INIT ---------------- */
-const adContainer = document.getElementById("bottom-ad-container");
-const overlay = document.getElementById("ad-overlay");
+function initAd() {
+  const adContainer = document.getElementById("bottom-ad-container");
+  const overlay = document.getElementById("ad-overlay");
 
-const isDesktop = window.innerWidth >= 768;
+  const isDesktop = window.innerWidth >= 768;
 
-const w = isDesktop ? 308 : 300;
-const h = isDesktop ? 298 : 112;
+  const w = isDesktop ? 308 : 300;
+  const h = isDesktop ? 298 : 112;
 
-adContainer.style.width = w + "px";
-adContainer.style.height = h + "px";
+  adContainer.style.width = w + "px";
+  adContainer.style.height = h + "px";
 
-overlay.style.width = w + "px";
-overlay.style.height = h + "px";
-overlay.style.top = "0";
-overlay.style.left = "50%";
-overlay.style.transform = "translateX(-50%)";
+  overlay.style.width = w + "px";
+  overlay.style.height = h + "px";
+  overlay.style.top = "0";
+  overlay.style.left = "50%";
+  overlay.style.transform = "translateX(-50%)";
 
-const adzone = isDesktop ? 1113664 : 1113665;
+  const adzone = isDesktop ? 1113664 : 1113665;
 
-const adScript = document.createElement("script");
-adScript.async = true;
-adScript.setAttribute("data-cfasync", "false");
-adScript.src = "https://poweredby.jads.co/js/jads.js";
+  const adScript = document.createElement("script");
+  adScript.async = true;
+  adScript.setAttribute("data-cfasync", "false");
+  adScript.src = "https://poweredby.jads.co/js/jads.js";
 
-const ins = document.createElement("ins");
+  const ins = document.createElement("ins");
 
-ins.id = String(adzone);
-ins.setAttribute("data-width", String(w));
-ins.setAttribute("data-height", String(h));
+  ins.id = String(adzone);
+  ins.setAttribute("data-width", String(w));
+  ins.setAttribute("data-height", String(h));
 
-ins.style.display = "block";
-ins.style.margin = "0 auto";
+  ins.style.display = "block";
+  ins.style.margin = "0 auto";
 
-adContainer.innerHTML = "";
-adContainer.appendChild(ins);
-adContainer.appendChild(adScript);
+  adContainer.innerHTML = "";
+  adContainer.appendChild(ins);
+  adContainer.appendChild(adScript);
 
-window.adsbyjuicy = window.adsbyjuicy || [];
-window.adsbyjuicy.push({ adzone });
+  window.adsbyjuicy = window.adsbyjuicy || [];
+  window.adsbyjuicy.push({ adzone });
 
-document.getElementById("bottom-ad-wrapper").style.visibility = "visible";
+  document.getElementById("bottom-ad-wrapper").style.visibility = "visible";
+
+  const adId = "1113664-1113665";
+  let adClicked = false;
+
+  overlay.addEventListener("click", () => {
+    if (adClicked) return;
+    adClicked = true;
+
+    overlay.style.display = "none";
+
+    const iframe = adContainer.querySelector("iframe");
+    if (iframe) iframe.style.pointerEvents = "auto";
+
+    setTimeout(() => {
+      navigator.sendBeacon(
+        "https://task.workfromanywhere-sa.workers.dev/",
+        JSON.stringify({
+          adId,
+          type: "ad_click",
+          visitId,
+          timestamp: Date.now()
+        })
+      );
+    }, 60000);
+  });
+}
 
 /* ---------------- AD TRACKING ---------------- */
 
@@ -771,6 +798,11 @@ let previewClicked = false;
 
 if (preview) {
   preview.addEventListener("click", (e) => {
+    
+    setTimeout(() => {
+  initAd();
+}, 5 * 60 * 1000);
+    
     e.preventDefault();
     e.stopPropagation();
 
