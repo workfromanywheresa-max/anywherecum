@@ -1361,15 +1361,12 @@ if (!oldTrending && newTrending) {
   videoDataMap[v.id].trendingBoost = Date.now();
 }
 
-    updateUI(v.id);
+  updateUI(v.id);
 
-// debounce re-render (prevents flicker + jumping)
-clearTimeout(window.__rerenderTimer);
-
-window.__rerenderTimer = setTimeout(() => {
+// only re-render if needed (optional guard)
+requestAnimationFrame(() => {
   renderPage(filtered);
-}, 150);
-  }
+});
 });
 
     });
