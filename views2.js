@@ -1032,38 +1032,60 @@ function updateUI(id) {
 }
 
 /* ---------------- REORDER (TRENDING PRIORITY) ---------------- */
-function reorderVideos(force = false) {
-  const entries = Object.entries(videoDataMap);
+function renderPage(filtered) {
 
-  entries.sort((a, b) => {
-    const A = a[1];
-    const B = b[1];
+  videosContainer.innerHTML = "";
 
-    const ATrending = A.cycleViews >= 10;
-    const BTrending = B.cycleViews >= 10;
+  // 🔥 SORT ENTIRE DATASET FIRST
+  const sorted = [...filtered].sort((a, b) => {
 
+    const A = videoDataMap[a.id] || a;
+    const B = videoDataMap[b.id] || b;
+
+    const ATrending = (A.cycleViews || 0) >= 10;
+    const BTrending = (B.cycleViews || 0) >= 10;
+
+    // Trending videos first
     if (ATrending && !BTrending) return -1;
     if (!ATrending && BTrending) return 1;
 
+    // More trending views higher
     if (ATrending && BTrending) {
-      return B.cycleViews - A.cycleViews;
+      return (B.cycleViews || 0) - (A.cycleViews || 0);
     }
 
-    return A.originalIndex - B.originalIndex;
+    // Back to original JSON order
+    return (A.originalIndex || 0) - (B.originalIndex || 0);
   });
 
-  const newOrder = entries.map(([id]) => id);
-  const oldOrder = JSON.parse(getCache(ORDER_KEY) || "[]");
+  const start = (currentPage - 1) * pageSize;
+  const end = start + pageSize;
 
-  if (!force && JSON.stringify(newOrder) === JSON.stringify(oldOrder)) return;
+  const pageItems = sorted.slice(start, end);
 
-  saveCache(ORDER_KEY, JSON.stringify(newOrder));
+  pageItems.forEach((v, index) => {
 
-  newOrder.forEach(id => {
-    const el = videoElements[id]?.box;
-    if (el) videosContainer.appendChild(el);
+    videoDataMap[v.id] = {
+      ...v,
+      originalIndex: filtered.findIndex(x => x.id === v.id),
+      totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
+      cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
+    };
+
+    const box = createVideoBox(v);
+
+    videosContainer.appendChild(box);
+
+    videoElements[v.id] = {
+      box,
+      views: box.querySelector(".views")
+    };
+
+    updateUI(v.id);
   });
-}
+
+  renderPagination(sorted);
+    }
 
 const pageSize = 10;
 let currentPage = 1;
@@ -1333,13 +1355,16 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
       });
 
       onValue(ref(db, "cycleViews/" + v.id), snap => {
-        const val = snap.val();
-        if (val !== null) {
-          videoDataMap[v.id].cycleViews = Number(val);
-          updateUI(v.id);
-          reorderVideos();
-        }
-      });
+
+  const val = snap.val();
+
+  if (val !== null) {
+
+    videoDataMap[v.id].cycleViews = Number(val);
+
+    renderPage(filtered);
+  }
+});
 
     });
 
