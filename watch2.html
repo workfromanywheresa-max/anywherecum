@@ -395,9 +395,10 @@ Watch high quality video streaming online. Updated daily with new content.
 <!-- ✅ BOTTOM AD WRAPPER -->
 <div id="bottom-ad-wrapper" style="
   width: 100%;
-  display: none;
+  display: flex;
   justify-content: center;
   margin: 20px auto;
+  visibility: hidden;
   position: relative;
 ">
 
@@ -613,47 +614,97 @@ function trackDownload(videoId) {
 }
 
 /* ---------------- AD INIT ---------------- */
+
 const adContainer = document.getElementById("bottom-ad-container");
 const overlay = document.getElementById("ad-overlay");
+const adWrapper = document.getElementById("bottom-ad-wrapper");
 
-const isDesktop = window.innerWidth >= 768;
+let currentMode = null;
 
-const w = isDesktop ? 308 : 300;
-const h = isDesktop ? 298 : 112;
+function buildAd() {
 
-adContainer.style.width = w + "px";
-adContainer.style.height = h + "px";
+  const isDesktop = window.innerWidth >= 768;
+  const mode = isDesktop ? "desktop" : "mobile";
 
-overlay.style.width = w + "px";
-overlay.style.height = h + "px";
-overlay.style.top = "0";
-overlay.style.left = "50%";
-overlay.style.transform = "translateX(-50%)";
+  // prevent rebuilding same mode
+  if (currentMode === mode) return;
 
-const adzone = isDesktop ? 1113664 : 1113665;
+  currentMode = mode;
 
-const adScript = document.createElement("script");
-adScript.async = true;
-adScript.setAttribute("data-cfasync", "false");
-adScript.src = "https://poweredby.jads.co/js/jads.js";
+  // 🔥 FULL RESET
+  adContainer.innerHTML = "";
 
-const ins = document.createElement("ins");
+  // kill previous juicy queue
+  window.adsbyjuicy = [];
 
-ins.id = String(adzone);
-ins.setAttribute("data-width", String(w));
-ins.setAttribute("data-height", String(h));
+  const w = isDesktop ? 308 : 300;
+  const h = isDesktop ? 298 : 112;
 
-ins.style.display = "block";
-ins.style.margin = "0 auto";
+  const adzone = isDesktop ? 1113664 : 1113665;
 
-adContainer.innerHTML = "";
-adContainer.appendChild(ins);
-adContainer.appendChild(adScript);
+  // container size
+  adContainer.style.width = w + "px";
+  adContainer.style.height = h + "px";
 
-window.adsbyjuicy = window.adsbyjuicy || [];
-window.adsbyjuicy.push({ adzone });
+  // overlay size
+  overlay.style.width = w + "px";
+  overlay.style.height = h + "px";
+  overlay.style.top = "0";
+  overlay.style.left = "50%";
+  overlay.style.transform = "translateX(-50%)";
 
-document.getElementById("bottom-ad-wrapper").style.display = "flex";
+  // create ad
+  const ins = document.createElement("ins");
+
+  ins.id = String(adzone);
+  ins.setAttribute("data-width", String(w));
+  ins.setAttribute("data-height", String(h));
+
+  ins.style.display = "block";
+  ins.style.margin = "0 auto";
+
+  adContainer.appendChild(ins);
+
+  // load script fresh
+  const adScript = document.createElement("script");
+  adScript.async = true;
+  adScript.setAttribute("data-cfasync", "false");
+  adScript.src = "https://poweredby.jads.co/js/jads.js";
+
+  adContainer.appendChild(adScript);
+
+  // push ad
+  window.adsbyjuicy.push({ adzone });
+
+  // show wrapper
+  adWrapper.style.visibility = "visible";
+
+  // reset overlay
+  overlay.style.display = "block";
+
+  const iframe = adContainer.querySelector("iframe");
+  if (iframe) {
+    iframe.style.pointerEvents = "none";
+  }
+
+  console.log("Loaded:", mode);
+}
+
+/* INITIAL */
+buildAd();
+
+/* RESIZE SWITCH */
+let resizeTimer;
+
+window.addEventListener("resize", () => {
+
+  clearTimeout(resizeTimer);
+
+  resizeTimer = setTimeout(() => {
+    buildAd();
+  }, 250);
+
+});
 
 /* ---------------- AD TRACKING ---------------- */
 
