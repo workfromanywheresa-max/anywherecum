@@ -1341,26 +1341,29 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
 
   if (val !== null) {
 
-    const oldViews =
-      Number(videoDataMap[v.id]?.cycleViews || 0);
+    // current latest value
+    const newViews = Number(val);
 
-    const oldTrending = oldViews >= 10;
+    // previous trending state
+    const wasTrending =
+      videoDataMap[v.id]?.wasTrending || false;
 
-    // update latest value
-    videoDataMap[v.id].cycleViews = Number(val);
+    // new trending state
+    const isTrending = newViews >= 10;
 
-    const newViews =
-      Number(videoDataMap[v.id].cycleViews || 0);
+    // save latest views
+    videoDataMap[v.id].cycleViews = newViews;
 
-    const newTrending = newViews >= 10;
+    // 🔥 REAL transition only
+    if (!wasTrending && isTrending) {
 
-    // 🔥 JUST BECAME TRENDING
-    if (!oldTrending && newTrending) {
+      // remember trending state
+      videoDataMap[v.id].wasTrending = true;
 
-      // force this video to top priority
+      // newest trending goes top
       videoDataMap[v.id].trendingBoost = Date.now();
 
-      // jump user to page 1
+      // jump to first page
       currentPage = 1;
 
       const params = new URLSearchParams(window.location.search);
@@ -1373,9 +1376,14 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
       );
     }
 
+    // reset if no longer trending
+    if (!isTrending) {
+      videoDataMap[v.id].wasTrending = false;
+    }
+
     updateUI(v.id);
 
-    // 🔥 FULL RE-RENDER
+    // rerender UI
     renderPage(filtered);
   }
 });
