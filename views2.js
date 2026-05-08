@@ -1063,16 +1063,6 @@ function renderPage(filtered) {
 
     const pinned = new Set(getPinnedTrending());
 
-  const A = videoDataMap[a.id] || a;
-  const B = videoDataMap[b.id] || b;
-
-  const APinned = pinned.has(a.id);
-const BPinned = pinned.has(b.id);
-
-// 🔥 PINNED ALWAYS FIRST (override everything)
-if (APinned && !BPinned) return -1;
-if (!APinned && BPinned) return 1;
-
   const ATrending = (A.cycleViews || 0) >= 10;
   const BTrending = (B.cycleViews || 0) >= 10;
 
