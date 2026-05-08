@@ -184,6 +184,8 @@ function setLikeCache(videoId, value) {
 }
 
 /* ---------------- STATE ---------------- */
+let initialLoadDone = false;
+
 const videoDataMap = {};
 const videoElements = {};
 let currentPreviewVideo = null;
@@ -1262,6 +1264,16 @@ const isFolderOpen = !!folderName;
 if (isFolderOpen) {
   currentPage = 1;
 
+  currentPage = Number(new URLSearchParams(window.location.search).get("page")) || 1;
+
+// ⚡ FORCE trending ordering BEFORE first paint
+const sortedOnce = forceInitialTrendingSort(filtered);
+
+// store back sorted result as baseline
+renderPage(sortedOnce);
+
+initialLoadDone = true;
+
   // force URL to page 1 so back/refresh stays correct
   const params = new URLSearchParams(window.location.search);
   params.set("page", "1");
@@ -1270,7 +1282,26 @@ if (isFolderOpen) {
   currentPage = urlPage > 0 ? urlPage : 1;
 }
 
-renderPage(filtered);
+function forceInitialTrendingSort(list) {
+
+  return [...list].sort((a, b) => {
+
+    const A = videoDataMap[a.id] || a;
+    const B = videoDataMap[b.id] || b;
+
+    const ATrending = (A.cycleViews || 0) >= 10;
+    const BTrending = (B.cycleViews || 0) >= 10;
+
+    if (ATrending && !BTrending) return -1;
+    if (!ATrending && BTrending) return 1;
+
+    if (ATrending && BTrending) {
+      return (B.cycleViews || 0) - (A.cycleViews || 0);
+    }
+
+    return (A.originalIndex || 0) - (B.originalIndex || 0);
+  });
+}
     
     if (videoIdFromURL) {
 
@@ -1392,7 +1423,11 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
     updateUI(v.id);
 
     // 🔥 FULL RE-RENDER
+    if (initialLoadDone) {
+  requestAnimationFrame(() => {
     renderPage(filtered);
+  });
+    }
   }
 });
 
