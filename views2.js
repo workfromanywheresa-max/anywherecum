@@ -1042,24 +1042,34 @@ function renderPage(filtered) {
   // 🔥 SORT ENTIRE DATASET FIRST
   const sorted = [...filtered].sort((a, b) => {
 
-    const A = videoDataMap[a.id] || a;
-    const B = videoDataMap[b.id] || b;
+  const A = videoDataMap[a.id] || a;
+  const B = videoDataMap[b.id] || b;
 
-    const ATrending = (A.cycleViews || 0) >= 10;
-    const BTrending = (B.cycleViews || 0) >= 10;
+  const ATrending = (A.cycleViews || 0) >= 10;
+  const BTrending = (B.cycleViews || 0) >= 10;
 
-    // Trending videos first
-    if (ATrending && !BTrending) return -1;
-    if (!ATrending && BTrending) return 1;
+  // 🔥 trending always first
+  if (ATrending && !BTrending) return -1;
+  if (!ATrending && BTrending) return 1;
 
-    // More trending views higher
-    if (ATrending && BTrending) {
-      return (B.cycleViews || 0) - (A.cycleViews || 0);
+  // 🔥 newest trending goes absolute top
+  if (ATrending && BTrending) {
+
+    const boostA = A.trendingBoost || 0;
+    const boostB = B.trendingBoost || 0;
+
+    // newest promoted trending first
+    if (boostA !== boostB) {
+      return boostB - boostA;
     }
 
-    // Back to original JSON order
-    return (A.originalIndex || 0) - (B.originalIndex || 0);
-  });
+    // fallback to cycle views
+    return (B.cycleViews || 0) - (A.cycleViews || 0);
+  }
+
+  // original JSON order
+  return (A.originalIndex || 0) - (B.originalIndex || 0);
+});
 
   const start = (currentPage - 1) * pageSize;
   const end = start + pageSize;
@@ -1331,17 +1341,26 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
 
   if (val !== null) {
 
-    const oldTrending =
-      (videoDataMap[v.id]?.cycleViews || 0) >= 10;
+    const oldViews =
+      Number(videoDataMap[v.id]?.cycleViews || 0);
 
+    const oldTrending = oldViews >= 10;
+
+    // update latest value
     videoDataMap[v.id].cycleViews = Number(val);
 
-    const newTrending =
-      (videoDataMap[v.id].cycleViews || 0) >= 10;
+    const newViews =
+      Number(videoDataMap[v.id].cycleViews || 0);
 
-    // 🔥 IF VIDEO JUST BECAME TRENDING
+    const newTrending = newViews >= 10;
+
+    // 🔥 JUST BECAME TRENDING
     if (!oldTrending && newTrending) {
 
+      // force this video to top priority
+      videoDataMap[v.id].trendingBoost = Date.now();
+
+      // jump user to page 1
       currentPage = 1;
 
       const params = new URLSearchParams(window.location.search);
@@ -1354,6 +1373,9 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
       );
     }
 
+    updateUI(v.id);
+
+    // 🔥 FULL RE-RENDER
     renderPage(filtered);
   }
 });
