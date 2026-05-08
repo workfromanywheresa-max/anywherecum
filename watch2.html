@@ -622,6 +622,13 @@ function initAd() {
 
   const adContainer = document.getElementById("bottom-ad-container");
   const overlay = document.getElementById("ad-overlay");
+  const wrapper = document.getElementById("bottom-ad-wrapper");
+
+  if (!adContainer || !overlay || !wrapper) {
+    console.warn("Ad elements missing, retrying...");
+    adInitialized = false;
+    return;
+  }
 
   const isDesktop = window.innerWidth >= 768;
 
@@ -660,7 +667,7 @@ function initAd() {
   window.adsbyjuicy = window.adsbyjuicy || [];
   window.adsbyjuicy.push({ adzone });
 
-  document.getElementById("bottom-ad-wrapper").style.visibility = "visible";
+  wrapper.style.visibility = "visible";
 }
 
 /* ---------------- AD TRACKING ---------------- */
@@ -787,10 +794,13 @@ if (preview) {
     // hide overlay
     preview.style.display = "none";
 
-   setTimeout(() => {
-  initAd();
-}, 5 * 60 * 1000);
-
+   
+    window.addEventListener("load", () => {
+  setTimeout(() => {
+    requestAnimationFrame(initAd);
+  }, 5 * 60 * 1000);
+});
+    
     const id = videoData.id;
 
     // optional safety check
