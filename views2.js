@@ -1209,26 +1209,6 @@ setFolderTitle();
   currentPage = 1;
 renderPage(filtered);
 
-    filtered.forEach((v, index) => {
-
-      videoDataMap[v.id] = {
-        ...v,
-        originalIndex: index,
-        totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
-        cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
-      };
-
-      const box = createVideoBox(v);
-      videosContainer.appendChild(box);
-
-      videoElements[v.id] = {
-        box,
-        views: box.querySelector(".views")
-      };
-
-      updateUI(v.id);
-    });
-
     if (videoIdFromURL) {
 
   const waitForData = setInterval(() => {
