@@ -413,32 +413,31 @@ Watch high quality video streaming online. Updated daily with new content.
 
 <style>
 #bottom-ad-container {
-  width: 300px;   /* default mobile */
-  height: 112px;
-  position: relative;
   background: #222;
-  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 12px;
+  position: relative;
 }
 
 #bottom-ad-wrapper {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 20px auto;
-  visibility: hidden;
+  visibility: visible; /* IMPORTANT: remove hidden behavior */
+  position: relative;
 }
 
 #ad-loading {
   position: absolute;
-  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #222;
-  color: #666;
-  font-size: 12px;
-  z-index: 5;
+  font-size: 13px;
+  z-index: 20;
 }
 
 /* 🔥 overlay sits above ONLY ad box */
@@ -719,49 +718,39 @@ function showAdLoading() {
   const wrapper = document.getElementById("bottom-ad-wrapper");
   const container = document.getElementById("bottom-ad-container");
   const overlay = document.getElementById("ad-overlay");
-  const loading = document.getElementById("ad-loading");
 
   const isDesktop = window.innerWidth >= 768;
 
   const w = isDesktop ? 308 : 300;
   const h = isDesktop ? 298 : 112;
 
-  // wrapper: NEVER full width flex
+  // SHOW wrapper
   wrapper.style.visibility = "visible";
+
+  // IMPORTANT: center wrapper content exactly like real ad
   wrapper.style.display = "flex";
   wrapper.style.justifyContent = "center";
-  wrapper.style.alignItems = "center";
 
-  // IMPORTANT: lock wrapper height to prevent stretching
-  wrapper.style.height = h + "px";
-
-  // container: fixed ad box ONLY
+  // lock exact ad size
   container.style.width = w + "px";
   container.style.height = h + "px";
+
+  // make sure container does NOT stretch full width
   container.style.flex = "0 0 auto";
-  container.style.position = "relative";
+  container.style.display = "flex";
+  container.style.alignItems = "center";
+  container.style.justifyContent = "center";
   container.style.background = "#222";
 
-  // loading MUST sit inside same box
-  loading.style.position = "absolute";
-  loading.style.inset = "0";
-  loading.style.display = "flex";
-  loading.style.alignItems = "center";
-  loading.style.justifyContent = "center";
-  loading.style.background = "#222";
-  loading.style.color = "#666";
-  loading.style.fontSize = "12px";
-  loading.style.zIndex = "5";
-
-  // overlay must match EXACT ad size
-  overlay.style.position = "absolute";
+  // overlay must match same box
   overlay.style.width = w + "px";
   overlay.style.height = h + "px";
+  overlay.style.position = "absolute";
   overlay.style.left = "50%";
-  overlay.style.top = "0";
   overlay.style.transform = "translateX(-50%)";
-  overlay.style.zIndex = "10";
+  overlay.style.top = "0";
 
+  // placeholder content (no spinner)
   container.innerHTML = `
     <div style="
       width:100%;
