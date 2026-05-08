@@ -1352,7 +1352,6 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
 
     const oldTrending = oldViews >= 10;
 
-    // update latest value
     videoDataMap[v.id].cycleViews = Number(val);
 
     const newViews =
@@ -1363,39 +1362,35 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
     // 🔥 JUST BECAME TRENDING
     if (!oldTrending && newTrending) {
 
-  // ✅ SAVE CURRENT STATE BEFORE RESET
-  lastPageBeforeReset = currentPage;
-  lastScrollYBeforeReset = window.scrollY;
+      lastPageBeforeReset = currentPage;
+      lastScrollYBeforeReset = window.scrollY;
 
-  // force this video to top priority
-  videoDataMap[v.id].trendingBoost = Date.now();
+      videoDataMap[v.id].trendingBoost = Date.now();
 
-  // mark restore mode
-  restoringAfterReset = true;
+      restoringAfterReset = true;
 
-  // jump user to page 1 temporarily
-  currentPage = 1;
+      currentPage = 1;
 
-  const params = new URLSearchParams(window.location.search);
-  params.set("page", 1);
+      const params = new URLSearchParams(window.location.search);
+      params.set("page", 1);
 
-  history.replaceState(null, "", "?" + params.toString());
+      history.replaceState(null, "", "?" + params.toString());
 
-  renderPage(filtered);
+      renderPage(filtered);
 
-  // 🔥 restore after DOM paints
-  requestAnimationFrame(() => {
-    currentPage = lastPageBeforeReset;
-    renderPage(filtered);
+      requestAnimationFrame(() => {
+        currentPage = lastPageBeforeReset;
+        renderPage(filtered);
 
-    requestAnimationFrame(() => {
-      window.scrollTo(0, lastScrollYBeforeReset);
-      restoringAfterReset = false;
-    });
-  });
-    
+        requestAnimationFrame(() => {
+          window.scrollTo(0, lastScrollYBeforeReset);
+          restoringAfterReset = false;
+        });
+      });
 
-    });
+    } // ✅ closes if
 
-  })
+  } // ✅ closes if (val !== null)
+
+}); // ✅ closes onValue
   .catch(console.error);
