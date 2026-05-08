@@ -654,8 +654,8 @@ adContainer.appendChild(adScript);
 window.adsbyjuicy = window.adsbyjuicy || [];
 window.adsbyjuicy.push({ adzone });
 
-document.getElementById("bottom-ad-wrapper").style.visibility = "visible";
-
+document.getElementById("bottom-ad-wrapper").style.visibility = "hidden";
+  
 /* ---------------- AD TRACKING ---------------- */
 
 const adId = "1113664-1113665";
@@ -806,6 +806,13 @@ if (preview) {
     }, 5 * 60 * 1000);
   });
 }
+
+  setTimeout(() => {
+  const ad = document.getElementById("bottom-ad-wrapper");
+  if (ad) {
+    ad.style.visibility = "visible";
+  }
+}, 5 * 60 * 1000); // 5 minutes
 
   const iframe = document.getElementById("videoFrame");
 
