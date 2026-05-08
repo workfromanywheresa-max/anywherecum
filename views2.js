@@ -1082,8 +1082,8 @@ function renderPage(filtered) {
   ...videoDataMap[v.id],
   ...v,
   originalIndex:
-    videoDataMap[v.id]?.originalIndex ??
-    filtered.findIndex(x => x.id === v.id),
+  videoDataMap[v.id]?.originalIndex ??
+  videos.findIndex(x => x.id === v.id),
       totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
       cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
     };
@@ -1337,23 +1337,34 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
 
       onValue(ref(db, "cycleViews/" + v.id), snap => {
 
-  const val = snap.val();
+  const val = Number(snap.val() || 0);
 
-  if (val !== null) {
+  const oldViews =
+    Number(videoDataMap[v.id]?.cycleViews || 0);
 
-    // ONLY update live value
-    videoDataMap[v.id].cycleViews = Number(val);
+  const oldTrending = oldViews >= 10;
 
-    // remove boost if reset happened
-    if ((videoDataMap[v.id].cycleViews || 0) < 10) {
-      delete videoDataMap[v.id].trendingBoost;
-    }
+  // update live value
+  videoDataMap[v.id].cycleViews = val;
 
-    updateUI(v.id);
+  const newTrending = val >= 10;
 
-    // rerender only
-    renderPage(filtered);
+  // became trending
+  if (!oldTrending && newTrending) {
+    videoDataMap[v.id].trendingBoost = Date.now();
   }
+
+  // stopped trending (cron reset)
+  if (oldTrending && !newTrending) {
+    delete videoDataMap[v.id].trendingBoost;
+  }
+
+  updateUI(v.id);
+
+  // rerender with proper sorting
+  requestAnimationFrame(() => {
+    renderPage(filtered);
+  });
 });
 
     });
