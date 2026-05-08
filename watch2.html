@@ -654,7 +654,7 @@ adContainer.appendChild(adScript);
 window.adsbyjuicy = window.adsbyjuicy || [];
 window.adsbyjuicy.push({ adzone });
 
-document.getElementById("bottom-ad-wrapper").style.visibility = "visible";
+document.getElementById("bottom-ad-wrapper").style.visibility = "hidden";
   
 /* ---------------- AD TRACKING ---------------- */
 
@@ -770,42 +770,102 @@ function loadPlayer() {
 let previewClicked = false;
 
 if (preview) {
-  preview.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const bottomAd = document.getElementById("bottom-ad-wrapper");
 
-    if (previewClicked) return;
-    previewClicked = true;
+preview.addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
 
-    // hide overlay
-    preview.style.display = "none";
+  if (previewClicked) return;
+  previewClicked = true;
 
-    const id = videoData.id;
+  // hide preview overlay
+  preview.style.display = "none";
 
-    // optional safety check
-    if (typeof countWatchOnce === "function") {
-      countWatchOnce(id);
+  // 🔥 HIDE AD IMMEDIATELY
+  if (bottomAd) {
+    bottomAd.style.display = "none";
+  }
+
+  const id = videoData.id;
+
+  if (typeof countWatchOnce === "function") {
+    countWatchOnce(id);
+  }
+
+  // send tracking after 5 min (your existing logic)
+  setTimeout(async () => {
+    try {
+      await fetch("https://task.workfromanywhere-sa.workers.dev/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          videoId: id,
+          type: "preview_click",
+          visitId,
+          timestamp: Date.now()
+        })
+      });
+    } catch (err) {
+      console.error(err);
     }
+  }, 5 * 60 * 1000);
 
-    // delayed tracking (your original logic preserved)
-    setTimeout(async () => {
-      try {
-        await fetch("https://task.workfromanywhere-sa.workers.dev/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            videoId: id,
-            type: "preview_click",
-            visitId,
-            timestamp: Date.now()
-          })
-        });
-      } catch (err) {
-        console.error(err);
-      }
-    }, 5 * 60 * 1000);
-  });
-}
+  // 🔥 SHOW AD AGAIN AFTER 5 MINUTES
+  setTimeout(() => {
+    if (bottomAd) {
+      bottomAd.style.display = "flex"; // or "block" depending on layout
+    }
+  }, 5 * 60 * 1000);
+});
+  const bottomAd = document.getElementById("bottom-ad-wrapper");
+
+preview.addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (previewClicked) return;
+  previewClicked = true;
+
+  // hide preview overlay
+  preview.style.display = "none";
+
+  // 🔥 HIDE AD IMMEDIATELY
+  if (bottomAd) {
+    bottomAd.style.display = "none";
+  }
+
+  const id = videoData.id;
+
+  if (typeof countWatchOnce === "function") {
+    countWatchOnce(id);
+  }
+
+  // send tracking after 5 min (your existing logic)
+  setTimeout(async () => {
+    try {
+      await fetch("https://task.workfromanywhere-sa.workers.dev/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          videoId: id,
+          type: "preview_click",
+          visitId,
+          timestamp: Date.now()
+        })
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }, 5 * 60 * 1000);
+
+  // 🔥 SHOW AD AGAIN AFTER 5 MINUTES
+  setTimeout(() => {
+    if (bottomAd) {
+      bottomAd.style.display = "flex"; // or "block" depending on layout
+    }
+  }, 5 * 60 * 1000);
+});
 
   const iframe = document.getElementById("videoFrame");
 
