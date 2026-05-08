@@ -1069,8 +1069,11 @@ function renderPage(filtered) {
   pageItems.forEach((v, index) => {
 
     videoDataMap[v.id] = {
-      ...v,
-      originalIndex: filtered.findIndex(x => x.id === v.id),
+  ...videoDataMap[v.id],
+  ...v,
+  originalIndex:
+    videoDataMap[v.id]?.originalIndex ??
+    filtered.findIndex(x => x.id === v.id),
       totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
       cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
     };
@@ -1328,12 +1331,33 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
 
   if (val !== null) {
 
+    const oldTrending =
+      (videoDataMap[v.id]?.cycleViews || 0) >= 10;
+
     videoDataMap[v.id].cycleViews = Number(val);
+
+    const newTrending =
+      (videoDataMap[v.id].cycleViews || 0) >= 10;
+
+    // 🔥 IF VIDEO JUST BECAME TRENDING
+    if (!oldTrending && newTrending) {
+
+      currentPage = 1;
+
+      const params = new URLSearchParams(window.location.search);
+      params.set("page", 1);
+
+      history.replaceState(
+        null,
+        "",
+        "?" + params.toString()
+      );
+    }
 
     renderPage(filtered);
   }
 });
-
+      
     });
 
   })
