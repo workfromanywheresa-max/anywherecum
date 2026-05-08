@@ -1131,18 +1131,33 @@ function renderPagination(filtered) {
     return btn;
   }
 
+  // first
   wrapper.appendChild(createBtn("<<", currentPage === 1, () => {
     currentPage = 1;
     renderPage(filtered);
   }));
 
+  // prev
   wrapper.appendChild(createBtn("<", currentPage === 1, () => {
-    currentPage--;
+    currentPage = Math.max(1, currentPage - 1);
     renderPage(filtered);
   }));
 
-  const startPage = Math.max(1, currentPage - 2);
-  const endPage = Math.min(totalPages, startPage + 9);
+  // 🔥 FIXED PAGE WINDOW (max 10 buttons)
+  let maxButtons = 10;
+
+  let startPage = currentPage - Math.floor(maxButtons / 2);
+  let endPage = currentPage + Math.floor(maxButtons / 2) - 1;
+
+  if (startPage < 1) {
+    startPage = 1;
+    endPage = maxButtons;
+  }
+
+  if (endPage > totalPages) {
+    endPage = totalPages;
+    startPage = Math.max(1, totalPages - maxButtons + 1);
+  }
 
   for (let i = startPage; i <= endPage; i++) {
 
@@ -1159,18 +1174,20 @@ function renderPagination(filtered) {
     wrapper.appendChild(btn);
   }
 
+  // next
   wrapper.appendChild(createBtn(">", currentPage === totalPages, () => {
-    currentPage++;
+    currentPage = Math.min(totalPages, currentPage + 1);
     renderPage(filtered);
   }));
 
+  // last
   wrapper.appendChild(createBtn(">>", currentPage === totalPages, () => {
     currentPage = totalPages;
     renderPage(filtered);
   }));
 
   videosContainer.appendChild(wrapper);
-}
+                    }
 
 /* ---------------- LOAD ---------------- */
 showFolderTitleSkeleton();
