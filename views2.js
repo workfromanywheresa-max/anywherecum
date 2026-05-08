@@ -184,10 +184,6 @@ function setLikeCache(videoId, value) {
 }
 
 /* ---------------- STATE ---------------- */
-let lastPageBeforeReset = 1;
-let lastScrollYBeforeReset = 0;
-let restoringAfterReset = false;
-
 const videoDataMap = {};
 const videoElements = {};
 let currentPreviewVideo = null;
@@ -1121,9 +1117,7 @@ function renderPagination(filtered, reset = false) {
     pageFromURL = 1;
   }
 
-  if (!restoringAfterReset) {
   currentPage = pageFromURL;
-  }
 
   const totalPages = Math.ceil(filtered.length / pageSize);
 
@@ -1333,6 +1327,14 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
 
     filtered.forEach(v => {
 
+      onValue(ref(db, "views/" + v.id), snap => {
+        const val = snap.val();
+        if (val !== null) {
+          videoDataMap[v.id].totalViews = val;
+          updateUI(v.id);
+        }
+      });
+
       onValue(ref(db, "cycleViews/" + v.id), snap => {
 
   const val = snap.val();
@@ -1344,6 +1346,7 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
 
     const oldTrending = oldViews >= 10;
 
+    // update latest value
     videoDataMap[v.id].cycleViews = Number(val);
 
     const newViews =
@@ -1354,36 +1357,30 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
     // 🔥 JUST BECAME TRENDING
     if (!oldTrending && newTrending) {
 
-      lastPageBeforeReset = currentPage;
-      lastScrollYBeforeReset = window.scrollY;
-
+      // force this video to top priority
       videoDataMap[v.id].trendingBoost = Date.now();
 
-      restoringAfterReset = true;
-
+      // jump user to page 1
       currentPage = 1;
 
       const params = new URLSearchParams(window.location.search);
       params.set("page", 1);
 
-      history.replaceState(null, "", "?" + params.toString());
-
-      renderPage(filtered);
-
-      requestAnimationFrame(() => {
-        currentPage = lastPageBeforeReset;
-        renderPage(filtered);
-
-        requestAnimationFrame(() => {
-          window.scrollTo(0, lastScrollYBeforeReset);
-          restoringAfterReset = false;
-        });
-      });
+      history.replaceState(
+        null,
+        "",
+        "?" + params.toString()
+      );
     }
 
-  }
+    updateUI(v.id);
 
+    // 🔥 FULL RE-RENDER
+    renderPage(filtered);
+  }
 });
 
-      
+    });
+
+  })
   .catch(console.error);
