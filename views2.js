@@ -1102,12 +1102,29 @@ function renderPage(filtered) {
 
 function renderPagination(filtered, reset = false) {
 
-  if (reset) {
-    currentPage = 1;
+  const urlParams = new URLSearchParams(window.location.search);
+
+  // 🔥 Read page from URL
+  let pageFromURL = Number(urlParams.get("page"));
+
+  if (!pageFromURL || pageFromURL < 1) {
+    pageFromURL = currentPage || 1;
   }
+
+  // optional reset override
+  if (reset) {
+    pageFromURL = 1;
+  }
+
+  currentPage = pageFromURL;
 
   const totalPages = Math.ceil(filtered.length / pageSize);
 
+  // clamp page
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
+
+  // remove old pagination
   let old = document.getElementById("pagination");
   if (old) old.remove();
 
@@ -1121,6 +1138,13 @@ function renderPagination(filtered, reset = false) {
 
   function scrollTop() {
     window.scrollTo(0, 0);
+  }
+
+  // 🔥 URL updater
+  function updateURL(page) {
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", page);
+    history.replaceState(null, "", "?" + params.toString());
   }
 
   function createBtn(text, disabled, onClick) {
@@ -1139,18 +1163,23 @@ function renderPagination(filtered, reset = false) {
     return btn;
   }
 
+  // FIRST
   wrapper.appendChild(createBtn("<<", currentPage === 1, () => {
     currentPage = 1;
+    updateURL(currentPage);
     renderPage(filtered);
     scrollTop();
   }));
 
+  // PREV
   wrapper.appendChild(createBtn("<", currentPage === 1, () => {
     currentPage = Math.max(1, currentPage - 1);
+    updateURL(currentPage);
     renderPage(filtered);
     scrollTop();
   }));
 
+  // PAGE BUTTONS
   const maxButtons = 10;
 
   let start = Math.max(1, currentPage - 4);
@@ -1165,6 +1194,7 @@ function renderPagination(filtered, reset = false) {
 
     const btn = createBtn(i, false, () => {
       currentPage = i;
+      updateURL(currentPage);
       renderPage(filtered);
       scrollTop();
     });
@@ -1177,14 +1207,18 @@ function renderPagination(filtered, reset = false) {
     wrapper.appendChild(btn);
   }
 
+  // NEXT
   wrapper.appendChild(createBtn(">", currentPage === totalPages, () => {
     currentPage = Math.min(totalPages, currentPage + 1);
+    updateURL(currentPage);
     renderPage(filtered);
     scrollTop();
   }));
 
+  // LAST
   wrapper.appendChild(createBtn(">>", currentPage === totalPages, () => {
     currentPage = totalPages;
+    updateURL(currentPage);
     renderPage(filtered);
     scrollTop();
   }));
@@ -1216,7 +1250,7 @@ setFolderTitle();
       return;
     }
 
-  currentPage = 1;
+  currentPage = Number(new URLSearchParams(window.location.search).get("page")) || 1;
 renderPage(filtered);
 
     if (videoIdFromURL) {
