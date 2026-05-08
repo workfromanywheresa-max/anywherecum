@@ -402,11 +402,19 @@ Watch high quality video streaming online. Updated daily with new content.
   position: relative;
 ">
 
+  <div id="ad-loading" style="
+    position:absolute;
+    color:#aaa;
+    font-size:12px;
+    top:50%;
+    transform:translateY(-50%);
+  ">
+    Loading AD...
+  </div>
+
   <div id="bottom-ad-container"></div>
 
-  <!-- 🔥 OVERLAY (rename FIXED) -->
   <div id="ad-overlay"></div>
-
 </div>
 
 <style>
@@ -656,7 +664,8 @@ function initAd() {
   window.adsbyjuicy.push({ adzone });
 
   document.getElementById("bottom-ad-wrapper").style.visibility = "visible";
-
+  document.getElementById("ad-loading").style.display = "none";
+  
   const adId = "1113664-1113665";
   let adClicked = false;
 
