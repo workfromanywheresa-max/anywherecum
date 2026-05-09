@@ -1331,47 +1331,44 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
 
       onValue(ref(db, "cycleViews/" + v.id), snap => {
 
-  const val = snap.val();
+  const val = Number(snap.val() || 0);
 
-  if (val !== null) {
+  const oldViews =
+    Number(videoDataMap[v.id]?.cycleViews || 0);
 
-    const oldViews =
-      Number(videoDataMap[v.id]?.cycleViews || 0);
+  // ✅ STOP if value didn't change
+  if (val === oldViews) return;
 
-    const oldTrending = oldViews >= 10;
+  const oldTrending = oldViews >= 10;
 
-    // update latest value
-    videoDataMap[v.id].cycleViews = Number(val);
+  // update latest value
+  videoDataMap[v.id].cycleViews = val;
 
-    const newViews =
-      Number(videoDataMap[v.id].cycleViews || 0);
+  const newTrending = val >= 10;
 
-    const newTrending = newViews >= 10;
+  // 🔥 JUST BECAME TRENDING
+  if (!oldTrending && newTrending) {
 
-    // 🔥 JUST BECAME TRENDING
-    if (!oldTrending && newTrending) {
+    videoDataMap[v.id].trendingBoost = Date.now();
 
-      // force this video to top priority
-      videoDataMap[v.id].trendingBoost = Date.now();
+    currentPage = 1;
 
-      // jump user to page 1
-      currentPage = 1;
+    const params = new URLSearchParams(window.location.search);
 
-      const params = new URLSearchParams(window.location.search);
-      params.set("page", 1);
+    params.set("page", 1);
 
-      history.replaceState(
-        null,
-        "",
-        "?" + params.toString()
-      );
-    }
-
-    updateUI(v.id);
-
-    // 🔥 FULL RE-RENDER
-    renderPage(filtered);
+    history.replaceState(
+      null,
+      "",
+      "?" + params.toString()
+    );
   }
+
+  updateUI(v.id);
+
+  // ✅ only rerenders when value actually changed
+  renderPage(filtered);
+
 });
 
     });
