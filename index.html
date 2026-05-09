@@ -1426,12 +1426,7 @@ requestAnimationFrame(async () => {
     )[0];
 
     const folderURL =
-  "/folder/" 
-    foldername
-    .toLowerCase()
-    .replace(/🔒/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
+  "/?folder=" + encodeURIComponent(folderName);
     
     const isVipFolder =
       folderName.trim().toLowerCase() === vipName;
