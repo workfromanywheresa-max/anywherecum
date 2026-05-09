@@ -1426,8 +1426,12 @@ requestAnimationFrame(async () => {
     )[0];
 
     const folderURL =
-  "https://folders.workfromanywhere-sa.workers.dev/?folder=" +
-  encodeURIComponent(folderName)
+  "/folder/" +
+  folderName
+    .toLowerCase()
+    .replace(/🔒/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
     
     const isVipFolder =
       folderName.trim().toLowerCase() === vipName;
