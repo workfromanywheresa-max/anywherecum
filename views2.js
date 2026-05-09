@@ -1328,30 +1328,87 @@ renderPage(filtered);
     if (videoIdFromURL) {
 
   const waitForData = setInterval(() => {
+
     const v = videoDataMap[videoIdFromURL];
 
     if (v) {
+
       clearInterval(waitForData);
 
-      document.title = v.title;
+      /* ---------------- META HELPERS ---------------- */
 
-      const setMeta = (property, content) => {
-        let tag = document.querySelector(`meta[property='${property}']`);
+      function setMeta(name, content, isProperty = false) {
+
+        if (!content) return;
+
+        const selector = isProperty
+          ? `meta[property="${name}"]`
+          : `meta[name="${name}"]`;
+
+        let tag = document.querySelector(selector);
+
         if (!tag) {
+
           tag = document.createElement("meta");
-          tag.setAttribute("property", property);
+
+          if (isProperty) {
+            tag.setAttribute("property", name);
+          } else {
+            tag.setAttribute("name", name);
+          }
+
           document.head.appendChild(tag);
         }
-        tag.setAttribute("content", content);
-      };
 
-      setMeta("og:title", v.title);
-      setMeta("og:image", v.thumbnail);
-      setMeta("og:url", window.location.href);
-      setMeta("og:type", "video.other");
+        tag.setAttribute("content", content);
+      }
+
+      function setCanonical(url) {
+
+        let link = document.querySelector("link[rel='canonical']");
+
+        if (!link) {
+          link = document.createElement("link");
+          link.setAttribute("rel", "canonical");
+          document.head.appendChild(link);
+        }
+
+        link.setAttribute("href", url);
+      }
+
+      /* ---------------- VIDEO SEO ---------------- */
+
+      const videoTitle =
+        `${v.title} | AnywhereCum`;
+
+      const videoDescription =
+        `Watch ${v.title} online in multiple qualities.`;
+
+      document.title = videoTitle;
+
+      setMeta("description", videoDescription);
+
+      setMeta("og:title", videoTitle, true);
+
+      setMeta("og:description", videoDescription, true);
+
+      setMeta("og:image", v.thumbnail, true);
+
+      setMeta("og:url", window.location.href, true);
+
+      setMeta("og:type", "video.other", true);
+
+      setMeta("twitter:title", videoTitle);
+
+      setMeta("twitter:description", videoDescription);
+
+      setMeta("twitter:image", v.thumbnail);
+
+      setCanonical(window.location.href);
     }
+
   }, 100);
-    }
+                                 }
 
     reorderVideos(true);
 
