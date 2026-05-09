@@ -1032,15 +1032,15 @@ function updateUI(id) {
 }
 
 /* ---------------- REORDER (TRENDING PRIORITY) ---------------- */
-const pageSize = 10;
 let currentPage = 1;
+let sortedCache = [];
 
-function renderPage(filtered) {
+/* =========================
+   BUILD SORT CACHE
+========================= */
+function buildSortedCache(filtered) {
 
-  videosContainer.innerHTML = "";
-
-  // 🔥 SORT ENTIRE DATASET FIRST
-  const sorted = [...filtered].sort((a, b) => {
+  sortedCache = [...filtered].sort((a, b) => {
 
     const A = videoDataMap[a.id] || a;
     const B = videoDataMap[b.id] || b;
@@ -1048,33 +1048,47 @@ function renderPage(filtered) {
     const ATrending = (A.cycleViews || 0) >= 10;
     const BTrending = (B.cycleViews || 0) >= 10;
 
-    // 🔥 trending always first
     if (ATrending && !BTrending) return -1;
     if (!ATrending && BTrending) return 1;
 
-    // 🔥 BOTH TRENDING
     if (ATrending && BTrending) {
-
       const boostA = A.trendingBoost || 0;
       const boostB = B.trendingBoost || 0;
-
-      // newest trending first
-      if (boostA !== boostB) {
-        return boostB - boostA;
-      }
-
-      // fallback cycle views
-      return (B.cycleViews || 0) - (A.cycleViews || 0);
+      return boostB - boostA;
     }
 
-    // 🔥 NORMAL VIDEOS = ORIGINAL JSON ORDER
     return (A.originalIndex || 0) - (B.originalIndex || 0);
   });
+}
+
+/* =========================
+   RENDER PAGE
+========================= */
+function renderPage(filtered) {
+
+  videosContainer.innerHTML = "";
+
+  const sorted = sortedCache.length ? sortedCache : filtered;
 
   const start = (currentPage - 1) * pageSize;
   const end = start + pageSize;
 
-  const pageItems = sorted.slice(start, end);
+  let pageItems = sorted.slice(start, end);
+
+  // 🔥 TRENDING ONLY INSIDE PAGE
+  pageItems.sort((a, b) => {
+
+    const A = videoDataMap[a.id] || a;
+    const B = videoDataMap[b.id] || b;
+
+    const ATrending = (A.cycleViews || 0) >= 10;
+    const BTrending = (B.cycleViews || 0) >= 10;
+
+    if (ATrending && !BTrending) return -1;
+    if (!ATrending && BTrending) return 1;
+
+    return 0;
+  });
 
   pageItems.forEach((v) => {
 
@@ -1082,7 +1096,6 @@ function renderPage(filtered) {
       ...videoDataMap[v.id],
       ...v,
 
-      // 🔥 KEEP PERMANENT ORIGINAL POSITION
       originalIndex:
         videoDataMap[v.id]?.originalIndex ??
         originalOrderMap[v.id],
@@ -1113,6 +1126,9 @@ function renderPage(filtered) {
   renderPagination(sorted);
 }
 
+/* =========================
+   PAGINATION
+========================= */
 function renderPagination(filtered, reset = false) {
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -1123,20 +1139,17 @@ function renderPagination(filtered, reset = false) {
     pageFromURL = currentPage || 1;
   }
 
-  if (reset) {
-    pageFromURL = 1;
-  }
+  if (reset) pageFromURL = 1;
 
   currentPage = pageFromURL;
 
   const totalPages = Math.ceil(filtered.length / pageSize);
-
   if (totalPages === 0) return;
 
   if (currentPage > totalPages) currentPage = totalPages;
   if (currentPage < 1) currentPage = 1;
 
-  let old = document.getElementById("pagination");
+  const old = document.getElementById("pagination");
   if (old) old.remove();
 
   const wrapper = document.createElement("div");
@@ -1160,19 +1173,16 @@ function renderPagination(filtered, reset = false) {
   function createBtn(text, onClick) {
     const btn = document.createElement("button");
     btn.textContent = text;
-
     btn.style.padding = "6px 10px";
     btn.style.background = "#222";
     btn.style.color = "white";
     btn.style.border = "1px solid #444";
     btn.style.borderRadius = "6px";
     btn.style.cursor = "pointer";
-
     btn.onclick = onClick;
     return btn;
   }
 
-  // 🔥 FIRST + PREV (ONLY if not on page 1)
   if (currentPage > 1) {
 
     wrapper.appendChild(createBtn("<<", () => {
@@ -1183,14 +1193,13 @@ function renderPagination(filtered, reset = false) {
     }));
 
     wrapper.appendChild(createBtn("<", () => {
-      currentPage = currentPage - 1;
+      currentPage--;
       updateURL(currentPage);
       renderPage(filtered);
       scrollTop();
     }));
   }
 
-  // PAGE BUTTONS
   const maxButtons = 10;
 
   let start = Math.max(1, currentPage - 4);
@@ -1218,11 +1227,10 @@ function renderPagination(filtered, reset = false) {
     wrapper.appendChild(btn);
   }
 
-  // 🔥 NEXT + LAST (ONLY if not on last page)
   if (currentPage < totalPages) {
 
     wrapper.appendChild(createBtn(">", () => {
-      currentPage = currentPage + 1;
+      currentPage++;
       updateURL(currentPage);
       renderPage(filtered);
       scrollTop();
@@ -1246,12 +1254,6 @@ showSkeletons(); // 👈 inject loading UI first
 fetch(dataSource)
   .then(res => res.json())
   .then(videos => {
-
-    const originalOrderMap = {};
-
-videos.forEach((v, i) => {
-  originalOrderMap[v.id] = i;
-});
     
 setFolderTitle();
     hideSkeletons();
@@ -1351,36 +1353,32 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
         }
       });
 
-      onValue(ref(db, "cycleViews/" + v.id), snap => {
+      /* =========================
+   FIREBASE LISTENER
+========================= */
+onValue(ref(db, "cycleViews/" + v.id), snap => {
 
-  const val = Number(snap.val() || 0);
+  const val = snap.val();
 
-  const oldViews =
-    Number(videoDataMap[v.id]?.cycleViews || 0);
+  if (val !== null) {
 
-  const oldTrending = oldViews >= 10;
+    const oldViews = Number(videoDataMap[v.id]?.cycleViews || 0);
+    const oldTrending = oldViews >= 10;
 
-  // update live value
-  videoDataMap[v.id].cycleViews = val;
+    videoDataMap[v.id].cycleViews = Number(val);
 
-  const newTrending = val >= 10;
+    const newViews = Number(videoDataMap[v.id].cycleViews || 0);
+    const newTrending = newViews >= 10;
 
-  // became trending
-  if (!oldTrending && newTrending) {
-    videoDataMap[v.id].trendingBoost = Date.now();
-  }
+    if (!oldTrending && newTrending) {
+      videoDataMap[v.id].trendingBoost = Date.now();
+    }
 
-  // stopped trending (cron reset)
-  if (oldTrending && !newTrending) {
-    delete videoDataMap[v.id].trendingBoost;
-  }
+    updateUI(v.id);
 
-  updateUI(v.id);
-
-  // rerender with proper sorting
-  requestAnimationFrame(() => {
+    buildSortedCache(filtered);
     renderPage(filtered);
-  });
+  }
 });
 
     });
