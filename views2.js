@@ -265,6 +265,44 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.3 });
 
 /* ---------------- TITLE ---------------- */
+function setMeta(name, content, isProperty = false) {
+
+  if (!content) return;
+
+  const selector = isProperty
+    ? `meta[property="${name}"]`
+    : `meta[name="${name}"]`;
+
+  let tag = document.querySelector(selector);
+
+  if (!tag) {
+    tag = document.createElement("meta");
+
+    if (isProperty) {
+      tag.setAttribute("property", name);
+    } else {
+      tag.setAttribute("name", name);
+    }
+
+    document.head.appendChild(tag);
+  }
+
+  tag.setAttribute("content", content);
+}
+
+function setCanonical(url) {
+
+  let link = document.querySelector("link[rel='canonical']");
+
+  if (!link) {
+    link = document.createElement("link");
+    link.setAttribute("rel", "canonical");
+    document.head.appendChild(link);
+  }
+
+  link.setAttribute("href", url);
+}
+
 function toTitleCase(str) {
   return str.toLowerCase().split(" ")
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
