@@ -1032,6 +1032,7 @@ function updateUI(id) {
 }
 
 /* ---------------- REORDER (TRENDING PRIORITY) ---------------- */
+const pageSize = 10;
 let currentPage = 1;
 let sortedCache = [];
 
