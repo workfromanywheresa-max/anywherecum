@@ -1296,22 +1296,13 @@ function createPreviewItem(video, folderURL, linkText, folderName, vipActive, is
 
   observer.observe(videoEl);
 
-  function goToFolder(folderName) {
-  const safeFolder = (folderName || "").trim();
-
-  const url =
-    "https://folders.workfromanywhere-sa.workers.dev/?folder=" +
-    encodeURIComponent(safeFolder);
-
-  const isVip =
-    safeFolder.toLowerCase() === VIP_FOLDER.trim().toLowerCase();
-
-  if (isVip) {
-    window.location.href = vipActive ? url : "vip.html";
-  } else {
-    window.location.href = url;
-  }
+  function goToFolder() {
+    if (folderName === VIP_FOLDER) {
+      window.location.href = vipActive ? folderURL : "vip.html";
+    } else {
+      window.location.href = folderURL;
     }
+  }
 
   container.addEventListener("click", goToFolder);
 
@@ -1426,8 +1417,8 @@ requestAnimationFrame(async () => {
     )[0];
 
     const folderURL =
-  "/?folder=" + encodeURIComponent(folderName);
-    
+  "folder.html?folder=" + encodeURIComponent(folderName) + "&from=index";
+
     const isVipFolder =
       folderName.trim().toLowerCase() === vipName;
 
