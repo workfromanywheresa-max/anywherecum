@@ -1042,50 +1042,44 @@ function renderPage(filtered) {
   // 🔥 SORT ENTIRE DATASET FIRST
   const sorted = [...filtered].sort((a, b) => {
 
-  const A = videoDataMap[a.id] || a;
-  const B = videoDataMap[b.id] || b;
+    const A = videoDataMap[a.id] || a;
+    const B = videoDataMap[b.id] || b;
 
-  const ATrending = (A.cycleViews || 0) >= 10;
-  const BTrending = (B.cycleViews || 0) >= 10;
+    const ATrending = (A.cycleViews || 0) >= 10;
+    const BTrending = (B.cycleViews || 0) >= 10;
 
-  // 🔥 trending always first
-  if (ATrending && !BTrending) return -1;
-  if (!ATrending && BTrending) return 1;
+    // 🔥 trending always first
+    if (ATrending && !BTrending) return -1;
+    if (!ATrending && BTrending) return 1;
 
-  // 🔥 newest trending goes absolute top
-  if (ATrending && BTrending) {
-
-    const boostA = A.trendingBoost || 0;
-    const boostB = B.trendingBoost || 0;
-
-    // newest promoted trending first
-    if (boostA !== boostB) {
-      return boostB - boostA;
+    // 🔥 sort trending videos by cycle views
+    if (ATrending && BTrending) {
+      return (B.cycleViews || 0) - (A.cycleViews || 0);
     }
 
-    // fallback to cycle views
-    return (B.cycleViews || 0) - (A.cycleViews || 0);
-  }
-
-  // original JSON order
-  return (A.originalIndex || 0) - (B.originalIndex || 0);
-});
+    // 🔥 keep normal JSON order automatically
+    return 0;
+  });
 
   const start = (currentPage - 1) * pageSize;
   const end = start + pageSize;
 
   const pageItems = sorted.slice(start, end);
 
-  pageItems.forEach((v, index) => {
+  pageItems.forEach((v) => {
 
     videoDataMap[v.id] = {
-  ...videoDataMap[v.id],
-  ...v,
-  originalIndex:
-    videoDataMap[v.id]?.originalIndex ??
-    filtered.findIndex(x => x.id === v.id),
-      totalViews: Number(getCache("views_" + v.id)) || v.totalViews || 0,
-      cycleViews: Number(getCache("cycle_" + v.id)) || v.cycleViews || 0
+      ...videoDataMap[v.id],
+      ...v,
+      totalViews:
+        Number(getCache("views_" + v.id)) ||
+        v.totalViews ||
+        0,
+
+      cycleViews:
+        Number(getCache("cycle_" + v.id)) ||
+        v.cycleViews ||
+        0
     };
 
     const box = createVideoBox(v);
@@ -1101,7 +1095,7 @@ function renderPage(filtered) {
   });
 
   renderPagination(sorted);
-}
+    }
 
 function renderPagination(filtered, reset = false) {
 
