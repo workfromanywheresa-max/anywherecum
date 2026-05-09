@@ -1147,6 +1147,37 @@ function queueRender(filtered) {
 }
 
 /* =========================
+   FIREBASE LISTENER (FIXED)
+========================= */
+onValue(ref(db, "cycleViews/" + v.id), snap => {
+
+  const val = snap.val();
+
+  if (val !== null) {
+
+    const oldViews = Number(videoDataMap[v.id]?.cycleViews || 0);
+    const oldTrending = oldViews >= 10;
+
+    videoDataMap[v.id].cycleViews = Number(val);
+
+    const newTrending = val >= 10;
+
+    if (!oldTrending && newTrending) {
+      videoDataMap[v.id].trendingBoost = Date.now();
+    }
+
+    updateUI(v.id);
+
+    // ❌ OLD (BROKE PAGE)
+    // buildSortedCache(filtered);
+    // renderPage(filtered);
+
+    // ✅ NEW (SAFE)
+    queueRender(filtered);
+  }
+});
+
+/* =========================
    PAGINATION (UNCHANGED BUT SAFE)
 ========================= */
 function renderPagination(filtered, reset = false) {
@@ -1266,7 +1297,7 @@ function renderPagination(filtered, reset = false) {
 
   videosContainer.insertAdjacentElement("afterend", wrapper);
 }
- 
+
 /* ---------------- LOAD ---------------- */
 showFolderTitleSkeleton();
 showSkeletons(); // 👈 inject loading UI first
@@ -1373,25 +1404,6 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
         }
       });
 
-      onValue(ref(db, "cycleViews/" + v.id), snap => {
-  const val = snap.val();
-
-  if (val !== null) {
-    const old = videoDataMap[v.id]?.cycleViews || 0;
-
-    videoDataMap[v.id].cycleViews = Number(val);
-
-    const nowTrending =
-      old < 10 && val >= 10;
-
-    if (nowTrending) {
-      videoDataMap[v.id].trendingBoost = Date.now();
-    }
-
-    updateUI(v.id);
-  }
-});
-      
     });
 
   })
