@@ -1325,6 +1325,33 @@ setFolderTitle();
   currentPage = Number(new URLSearchParams(window.location.search).get("page")) || 1;
 renderPage(filtered);
 
+    filtered.forEach(v => {
+
+  onValue(ref(db, "cycleViews/" + v.id), snap => {
+
+    const val = snap.val();
+
+    if (val !== null) {
+
+      const oldViews = Number(videoDataMap[v.id]?.cycleViews || 0);
+      const oldTrending = oldViews >= 10;
+
+      videoDataMap[v.id].cycleViews = Number(val);
+
+      const newTrending = val >= 10;
+
+      if (!oldTrending && newTrending) {
+        videoDataMap[v.id].trendingBoost = Date.now();
+      }
+
+      updateUI(v.id);
+
+      queueRender(filtered);
+    }
+  });
+
+});
+
     if (videoIdFromURL) {
 
   const waitForData = setInterval(() => {
