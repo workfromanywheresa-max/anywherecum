@@ -1039,38 +1039,15 @@ function renderPage(filtered) {
 
   videosContainer.innerHTML = "";
 
-  // 🔥 SORT ENTIRE DATASET FIRST
-  const sorted = [...filtered].sort((a, b) => {
-
-    const A = videoDataMap[a.id] || a;
-    const B = videoDataMap[b.id] || b;
-
-    const ATrending = (A.cycleViews || 0) >= 10;
-    const BTrending = (B.cycleViews || 0) >= 10;
-
-    // 🔥 trending always first
-    if (ATrending && !BTrending) return -1;
-    if (!ATrending && BTrending) return 1;
-
-    // 🔥 sort trending videos by cycle views
-    if (ATrending && BTrending) {
-      return (B.cycleViews || 0) - (A.cycleViews || 0);
-    }
-
-    // 🔥 keep normal JSON order automatically
-    return 0;
-  });
-
-  const start = (currentPage - 1) * pageSize;
-  const end = start + pageSize;
-
-  const pageItems = sorted.slice(start, end);
-
-  pageItems.forEach((v) => {
+  /* =========================
+     BUILD VIDEO DATA FIRST
+  ========================= */
+  filtered.forEach((v) => {
 
     videoDataMap[v.id] = {
       ...videoDataMap[v.id],
       ...v,
+
       totalViews:
         Number(getCache("views_" + v.id)) ||
         v.totalViews ||
@@ -1079,8 +1056,68 @@ function renderPage(filtered) {
       cycleViews:
         Number(getCache("cycle_" + v.id)) ||
         v.cycleViews ||
-        0
+        0,
+
+      // 🔥 restore trending priority
+      trendingBoost:
+        Number(getCache("boost_" + v.id)) || 0
     };
+  });
+
+  /* =========================
+     SORT ENTIRE DATASET
+  ========================= */
+  const sorted = [...filtered].sort((a, b) => {
+
+    const A = videoDataMap[a.id];
+    const B = videoDataMap[b.id];
+
+    const ATrending =
+      (A.cycleViews || 0) >= 10;
+
+    const BTrending =
+      (B.cycleViews || 0) >= 10;
+
+    // 🔥 trending first
+    if (ATrending && !BTrending) return -1;
+    if (!ATrending && BTrending) return 1;
+
+    // 🔥 trending sorting
+    if (ATrending && BTrending) {
+
+      // newest trending first
+      const boostDiff =
+        (B.trendingBoost || 0) -
+        (A.trendingBoost || 0);
+
+      if (boostDiff !== 0) {
+        return boostDiff;
+      }
+
+      // fallback to cycle views
+      return (B.cycleViews || 0) -
+             (A.cycleViews || 0);
+    }
+
+    // keep original JSON order
+    return 0;
+  });
+
+  /* =========================
+     PAGINATION
+  ========================= */
+  const start =
+    (currentPage - 1) * pageSize;
+
+  const end = start + pageSize;
+
+  const pageItems =
+    sorted.slice(start, end);
+
+  /* =========================
+     RENDER PAGE ITEMS
+  ========================= */
+  pageItems.forEach((v) => {
 
     const box = createVideoBox(v);
 
@@ -1336,7 +1373,7 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
   const oldViews =
     Number(videoDataMap[v.id]?.cycleViews || 0);
 
-  // ✅ STOP if value didn't change
+  // stop if nothing changed
   if (val === oldViews) return;
 
   const oldTrending = oldViews >= 10;
@@ -1344,12 +1381,20 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
   // update latest value
   videoDataMap[v.id].cycleViews = val;
 
+  // save cache
+  setCache("cycle_" + v.id, val);
+
   const newTrending = val >= 10;
 
-  // 🔥 JUST BECAME TRENDING
+  // JUST became trending
   if (!oldTrending && newTrending) {
 
-    videoDataMap[v.id].trendingBoost = Date.now();
+    // 🔥 SAVE PERMANENTLY
+    const boost = Date.now();
+
+    videoDataMap[v.id].trendingBoost = boost;
+
+    setCache("boost_" + v.id, boost);
 
     currentPage = 1;
 
@@ -1366,7 +1411,6 @@ setInterval(updateAllTimes, 60000); // update every 1 minute
 
   updateUI(v.id);
 
-  // ✅ only rerenders when value actually changed
   renderPage(filtered);
 
 });
